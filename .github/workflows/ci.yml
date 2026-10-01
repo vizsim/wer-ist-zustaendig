@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  js:
+    name: JS-Module und Werkzeuge
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Karte parst
+        run: node --check main.js
+
+  pipeline:
+    name: Pipeline (inkl. Ende-zu-Ende mit Testdaten)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: tippecanoe
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends tippecanoe
+      - uses: astral-sh/setup-uv@v6
+      - name: uv sync
+        working-directory: pipeline
+        run: uv sync --locked
+      - name: ruff
+        working-directory: pipeline
+        run: uv run ruff check && uv run ruff format --check
+      - name: pytest
+        working-directory: pipeline
+        run: uv run pytest

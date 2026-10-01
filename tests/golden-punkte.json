@@ -1,0 +1,11 @@
+[
+  { "name": "Marienplatz München", "lat": 48.1374, "lon": 11.5755, "ars": "091620000000" },
+  { "name": "Kölner Dom", "lat": 50.9413, "lon": 6.9583, "ars": "053150000000" },
+  { "name": "Römerberg Frankfurt", "lat": 50.1105, "lon": 8.6821, "ars": "064120000000" },
+  { "name": "Schlossplatz Stuttgart", "lat": 48.7784, "lon": 9.18, "ars": "081110000000" },
+  { "name": "Frauenkirche Dresden", "lat": 51.0519, "lon": 13.7416, "ars": "146120000000" },
+  { "name": "Kröpcke Hannover", "lat": 52.3745, "lon": 9.7385, "ars": "032410001001" },
+  { "name": "Marktplatz Bremen", "lat": 53.0758, "lon": 8.8072, "ars": "040110000000" },
+  { "name": "Rathausmarkt Hamburg", "lat": 53.5503, "lon": 9.993, "ars": "020000000000" },
+  { "name": "Brandenburger Tor", "lat": 52.5163, "lon": 13.3777, "ars": "110000000000" }
+]

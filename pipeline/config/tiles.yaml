@@ -1,0 +1,28 @@
+# Tippecanoe-Profile (Muster aus unfallkarte/svz). `layer` = Layer-Name in den Kacheln = Vertrag
+# mit Konsumenten (docs/VERTRAG.md) → nicht ändern, ohne Viewer und Unfallkarte mitzuziehen.
+
+profiles:
+  # Gemeindeflächen: Nachschlagen per Punkt-in-Polygon in z12 (Auflösung dort ~1–2 m) und
+  # Darstellung ab z7. Gemeinsame Grenzen erhalten (keine Lücken/Überlappungen zwischen
+  # Nachbarn), keine kleinen Flächen zusammenfassen, nichts verwerfen.
+  gemeinden:
+    layer: gemeinden
+    minzoom: 7
+    maxzoom: 12
+    detect_shared_borders: true
+    no_tiny_polygon_reduction: true
+    no_feature_limit: true
+    no_tile_size_limit: true
+
+  # Kreisflächen für die Übersicht (z4–z10).
+  kreise:
+    layer: kreise
+    minzoom: 4
+    maxzoom: 10
+    detect_shared_borders: true
+    no_tiny_polygon_reduction: true
+    no_feature_limit: true
+    no_tile_size_limit: true
+
+# Ziel nach tile-join (relativ zu data/), siehe datasets.zust_gemeinden in sources.yaml.
+ausgabe: "zustaendigkeit/gemeinden.pmtiles"

@@ -1,0 +1,22 @@
+# --- Daten (Downloads und abgeleitete Artefakte; liegen lokal und im Bucket, nicht im Git) ---
+pipeline/data/
+*.pmtiles
+*.fgb
+*.gpkg
+*.geojson
+*.zip
+
+# --- Node / Python ---
+node_modules/
+__pycache__/
+*.py[cod]
+.venv/
+.ruff_cache/
+.pytest_cache/
+*.egg-info/
+
+# --- Werkzeuge / OS ---
+test-results/
+.DS_Store
+.idea/
+.vscode/

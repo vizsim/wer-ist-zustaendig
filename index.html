@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>Wer ist zuständig? Straßenverkehrsbehörden auf der Karte</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Welche Straßenverkehrsbehörde entscheidet an einer Straße über Schilder und Tempolimits? Karte für ganz Deutschland, mit Sicherheit und Quelle je Auskunft.">
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.css">
+  <script src="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/pmtiles@4.3.0/dist/pmtiles.js" crossorigin="anonymous"></script>
+  <link rel="preload" href="assets/fonts/barlow-semi-condensed-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="karte" role="region" aria-label="Karte der Zuständigkeiten"></div>
+
+  <header id="tafel">
+    <h1>Wer ist zuständig?</h1>
+    <p class="lede">Klick auf eine Straße: Die Karte zeigt, welche Straßenverkehrsbehörde dort über Schilder und Tempolimits entscheidet.</p>
+
+    <form id="suche" role="search" autocomplete="off">
+      <label for="suche-feld" class="visually-hidden">Ort oder Straße suchen</label>
+      <input id="suche-feld" type="search" placeholder="Ort oder Straße suchen" enterkeyhint="search">
+      <button type="submit">Suchen</button>
+    </form>
+    <ul id="treffer" hidden></ul>
+
+    <details id="legende" open>
+      <summary>Legende</summary>
+      <div class="legende-gruppe">
+        <h3>Zuständig für Gemeindestraßen</h3>
+        <ul id="legende-arten"></ul>
+      </div>
+      <div class="legende-gruppe">
+        <h3>Wie sicher die Auskunft ist</h3>
+        <ul id="legende-sicherheit"></ul>
+      </div>
+      <div class="legende-gruppe">
+        <h3>Straßenklasse</h3>
+        <ul id="legende-strassen"></ul>
+        <p class="klein">Die Farben der Straßen sind vereinfacht. Die Auskunft per Klick bestimmt die Klasse genau.</p>
+      </div>
+    </details>
+
+    <p id="stand" class="klein"></p>
+    <p class="klein links">
+      <a href="https://github.com/vizsim/wer-ist-zustaendig#quellen-und-lizenzen" target="_blank" rel="noopener">Quellen und Lizenzen</a>
+      <a href="https://github.com/vizsim/wer-ist-zustaendig/issues/new?template=zustaendigkeit-falsch.yml" target="_blank" rel="noopener">Fehler melden</a>
+    </p>
+    <p id="meldung" role="status" hidden></p>
+  </header>
+
+  <aside id="antwort" aria-live="polite" hidden>
+    <button type="button" id="antwort-zu" aria-label="Auskunft schließen">Schließen</button>
+    <div id="antwort-inhalt"></div>
+  </aside>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

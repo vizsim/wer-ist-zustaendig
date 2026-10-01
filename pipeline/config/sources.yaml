@@ -1,0 +1,47 @@
+# Quellen (von Hand gepflegt). `zust fetch <id>` lädt `url` nach data/raw/<id>/ und schreibt
+# daneben <datei>.meta.json (URL, Größe, SHA-256, Abrufdatum). `stand` ist der Datenstand, den
+# die Pipeline in alle Ausgaben schreibt und – wo möglich – gegen die Daten prüft.
+#
+# Die URLs mit `?__blob=publicationFile&v=N` (Destatis) ändern sich bei jeder neuen Ausgabe:
+# dann die Seite (`seite`) öffnen und den Link übernehmen. Lizenz und Quellenvermerk stehen
+# je Quelle hier; README und Viewer übernehmen sie von hier bzw. aus den Landesdateien.
+
+quellen:
+  vg25:
+    label: "Verwaltungsgebiete 1:25 000 (VG25), Stand 31.12."
+    url: "https://daten.gdz.bkg.bund.de/produkte/vg/vg25_ebenen/aktuell/vg25.utm32s.gpkg.zip"
+    seite: "https://gdz.bkg.bund.de/index.php/default/verwaltungsgebiete-1-25-000-stand-31-12-vg25.html"
+    doku: "https://sgx.geodatenzentrum.de/web_public/gdz/dokumentation/deu/vg25.pdf"
+    stand: "2025-12-31"
+    lizenz: "CC BY 4.0"
+    vermerk: "© BKG (2026) CC BY 4.0, Datenquellen: https://sgx.geodatenzentrum.de/web_public/gdz/datenquellen/datenquellen_vg25.pdf"
+
+  gv100ad:
+    label: "Gemeindeverzeichnis GV-ISys, Jahresausgabe 31.12. (GV100AD, feste Satzlänge)"
+    url: "https://www.destatis.de/DE/Themen/Laender-Regionen/Regionales/Gemeindeverzeichnis/Administrativ/Archiv/GV100ADJ/GV100AD_31122025.zip?__blob=publicationFile&v=2"
+    seite: "https://www.destatis.de/DE/Themen/Laender-Regionen/Regionales/Gemeindeverzeichnis/Administrativ/Archiv/GV100ADJ/GV100AD_31122025.html"
+    stand: "2025-12-31"
+    lizenz: "© Statistisches Bundesamt (Destatis); Vervielfältigung und Verbreitung mit Quellenangabe gestattet"
+    vermerk: "Statistisches Bundesamt (Destatis), Gemeindeverzeichnis GV-ISys, Stand 31.12.2025"
+
+  # Optional: neuere Monatsausgabe. Nur zum Markieren von Gemeinden, die seit dem Datenstand
+  # aufgelöst, umgeschlüsselt oder umbenannt wurden (`gebietsaenderung`), nicht zum Umrechnen.
+  gv100ad_aktuell:
+    label: "Gemeindeverzeichnis GV-ISys, Monatsausgabe (GV100AD) – Gebietsänderungen seit dem Datenstand"
+    url: "https://www.destatis.de/DE/Themen/Laender-Regionen/Regionales/Gemeindeverzeichnis/Administrativ/Archiv/GV100ADQ/GV100AD3110.zip?__blob=publicationFile&v=13"
+    seite: "https://www.destatis.de/DE/Themen/Laender-Regionen/Regionales/Gemeindeverzeichnis/Administrativ/Archiv/GV100ADQ/GV100AD3110.html"
+    stand: "2026-10-31"
+    optional: true
+    lizenz: "© Statistisches Bundesamt (Destatis); Vervielfältigung und Verbreitung mit Quellenangabe gestattet"
+    vermerk: "Statistisches Bundesamt (Destatis), Gemeindeverzeichnis GV-ISys, Stand 31.10.2026"
+
+# Ausgaben (Vertrag mit Konsumenten, docs/VERTRAG.md). `file` relativ zu data/.
+datasets:
+  zust_gemeinden:
+    file: "zustaendigkeit/gemeinden.pmtiles"
+    label: "Gemeinden und Kreise (Grenzen, ARS, Ebene der Stelle für Gemeindestraßen)"
+    attribution: "© BKG (2026) CC BY 4.0, Datenquellen: https://sgx.geodatenzentrum.de/web_public/gdz/datenquellen/datenquellen_vg25.pdf"
+  zust_index:
+    file: "zustaendigkeit/index.json"
+    label: "Zuständige Straßenverkehrsbehörden: Übersicht und Landesdateien"
+    attribution: "© BKG (2026) CC BY 4.0; Statistisches Bundesamt (Destatis), Gemeindeverzeichnis GV-ISys"

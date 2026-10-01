@@ -1,0 +1,20 @@
+{
+  "name": "wer-ist-zustaendig",
+  "private": true,
+  "description": "Wer ist zuständig? Straßenverkehrsbehörden je Gemeinde und Straßenklasse: reine Module, Build der Landesdateien, Werkzeuge und Tests (node --test).",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "scripts": {
+    "test": "node --test \"tests/*.test.js\"",
+    "laender": "node tools/build-laender.mjs",
+    "lookup": "node tools/lookup.mjs",
+    "golden": "node tools/check-golden.mjs",
+    "stichprobe": "node tools/check-stichprobe.mjs",
+    "serve": "node tools/serve.mjs"
+  },
+  "devDependencies": {
+    "@mapbox/vector-tile": "3.0.0",
+    "pbf": "5.1.2",
+    "pmtiles": "4.5.0"
+  }
+}
