@@ -29,13 +29,13 @@ oder im Bucket, auf `localhost` beliebig.
 
 | Datei | Inhalt | Größe |
 |---|---|---|
-| `gemeinden.pmtiles` | Grenzschicht: Layer `gemeinden` und `kreise` | meldet `zust grenzen`; über 100 MB erst abstimmen |
+| `gemeinden.pmtiles` | Grenzschicht: Layer `gemeinden` und `kreise` | 43 MB; über 100 MB erst abstimmen |
 | `index.json` | Übersicht: Regel- und Datenstand, Quellen, Liste der Länder | wenige KB |
-| `<lkz>.json` (16, z. B. `by.json`) | Zuständigkeit je Gemeinde und Straßenklasse | geschätzt 2–450 KB je Land, gzip höchstens etwa 40 KB |
+| `<lkz>.json` (16, z. B. `by.json`) | Zuständigkeit je Gemeinde und Straßenklasse | 2–448 KB je Land, gzip höchstens 45 KB |
 | `../manifest.json` | Manifest der Pipeline (Muster Unfallkarte/SVZ) | wenige KB |
 
-Die Schätzung der Landesdateien stammt aus einem Lauf mit synthetischen Daten in realer Anzahl
-(10 722 Gemeinden: zusammen etwa 2 MB, gzip etwa 210 KB). `zust laender` gibt die echten Größen aus.
+Größen aus dem ersten echten Lauf (Datenstand 31.12.2025, Regeln 0.2.0): Landesdateien zusammen
+2 164 KB, gzip 221 KB. `zust grenzen` und `zust laender` geben die Größen bei jedem Lauf aus.
 
 ## `gemeinden.pmtiles`
 
