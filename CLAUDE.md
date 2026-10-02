@@ -66,6 +66,9 @@ npm run serve                              # Karte lokal auf :8080
 ## Arbeitsweise
 
 - **Offene Punkte** nur in `docs/TODO.md`, und erst nach Abstimmung mit dem Repo-Owner.
+- **Changelog:** Jede Änderung, die Nutzer der Karte oder der Dateien merken, unter
+  „Unveröffentlicht" in [CHANGELOG.md](CHANGELOG.md) eintragen (auf Deutsch).
+- **Commits** nach Conventional Commits und auf Englisch (`fix(map): …`, `feat: …`, `docs: …`).
 - **Kein Netz zu BKG oder Destatis?** Dann die Abrufe als kleines Skript schreiben und vom Owner
   laufen lassen. Nicht raten, was eine Datei enthält; Felder an der Dokumentation prüfen.
 - **Karte:** Bildsprache der Verkehrsbeschilderung (Antwort als Zusatzzeichen, Verkehrsblau,
