@@ -73,7 +73,10 @@ pipeline/
 - Datenstand VG25 = Datenstand GV-ISys;
 - jeder ARS 12-stellig und eindeutig, Land passt zum Schlüssel;
 - jede Gemeinde mit Kreis; Verband (6. Stelle `5`) und Regierungsbezirk (`FK_S3 = R`) vorhanden;
-- VG25 und GV-ISys mit derselben Gemeindemenge, gemeindefreie Gebiete eingeschlossen;
+- VG25 und GV-ISys mit derselben Gemeindemenge, gemeindefreie Gebiete eingeschlossen. Ausnahmen:
+  die Flächen des deutsch-luxemburgischen Kondominiums (nur VG25, `BEZ = Kondominium`; sie
+  übernehmen die angrenzende Gemeinde aus `SDV_ARS`) und unbewohnte gemeindefreie Gebiete ohne
+  Fläche (nur GV-ISys, Textkennzeichen 66; nur Warnung);
 - kreisfreie Städte in beiden Quellen gleich, je kreisfreiem Kreis genau eine Gemeinde;
 - Große Kreisstädte (Textkennzeichen 67) je Land in der Toleranz aus `pruefungen.yaml`, in
   anderen Ländern keine. Sachsen führt sie im GV-ISys nicht als 67 (siehe dort).
@@ -91,4 +94,5 @@ uvx ruff check && uvx ruff format --check
 
 Die Testdaten in `tests/conftest.py` folgen dem Aufbau der VG25-Dokumentation: kreisfreie Stadt,
 Große Kreisstadt mit Loch und darin die Exklave einer Nachbargemeinde, Stadtstaaten,
-gemeindefreies Gebiet, Region Hannover, Verbandsgemeinde in RP, ein Datensatz mit `GF = 8`.
+gemeindefreies Gebiet, Region Hannover, Verbandsgemeinde in RP mit angrenzendem Kondominium,
+ein Datensatz mit `GF = 8`.

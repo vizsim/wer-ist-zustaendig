@@ -4,6 +4,13 @@ Ein Eintrag je Gemeinde (Schlüssel ARS), Felder siehe docs/VERTRAG.md („Zwisc
 Die Prüfungen brechen den Build ab, statt halbe Daten durchzulassen (Auftrag A2/A6):
 ARS 12-stellig und eindeutig, jede Gemeinde mit Kreis und Land, VG25 und GV-ISys mit derselben
 Gemeindemenge, kreisfreie Städte in beiden Quellen gleich, Große Kreisstädte plausibel.
+
+Zwei bekannte Ausnahmen bei der Gemeindemenge (echte Daten 31.12.2025):
+- Gemeinsames deutsch-luxemburgisches Hoheitsgebiet (Mosel, Sauer, Our): nur in VG25, als
+  Flächen mit `BEZ = Kondominium`; `SDV_ARS` zeigt auf die angrenzende deutsche Gemeinde. Der
+  Eintrag übernimmt deren Kreis, Verband und Regierungsbezirk (`kondominium.nachbar`).
+- Unbewohnte gemeindefreie Gebiete ohne Fläche in VG25 (Küstengewässer M-V, das Kondominium
+  als Ganzes): nur im GV-ISys, Textkennzeichen 66 ohne Einwohner – Warnung statt Fehler.
 """
 
 from __future__ import annotations
@@ -43,6 +50,8 @@ LAENDER = {
 }
 TKZ_KREISFREI = {61, 62}
 TKZ_GKS = 67
+TKZ_UNBEWOHNT = 66
+KONDOMINIUM = "Kondominium"
 AUFGELOEST = "nicht mehr im aktuellen Gemeindeverzeichnis (aufgelöst oder umgeschlüsselt)"
 ARS_RE = re.compile(r"^\d{12}$")
 
@@ -113,6 +122,7 @@ def baue(
     bericht.gemeinden_bez = dict(Counter(f"{r.BEZ} (IBZ {r.IBZ})" for r in gem.itertuples()))
 
     gemeinden: dict[str, dict[str, Any]] = {}
+    kondominium = []
     for r in gem.itertuples(index=False):
         ars = str(r.ARS)
         if not ARS_RE.fullmatch(ars):
@@ -121,6 +131,9 @@ def baue(
         land = _str(getattr(r, "LKZ", None)) or LAENDER.get(ars[:2])
         if land != LAENDER.get(ars[:2]):
             fehler.append(f"{ars}: Land {land} passt nicht zum Schlüssel {ars[:2]}")
+            continue
+        if _str(r.BEZ) == KONDOMINIUM:
+            kondominium.append(r)  # unten: braucht den Eintrag der angrenzenden Gemeinde
             continue
         if ars[:5] not in krs.index:
             fehler.append(f"{ars} ({r.GEN}): Kreis {ars[:5]} fehlt in vg25_krs")
@@ -181,6 +194,7 @@ def baue(
             "tkz": [gvg.tkz] if gvg.tkz is not None else [],
             "ew": gvg.ew,
             "gebietsaenderung": None,
+            "kondominium": None,
         }
         if gv_aktuell is not None:
             neu = gv_aktuell.gemeinden.get(ars)
@@ -197,9 +211,40 @@ def baue(
                 }
         gemeinden[ars] = eintrag
 
+    for r in kondominium:
+        ars = str(r.ARS)
+        nachbar = _str(getattr(r, "SDV_ARS", None))
+        n = gemeinden.get(nachbar or "")
+        if n is None or nachbar[:2] != ars[:2]:
+            fehler.append(
+                f"{ars} ({r.GEN}): Kondominium ohne angrenzende Gemeinde (SDV_ARS {nachbar})"
+            )
+            continue
+        gemeinden[ars] = {
+            **n,
+            "ars": ars,
+            "ags": _str(getattr(r, "AGS", None)) or ars[:5] + ars[9:],
+            "gen": _str(r.GEN),
+            "name": vg25.voller_name(r.GEN, r.BEZ, getattr(r, "NBD", None)),
+            "bez": _str(r.BEZ),
+            "ibz": _int(getattr(r, "IBZ", None)),
+            "gemeindefrei": False,
+            "tkz": [],
+            "ew": None,
+            "gebietsaenderung": None,
+            "kondominium": {"nachbar": nachbar},
+        }
+
     vg_ars = set(gem["ARS"].astype(str))
     for ars in sorted(set(gv.gemeinden) - vg_ars):
-        fehler.append(f"{ars} ({gv.gemeinden[ars].name}): im Gemeindeverzeichnis, fehlt in VG25")
+        g = gv.gemeinden[ars]
+        if g.tkz == TKZ_UNBEWOHNT and not g.ew:
+            bericht.warnungen.append(
+                f"{ars} ({g.name}): unbewohntes gemeindefreies Gebiet ohne Fläche in VG25 – "
+                "übersprungen"
+            )
+        else:
+            fehler.append(f"{ars} ({g.name}): im Gemeindeverzeichnis, fehlt in VG25")
 
     _pruefe_kreisfrei(gemeinden, fehler, bericht)
     _pruefe_gks(gemeinden, pruefungen.get("grosse_kreisstaedte", {}), fehler, bericht)
@@ -230,8 +275,9 @@ def baue(
 
 
 def _pruefe_kreisfrei(gemeinden: dict[str, dict], fehler: list[str], bericht: Bericht) -> None:
-    je_kreis = Counter(g["kreis"]["ars"] for g in gemeinden.values())
-    for ars, g in gemeinden.items():
+    echte = {ars: g for ars, g in gemeinden.items() if not g["kondominium"]}
+    je_kreis = Counter(g["kreis"]["ars"] for g in echte.values())
+    for ars, g in echte.items():
         tkz_frei = bool(set(g["tkz"]) & TKZ_KREISFREI)
         if tkz_frei and not g["kreis"]["kreisfrei"]:
             fehler.append(

@@ -39,6 +39,9 @@ Offene Punkte stehen nur hier, und erst nach Abstimmung mit dem Repo-Owner (CLAU
   (Stadt), nicht 67; VG25 kennzeichnet sie nicht. Liste der rund 53 GKS mit ARS aus der
   Primärquelle als Konfiguration anlegen, dann `pruefungen.yaml` (SN, heute 0) anpassen. Bis
   dahin bekommen sächsische Gemeinden keine GKS-Alternative.
+- [ ] **Deutsch-luxemburgisches Kondominium** (abgestimmt 2026-10-02): Die 25 Flächen auf Mosel,
+  Sauer und Our nennen heute die Stelle der angrenzenden Gemeinde, „nur Ebene". Zuständigkeit
+  nach dem Grenzvertrag prüfen.
 - [ ] **Phase 3 – Stadtstaaten:** Berlin (Netz-WFS: Straßen des übergeordneten Netzes,
   Bezirksgrenzen), Hamburg (Polizeikommissariate als Flächen).
 - [ ] **Phase 4/5:** HE, NI, MV, SH, TH; danach RP (Verbandsgemeinde über ARS-Stellen 6–9,

@@ -14,7 +14,7 @@
 import { kreisBehoerde, mitZusatz, stadtName } from "./namen.js";
 import { hoechsteKlasse } from "./strassenklasse.js";
 
-export const REGELN = Object.freeze({ version: "0.1.0", phase: 1, stand: "2026-10-01" });
+export const REGELN = Object.freeze({ version: "0.2.0", phase: 1, stand: "2026-10-02" });
 
 export const SICHERHEIT = Object.freeze({
   BELEGT: "belegt",
@@ -45,6 +45,9 @@ export const TEXTE = Object.freeze({
       "Senatsverwaltung.",
     hamburg: "In Hamburg ist die Polizei Straßenverkehrsbehörde, örtlich das zuständige Polizeikommissariat.",
     autobahn: "Für Autobahnen ist das Fernstraßen-Bundesamt Straßenverkehrsbehörde.",
+    kondominium:
+      "Gemeinsames deutsch-luxemburgisches Hoheitsgebiet (Mosel, Sauer, Our). Genannt ist die " +
+      "Stelle der angrenzenden deutschen Gemeinde; ob sie hier zuständig ist, ist nicht geprüft.",
   }),
   bedingung: Object.freeze({
     gks: "Große Kreisstadt – sie kann selbst zuständig sein",
@@ -60,6 +63,8 @@ export const TEXTE = Object.freeze({
     berlin: "ASOG Bln, Zuständigkeitskatalog Ordnungsaufgaben Nr. 11 Abs. 4, Nr. 22b Abs. 3 (Wortlaut nur sekundär geprüft)",
     hamburg: "Zuständigkeitsanordnung Hamburg (Titel und Fassung noch nicht geprüft)",
     autobahn: "Konzept § 6.1",
+    kondominium:
+      "Rückfall: angrenzende Gemeinde laut VG25 (SDV_ARS); Grenzvertrag Deutschland–Luxemburg nicht ausgewertet",
   }),
   hinweis: Object.freeze({
     autobahnDabei: "Für die Autobahn selbst ist das Fernstraßen-Bundesamt zuständig.",
@@ -153,6 +158,16 @@ function regelPhase1(g) {
 }
 
 /**
+ * Kondominium (VG25 `BEZ = Kondominium`): Der Eintrag trägt Kreis und Verband der angrenzenden
+ * Gemeinde, also deren Stelle – aber nie sicherer als „nur Ebene".
+ */
+function regel(g) {
+  const e = regelPhase1(g);
+  if (!g.kondominium) return e;
+  return { ...e, sicherheit: SICHERHEIT.NUR_EBENE, grund: TEXTE.grund.kondominium, quelle: TEXTE.quelle.kondominium };
+}
+
+/**
  * Zuständigkeit einer Gemeinde je Straßenklasse (Build).
  * @param {object} g Eintrag aus gemeinden_attr.json (docs/VERTRAG.md, Abschnitt Zwischenprodukt)
  * @returns {{zust: Record<"G"|"K"|"L"|"B", object>, stellen: Record<string, object>}}
@@ -163,7 +178,7 @@ export function resolveGemeinde(g) {
   const stellen = {};
   const zust = {};
   for (const klasse of BAU_KLASSEN) {
-    const e = regelPhase1(g); // Phase 1: für alle Klassen gleich
+    const e = regel(g); // Phase 1: für alle Klassen gleich
     stellen[e.stelle.id] = e.stelle;
     if (e.alternative) stellen[e.alternative.stelle.id] = e.alternative.stelle;
     zust[klasse] = {

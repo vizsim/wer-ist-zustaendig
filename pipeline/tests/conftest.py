@@ -3,7 +3,8 @@
 Die Schlüssel folgen dem echten Aufbau (ARS = Land 2 · RB 1 · Kreis 2 · VG 4 · Gemeinde 3), die
 Flächen sind Rechtecke um bekannte Punkte (in EPSG:25832 abgelegt wie VG25). Fälle: kreisfreie
 Stadt, Große Kreisstadt mit Loch, darin die Exklave einer Gemeinde einer Verwaltungsgemeinschaft,
-Stadtstaaten, gemeindefreies Gebiet, Region Hannover (NBD ja), Verbandsgemeinde in RP.
+Stadtstaaten, gemeindefreies Gebiet, Region Hannover (NBD ja), Verbandsgemeinde in RP und daneben
+ein Stück des deutsch-luxemburgischen Kondominiums (nur VG25; im GV-ISys nur als Ganzes).
 """
 
 from __future__ import annotations
@@ -108,6 +109,19 @@ def baue_fixture(ordner: Path) -> Fixture:
             _attrs(6, "073395001001", "Musterdorf", "Ortsgemeinde", 64, "nein", fk_s3="K"),
             _box(7.95, 49.85, 8.05, 49.95),
         ),
+        (
+            _attrs(
+                6,
+                "079395001001",
+                "Deutsch-Luxemburgisches Hoheitsgebiet [Musterdorf]",
+                "Kondominium",
+                69,
+                "nein",
+                fk_s3="D",
+                sdv="073395001001",
+            ),
+            _box(8.05, 49.85, 8.07, 49.95),
+        ),
     ]
     # Ein Datensatz mit GF = 8 (ohne Struktur) desselben ARS darf nicht stören.
     gemeinden.append(
@@ -145,6 +159,18 @@ def baue_fixture(ordner: Path) -> Fixture:
         (
             _attrs(4, "07339", "Mainz-Bingen", "Landkreis", 43, "ja", fk_s3="K"),
             _box(7.95, 49.85, 8.05, 49.95),
+        ),
+        (
+            _attrs(
+                4,
+                "07939",
+                "Deutsch-Luxemburgisches Hoheitsgebiet [Lkr. Mainz-Bingen]",
+                "Kondominium",
+                49,
+                "nein",
+                fk_s3="D",
+            ),
+            _box(8.05, 49.85, 8.07, 49.95),
         ),
     ]
     vwg = [
@@ -213,6 +239,7 @@ def baue_fixture(ordner: Path) -> Fixture:
         ("01053105", "9105", "Sachsenwald", 66, None),
         ("03241001", "0001", "Hannover", 63, 548186),
         ("07339001", "5001", "Musterdorf", 64, 800),
+        ("07000999", "9999", "Gemeinsames deutsch-luxemburgisches Hoheitsgebiet", 66, 0),
     ]:
         zeilen.append(zeile_gemeinde(stand=STAND, ags=ags, vb=vb, name=name, tkz=tkz, ew=ew))
     gv.write_text("\n".join(zeilen) + "\n", encoding="utf-8")
@@ -228,6 +255,7 @@ def baue_fixture(ordner: Path) -> Fixture:
         {"name": "Sachsenwald", "lat": 53.53, "lon": 10.38, "ars": "010539105105"},
         {"name": "Hannover", "lat": 52.3745, "lon": 9.7385, "ars": "032410001001"},
         {"name": "Musterdorf (RP)", "lat": 49.90, "lon": 8.00, "ars": "073395001001"},
+        {"name": "Kondominium", "lat": 49.90, "lon": 8.06, "ars": "079395001001"},
     ]
     return Fixture(gpkg=gpkg, gv100ad=gv, punkte=punkte)
 

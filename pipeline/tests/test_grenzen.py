@@ -42,7 +42,7 @@ def test_schreibe_fgb(fixture_daten, tmp_path) -> None:
     alle = [p["ars"] for p in fixture_daten.punkte]
     typen = {ars: ("kreis", "nur Ebene") for ars in alle}
     n = grenzen.schreibe_fgb(fixture_daten.gpkg, gem, krs, typen)
-    assert n == 9
+    assert n == 10
     df = pyogrio.read_dataframe(gem)
     assert df.crs.to_epsg() == 4326
     assert set(df.columns) == {"ars", "gen", "eg", "sg", "geometry"}
@@ -53,6 +53,7 @@ def test_schreibe_fgb(fixture_daten, tmp_path) -> None:
     assert art["09178"] == "kreis"
     assert art["09162"] == "stadt"
     assert art["11000"] == "stadtstaat" and art["04012"] == "stadtstaat"
+    assert art["07939"] == "kreis", "Kondominium: eigener Kreis in VG25, Art kreis"
 
 
 def test_schreibe_fgb_verlangt_vollstaendige_landesdateien(fixture_daten, tmp_path) -> None:

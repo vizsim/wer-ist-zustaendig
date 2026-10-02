@@ -3,7 +3,7 @@
 Dieses Dokument ist die Schnittstelle zwischen „Wer ist zuständig?" und allen, die die Dateien
 nutzen – zuerst die Karte in diesem Repo, dann die Unfallkarte.
 
-Stand: **Schema 1** · Regeln 0.1.0 (Phase 1) · Datenstand 31.12.2025
+Stand: **Schema 1** · Regeln 0.2.0 (Phase 1) · Datenstand 31.12.2025
 
 ## Regeln für alle Dateien
 
@@ -62,14 +62,16 @@ MapLibre-Karte genügt `queryRenderedFeatures` auf dem Flächenlayer.
 
 **Grenzfälle:** VG25 schneidet Gemeinden an Nord-, Ostsee und Bodensee nicht an der Küste ab;
 ein Punkt auf dem Wasser kann also einer Gemeinde zugeordnet sein. Außerhalb Deutschlands gibt
-es keinen Treffer.
+es keinen Treffer. Das gemeinsame deutsch-luxemburgische Hoheitsgebiet (Mosel, Sauer, Our) liegt
+als 25 eigene Flächen mit eigenem ARS vor (VG25 `BEZ = Kondominium`, im Layer `kreise` drei
+eigene Kreise); die Landesdatei nennt dort die Stelle der angrenzenden Gemeinde, „nur Ebene".
 
 ## `index.json`
 
 ```json
 {
   "schema": 1,
-  "regeln": { "version": "0.1.0", "phase": 1, "stand": "2026-10-01" },
+  "regeln": { "version": "0.2.0", "phase": 1, "stand": "2026-10-02" },
   "daten": {
     "gebiet": "VG25 31.12.2025",
     "status": "GV-ISys 31.12.2025",
@@ -199,7 +201,7 @@ dort erfunden.
                  "name": "Landkreis Freising", "kreisfrei": false },
       "verband": null,
       "rb": { "ars": "091", "gen": "Oberbayern", "name": "Regierungsbezirk Oberbayern" },
-      "tkz": [67], "ew": 50721, "gebietsaenderung": null
+      "tkz": [67], "ew": 50721, "gebietsaenderung": null, "kondominium": null
     }
   }
 }
@@ -212,6 +214,9 @@ dort erfunden.
   65/66 (gemeindefreies Gebiet) und 67 (Große Kreisstadt); die übrigen Werte stehen in der
   Satzbeschreibung des GV100AD. Nicht mit `ibz` (Bezeichnungsliste des BKG) verwechseln.
 - `gemeindefrei`: 6. ARS-Stelle `9`.
+- `kondominium`: `null` oder `{ nachbar }` für die Flächen des deutsch-luxemburgischen
+  Kondominiums (VG25 `BEZ = Kondominium`). `nachbar` ist der ARS der angrenzenden Gemeinde
+  (`SDV_ARS`); `kreis`, `verband` und `rb` sind ihre, `tkz` ist leer, `ew` `null`.
 
 ## `manifest.json`
 

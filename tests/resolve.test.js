@@ -36,6 +36,11 @@ const G = {
     kreis: kreis("07339", "Mainz-Bingen", "Landkreis", "ja"),
     verband: { ars: "073395001", name: "Verbandsgemeinde Musterland" },
   },
+  kondominium: {
+    ars: "079355003095", gen: "Deutsch-Luxemburgisches Hoheitsgebiet [Nittel]", land: "RP", tkz: [],
+    kreis: kreis("07235", "Trier-Saarburg", "Landkreis", "ja"),
+    kondominium: { nachbar: "072355003095" },
+  },
 };
 
 test("Phase 1: kreisfreie Stadt → die Stadt, vermutlich", () => {
@@ -89,6 +94,19 @@ test("Phase 1: RP-Kreisverwaltung, alle Klassen gleich", () => {
   assert.equal(stellen.k07339.name, "Kreisverwaltung Mainz-Bingen – Straßenverkehrsbehörde");
   const ids = BAU_KLASSEN.map((k) => ergebnisId(zust[k]));
   assert.equal(new Set(ids).size, 1);
+});
+
+test("Kondominium: Stelle der angrenzenden Gemeinde, nie sicherer als nur Ebene", () => {
+  const { zust, stellen } = resolveGemeinde(G.kondominium);
+  assert.equal(zust.G.stelle, "k07235");
+  assert.equal(zust.G.sicherheit, SICHERHEIT.NUR_EBENE);
+  assert.equal(zust.G.grund, TEXTE.grund.kondominium);
+  assert.equal(zust.G.quelle, TEXTE.quelle.kondominium);
+  assert.equal(stellen.k07235.name, "Kreisverwaltung Trier-Saarburg – Straßenverkehrsbehörde");
+  const neben = resolveGemeinde({ ...G.kondominium, kreis: kreis("07211", "Trier", "Kreisfreie Stadt", "nein", true) });
+  assert.equal(neben.zust.G.stelle, "k07211");
+  assert.equal(neben.zust.G.sicherheit, SICHERHEIT.NUR_EBENE, "auch neben einer kreisfreien Stadt");
+  assert.deepEqual(Object.keys(zust.G), ["stelle", "sicherheit", "grund", "quelle", "alternative"]);
 });
 
 test("resolveGemeinde: prüft die Eingabe", () => {

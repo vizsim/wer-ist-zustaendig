@@ -23,7 +23,7 @@ def _baue(f, **kw):
 
 def test_vg25_ebenen_normalisiert(fixture_daten) -> None:
     gem = vg25.lese_ebene(fixture_daten.gpkg, "gem")
-    assert len(gem) == 9, "GF = 8 wird verworfen"
+    assert len(gem) == 10, "GF = 8 wird verworfen"
     assert {"ARS", "GEN", "BEZ", "IBZ", "NBD", "FK_S3", "LKZ"} <= set(gem.columns)
     rbz = vg25.lese_ebene(fixture_daten.gpkg, "rbz")  # im Fixture mit kleinen Spaltennamen
     assert list(rbz["ARS"]) == ["091"]
@@ -59,9 +59,29 @@ def test_tabelle_felder(fixture_daten) -> None:
     hn = g["032410001001"]
     assert hn["kreis"]["name"] == "Region Hannover" and hn["rb"] is None, "FK_S3 = K: kein RB"
     assert g["073395001001"]["verband"]["name"] == "Verbandsgemeinde Musterland"
+    assert g["073395001001"]["kondominium"] is None
     assert attr["meta"]["stand"]["gebiet"] == "VG25 31.12.2025"
     assert bericht.gks_je_land == {"BY": 1}
     assert bericht.gemeinden_je_land["BY"] == 3
+
+
+def test_tabelle_kondominium_und_unbewohnte_gebiete(fixture_daten) -> None:
+    attr, bericht = _baue(fixture_daten)
+    k = attr["gemeinden"]["079395001001"]
+    assert k["kondominium"] == {"nachbar": "073395001001"}
+    assert k["name"] == "Deutsch-Luxemburgisches Hoheitsgebiet [Musterdorf]"
+    assert k["kreis"]["ars"] == "07339", "Kreis der angrenzenden Gemeinde, nicht der Pseudo-Kreis"
+    assert k["verband"]["name"] == "Verbandsgemeinde Musterland"
+    assert k["tkz"] == [] and k["ew"] is None and k["land"] == "RP"
+    assert "070009999999" not in attr["gemeinden"]
+    assert any(w.startswith("070009999999") for w in bericht.warnungen)
+
+
+def test_tabelle_kondominium_ohne_nachbar(fixture_daten) -> None:
+    gv = gv100ad.lese(fixture_daten.gv100ad)
+    gv.gemeinden.pop("073395001001")
+    with pytest.raises(tabelle.PruefFehler, match="079395001001 .*Kondominium ohne angrenzende"):
+        _baue(fixture_daten, gv=gv)
 
 
 def test_tabelle_datenstaende_muessen_passen(fixture_daten) -> None:
