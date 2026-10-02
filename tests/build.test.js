@@ -81,6 +81,64 @@ test("baueLaender: Review-Zeilen je Gemeinde und Klasse", () => {
   assert.ok(csv.includes("BY;091780124124;Freising;Landkreis Freising;G;Landratsamt Freising"));
 });
 
+function kontakte() {
+  const region = "https://verwaltung.bund.de/leistungsverzeichnis/de/leistung/99108014042000/herausgeber/BY-1806/region/{ars}";
+  return {
+    schema: 1,
+    meta: {
+      quelle: { id: "bundesportal", label: "Bundesportal", lizenz: "–", vermerk: "Kontakt laut Bundesportal" },
+      leistung: "99108014042000",
+      laender: { BY: { herausgeber: "1806", abgerufen: "2026-10-02", region_url: region } },
+    },
+    gemeinden: {
+      "091780124124": {
+        wahl: "einzig", stellen: 1,
+        kontakt: {
+          name: "Landratsamt Freising", adresse: "Landshuter Str. 31, 85356 Freising",
+          telefon: ["+49 8161 600-0"], email: ["poststelle@kreis-fs.de"], web: ["https://www.kreis-freising.de"],
+        },
+      },
+    },
+  };
+}
+
+test("baueLaender: Kontakte nur im Land mit Abruf, entdoppelt und über Ids verknüpft", () => {
+  const ohne = baueLaender(attr());
+  const { dateien, index } = baueLaender(attr(), { kontakte: kontakte() });
+  const by = dateien["by.json"];
+  const id = by.gemeinden["091780124124"].kontakt;
+  assert.match(id, /^c[0-9a-f]{8}$/);
+  assert.equal(by.kontakte[id].email[0], "poststelle@kreis-fs.de");
+  assert.equal(by.gemeinden["091620000000"].kontakt, undefined);
+  assert.equal(by.daten.kontakte, "Bundesportal 02.10.2026");
+  assert.ok(by.bundesportal_region.endsWith("/region/{ars}"));
+  assert.ok(by.quellen.some((q) => q.id === "bundesportal"));
+  assert.deepEqual(index.laender.map((l) => l.kontakte), [1, undefined]);
+  assert.ok(index.quellen.some((q) => q.id === "bundesportal"));
+  assert.equal(serialisiere(dateien["rp.json"]), serialisiere(ohne.dateien["rp.json"]), "andere Länder unverändert");
+
+  const r = auswahl(by, "091780124124", ["G"]);
+  assert.equal(r.kontakt.name, "Landratsamt Freising");
+  assert.ok(r.bundesportal.endsWith("/herausgeber/BY-1806/region/091780124124"));
+  const a = auswahl(by, "091780124124", ["A"]);
+  assert.equal(a.kontakt, null, "Autobahn: kein Kontakt der Gemeinde");
+  assert.equal(auswahl(by, "091620000000", ["G"]).kontakt, null);
+  assert.equal(auswahl(ohne.dateien["by.json"], "091780124124", ["G"]).bundesportal, by.bundesportal);
+});
+
+test("baueLaender: Kondominium verweist auf die angrenzende Gemeinde", () => {
+  const a = attr();
+  a.gemeinden["079395001001"] = {
+    ...a.gemeinden["073395001001"], ars: "079395001001", gebietsaenderung: null,
+    kondominium: { nachbar: "073395001001" },
+  };
+  const rp = baueLaender(a).dateien["rp.json"];
+  assert.equal(rp.gemeinden["079395001001"].nachbar, "073395001001");
+  assert.equal(rp.gemeinden["073395001001"].nachbar, undefined);
+  const mitRegion = { ...rp, bundesportal_region: "https://x.example/region/{ars}" };
+  assert.equal(auswahl(mitRegion, "079395001001", ["G"]).bundesportal, "https://x.example/region/073395001001");
+});
+
 test("baueLaender: prüft Schema, Schlüssel und Land", () => {
   assert.throws(() => baueLaender({ ...attr(), schema: 2 }), /schema/);
   const a = attr();

@@ -59,11 +59,32 @@ Offene Punkte stehen nur hier, und erst nach Abstimmung mit dem Repo-Owner (CLAU
 - [ ] **Phase 7 – Validierung:** etwa 10 Gemeinden je Land, geschichtet; Juristin prüft Regeln
   und Review-CSV; danach Version 1.0.
 
+### Kontakte (Bundesportal)
+
+- [x] **Pilot Thüringen** (2026-10-03): 605 Gemeinden abgefragt; 537 (89 %) mit eindeutigem
+  Kontakt – 533 Stellen unserer Behörde, meist direkt die Verkehrsabteilung, 4 Städte, die sich
+  selbst Straßenverkehrsbehörde nennen (Apolda, Eisenberg, Heilbad Heiligenstadt, Ilmenau). Ohne
+  Kontakt: 67 Gemeinden, für die das Portal nur Gemeinde- oder VG-Stellen nennt, und Suhl (nur
+  „Gewerbeangelegenheiten").
+- [ ] **Die übrigen 8 Bundesportal-Länder** (BB, BY, MV, NI, NW, RP, SH, ST, zusammen rund
+  8 400 Gemeinden, Abruf etwa 2,5 Stunden): `uv run zust kontakte`, dann je Land die
+  Review-CSV durchsehen und die Auswahlregel nachschärfen (Stichprobe 10/2026: in BB, NW, ST
+  teils ohne Eintrag oder mit fremden Fachbereichen).
+- [ ] **Fehler im Portal melden** (Redaktion Thüringen): Landkreis Saalfeld-Rudolstadt (für alle
+  Gemeinden nur das Ordnungsamt der VG „Schwarzatal"), Landkreis Hildburghausen (für alle
+  Gemeinden die Stadtverwaltung Hildburghausen), Suhl (nur „Gewerbeangelegenheiten").
+- [ ] **Länder ohne Bundesportal-Eintrag** (BW, BE, HB, HH, HE, SL, SN): Kontakte der rund 105
+  Stellen der Kreisebene und der Stadtstaaten anders beschaffen (Landesportale oder von Hand).
+- [ ] **Landesregel Thüringen:** Laut Portal sind mehrere große kreisangehörige Städte selbst
+  Straßenverkehrsbehörde (siehe Pilot) – mit Primärquelle prüfen und in Phase 2 als Regel.
+- [ ] **Nutzungsbedingungen** des Bundesportals vor dem Veröffentlichen kurz prüfen (Seite
+  „Rechtliche Hinweise"); einzelne Kontaktangaben sind Fakten, nur Funktionspostfächer.
+
 ### Karte und Daten
 
-- [ ] **Bundesportal mit Region:** Deep Link `…/leistung/99108014042000/herausgeber/{Land}-{ID}/region/{ARS}`
-  für MV, TH, BY, NI, SH. Herausgeber-IDs beim Build aus der FIM-API ziehen, Links im CI prüfen;
-  sonst der Link ohne Region (heute).
+- [ ] **Bundesportal mit Region:** Für Länder mit abgerufenen Kontakten schon da
+  (`bundesportal_region`, Herausgeber-Id aus der Länderliste der Leistung). Für die übrigen
+  Bundesportal-Länder kommt er mit `zust kontakte`; Links im CI prüfen.
 - [ ] **Meldelink im Antwortschild:** Issue-Formular mit ARS und Permalink vorbefüllt.
 - [ ] **Einwohner aus VG250-EW**, sobald für 31.12.2025 erschienen (heute: GV-ISys).
 - [ ] **Gebietsänderungen** zusätzlich aus der Destatis-Liste der Namens- und

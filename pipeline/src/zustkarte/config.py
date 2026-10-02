@@ -58,6 +58,10 @@ class Paths:
     def attr_json(self) -> Path:
         return self.interim / "gemeinden_attr.json"
 
+    @property
+    def kontakte_json(self) -> Path:
+        return self.interim / "kontakte.json"  # optional: `zust kontakte` (Bundesportal)
+
     def raw_quelle(self, qid: str) -> Path:
         return self.raw / qid
 

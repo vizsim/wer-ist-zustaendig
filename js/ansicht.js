@@ -164,6 +164,55 @@ export function datenBasisAusParam(param, seite, erlaubt = []) {
   return `${u.origin}${u.pathname.replace(/\/?$/, "/")}`;
 }
 
+/** Telefonnummer → `tel:`-Link mit Ländervorwahl, oder null, wenn sie nicht nach einer aussieht. */
+export function telHref(nummer) {
+  const z = String(nummer ?? "").replace(/[^\d+]/g, "");
+  if (/^\+\d{6,}$/.test(z)) return `tel:${z}`;
+  if (/^00\d{6,}$/.test(z)) return `tel:+${z.slice(2)}`;
+  if (/^0\d{5,}$/.test(z)) return `tel:+49${z.slice(1)}`;
+  return null;
+}
+
+// Keine Zeichen, mit denen sich einem mailto: Betreff oder Empfänger anhängen ließen.
+const EMAIL_RE = /^[^\s@<>"'?&]+@[^\s@<>"'?&]+\.[A-Za-z]{2,}$/;
+
+function webUrl(adresse) {
+  try {
+    const u = new URL(adresse);
+    return u.protocol === "https:" || u.protocol === "http:" ? u : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Kontakt der zuständigen Stelle (Bundesportal): Name, Telefon, E-Mail, Webseite. Nur Wege, die
+ * sich sicher verlinken lassen; ohne einen davon kein Block. `abweichend`: Das Portal nennt eine
+ * andere Stelle als unsere Auskunft, die sich selbst Straßenverkehrsbehörde nennt.
+ * @param {{name: string, telefon?: string[], email?: string[], web?: string[], abweichend?: boolean}|null} k
+ * @param {{kontakte?: string}|null} stand Kopf `daten` der Landesdatei („Bundesportal 02.10.2026")
+ */
+export function kontaktHtml(k, stand) {
+  if (!k) return "";
+  const tel = (k.telefon ?? []).map((t) => [t, telHref(t)]).find(([, h]) => h);
+  const mail = (k.email ?? []).find((m) => EMAIL_RE.test(m));
+  const web = (k.web ?? []).map(webUrl).find(Boolean);
+  const wege = [
+    tel && `<li><span>Telefon</span> <a href="${esc(tel[1])}">${esc(tel[0])}</a></li>`,
+    mail && `<li><span>E-Mail</span> <a href="mailto:${esc(mail)}">${esc(mail)}</a></li>`,
+    web && `<li><span>Web</span> <a href="${esc(web.href)}" target="_blank" rel="noopener">` +
+      `${esc(web.hostname.replace(/^www\./, ""))}</a></li>`,
+  ].filter(Boolean);
+  if (!wege.length) return "";
+  return `
+    <div class="kontakt">
+      <p class="kontakt-name">${esc(k.name)}</p>
+      ${k.abweichend ? `<p class="kontakt-hinweis">Das Bundesportal nennt diese Stelle; sie kann statt der oben genannten zuständig sein.</p>` : ""}
+      <ul class="kontakt-wege">${wege.join("")}</ul>
+      ${stand?.kontakte ? `<p class="kontakt-quelle">Kontaktdaten: ${esc(stand.kontakte)}</p>` : ""}
+    </div>`;
+}
+
 /**
  * HTML der Antwortkarte.
  * @param {object} r Ergebnis von resolve.auswahl()
@@ -194,6 +243,7 @@ export function antwortHtml(r, strassen, { landName, bundesportal, hinweis } = {
       <h2 class="schild-behoerde">${esc(behoerde)}</h2>
       ${zusatz ? `<p class="schild-zusatz">${esc(zusatz)}</p>` : ""}
     </div>
+    ${kontaktHtml(r.kontakt, r.stand)}
     <p class="ort">${ort}</p>
     ${strassenText ? `<p class="strassen">${strassenText}</p>` : ""}
     <p class="sicherheit"><span class="marke marke-${esc(String(r.sicherheit).toLowerCase().replace(" ", "-"))}">${esc(sStil.label)}</span> ${esc(r.grund)}</p>

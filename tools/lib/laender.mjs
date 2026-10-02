@@ -1,9 +1,11 @@
 // laender.mjs — Landesdateien aus der Gemeindetabelle bauen (Logik, ohne Dateizugriff).
 // SPDX-License-Identifier: AGPL-3.0-or-later
 //
-// Eingabe: gemeinden_attr.json der Pipeline (docs/VERTRAG.md, „Zwischenprodukt").
-// Ausgabe: je Land eine Datei (Stellen und Ergebnisse entdoppelt, Gemeinden mit Verweisen),
-// dazu index.json und Zeilen für die Review-CSV. Deterministisch: gleiche Eingabe, gleiche Bytes.
+// Eingabe: gemeinden_attr.json der Pipeline (docs/VERTRAG.md, „Zwischenprodukt"), optional
+// kontakte.json (`zust kontakte`, Bundesportal).
+// Ausgabe: je Land eine Datei (Stellen, Ergebnisse und Kontakte entdoppelt, Gemeinden mit
+// Verweisen), dazu index.json und Zeilen für die Review-CSV. Deterministisch: gleiche Eingabe,
+// gleiche Bytes.
 
 import { LAENDER, landAusKuerzel, landesdatei } from "../../js/laender.js";
 import {
@@ -12,7 +14,19 @@ import {
 
 export const SCHEMA = 1;
 
-const MAP_KEYS = new Set(["stellen", "ergebnisse", "kreise", "gemeinden"]);
+const MAP_KEYS = new Set(["stellen", "ergebnisse", "kontakte", "kreise", "gemeinden"]);
+
+/** Kontakt mit fester Schlüsselfolge und stabiler Id („c" + FNV-1a wie bei den Ergebnissen). */
+function kontaktEintrag(k) {
+  const kontakt = {
+    name: k.name, adresse: k.adresse ?? null, telefon: k.telefon ?? [], email: k.email ?? [], web: k.web ?? [],
+    ...(k.abweichend ? { abweichend: true } : {}),
+  };
+  return { id: `c${ergebnisId(kontakt).slice(1)}`, kontakt };
+}
+
+/** „2026-10-02" → „02.10.2026". */
+const datumDe = (iso) => iso.split("-").reverse().join(".");
 
 /** JSON mit fester Schlüsselfolge; große Maps eine Zeile je Eintrag, sortiert (lesbare Diffs). */
 export function serialisiere(obj) {
@@ -50,13 +64,15 @@ function pruefeAttr(attr) {
 
 /**
  * @param {object} attr Inhalt von gemeinden_attr.json
- * @param {{erzeugt?: string}} opts erzeugt = Datum für die Kopfzeilen (Default: meta.erzeugt)
+ * @param {{erzeugt?: string, kontakte?: object|null}} opts erzeugt = Datum für die Kopfzeilen
+ *   (Default: meta.erzeugt); kontakte = Inhalt von kontakte.json (optional)
  * @returns {{dateien: Record<string, object>, index: object, review: string[][]}}
  */
 export function baueLaender(attr, opts = {}) {
   pruefeAttr(attr);
   const meta = attr.meta ?? {};
   const erzeugt = opts.erzeugt ?? meta.erzeugt ?? null;
+  const kontakte = opts.kontakte ?? null;
   const proLand = new Map();
   const review = [];
 
@@ -65,7 +81,7 @@ export function baueLaender(attr, opts = {}) {
     const { zust, stellen } = resolveGemeinde(g);
     let land = proLand.get(g.land);
     if (!land) {
-      land = { stellen: { fba: FESTE_STELLEN.fba }, ergebnisse: {}, kreise: {}, gemeinden: {} };
+      land = { stellen: { fba: FESTE_STELLEN.fba }, ergebnisse: {}, kontakte: {}, kreise: {}, gemeinden: {} };
       proLand.set(g.land, land);
     }
     Object.assign(land.stellen, stellen);
@@ -90,6 +106,13 @@ export function baueLaender(attr, opts = {}) {
     if (g.verband?.name) eintrag.verband = g.verband.name;
     if (Number.isFinite(g.ew)) eintrag.ew = g.ew;
     eintrag.z = z;
+    const k = kontakte?.gemeinden?.[ars]?.kontakt;
+    if (k) {
+      const { id, kontakt } = kontaktEintrag(k);
+      land.kontakte[id] = kontakt;
+      eintrag.kontakt = id;
+    }
+    if (g.kondominium?.nachbar) eintrag.nachbar = g.kondominium.nachbar;
     if (g.gebietsaenderung) eintrag.aenderung = g.gebietsaenderung;
     land.gemeinden[ars] = eintrag;
   }
@@ -103,23 +126,33 @@ export function baueLaender(attr, opts = {}) {
     const sicherheit = { belegt: 0, vermutlich: 0, "nur Ebene": 0 };
     for (const e of Object.values(d.gemeinden)) sicherheit[d.ergebnisse[e.z.G].sicherheit] += 1;
     const datei = landesdatei(lkz);
+    // Kontakte (Bundesportal) nur in Ländern, für die es welche gibt; die übrigen Dateien bleiben
+    // unverändert.
+    const bp = kontakte?.meta?.laender?.[lkz];
+    const mitKontakt = Object.values(d.gemeinden).filter((e) => e.kontakt).length;
     dateien[datei] = {
       schema: SCHEMA,
       land: lkz,
       name: l.name,
       regeln: REGELN,
-      daten: meta.stand ?? null,
+      daten: bp ? { ...meta.stand, kontakte: `Bundesportal ${datumDe(bp.abgerufen)}` } : meta.stand ?? null,
       erzeugt,
       hinweis: HINWEIS,
       bundesportal: BUNDESPORTAL,
-      quellen: meta.quellen ?? [],
+      ...(bp ? { bundesportal_region: bp.region_url } : {}),
+      quellen: bp ? [...(meta.quellen ?? []), kontakte.meta.quelle] : meta.quellen ?? [],
       stellen: d.stellen,
       ergebnisse: d.ergebnisse,
+      ...(bp ? { kontakte: d.kontakte } : {}),
       kreise: d.kreise,
       gemeinden: d.gemeinden,
     };
-    laender.push({ lkz, name: l.name, datei, gemeinden: Object.keys(d.gemeinden).length, sicherheit });
+    laender.push({
+      lkz, name: l.name, datei, gemeinden: Object.keys(d.gemeinden).length, sicherheit,
+      ...(bp ? { kontakte: mitKontakt } : {}),
+    });
   }
+  const mitKontakten = Object.keys(kontakte?.meta?.laender ?? {}).length > 0;
   const index = {
     schema: SCHEMA,
     regeln: REGELN,
@@ -127,7 +160,7 @@ export function baueLaender(attr, opts = {}) {
     erzeugt,
     hinweis: HINWEIS,
     bundesportal: BUNDESPORTAL,
-    quellen: meta.quellen ?? [],
+    quellen: mitKontakten ? [...(meta.quellen ?? []), kontakte.meta.quelle] : meta.quellen ?? [],
     laender,
   };
   return { dateien, index, review };

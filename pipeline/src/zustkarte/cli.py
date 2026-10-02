@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import subprocess
 from shutil import which
+from typing import Annotated
 
 import typer
 
@@ -106,9 +107,48 @@ def tabelle() -> None:
 
 
 @app.command()
-def laender() -> None:
-    """gemeinden_attr.json → data/zustaendigkeit/<land>.json + index.json (node)."""
+def kontakte(
+    land: Annotated[
+        list[str] | None,
+        typer.Option(help="Länderkürzel, mehrfach möglich; ohne: alle Länder im Bundesportal"),
+    ] = None,
+    nur_cache: bool = typer.Option(False, "--nur-cache", help="nichts abrufen, nur neu auswerten"),
+    force: bool = typer.Option(False, "--force", help="auch Gemeinden im Cache neu abrufen"),
+) -> None:
+    """Bundesportal: Kontakt der zuständigen Stelle je Gemeinde → data/interim/kontakte.json.
+
+    Eine Anfrage je Gemeinde (gedrosselt, mit Cache); danach `zust laender` neu bauen.
+    """
+    import json
+    from collections import Counter
+
+    from zustkarte import bundesportal
+
     paths = get_paths()
+    attr = json.loads(paths.attr_json.read_text(encoding="utf-8"))["gemeinden"]
+    if not nur_cache:
+        for lkz in [x.upper() for x in land] if land else sorted(bundesportal.herausgeber()):
+            ars = sorted(a for a, g in attr.items() if g["land"] == lkz and not g["kondominium"])
+            bundesportal.abrufen(lkz, ars, force=force, melde=typer.echo)
+    daten, review = bundesportal.tabelle(attr)
+    bundesportal.schreibe(daten, review, paths.kontakte_json, paths.review / "kontakte-review.csv")
+    for lkz in daten["meta"]["laender"]:
+        land_g = [g for a, g in daten["gemeinden"].items() if attr[a]["land"] == lkz]
+        wahl = Counter(g["wahl"] for g in land_g)
+        n = len(land_g)
+        mit = sum(g["kontakt"] is not None for g in land_g)
+        typer.echo(
+            f"{lkz} {n:>5} Gemeinden · mit Kontakt {mit} ({mit / n:.0%}) · "
+            + " · ".join(f"{k} {v}" for k, v in sorted(wahl.items()))
+        )
+    typer.secho(f"→ {paths.kontakte_json}", fg="green")
+
+
+@app.command()
+def laender() -> None:
+    """gemeinden_attr.json (+ kontakte.json) → data/zustaendigkeit/<land>.json + index.json."""
+    paths = get_paths()
+    kontakte = ["--kontakte", str(paths.kontakte_json)] if paths.kontakte_json.exists() else []
     _node(
         "tools/build-laender.mjs",
         "--attr",
@@ -117,6 +157,7 @@ def laender() -> None:
         str(paths.out),
         "--review",
         str(paths.review / "zustaendigkeit-review.csv"),
+        *kontakte,
     )
 
 

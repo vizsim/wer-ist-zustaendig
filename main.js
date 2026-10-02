@@ -233,7 +233,7 @@ async function bestimme(map, basis, index, marker, lngLat) {
       r.hinweise.push("Gemeindestraßen erscheinen erst ab Zoomstufe 13 – zum Anklicken näher heranzoomen.");
     }
     zeigeAntwort(antwortHtml(r, strassen, {
-      landName: land.name, bundesportal: daten.bundesportal ?? index?.bundesportal, hinweis: daten.hinweis,
+      landName: land.name, bundesportal: r.bundesportal ?? index?.bundesportal, hinweis: daten.hinweis,
     }));
     punktFreistellen(map, lngLat);
   } catch (e) {

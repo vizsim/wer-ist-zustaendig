@@ -234,6 +234,11 @@ export function auswahl(daten, ars, klassen = []) {
     regeln: daten.regeln ?? null,
     aenderung: eintrag.aenderung ?? null,
   };
+  // Bundesportal: Seite der Gemeinde (mit allen Stellen und Kontakten), sonst die allgemeine.
+  // Kondominium-Flächen kennt das Portal nicht – dort die angrenzende Gemeinde.
+  const portal = daten.bundesportal_region
+    ? daten.bundesportal_region.replace("{ars}", eintrag.nachbar ?? ars)
+    : daten.bundesportal ?? null;
   const hinweise = [];
   const liste = klassen.length ? klassen : ["unklar"];
   if (!klassen.length) hinweise.push(TEXTE.hinweis.keineStrasse);
@@ -250,6 +255,8 @@ export function auswahl(daten, ars, klassen = []) {
       alternative: null,
       hinweise,
       keinBrief: true,
+      kontakt: null,
+      bundesportal: daten.bundesportal ?? null,
     };
   }
   if (liste.includes("A")) hinweise.push(TEXTE.hinweis.autobahnDabei);
@@ -284,5 +291,7 @@ export function auswahl(daten, ars, klassen = []) {
     alternative: a ? { stelle: stelle(a.stelle), bedingung: a.bedingung } : null,
     hinweise,
     keinBrief: false,
+    kontakt: (eintrag.kontakt && daten.kontakte?.[eintrag.kontakt]) ?? null,
+    bundesportal: portal,
   };
 }

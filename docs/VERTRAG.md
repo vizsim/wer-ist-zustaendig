@@ -94,6 +94,8 @@ eigene Kreise); die Landesdatei nennt dort die Stelle der angrenzenden Gemeinde,
 - `daten.aenderungen` ist `null`, wenn keine neuere Ausgabe des Gemeindeverzeichnisses
   eingelesen wurde.
 - `laender[].sicherheit` zählt Gemeinden nach der Sicherheit für Gemeindestraßen.
+- `laender[].kontakte` (optional): Zahl der Gemeinden mit Kontakt; nur bei Ländern, für die
+  Kontakte abgerufen wurden (`zust kontakte`).
 - `quellen[].vermerk` ist der Quellenvermerk, den Konsumenten anzeigen müssen.
 
 ## `<lkz>.json` – eine Datei je Land
@@ -101,6 +103,12 @@ eigene Kreise); die Landesdatei nennt dort die Stelle der angrenzenden Gemeinde,
 Kopf wie `index.json` (`schema`, `regeln`, `daten`, `erzeugt`, `hinweis`, `bundesportal`,
 `quellen`), dazu `land` (Kürzel) und `name`. Danach vier Tabellen, je ein Eintrag pro Zeile und
 nach Schlüssel sortiert (Beispiel aus den Testdaten, gekürzt):
+
+Länder mit Kontakten aus dem Bundesportal (`zust kontakte`) haben zusätzlich:
+
+- im Kopf `bundesportal_region`: Link auf die Seite der Leistung für eine Gemeinde, `{ars}` wird
+  ersetzt; `daten.kontakte` („Bundesportal 02.10.2026") und einen Eintrag in `quellen`;
+- eine fünfte Tabelle `kontakte` (siehe unten) und je Gemeinde das Feld `kontakt`.
 
 ```json
 {
@@ -165,7 +173,21 @@ Konsumenten lesen sie nur als Verweis.
 | `verband` | optional: voller Name des Verbands (nur bei 6. ARS-Stelle `5`) |
 | `ew` | optional: Bevölkerung laut GV-ISys |
 | `z` | Ergebnis-Id je Straßenklasse `G`, `K`, `L`, `B`. Autobahnen (`A`) sind überall gleich und stehen nicht in der Tabelle |
+| `kontakt` | optional: Id in `kontakte` – die eine Stelle, die das Bundesportal für die Gemeinde nennt (Auswahl siehe `pipeline/README.md`) |
+| `nachbar` | optional: ARS der angrenzenden Gemeinde, nur bei Kondominium-Flächen |
 | `aenderung` | optional: `{ art, stand, name_neu? }`, wenn die Gemeinde nach dem Datenstand aufgelöst, umgeschlüsselt oder umbenannt wurde |
+
+### `kontakte` (optional)
+
+| Feld | Inhalt |
+|---|---|
+| `name` | Name der Stelle laut Bundesportal, oft mit Fachbereich („Landratsamt Eichsfeld - Amt für Öffentliche Sicherheit und Ordnung") |
+| `adresse` | Hausanschrift oder `null` |
+| `telefon`, `email`, `web` | Listen, können leer sein. Nur Funktionspostfächer, keine Adressen mit Personennamen |
+
+Die Id ist `c` + FNV-1a über das JSON des Kontakts, gültig nur innerhalb der Landesdatei. Die
+Stelle des Kontakts kann von `zustaendig` abweichen, solange die Landesregeln fehlen; Konsumenten
+zeigen ihren Namen deshalb mit an.
 
 ### Nachschlagen
 
@@ -181,8 +203,10 @@ Konsumenten lesen sie nur als Verweis.
 - leere Klassenliste → wie `unklar`, mit Hinweis „Keine Straße erkannt".
 
 Rückgabe: `{ ars, gemeinde, verband, kreis, land, stand, regeln, aenderung, klasse, zustaendig,
-sicherheit, grund, quelle, alternative, hinweise, keinBrief }`; `zustaendig` und
-`alternative.stelle` sind Stellen-Objekte. `aufsicht` folgt mit Phase 6.
+sicherheit, grund, quelle, alternative, hinweise, keinBrief, kontakt, bundesportal }`;
+`zustaendig` und `alternative.stelle` sind Stellen-Objekte, `kontakt` ein Eintrag aus `kontakte`
+oder `null` (immer `null` bei `keinBrief`), `bundesportal` der Link auf die Seite der Gemeinde,
+sonst der allgemeine. `aufsicht` folgt mit Phase 6.
 
 ## Zwischenprodukt `gemeinden_attr.json` (nicht veröffentlicht)
 

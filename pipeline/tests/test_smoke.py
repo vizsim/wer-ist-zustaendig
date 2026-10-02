@@ -23,6 +23,9 @@ def test_quellen_vollstaendig() -> None:
             assert q.get(key), f"{qid}: `{key}` fehlt in sources.yaml"
     datasets = load_yaml("sources.yaml")["datasets"]
     assert datasets["zust_gemeinden"]["file"] == load_yaml("tiles.yaml")["ausgabe"]
+    bp = load_yaml("sources.yaml")["dienste"]["bundesportal"]
+    for key in ("label", "leistung", "laender_url", "kontakt_url", "seite", "lizenz", "vermerk"):
+        assert bp.get(key), f"bundesportal: `{key}` fehlt in sources.yaml"
 
 
 def test_pruefungen_lesbar() -> None:

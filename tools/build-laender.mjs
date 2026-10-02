@@ -3,9 +3,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 //
 //   node tools/build-laender.mjs [--attr <datei>] [--aus <ordner>] [--review <datei>]
+//                                [--kontakte <datei>]
 //
 // Defaults: pipeline/data/interim/gemeinden_attr.json → pipeline/data/zustaendigkeit/,
-// Review-CSV nach pipeline/data/review/ (nicht deployen, nicht einchecken).
+// Review-CSV nach pipeline/data/review/ (nicht deployen, nicht einchecken). Kontakte
+// (kontakte.json aus `zust kontakte`) nur, wenn angegeben.
 
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -23,9 +25,11 @@ function arg(name, fallback) {
 const attrPfad = arg("attr", join(ROOT, "pipeline/data/interim/gemeinden_attr.json"));
 const ausOrdner = arg("aus", join(ROOT, "pipeline/data/zustaendigkeit"));
 const reviewPfad = arg("review", join(ROOT, "pipeline/data/review/zustaendigkeit-review.csv"));
+const kontaktePfad = arg("kontakte", null);
 
 const attr = JSON.parse(readFileSync(attrPfad, "utf8"));
-const { dateien, index, review } = baueLaender(attr);
+const kontakte = kontaktePfad ? JSON.parse(readFileSync(kontaktePfad, "utf8")) : null;
+const { dateien, index, review } = baueLaender(attr, { kontakte });
 
 mkdirSync(ausOrdner, { recursive: true });
 const groesse = {};
@@ -45,7 +49,8 @@ for (const l of index.laender) {
   console.log(
     `${l.lkz}  ${String(l.gemeinden).padStart(5)} Gemeinden  ` +
     `belegt ${s.belegt} · vermutlich ${s.vermutlich} · nur Ebene ${s["nur Ebene"]}  ` +
-    `→ ${l.datei} ${kb(g.roh)} (gzip ${kb(g.gzip).trim()})`,
+    `→ ${l.datei} ${kb(g.roh)} (gzip ${kb(g.gzip).trim()})` +
+    (l.kontakte === undefined ? "" : `  · Kontakt für ${l.kontakte}`),
   );
 }
 const summe = Object.values(groesse).reduce((a, g) => ({ roh: a.roh + g.roh, gzip: a.gzip + g.gzip }), { roh: 0, gzip: 0 });

@@ -3,7 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   antwortHtml, ARTEN, datenBasisAusParam, esc, farbAusdruck, flaechenDeckkraft, flaechenFarbe, klassenAusdruck,
-  klassenListe, SICHERHEIT_STIL, strassenAmPunkt, strassenName, teileName,
+  klassenListe, kontaktHtml, SICHERHEIT_STIL, strassenAmPunkt, strassenName, teileName, telHref,
 } from "../js/ansicht.js";
 
 // Mini-Auswerter für die genutzten MapLibre-Ausdrücke – prüft, dass die Darstellung dieselben
@@ -121,6 +121,52 @@ test("datenBasisAusParam: nur eigene Quellen, auf localhost jede http(s)-Quelle"
   assert.equal(datenBasisAusParam("http://tiles.vizsim.de/", seite, bucket), null);
   assert.equal(datenBasisAusParam("http://127.0.0.1:9000/daten", "http://localhost:8080/", bucket), "http://127.0.0.1:9000/daten/");
   assert.equal(datenBasisAusParam("data:text/plain,x", "http://localhost:8080/", bucket), null);
+});
+
+test("telHref: Ländervorwahl, sonst null", () => {
+  assert.equal(telHref("03606 650-3610"), "tel:+4936066503610");
+  assert.equal(telHref("+49 3641 49-5360"), "tel:+493641495360");
+  assert.equal(telHref("0049 361 655"), "tel:+49361655");
+  assert.equal(telHref("(0361) 655-4330"), "tel:+493616554330");
+  assert.equal(telHref("Zentrale"), null);
+  assert.equal(telHref("123"), null);
+  assert.equal(telHref(undefined), null);
+});
+
+test("kontaktHtml: Telefon, E-Mail und Webseite als Links, nur sichere", () => {
+  const stand = { kontakte: "Bundesportal 02.10.2026" };
+  const html = kontaktHtml({
+    name: "Landratsamt <Eichsfeld>", telefon: ["03606 650-3610"],
+    email: ["strassenverkehrsamt@kreis-eic.de"], web: ["https://www.kreis-eic.de/verkehr"],
+  }, stand);
+  assert.ok(html.includes("Landratsamt &lt;Eichsfeld&gt;"));
+  assert.ok(html.includes('href="tel:+4936066503610">03606 650-3610</a>'));
+  assert.ok(html.includes('href="mailto:strassenverkehrsamt@kreis-eic.de"'));
+  assert.ok(html.includes('href="https://www.kreis-eic.de/verkehr" target="_blank" rel="noopener">kreis-eic.de</a>'));
+  assert.ok(html.includes("Kontaktdaten: Bundesportal 02.10.2026"));
+
+  const boese = kontaktHtml({
+    name: "X", telefon: ["javascript:alert(1)"], email: ["a@b.de?bcc=c@d.de", "x\"onclick@y.de"],
+    web: ["javascript:alert(1)", "data:text/html,x"],
+  }, stand);
+  assert.equal(boese, "", "kein sicherer Weg → kein Block");
+  assert.ok(!html.includes("kontakt-hinweis"));
+  const anders = kontaktHtml({ name: "Stadtverwaltung Apolda - Straßenverkehrsbehörde", telefon: ["03644 65036"], abweichend: true }, stand);
+  assert.ok(anders.includes("kontakt-hinweis") && anders.includes("statt der oben genannten"));
+  assert.equal(kontaktHtml(null, stand), "");
+  const nurMail = kontaktHtml({ name: "Y", telefon: [], email: ["info@y.de"], web: [] }, null);
+  assert.ok(nurMail.includes("mailto:info@y.de") && !nurMail.includes("Telefon") && !nurMail.includes("Kontaktdaten:"));
+});
+
+test("antwortHtml: Kontakt steht direkt unter dem Schild", () => {
+  const html = antwortHtml({
+    zustaendig: { name: "Landratsamt Eichsfeld – Straßenverkehrsbehörde" }, gemeinde: "Leinefelde-Worbis",
+    land: "TH", sicherheit: "nur Ebene", grund: "g", quelle: "q", hinweise: [],
+    kontakt: { name: "Landratsamt Eichsfeld - Amt für Öffentliche Sicherheit und Ordnung", telefon: ["03606 650-3610"] },
+    stand: { kontakte: "Bundesportal 02.10.2026" },
+  }, [], { landName: "Thüringen" });
+  assert.ok(html.indexOf('class="kontakt"') > html.indexOf('class="schild"'));
+  assert.ok(html.indexOf('class="kontakt"') < html.indexOf('class="ort"'));
 });
 
 test("antwortHtml: Autobahn und kreisfreie Stadt ohne doppelten Ortsnamen", () => {

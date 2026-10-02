@@ -26,7 +26,8 @@ uv run zust alles         # alles in einem Lauf
 |---|---|---|
 | `zust fetch [id] [--force]` | Quellen aus `config/sources.yaml` laden, ZIPs entpacken; daneben `<datei>.meta.json` mit URL, Größe, SHA-256 und Abrufdatum | `data/raw/<id>/` |
 | `zust tabelle` | VG25 + GV-ISys verknüpfen und prüfen | `data/interim/gemeinden_attr.json`, `data/review/tabelle-bericht.json` |
-| `zust laender` | Regeln über alle Gemeinden (Node); Größen je Datei | `data/zustaendigkeit/<lkz>.json`, `index.json`, `data/review/zustaendigkeit-review.csv` |
+| `zust kontakte [--land TH] [--nur-cache]` | optional: Kontakt der zuständigen Stelle je Gemeinde aus dem Bundesportal (eine Anfrage je Gemeinde, gedrosselt, mit Cache) | `data/interim/kontakte.json`, `data/review/kontakte-review.csv` |
+| `zust laender` | Regeln über alle Gemeinden (Node), mit Kontakten, falls vorhanden; Größen je Datei | `data/zustaendigkeit/<lkz>.json`, `index.json`, `data/review/zustaendigkeit-review.csv` |
 | `zust grenzen [--dry-run]` | VG25-Flächen → FlatGeobuf → tippecanoe → tile-join; meldet die Größe, warnt über 100 MB | `data/zustaendigkeit/gemeinden.pmtiles` |
 | `zust manifest` | Manifest mit Label, Quellenvermerk, Datenstand und Größe | `data/manifest.json` |
 | `zust pruefen [--n 200] [--grenze 20]` | feste Punkte und Stichprobe gegen die Grenzschicht | Ausgabe, `data/review/grenzpunkte.csv` |
@@ -34,6 +35,22 @@ uv run zust alles         # alles in einem Lauf
 
 `zust laender` muss vor `zust grenzen` laufen: Die Grenzschicht übernimmt aus den Landesdateien
 die Felder `eg` und `sg` für die Einfärbung.
+
+### Kontakte aus dem Bundesportal
+
+Für die Leistung „Aufstellung von Verkehrszeichen anregen" pflegen die Länder im Portalverbund,
+welche Stelle für eine Gemeinde zuständig ist – Stand 10/2026 in BB, BY, MV, NI, NW, RP, SH, ST
+und TH. `zust kontakte` fragt die (nicht dokumentierte) API des Bundesportals je Gemeinde ab, eine
+Anfrage pro Sekunde; der Cache liegt in `data/raw/bundesportal/<LAND>/`, ein abgebrochener Lauf
+setzt fort. `zust alles` ruft den Schritt nicht auf.
+
+Je Gemeinde wird genau eine Stelle gewählt (`bundesportal.waehle`): Stellen mit fremdem
+Fachbereich (Gewerbe, Fahrerlaubnis, Zulassung …) und ohne Telefon, E-Mail oder Web scheiden aus;
+E-Mail-Adressen mit Personennamen und Links zu sozialen Netzwerken fallen weg, Kontaktpersonen
+werden nie übernommen. Von den
+übrigen gewinnt die mit „Verkehr" im Namen oder in der Adresse. Gleich gute Stellen mit
+verschiedenen Nummern gelten als `mehrdeutig` (die erste wird genommen) – die Review-CSV zeigt
+alle Stellen mit Punkten.
 
 ## Ordner
 
@@ -44,11 +61,11 @@ pipeline/
     tiles.yaml        tippecanoe-Profile der Layer gemeinden und kreise
     pruefungen.yaml   Erwartungen für die Prüfungen (Große Kreisstädte je Land)
   data/               nicht im Git
-    raw/<id>/         Downloads
-    interim/          gemeinden_attr.json, FlatGeobuf
+    raw/<id>/         Downloads; raw/bundesportal/<LAND>/ Antworten je Gemeinde
+    interim/          gemeinden_attr.json, kontakte.json, FlatGeobuf
     zustaendigkeit/   veröffentlichte Dateien (Bucket-Präfix zustaendigkeit/)
     review/           Berichte, Review-CSV, Grenzpunkte (nicht veröffentlichen)
-  src/zustkarte/      cli, fetch, vg25, gv100ad, tabelle, grenzen, tiles, manifest, config
+  src/zustkarte/      cli, fetch, vg25, gv100ad, tabelle, bundesportal, grenzen, tiles, manifest, config
   tests/              pytest mit kleinen Testdaten (VG25-GeoPackage und GV100AD-Auszug)
 ```
 

@@ -35,6 +35,21 @@ quellen:
     lizenz: "© Statistisches Bundesamt (Destatis); Vervielfältigung und Verbreitung mit Quellenangabe gestattet"
     vermerk: "Statistisches Bundesamt (Destatis), Gemeindeverzeichnis GV-ISys, Stand 31.10.2026"
 
+# Dienste, die je Gemeinde abgefragt werden – nicht per `zust fetch`, sondern mit eigenem Schritt.
+# Bundesportal: Die Länder pflegen dort je Leistung und Gemeinde die zuständigen Stellen mit
+# Anschrift, Telefon und E-Mail. Die API ist nicht dokumentiert (abgelesen am Frontend des
+# Portals, 10/2026); `{…}` werden beim Abruf ersetzt.
+dienste:
+  bundesportal:
+    label: "Bundesportal (verwaltung.bund.de): zuständige Stellen für „Aufstellung von Verkehrszeichen anregen“"
+    leistung: "99108014042000"
+    laender_url: "https://verwaltung.bund.de/leistungsverzeichnis/DE/api/zustaendigkeiten/STAMM/{leistung}"
+    kontakt_url: "https://verwaltung.bund.de/leistungsverzeichnis/de/api/kontakt/{land}/{id}/{ars}?name=zustaendigestellen"
+    seite: "https://verwaltung.bund.de/leistungsverzeichnis/de/leistung/99108014042000"
+    pause: 1.0  # Sekunden zwischen zwei Anfragen
+    lizenz: "Amtliche Kontaktangaben; Nutzungsbedingungen des Portals nicht gesondert geprüft"
+    vermerk: "Kontakt laut Bundesportal (verwaltung.bund.de)"
+
 # Ausgaben (Vertrag mit Konsumenten, docs/VERTRAG.md). `file` relativ zu data/.
 datasets:
   zust_gemeinden:
