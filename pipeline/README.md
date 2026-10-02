@@ -49,8 +49,10 @@ Fachbereich (Gewerbe, Fahrerlaubnis, Zulassung …) und ohne Telefon, E-Mail ode
 E-Mail-Adressen mit Personennamen und Links zu sozialen Netzwerken fallen weg, Kontaktpersonen
 werden nie übernommen. Von den
 übrigen gewinnt die mit „Verkehr" im Namen oder in der Adresse. Gleich gute Stellen mit
-verschiedenen Nummern gelten als `mehrdeutig` (die erste wird genommen) – die Review-CSV zeigt
-alle Stellen mit Punkten.
+verschiedenen Behörden gelten als `mehrdeutig` und bekommen keinen Kontakt – die Review-CSV
+zeigt alle Stellen mit Punkten. Daneben wird je Gemeinde die Stelle der Gemeinde selbst gesucht
+(Rathaus oder Verwaltungsgemeinschaft, `waehle_gemeinde`); der Build übernimmt sie nur in Ländern,
+in denen Gemeinden für Gemeindestraßen zuständig sein können (heute Bayern).
 
 ## Ordner
 

@@ -194,8 +194,10 @@ function webUrl(adresse) {
  * andere Stelle als unsere Auskunft, die sich selbst Straßenverkehrsbehörde nennt.
  * @param {{name: string, telefon?: string[], email?: string[], web?: string[], abweichend?: boolean}|null} k
  * @param {{kontakte?: string}|null} stand Kopf `daten` der Landesdatei („Bundesportal 02.10.2026")
+ * @param {{vorspann?: string|null, quelle?: boolean}} opts vorspann: Zeile über dem Namen (macht
+ *   den Block zur Alternative); quelle: Zeile mit Datenstand anzeigen
  */
-export function kontaktHtml(k, stand) {
+export function kontaktHtml(k, stand, { vorspann = null, quelle = true } = {}) {
   if (!k) return "";
   const tel = (k.telefon ?? []).map((t) => [t, telHref(t)]).find(([, h]) => h);
   const mail = (k.email ?? []).find((m) => EMAIL_RE.test(m));
@@ -208,12 +210,21 @@ export function kontaktHtml(k, stand) {
   ].filter(Boolean);
   if (!wege.length) return "";
   return `
-    <div class="kontakt">
+    <div class="kontakt${vorspann ? " kontakt-oder" : ""}">
+      ${vorspann ? `<p class="kontakt-vorspann">${esc(vorspann)}</p>` : ""}
       <p class="kontakt-name">${esc(k.name)}</p>
       ${k.abweichend ? `<p class="kontakt-hinweis">Das Bundesportal nennt diese Stelle; sie kann statt der oben genannten zuständig sein.</p>` : ""}
       <ul class="kontakt-wege">${wege.join("")}</ul>
-      ${stand?.kontakte ? `<p class="kontakt-quelle">Kontaktdaten: ${esc(stand.kontakte)}</p>` : ""}
+      ${quelle && stand?.kontakte ? `<p class="kontakt-quelle">Kontaktdaten: ${esc(stand.kontakte)}</p>` : ""}
     </div>`;
+}
+
+/** Hauptkontakt und, wo die Gemeinde zuständig sein kann, ihr Kontakt; Datenstand einmal, unten. */
+function kontakteHtml(r) {
+  const gemeinde = kontaktHtml(r.kontaktGemeinde, r.stand, {
+    vorspann: "Oder die Gemeinde, falls nur die Gemeindestraße betroffen ist:",
+  });
+  return kontaktHtml(r.kontakt, r.stand, { quelle: !gemeinde }) + gemeinde;
 }
 
 /**
@@ -246,7 +257,7 @@ export function antwortHtml(r, strassen, { landName, bundesportal, hinweis } = {
       <h2 class="schild-behoerde">${esc(behoerde)}</h2>
       ${zusatz ? `<p class="schild-zusatz">${esc(zusatz)}</p>` : ""}
     </div>
-    ${kontaktHtml(r.kontakt, r.stand)}
+    ${kontakteHtml(r)}
     <p class="ort">${ort}</p>
     ${strassenText ? `<p class="strassen">${strassenText}</p>` : ""}
     <p class="sicherheit"><span class="marke marke-${esc(String(r.sicherheit).toLowerCase().replace(" ", "-"))}">${esc(sStil.label)}</span> ${esc(r.grund)}</p>

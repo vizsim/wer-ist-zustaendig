@@ -9,7 +9,8 @@
 
 import { LAENDER, landAusKuerzel, landesdatei } from "../../js/laender.js";
 import {
-  BAU_KLASSEN, BUNDESPORTAL, ergebnisId, FESTE_STELLEN, HINWEIS, REGELN, resolveGemeinde,
+  BAU_KLASSEN, BUNDESPORTAL, ergebnisId, FESTE_STELLEN, GEMEINDE_FUER_GEMEINDESTRASSEN, HINWEIS, REGELN,
+  resolveGemeinde,
 } from "../../js/resolve.js";
 
 export const SCHEMA = 1;
@@ -112,6 +113,13 @@ export function baueLaender(attr, opts = {}) {
       const { id, kontakt } = kontaktEintrag(k);
       land.kontakte[id] = kontakt;
       eintrag.kontakt = id;
+    }
+    // Kontakt der Gemeinde selbst nur, wo sie für Gemeindestraßen zuständig sein kann.
+    const kg = kontakte?.gemeinden?.[ars]?.gemeinde;
+    if (kg && GEMEINDE_FUER_GEMEINDESTRASSEN.includes(g.land)) {
+      const { id, kontakt } = kontaktEintrag(kg);
+      land.kontakte[id] = kontakt;
+      eintrag.kontakt_gemeinde = id;
     }
     if (g.kondominium?.nachbar) eintrag.nachbar = g.kondominium.nachbar;
     if (g.gebietsaenderung) eintrag.aenderung = g.gebietsaenderung;

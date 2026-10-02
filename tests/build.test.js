@@ -97,10 +97,33 @@ function kontakte() {
           name: "Landratsamt Freising", adresse: "Landshuter Str. 31, 85356 Freising",
           telefon: ["+49 8161 600-0"], email: ["poststelle@kreis-fs.de"], web: ["https://www.kreis-freising.de"],
         },
+        gemeinde: {
+          name: "Große Kreisstadt Freising", adresse: "Obere Hauptstr. 2, 85354 Freising",
+          telefon: ["+49 8161 54-0"], email: ["stadtverwaltung@freising.de"], web: [],
+        },
       },
     },
   };
 }
+
+test("baueLaender + auswahl: in Bayern der Kontakt der Gemeinde bei Gemeindestraßen", () => {
+  const by = baueLaender(attr(), { kontakte: kontakte() }).dateien["by.json"];
+  const eintrag = by.gemeinden["091780124124"];
+  assert.match(eintrag.kontakt_gemeinde, /^c[0-9a-f]{8}$/);
+  assert.equal(by.kontakte[eintrag.kontakt_gemeinde].name, "Große Kreisstadt Freising");
+  assert.equal(auswahl(by, "091780124124", ["G"]).kontaktGemeinde.name, "Große Kreisstadt Freising");
+  assert.equal(auswahl(by, "091780124124", ["K", "G"]).kontaktGemeinde.name, "Große Kreisstadt Freising");
+  assert.equal(auswahl(by, "091780124124", []).kontaktGemeinde.name, "Große Kreisstadt Freising", "Klasse unklar");
+  assert.equal(auswahl(by, "091780124124", ["K"]).kontaktGemeinde, null, "nur Kreisstraße");
+  assert.equal(auswahl(by, "091780124124", ["A"]).kontaktGemeinde, null, "Autobahn");
+
+  const k = kontakte();
+  k.meta.laender = { RP: { ...k.meta.laender.BY, herausgeber: "8958611" } };
+  k.gemeinden = { "073395001001": { ...k.gemeinden["091780124124"] } };
+  const rp = baueLaender(attr(), { kontakte: k }).dateien["rp.json"];
+  assert.equal(rp.gemeinden["073395001001"].kontakt_gemeinde, undefined, "nur in Ländern der Regel");
+  assert.equal(auswahl(rp, "073395001001", ["G"]).kontaktGemeinde, null);
+});
 
 test("baueLaender: Kontakte nur im Land mit Abruf, entdoppelt und über Ids verknüpft", () => {
   const ohne = baueLaender(attr());

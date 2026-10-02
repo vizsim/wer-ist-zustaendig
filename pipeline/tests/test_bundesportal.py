@@ -164,6 +164,29 @@ def test_funktionspostfach() -> None:
         assert not bp.funktionspostfach(m), m
 
 
+def test_waehle_gemeinde_eigene_stelle() -> None:
+    gemeinde = {
+        "gen": "Adelschlag",
+        "verband": {"gen": "Nassenfels"},
+        "kreis": {"gen": "Eichstätt", "kreisfrei": False},
+    }
+    lra = _stelle("Landratsamt Eichstätt - SG 16", ["08421 70-0"], ["poststelle@lra-ei.bayern.de"])
+    vg = _stelle(
+        "Verwaltungsgemeinschaft Nassenfels", ["+49 8424 8911-0"], ["poststelle@nassenfels.de"]
+    )
+    nachbar = _stelle("Markt Kipfenberg - Ordnungsamt", ["08465 9410-0"], ["ordnung@kipfenberg.de"])
+    assert bp.waehle_gemeinde([lra, nachbar, vg], gemeinde, lra) == vg, "VG der Gemeinde"
+    assert bp.waehle_gemeinde([lra, nachbar], gemeinde, lra) is None, "fremde Gemeinde, Kreis"
+    assert bp.waehle_gemeinde([vg], gemeinde, vg) is None, "schon Hauptkontakt"
+    lenggries = {"gen": "Lenggries", "verband": None, "kreis": {"gen": "Bad Tölz-Wolfratshausen"}}
+    ordnung = _stelle(
+        "Gemeinde Lenggries - 1.2 Standesamt, Amt für öffentliche Ordnung",
+        ["08042 5008-0"],
+        ["ordnungsamt@lenggries.de"],
+    )
+    assert bp.waehle_gemeinde([ordnung], lenggries, None) == ordnung, "Ordnung zählt mit Standesamt"
+
+
 def test_tabelle_aus_cache(tmp_path, monkeypatch) -> None:
     ordner = tmp_path / "RP"
     ordner.mkdir()

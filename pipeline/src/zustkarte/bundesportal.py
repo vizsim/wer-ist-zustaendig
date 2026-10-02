@@ -27,8 +27,8 @@ USER_AGENT = "wer-ist-zustaendig-pipeline (+https://github.com/vizsim/wer-ist-zu
 VERSUCHE = 3
 
 # Auswahl der einen Stelle je Gemeinde (`waehle`): Verkehr im Namen zählt am meisten, fremde
-# Fachbereiche (Gewerbe, Fahrerlaubnis …) scheiden aus – außer „Verkehr" steht mit im Namen
-# („Gewerbe und Verkehr").
+# Fachbereiche (Gewerbe, Fahrerlaubnis …) scheiden aus – außer „Verkehr" oder „Ordnung" steht
+# mit im Namen („Gewerbe und Verkehr").
 VERKEHR = re.compile(r"verkehr", re.I)
 BEHOERDE = re.compile(r"verkehrsbeh(ö|oe)rde|verkehrsamt", re.I)  # auch Straßenverkehrsamt
 ORDNUNG = re.compile(r"ordnung", re.I)
@@ -135,7 +135,10 @@ def punkte(stelle: dict[str, Any]) -> int:
         p += 2
     if ORDNUNG.search(name) or ORDNUNG.search(mails):
         p += 1
-    if (FREMD.search(name) or FREMD.search(mails)) and not VERKEHR.search(name):
+    # „Gewerbe und Verkehr", „Standesamt, Amt für öffentliche Ordnung": der Teil zählt.
+    if (FREMD.search(name) or FREMD.search(mails)) and not (
+        VERKEHR.search(name) or ORDNUNG.search(name)
+    ):
         p -= 10
     return p + bool(stelle["email"]) + bool(stelle["telefon"])
 
@@ -169,6 +172,40 @@ def ist_stvb(stelle: dict[str, Any]) -> bool:
     return bool(BEHOERDE.search(stelle["name"]) or BEHOERDE.search(" ".join(stelle["email"])))
 
 
+def eigene_stelle(stelle: dict[str, Any], gemeinde: dict[str, Any]) -> bool:
+    """Stelle der Gemeinde selbst oder ihres Verbands (Rathaus, Verwaltungsgemeinschaft, Amt)?"""
+    name = _norm(stelle["name"])
+    if KREISEBENE.search(name):
+        return False
+    namen = [gemeinde["gen"]] + ([gemeinde["verband"]["gen"]] if gemeinde.get("verband") else [])
+    return any(all(w in name for w in _woerter(n)) for n in namen if n)
+
+
+def _kandidaten(stellen: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Ohne persönliche E-Mail-Adressen; nur Stellen mit Kontaktweg und ohne fremden Fachbereich."""
+    kandidaten = []
+    for s in stellen:
+        s = {**s, "email": [m for m in s["email"] if funktionspostfach(m)]}
+        if (s["telefon"] or s["email"] or s["web"]) and punkte(s) >= 0:
+            kandidaten.append(s)
+    return kandidaten
+
+
+def waehle_gemeinde(
+    stellen: list[dict[str, Any]], gemeinde: dict[str, Any], kontakt: dict[str, Any] | None
+) -> dict[str, Any] | None:
+    """Die Stelle der Gemeinde selbst, falls das Portal eine nennt und sie nicht schon `kontakt`
+    ist (in Bayern Kontakt für Gemeindestraßen); bei mehreren die beste nach `punkte`, dann Name.
+    """
+    eigene = [
+        s for s in _kandidaten(stellen)
+        if eigene_stelle(s, gemeinde) and s["name"] != (kontakt or {}).get("name")
+    ]  # fmt: skip
+    if not eigene:
+        return None
+    return sorted(eigene, key=lambda s: (-punkte(s), s["name"]))[0]
+
+
 def _ziffern(telefon: list[str]) -> set[str]:
     return {re.sub(r"\D", "", t).removeprefix("49").lstrip("0") for t in telefon}
 
@@ -189,11 +226,7 @@ def waehle(
     Nur `passt` und `stvb` liefern einen Kontakt. Gleich gute Stellen derselben Behörde (zwei
     Standorte eines Landratsamts) sind nicht mehrdeutig; dann gilt die erste nach Namen.
     """
-    kandidaten = []
-    for s in stellen:
-        s = {**s, "email": [m for m in s["email"] if funktionspostfach(m)]}
-        if (s["telefon"] or s["email"] or s["web"]) and punkte(s) >= 0:
-            kandidaten.append(s)
+    kandidaten = _kandidaten(stellen)
     if not kandidaten:
         return None, "keine"
     geeignet = [s for s in kandidaten if unsere_stelle(s, gemeinde) or ist_stvb(s)]
@@ -305,6 +338,7 @@ REVIEW_KOPF = [
     "telefon",
     "email",
     "web",
+    "stelle_der_gemeinde",
     "alle_stellen",
 ]
 
@@ -337,7 +371,13 @@ def tabelle(attr: dict[str, Any]) -> tuple[dict[str, Any], list[list[str]]]:
                 continue
             stellen = stellen_aus(e["antwort"])
             kontakt, wahl = waehle(stellen, g)
-            gemeinden[ars] = {"wahl": wahl, "stellen": len(stellen), "kontakt": kontakt}
+            eigene = None if g.get("kondominium") else waehle_gemeinde(stellen, g, kontakt)
+            gemeinden[ars] = {
+                "wahl": wahl,
+                "stellen": len(stellen),
+                "kontakt": kontakt,
+                "gemeinde": eigene,
+            }
             k = kontakt or {"name": "", "telefon": [], "email": [], "web": []}
             review.append(
                 [
@@ -351,6 +391,7 @@ def tabelle(attr: dict[str, Any]) -> tuple[dict[str, Any], list[list[str]]]:
                     " / ".join(k["telefon"]),
                     " / ".join(k["email"]),
                     " / ".join(k["web"]),
+                    (eigene or {}).get("name", ""),
                     " | ".join(f"{s['name']} ({punkte(s)})" for s in stellen),
                 ]
             )

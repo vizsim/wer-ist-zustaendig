@@ -14,7 +14,14 @@
 import { kreisBehoerde, mitZusatz, stadtName } from "./namen.js";
 import { hoechsteKlasse } from "./strassenklasse.js";
 
-export const REGELN = Object.freeze({ version: "0.3.0", phase: 1, stand: "2026-10-03" });
+export const REGELN = Object.freeze({ version: "0.4.0", phase: 1, stand: "2026-10-03" });
+
+/**
+ * Länder, in denen kreisangehörige Gemeinden für ihre Gemeindestraßen selbst Straßenverkehrs-
+ * behörde sein können (Konzept § 6.1; Bayern auch laut Leistungstext im Bundesportal). Solange
+ * die Landesregel fehlt, nennt die Auskunft dort den Kontakt der Gemeinde als Alternative.
+ */
+export const GEMEINDE_FUER_GEMEINDESTRASSEN = Object.freeze(["BY"]);
 
 export const SICHERHEIT = Object.freeze({
   BELEGT: "belegt",
@@ -270,6 +277,7 @@ export function auswahl(daten, ars, klassen = []) {
       hinweise,
       keinBrief: true,
       kontakt: null,
+      kontaktGemeinde: null,
       bundesportal: daten.bundesportal ?? null,
     };
   }
@@ -295,6 +303,11 @@ export function auswahl(daten, ars, klassen = []) {
     }
   }
   const a = e.alternative ?? alt;
+  // Kontakt der Gemeinde nur, wo sie zuständig sein kann und eine Gemeindestraße im Spiel ist.
+  const gemeindeKontakt = GEMEINDE_FUER_GEMEINDESTRASSEN.includes(daten.land) &&
+    (liste.includes("G") || top === "unklar") && eintrag.kontakt_gemeinde
+    ? daten.kontakte?.[eintrag.kontakt_gemeinde] ?? null
+    : null;
   return {
     ...basis,
     klasse: top,
@@ -306,6 +319,7 @@ export function auswahl(daten, ars, klassen = []) {
     hinweise,
     keinBrief: false,
     kontakt: (eintrag.kontakt && daten.kontakte?.[eintrag.kontakt]) ?? null,
+    kontaktGemeinde: gemeindeKontakt,
     bundesportal: portal,
   };
 }

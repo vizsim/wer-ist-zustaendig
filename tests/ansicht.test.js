@@ -158,6 +158,20 @@ test("kontaktHtml: Telefon, E-Mail und Webseite als Links, nur sichere", () => {
   assert.ok(nurMail.includes("mailto:info@y.de") && !nurMail.includes("Telefon") && !nurMail.includes("Kontaktdaten:"));
 });
 
+test("antwortHtml: Kontakt der Gemeinde als Alternative, Datenstand nur einmal unten", () => {
+  const html = antwortHtml({
+    zustaendig: { name: "Landratsamt Landshut – Straßenverkehrsbehörde" }, gemeinde: "Markt Essenbach",
+    land: "BY", sicherheit: "nur Ebene", grund: "g", quelle: "q", hinweise: [],
+    kontakt: { name: "Landratsamt Landshut", telefon: ["+49 8703 9073-0"] },
+    kontaktGemeinde: { name: "Markt Essenbach", telefon: ["+49 8703 808-0"], email: ["poststelle@essenbach.de"] },
+    stand: { kontakte: "Bundesportal 03.10.2026" },
+  }, [], { landName: "Bayern" });
+  assert.ok(html.includes("Oder die Gemeinde, falls nur die Gemeindestraße betroffen ist:"));
+  assert.ok(html.indexOf("Landratsamt Landshut</p>") < html.indexOf("Markt Essenbach</p>"));
+  assert.equal(html.split("Kontaktdaten: Bundesportal").length - 1, 1);
+  assert.ok(html.lastIndexOf("Kontaktdaten:") > html.indexOf("Markt Essenbach</p>"));
+});
+
 test("antwortHtml: Kontakt steht direkt unter dem Schild", () => {
   const html = antwortHtml({
     zustaendig: { name: "Landratsamt Eichsfeld – Straßenverkehrsbehörde" }, gemeinde: "Leinefelde-Worbis",

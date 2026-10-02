@@ -7,7 +7,7 @@ ein Git-Tag `v<version>` dazu.
 
 ## [Unveröffentlicht]
 
-Regeln 0.3.0 · Schema 1 · Datenstand 31.12.2025. Erster Lauf mit echten Daten (BKG, Destatis).
+Regeln 0.4.0 · Schema 1 · Datenstand 31.12.2025. Erster Lauf mit echten Daten (BKG, Destatis).
 
 ### Hinzugefügt
 
@@ -21,6 +21,9 @@ Regeln 0.3.0 · Schema 1 · Datenstand 31.12.2025. Erster Lauf mit echten Daten 
   `kontakt` (und `nachbar` bei Kondominium-Flächen), im Kopf `bundesportal_region`.
 - Der Bundesportal-Link führt in Ländern mit Kontakten auf die Seite der Gemeinde mit allen
   Stellen.
+- Bayern (Regeln 0.4.0): Bei Gemeindestraßen nennt die Auskunft zusätzlich den Kontakt der
+  Gemeinde selbst („Oder die Gemeinde, falls nur die Gemeindestraße betroffen ist"); das
+  Landratsamt bleibt Hauptkontakt, bis die bayerische Landesregel eingebaut ist.
 
 ### Geändert
 

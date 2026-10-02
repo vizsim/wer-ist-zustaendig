@@ -3,7 +3,7 @@
 Dieses Dokument ist die Schnittstelle zwischen „Wer ist zuständig?" und allen, die die Dateien
 nutzen – zuerst die Karte in diesem Repo, dann die Unfallkarte.
 
-Stand: **Schema 1** · Regeln 0.3.0 (Phase 1) · Datenstand 31.12.2025
+Stand: **Schema 1** · Regeln 0.4.0 (Phase 1) · Datenstand 31.12.2025
 
 ## Regeln für alle Dateien
 
@@ -73,7 +73,7 @@ eigene Kreise); die Landesdatei nennt dort die Stelle der angrenzenden Gemeinde,
 ```json
 {
   "schema": 1,
-  "regeln": { "version": "0.3.0", "phase": 1, "stand": "2026-10-03" },
+  "regeln": { "version": "0.4.0", "phase": 1, "stand": "2026-10-03" },
   "daten": {
     "gebiet": "VG25 31.12.2025",
     "status": "GV-ISys 31.12.2025",
@@ -174,6 +174,7 @@ Konsumenten lesen sie nur als Verweis.
 | `ew` | optional: Bevölkerung laut GV-ISys |
 | `z` | Ergebnis-Id je Straßenklasse `G`, `K`, `L`, `B`. Autobahnen (`A`) sind überall gleich und stehen nicht in der Tabelle |
 | `kontakt` | optional: Id in `kontakte` – die eine Stelle, die das Bundesportal für die Gemeinde nennt (Auswahl siehe `pipeline/README.md`) |
+| `kontakt_gemeinde` | optional: Id in `kontakte` – die Stelle der Gemeinde selbst (Rathaus, Verwaltungsgemeinschaft); nur in Ländern, in denen Gemeinden für Gemeindestraßen zuständig sein können (`GEMEINDE_FUER_GEMEINDESTRASSEN` in `js/resolve.js`, heute BY) |
 | `nachbar` | optional: ARS der angrenzenden Gemeinde, nur bei Kondominium-Flächen |
 | `aenderung` | optional: `{ art, stand, name_neu? }`, wenn die Gemeinde nach dem Datenstand aufgelöst, umgeschlüsselt oder umbenannt wurde |
 
@@ -203,9 +204,11 @@ zeigen ihren Namen deshalb mit an.
 - leere Klassenliste → wie `unklar`, mit Hinweis „Keine Straße erkannt".
 
 Rückgabe: `{ ars, gemeinde, verband, kreis, land, stand, regeln, aenderung, klasse, zustaendig,
-sicherheit, grund, quelle, alternative, hinweise, keinBrief, kontakt, bundesportal }`;
+sicherheit, grund, quelle, alternative, hinweise, keinBrief, kontakt, kontaktGemeinde, bundesportal }`;
 `zustaendig` und `alternative.stelle` sind Stellen-Objekte, `kontakt` ein Eintrag aus `kontakte`
-oder `null` (immer `null` bei `keinBrief`), `bundesportal` der Link auf die Seite der Gemeinde,
+oder `null` (immer `null` bei `keinBrief`), `kontaktGemeinde` der Kontakt der Gemeinde, wenn sie
+zuständig sein kann und eine Gemeindestraße oder eine unklare Klasse ausgewählt ist (sonst `null`),
+`bundesportal` der Link auf die Seite der Gemeinde,
 sonst der allgemeine. `aufsicht` folgt mit Phase 6.
 
 ## Zwischenprodukt `gemeinden_attr.json` (nicht veröffentlicht)
