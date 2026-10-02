@@ -17,6 +17,9 @@ Regeln 0.2.0 · Schema 1 · Datenstand 31.12.2025. Erster Lauf mit echten Daten 
 
 ### Geändert
 
+- Grenzschicht: Unter Zoomstufe 12 sind die Kacheln gröber aufgelöst (`low_detail` 10) – die
+  Datei hat 30 statt 43 MB, eine Kachel bei Zoom 7 im Mittel 56 statt 126 KB. Nachgeschlagen
+  wird weiter in z12 mit voller Auflösung.
 - `zust tabelle`: Unbewohnte gemeindefreie Gebiete, die nur im GV-ISys stehen (Küstengewässer
   M-V, das Kondominium als Ganzes), ergeben eine Warnung statt eines Fehlers.
 - Sachsen: Die Prüfung erwartet 0 Große Kreisstädte, weil das GV-ISys sie dort nicht mit

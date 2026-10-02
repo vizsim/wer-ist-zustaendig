@@ -18,8 +18,8 @@ Offene Punkte stehen nur hier, und erst nach Abstimmung mit dem Repo-Owner (CLAU
     (24 RP, 1 SL). Je Land: BB 413, BE 1, BW 1 103, BY 2 221, HB 2, HE 425, HH 1, MV 724,
     NI 964, NW 396, RP 2 324, SH 1 106, SL 53, SN 418, ST 218, TH 605.
   - Große Kreisstädte: BW 96, BY 29, SN 0 (siehe Phase 2).
-  - `gemeinden.pmtiles` 43,0 MB; Landesdateien zusammen 2 164 KB (gzip 221 KB), größte RP
-    448 KB (gzip 36 KB) und BY 437 KB (gzip 45 KB).
+  - `gemeinden.pmtiles` 43,0 MB, mit `low_detail` 10 (2026-10-03) 29,8 MB; Landesdateien
+    zusammen 2 164 KB (gzip 221 KB), größte RP 448 KB (gzip 36 KB) und BY 437 KB (gzip 45 KB).
   - `zust pruefen`: 9/9 feste Punkte; 200/200 Zufallspunkte mit genau einem ARS; 195
     Grenzpaare ohne Überlappung, 5 davon außen leer (nach den Koordinaten Küste oder
     Staatsgrenze).

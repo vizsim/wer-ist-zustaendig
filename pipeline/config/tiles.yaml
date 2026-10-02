@@ -5,6 +5,8 @@ profiles:
   # Gemeindeflächen: Nachschlagen per Punkt-in-Polygon in z12 (Auflösung dort ~1–2 m) und
   # Darstellung ab z7. Gemeinsame Grenzen erhalten (keine Lücken/Überlappungen zwischen
   # Nachbarn), keine kleinen Flächen zusammenfassen, nichts verwerfen.
+  # low_detail: unter maxzoom 1024 statt 4096 Einheiten je Kachel – immer noch feiner als ein
+  # Bildschirmpixel, aber z7 im Mittel 44 statt 106 KB (gemessen 10/2026). z12 bleibt voll.
   gemeinden:
     layer: gemeinden
     minzoom: 7
@@ -13,6 +15,7 @@ profiles:
     no_tiny_polygon_reduction: true
     no_feature_limit: true
     no_tile_size_limit: true
+    low_detail: 10
 
   # Kreisflächen für die Übersicht (z4–z10).
   kreise:
@@ -23,6 +26,7 @@ profiles:
     no_tiny_polygon_reduction: true
     no_feature_limit: true
     no_tile_size_limit: true
+    low_detail: 10
 
 # Ziel nach tile-join (relativ zu data/), siehe datasets.zust_gemeinden in sources.yaml.
 ausgabe: "zustaendigkeit/gemeinden.pmtiles"

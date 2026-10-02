@@ -17,8 +17,10 @@ def test_profil_args_gemeinden() -> None:
         "--no-tiny-polygon-reduction",
         "--no-feature-limit",
         "--no-tile-size-limit",
+        "--low-detail=10",
     ):
         assert flag in args
+    assert "--full-detail" not in " ".join(args), "z12 (Nachschlagen) bleibt voll aufgelöst"
     assert "-l" in tiles.profil_args(tiles.profile()["kreise"])
 
 

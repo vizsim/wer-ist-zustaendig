@@ -35,6 +35,8 @@ def profil_args(profil: dict[str, Any]) -> list[str]:
         args.append("--no-tiny-polygon-reduction")
     if "simplification" in profil:
         args.append(f"--simplification={profil['simplification']}")
+    if "low_detail" in profil:
+        args.append(f"--low-detail={profil['low_detail']}")
     if profil.get("no_feature_limit"):
         args.append("--no-feature-limit")
     if profil.get("no_tile_size_limit"):

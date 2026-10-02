@@ -29,7 +29,7 @@ oder im Bucket, auf `localhost` beliebig.
 
 | Datei | Inhalt | Größe |
 |---|---|---|
-| `gemeinden.pmtiles` | Grenzschicht: Layer `gemeinden` und `kreise` | 43 MB; über 100 MB erst abstimmen |
+| `gemeinden.pmtiles` | Grenzschicht: Layer `gemeinden` und `kreise` | 30 MB; über 100 MB erst abstimmen |
 | `index.json` | Übersicht: Regel- und Datenstand, Quellen, Liste der Länder | wenige KB |
 | `<lkz>.json` (16, z. B. `by.json`) | Zuständigkeit je Gemeinde und Straßenklasse | 2–448 KB je Land, gzip höchstens 45 KB |
 | `../manifest.json` | Manifest der Pipeline (Muster Unfallkarte/SVZ) | wenige KB |
@@ -41,7 +41,9 @@ Größen aus dem ersten echten Lauf (Datenstand 31.12.2025, Regeln 0.2.0): Lande
 
 PMTiles v3, Vektorkacheln (MVT) im Web-Mercator-Raster. Geometrie: VG25, nur Datensätze mit
 `GF = 9`, nach EPSG:4326. Nachbarflächen teilen ihre Grenzen exakt (`--detect-shared-borders`),
-kleine Flächen bleiben erhalten.
+kleine Flächen bleiben erhalten. Unter der höchsten Zoomstufe eines Layers sind die Kacheln
+gröber aufgelöst (1024 statt 4096 Einheiten, `low_detail` in `pipeline/config/tiles.yaml`) –
+für die Darstellung genügt das; nachgeschlagen wird in z12 mit voller Auflösung.
 
 | Layer | Zoom | Feld | Typ | Inhalt |
 |---|---|---|---|---|
