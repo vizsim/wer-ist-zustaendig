@@ -14,7 +14,7 @@
 import { kreisBehoerde, mitZusatz, stadtName } from "./namen.js";
 import { hoechsteKlasse } from "./strassenklasse.js";
 
-export const REGELN = Object.freeze({ version: "0.2.0", phase: 1, stand: "2026-10-02" });
+export const REGELN = Object.freeze({ version: "0.3.0", phase: 1, stand: "2026-10-03" });
 
 export const SICHERHEIT = Object.freeze({
   BELEGT: "belegt",
@@ -48,6 +48,9 @@ export const TEXTE = Object.freeze({
     kondominium:
       "Gemeinsames deutsch-luxemburgisches Hoheitsgebiet (Mosel, Sauer, Our). Genannt ist die " +
       "Stelle der angrenzenden deutschen Gemeinde; ob sie hier zuständig ist, ist nicht geprüft.",
+    bundesportal:
+      "Das Land nennt im Bundesportal für diese Gemeinde dieselbe Stelle. Die Landesregel selbst " +
+      "ist noch nicht eingearbeitet.",
   }),
   bedingung: Object.freeze({
     gks: "Große Kreisstadt – sie kann selbst zuständig sein",
@@ -65,6 +68,8 @@ export const TEXTE = Object.freeze({
     autobahn: "Konzept § 6.1",
     kondominium:
       "Rückfall: angrenzende Gemeinde laut VG25 (SDV_ARS); Grenzvertrag Deutschland–Luxemburg nicht ausgewertet",
+    bundesportal:
+      "Bundesportal, zuständige Stelle für „Aufstellung von Verkehrszeichen anregen\" (Angabe des Landes)",
   }),
   hinweis: Object.freeze({
     autobahnDabei: "Für die Autobahn selbst ist das Fernstraßen-Bundesamt zuständig.",
@@ -158,13 +163,22 @@ function regelPhase1(g) {
 }
 
 /**
- * Kondominium (VG25 `BEZ = Kondominium`): Der Eintrag trägt Kreis und Verband der angrenzenden
- * Gemeinde, also deren Stelle – aber nie sicherer als „nur Ebene".
+ * Regel samt Sonderfällen:
+ * - Kondominium (VG25 `BEZ = Kondominium`): Der Eintrag trägt Kreis und Verband der angrenzenden
+ *   Gemeinde, also deren Stelle – aber nie sicherer als „nur Ebene".
+ * - Bundesportal (`g.bundesportal`, vom Build aus kontakte.json ergänzt): Nennt das Land dort für
+ *   die Gemeinde dieselbe Stelle (`passt`), wird aus „nur Ebene" „vermutlich". Nennt es eine
+ *   andere (`stvb`), bleibt es bei „nur Ebene"; die Karte zeigt deren Kontakt mit Hinweis.
  */
 function regel(g) {
   const e = regelPhase1(g);
-  if (!g.kondominium) return e;
-  return { ...e, sicherheit: SICHERHEIT.NUR_EBENE, grund: TEXTE.grund.kondominium, quelle: TEXTE.quelle.kondominium };
+  if (g.kondominium) {
+    return { ...e, sicherheit: SICHERHEIT.NUR_EBENE, grund: TEXTE.grund.kondominium, quelle: TEXTE.quelle.kondominium };
+  }
+  if (g.bundesportal === "passt" && e.sicherheit === SICHERHEIT.NUR_EBENE) {
+    return { ...e, sicherheit: SICHERHEIT.VERMUTLICH, grund: TEXTE.grund.bundesportal, quelle: TEXTE.quelle.bundesportal };
+  }
+  return e;
 }
 
 /**

@@ -55,7 +55,8 @@ npm run serve                              # Karte lokal auf :8080
 ## Rechtsaussagen
 
 - **Kein Rechtsrat.** Jede Auskunft trägt `sicherheit` (belegt · vermutlich · nur Ebene), `grund`
-  und `quelle`. „belegt" nur mit geprüfter Primärquelle und Golden-Tests mit echten ARS.
+  und `quelle`. „belegt" nur mit geprüfter Primärquelle und Golden-Tests mit echten ARS;
+  „vermutlich" auch, wenn das Land im Bundesportal für die Gemeinde dieselbe Stelle nennt.
 - **Primärquellen:** Gesetz- und Verordnungsblatt, amtliche Landesportale (z. B. revosax,
   recht.nrw.de), FIM-Behördentexte. Sekundärquellen als „[S]" kennzeichnen. Grokipedia nicht als
   Quelle verwenden oder zitieren; dort Gefundenes an der Primärquelle prüfen.

@@ -109,6 +109,22 @@ test("Kondominium: Stelle der angrenzenden Gemeinde, nie sicherer als nur Ebene"
   assert.deepEqual(Object.keys(zust.G), ["stelle", "sicherheit", "grund", "quelle", "alternative"]);
 });
 
+test("Bundesportal: dieselbe Stelle → vermutlich, andere Stelle oder Kondominium → nur Ebene", () => {
+  const bestaetigt = resolveGemeinde({ ...G.unterhaching, bundesportal: "passt" }).zust;
+  assert.equal(bestaetigt.G.stelle, "k09184");
+  assert.equal(bestaetigt.G.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(bestaetigt.K.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(bestaetigt.G.grund, TEXTE.grund.bundesportal);
+  assert.equal(bestaetigt.G.quelle, TEXTE.quelle.bundesportal);
+  const gks = resolveGemeinde({ ...G.freising, bundesportal: "passt" }).zust.G;
+  assert.equal(gks.alternative.stelle, "g091780124124", "Alternative bleibt");
+  assert.equal(resolveGemeinde({ ...G.unterhaching, bundesportal: "stvb" }).zust.G.sicherheit, SICHERHEIT.NUR_EBENE);
+  assert.equal(resolveGemeinde({ ...G.kondominium, bundesportal: "passt" }).zust.G.sicherheit, SICHERHEIT.NUR_EBENE);
+  const frei = resolveGemeinde({ ...G.muenchen, bundesportal: "passt" }).zust.G;
+  assert.equal(frei.grund, TEXTE.grund.kreisfrei, "schon vermutlich: Regel bleibt maßgeblich");
+  assert.equal(resolveGemeinde(G.unterhaching).zust.G.sicherheit, SICHERHEIT.NUR_EBENE, "ohne Portal");
+});
+
 test("resolveGemeinde: prüft die Eingabe", () => {
   assert.throws(() => resolveGemeinde({ ...G.muenchen, ars: "09162000" }), /ungültiger ARS/);
   assert.throws(() => resolveGemeinde({ ...G.muenchen, kreis: null }), /ohne Kreis/);

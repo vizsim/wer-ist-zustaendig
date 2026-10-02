@@ -78,7 +78,8 @@ export function baueLaender(attr, opts = {}) {
 
   for (const ars of Object.keys(attr.gemeinden).sort()) {
     const g = attr.gemeinden[ars];
-    const { zust, stellen } = resolveGemeinde(g);
+    const portal = kontakte?.gemeinden?.[ars]?.wahl;
+    const { zust, stellen } = resolveGemeinde(portal ? { ...g, bundesportal: portal } : g);
     let land = proLand.get(g.land);
     if (!land) {
       land = { stellen: { fba: FESTE_STELLEN.fba }, ergebnisse: {}, kontakte: {}, kreise: {}, gemeinden: {} };

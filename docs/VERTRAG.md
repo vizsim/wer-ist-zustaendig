@@ -3,7 +3,7 @@
 Dieses Dokument ist die Schnittstelle zwischen „Wer ist zuständig?" und allen, die die Dateien
 nutzen – zuerst die Karte in diesem Repo, dann die Unfallkarte.
 
-Stand: **Schema 1** · Regeln 0.2.0 (Phase 1) · Datenstand 31.12.2025
+Stand: **Schema 1** · Regeln 0.3.0 (Phase 1) · Datenstand 31.12.2025
 
 ## Regeln für alle Dateien
 
@@ -73,7 +73,7 @@ eigene Kreise); die Landesdatei nennt dort die Stelle der angrenzenden Gemeinde,
 ```json
 {
   "schema": 1,
-  "regeln": { "version": "0.2.0", "phase": 1, "stand": "2026-10-02" },
+  "regeln": { "version": "0.3.0", "phase": 1, "stand": "2026-10-03" },
   "daten": {
     "gebiet": "VG25 31.12.2025",
     "status": "GV-ISys 31.12.2025",
@@ -155,7 +155,7 @@ Länder mit Kontakten aus dem Bundesportal (`zust kontakte`) haben zusätzlich:
 | Feld | Inhalt |
 |---|---|
 | `stelle` | Id in `stellen` |
-| `sicherheit` | `belegt` (Primärquelle, getestete Regel) · `vermutlich` (Regel belegt, Eingabe unsicher) · `nur Ebene` (Land noch offen) |
+| `sicherheit` | `belegt` (Primärquelle, getestete Regel) · `vermutlich` (Regel belegt, Eingabe unsicher – oder das Land nennt im Bundesportal dieselbe Stelle) · `nur Ebene` (Land noch offen) |
 | `grund` | ein Satz für Popup und Report |
 | `quelle` | Fundstelle mit Fassung bzw. Verweis auf das Konzept |
 | `alternative` | `null` oder `{ stelle, bedingung }`; `bedingung` ist ein Satzteil („falls nur die Gemeindestraße betroffen ist") |

@@ -32,7 +32,10 @@ export const ARTEN = Object.freeze({
 /** Sicherheit (Feld `sg`) → Deckkraft der Fläche; „nur Ebene" zusätzlich schraffiert. */
 export const SICHERHEIT_STIL = Object.freeze({
   belegt: { deckkraft: 0.42, schraffur: false, label: "belegt", text: "Regel an der Primärquelle geprüft" },
-  vermutlich: { deckkraft: 0.26, schraffur: false, label: "vermutlich", text: "Regel belegt, Eingabe unsicher" },
+  vermutlich: {
+    deckkraft: 0.26, schraffur: false, label: "vermutlich",
+    text: "Regel belegt oder vom Land im Bundesportal bestätigt",
+  },
   "nur Ebene": {
     deckkraft: 0.12, schraffur: true, label: "nur Ebene",
     text: "Landesregel noch nicht eingearbeitet",

@@ -7,7 +7,7 @@ ein Git-Tag `v<version>` dazu.
 
 ## [Unveröffentlicht]
 
-Regeln 0.2.0 · Schema 1 · Datenstand 31.12.2025. Erster Lauf mit echten Daten (BKG, Destatis).
+Regeln 0.3.0 · Schema 1 · Datenstand 31.12.2025. Erster Lauf mit echten Daten (BKG, Destatis).
 
 ### Hinzugefügt
 
@@ -24,6 +24,9 @@ Regeln 0.2.0 · Schema 1 · Datenstand 31.12.2025. Erster Lauf mit echten Daten 
 
 ### Geändert
 
+- Regeln 0.3.0: Nennt das Land im Bundesportal für eine Gemeinde dieselbe Stelle wie unsere
+  Regel, gilt die Auskunft als „vermutlich" statt „nur Ebene" – auf der Karte ohne Schraffur. In
+  Thüringen betrifft das 529 Gemeinden.
 - Grenzschicht: Unter Zoomstufe 12 sind die Kacheln gröber aufgelöst (`low_detail` 10) – die
   Datei hat 30 statt 43 MB, eine Kachel bei Zoom 7 im Mittel 56 statt 126 KB. Nachgeschlagen
   wird weiter in z12 mit voller Auflösung.

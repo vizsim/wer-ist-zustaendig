@@ -92,7 +92,7 @@ function kontakte() {
     },
     gemeinden: {
       "091780124124": {
-        wahl: "einzig", stellen: 1,
+        wahl: "passt", stellen: 1,
         kontakt: {
           name: "Landratsamt Freising", adresse: "Landshuter Str. 31, 85356 Freising",
           telefon: ["+49 8161 600-0"], email: ["poststelle@kreis-fs.de"], web: ["https://www.kreis-freising.de"],
@@ -114,6 +114,8 @@ test("baueLaender: Kontakte nur im Land mit Abruf, entdoppelt und über Ids verk
   assert.ok(by.bundesportal_region.endsWith("/region/{ars}"));
   assert.ok(by.quellen.some((q) => q.id === "bundesportal"));
   assert.deepEqual(index.laender.map((l) => l.kontakte), [1, undefined]);
+  assert.deepEqual(index.laender[0].sicherheit, { belegt: 0, vermutlich: 2, "nur Ebene": 0 }, "Portal bestätigt Freising");
+  assert.deepEqual(ohne.index.laender[0].sicherheit, { belegt: 0, vermutlich: 1, "nur Ebene": 1 });
   assert.ok(index.quellen.some((q) => q.id === "bundesportal"));
   assert.equal(serialisiere(dateien["rp.json"]), serialisiere(ohne.dateien["rp.json"]), "andere Länder unverändert");
 
