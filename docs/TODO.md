@@ -70,9 +70,10 @@ Offene Punkte stehen nur hier, und erst nach Abstimmung mit dem Repo-Owner (CLAU
   8 400 Gemeinden, Abruf etwa 2,5 Stunden): `uv run zust kontakte`, dann je Land die
   Review-CSV durchsehen und die Auswahlregel nachschärfen (Stichprobe 10/2026: in BB, NW, ST
   teils ohne Eintrag oder mit fremden Fachbereichen).
-- [ ] **Fehler im Portal melden** (Redaktion Thüringen): Landkreis Saalfeld-Rudolstadt (für alle
+- [ ] **Fehler im Portal melden** – Redaktion Thüringen: Landkreis Saalfeld-Rudolstadt (für alle
   Gemeinden nur das Ordnungsamt der VG „Schwarzatal"), Landkreis Hildburghausen (für alle
   Gemeinden die Stadtverwaltung Hildburghausen), Suhl (nur „Gewerbeangelegenheiten").
+  Redaktion Bayern: Landkreis Altötting (beim Landratsamt nur die Fahrerlaubnisbehörde).
 - [ ] **Länder ohne Bundesportal-Eintrag** (BW, BE, HB, HH, HE, SL, SN): Kontakte der rund 105
   Stellen der Kreisebene und der Stadtstaaten anders beschaffen (Landesportale oder von Hand).
 - [ ] **Landesregel Thüringen:** Laut Portal sind mehrere große kreisangehörige Städte selbst

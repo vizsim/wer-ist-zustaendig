@@ -184,9 +184,10 @@ def waehle(
     den meisten `punkte`n.
 
     Wahl: `passt` (Stelle unserer Behörde), `stvb` (andere Stelle, die sich Straßenverkehrs-
-    behörde nennt; Kontakt mit `abweichend: true`), `mehrdeutig` (gleich gute Stellen mit
-    verschiedenen Nummern), `fremd` (nur andere Stellen, etwa ein Ordnungsamt), `keine`.
-    Nur `passt` und `stvb` liefern einen Kontakt.
+    behörde nennt; Kontakt mit `abweichend: true`), `mehrdeutig` (gleich gute Stellen
+    verschiedener Behörden), `fremd` (nur andere Stellen, etwa ein Ordnungsamt), `keine`.
+    Nur `passt` und `stvb` liefern einen Kontakt. Gleich gute Stellen derselben Behörde (zwei
+    Standorte eines Landratsamts) sind nicht mehrdeutig; dann gilt die erste nach Namen.
     """
     kandidaten = []
     for s in stellen:
@@ -199,8 +200,10 @@ def waehle(
     if not geeignet:
         return None, "fremd"
     beste = max(punkte(s) for s in geeignet)
-    oben = [s for s in geeignet if punkte(s) == beste]
-    if not all(_ziffern(s["telefon"]) & _ziffern(oben[0]["telefon"]) for s in oben):
+    oben = sorted((s for s in geeignet if punkte(s) == beste), key=lambda s: s["name"])
+    gleiche_nummer = all(_ziffern(s["telefon"]) & _ziffern(oben[0]["telefon"]) for s in oben)
+    eine_behoerde = all(unsere_stelle(s, gemeinde) for s in oben)
+    if not (gleiche_nummer or eine_behoerde):
         return None, "mehrdeutig"
     s = oben[0]
     return (s, "passt") if unsere_stelle(s, gemeinde) else ({**s, "abweichend": True}, "stvb")

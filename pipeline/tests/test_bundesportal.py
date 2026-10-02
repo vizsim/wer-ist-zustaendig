@@ -101,10 +101,18 @@ def test_waehle_stelle_unserer_behoerde() -> None:
     assert bp.waehle([lra, verkehr], soemmerda) == (verkehr, "passt"), "Verkehr im Namen zählt"
     gleich = _stelle("Landratsamt Sömmerda", ["+49 3634 3540"], ["info@lra-soemmerda.de"])
     assert bp.waehle([lra, gleich], soemmerda) == (lra, "passt"), "gleiche Nummer, anders notiert"
-    anders = _stelle(
-        "Landratsamt Sömmerda - Außenstelle", ["03635 1234"], ["info@lra-soemmerda.de"]
+    standort2 = _stelle(
+        "Landratsamt Sömmerda - Verkehrswesen (Standort 2)",
+        ["03635 1234"],
+        ["info@lra-soemmerda.de"],
     )
-    assert bp.waehle([lra, anders], soemmerda) == (None, "mehrdeutig")
+    standort1 = {**standort2, "name": "Landratsamt Sömmerda - Verkehrswesen (Standort 1)"}
+    assert bp.waehle([standort2, standort1], soemmerda) == (standort1, "passt"), (
+        "zwei Standorte derselben Behörde: der erste nach Namen"
+    )
+    stadt_a = _stelle("Stadt Apolda - Straßenverkehrsbehörde", ["03644 65036"], [])
+    stadt_b = _stelle("Stadt Ilmenau - Straßenverkehrsbehörde", ["03677 600-0"], [])
+    assert bp.waehle([stadt_a, stadt_b], soemmerda) == (None, "mehrdeutig"), "zwei Behörden"
 
     erfurt = _stelle(
         "Landeshauptstadt Erfurt, Stadtverwaltung - Straßenverkehrsrecht",
