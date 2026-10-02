@@ -24,7 +24,8 @@ Stand: **Schema 1** · Regeln 0.1.0 (Phase 1) · Datenstand 31.12.2025
 | Bucket (geplant) | `https://tiles.vizsim.de/file/unfallkarte-data-v2/zustaendigkeit/` – eigener Präfix im Bucket der Unfallkarte |
 
 Die Karte lädt lokal zuerst (auf `localhost`) und fällt sonst auf den Bucket zurück; mit
-`?daten=<url>` lässt sich eine andere Basis setzen.
+`?daten=<url>` lässt sich eine andere Basis setzen – nur auf demselben Ursprung wie die Karte
+oder im Bucket, auf `localhost` beliebig.
 
 | Datei | Inhalt | Größe |
 |---|---|---|

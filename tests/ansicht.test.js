@@ -2,8 +2,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  antwortHtml, ARTEN, esc, farbAusdruck, flaechenDeckkraft, flaechenFarbe, klassenAusdruck, klassenListe,
-  SICHERHEIT_STIL, strassenAmPunkt, strassenName, teileName,
+  antwortHtml, ARTEN, datenBasisAusParam, esc, farbAusdruck, flaechenDeckkraft, flaechenFarbe, klassenAusdruck,
+  klassenListe, SICHERHEIT_STIL, strassenAmPunkt, strassenName, teileName,
 } from "../js/ansicht.js";
 
 // Mini-Auswerter für die genutzten MapLibre-Ausdrücke – prüft, dass die Darstellung dieselben
@@ -102,6 +102,25 @@ test("antwortHtml: escapet Text aus OSM und Daten", () => {
   assert.ok(html.includes('href="https://example.org/?a=1&amp;b=2"'));
   assert.ok(!html.includes("<script>"));
   assert.equal(esc(null), "");
+});
+
+test("antwortHtml: Bundesportal-Link nur mit https", () => {
+  const r = { zustaendig: { name: "X" }, gemeinde: "G", sicherheit: "vermutlich", grund: "g", quelle: "q", hinweise: [] };
+  assert.ok(!antwortHtml(r, [], { bundesportal: "javascript:alert(1)" }).includes("href"));
+  assert.ok(!antwortHtml(r, [], { bundesportal: " https://x" }).includes("href"));
+  assert.ok(antwortHtml(r, [], { bundesportal: "https://verwaltung.bund.de/x" }).includes('href="https://verwaltung.bund.de/x"'));
+});
+
+test("datenBasisAusParam: nur eigene Quellen, auf localhost jede http(s)-Quelle", () => {
+  const seite = "https://vizsim.github.io/wer-ist-zustaendig/#karte=8/50/10";
+  const bucket = ["https://tiles.vizsim.de"];
+  assert.equal(datenBasisAusParam("./test-daten", seite, bucket), "https://vizsim.github.io/wer-ist-zustaendig/test-daten/");
+  assert.equal(datenBasisAusParam("https://tiles.vizsim.de/file/x/zust?a=1", seite, bucket), "https://tiles.vizsim.de/file/x/zust/");
+  assert.equal(datenBasisAusParam("https://evil.example/", seite, bucket), null);
+  assert.equal(datenBasisAusParam("javascript:alert(1)", seite, bucket), null);
+  assert.equal(datenBasisAusParam("http://tiles.vizsim.de/", seite, bucket), null);
+  assert.equal(datenBasisAusParam("http://127.0.0.1:9000/daten", "http://localhost:8080/", bucket), "http://127.0.0.1:9000/daten/");
+  assert.equal(datenBasisAusParam("data:text/plain,x", "http://localhost:8080/", bucket), null);
 });
 
 test("antwortHtml: Autobahn und kreisfreie Stadt ohne doppelten Ortsnamen", () => {

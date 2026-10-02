@@ -9,8 +9,8 @@
 import { landAusArs, landesdatei } from "./js/laender.js";
 import { auswahl } from "./js/resolve.js";
 import {
-  antwortHtml, ARTEN, esc, FARBE, farbAusdruck, flaechenDeckkraft, flaechenFarbe, klassenAusdruck,
-  klassenListe, SICHERHEIT_STIL, STRASSEN_LEGENDE, strassenAmPunkt,
+  antwortHtml, ARTEN, datenBasisAusParam, esc, FARBE, farbAusdruck, flaechenDeckkraft, flaechenFarbe,
+  klassenAusdruck, klassenListe, SICHERHEIT_STIL, STRASSEN_LEGENDE, strassenAmPunkt,
 } from "./js/ansicht.js";
 import { klassenName } from "./js/strassenklasse.js";
 
@@ -36,9 +36,11 @@ async function ladeJson(url) {
 
 async function datenBasis() {
   const param = new URLSearchParams(location.search).get("daten");
-  const kandidaten = param ? [param.replace(/\/?$/, "/")] : [];
-  if (!param && ["localhost", "127.0.0.1"].includes(location.hostname)) kandidaten.push(LOKAL);
-  if (!param) kandidaten.push(ENTFERNT);
+  const eigene = param ? datenBasisAusParam(param, location.href, [new URL(ENTFERNT).origin]) : null;
+  if (param && !eigene) meldung("Die Datenquelle im Link ist nicht erlaubt – die Karte nutzt die üblichen Daten.");
+  const kandidaten = eigene ? [eigene] : [];
+  if (!eigene && ["localhost", "127.0.0.1"].includes(location.hostname)) kandidaten.push(LOKAL);
+  if (!eigene) kandidaten.push(ENTFERNT);
   for (const basis of kandidaten) {
     try {
       return { basis, index: await ladeJson(`${basis}index.json`) };

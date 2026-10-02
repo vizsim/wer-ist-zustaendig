@@ -143,6 +143,28 @@ export function esc(s) {
 }
 
 /**
+ * Basis aus `?daten=<url>` – nur für eigene Quellen, sonst null. Ein geteilter Link soll keine
+ * fremden Auskünfte unter der Adresse der Karte zeigen können.
+ * @param {string} param Wert von `?daten=`
+ * @param {string} seite Adresse der Karte (location.href)
+ * @param {string[]} erlaubt weitere erlaubte Ursprünge (Bucket); auf localhost gilt jede http(s)-Quelle
+ * @returns {string|null} absolute Basis mit „/" am Ende
+ */
+export function datenBasisAusParam(param, seite, erlaubt = []) {
+  let u;
+  try {
+    u = new URL(param, seite);
+  } catch {
+    return null;
+  }
+  if (u.protocol !== "https:" && u.protocol !== "http:") return null;
+  const s = new URL(seite);
+  const lokal = ["localhost", "127.0.0.1"].includes(s.hostname);
+  if (!lokal && u.origin !== s.origin && !erlaubt.includes(u.origin)) return null;
+  return `${u.origin}${u.pathname.replace(/\/?$/, "/")}`;
+}
+
+/**
  * HTML der Antwortkarte.
  * @param {object} r Ergebnis von resolve.auswahl()
  * @param {object[]} strassen Ergebnis von strassenAmPunkt()
@@ -164,6 +186,8 @@ export function antwortHtml(r, strassen, { landName, bundesportal, hinweis } = {
     ? `<p class="aenderung">Gebietsänderung seit dem Datenstand: ${esc(r.aenderung.art)}${r.aenderung.name_neu ? ` (${esc(r.aenderung.name_neu)})` : ""}.</p>`
     : "";
   const stand = r.stand?.gebiet ? `Gebietsstand ${esc(r.stand.gebiet.replace(/^VG25 /, ""))}` : "";
+  // Escapen allein hält „javascript:" nicht auf: nur https-Links.
+  const portal = /^https:\/\//i.test(String(bundesportal ?? "")) ? bundesportal : null;
   return `
     <div class="schild">
       <p class="schild-frage">${r.keinBrief ? "Auf der Autobahn zuständig" : "Zuständig für Schilder und Tempolimits"}</p>
@@ -178,7 +202,7 @@ export function antwortHtml(r, strassen, { landName, bundesportal, hinweis } = {
     ${aenderung}
     <p class="quelle">Quelle: ${esc(r.quelle)}${stand ? `. ${stand}` : ""}.</p>
     <p class="weiter">
-      ${bundesportal ? `<a href="${esc(bundesportal)}" target="_blank" rel="noopener">Im Bundesportal nachsehen</a>` : ""}
+      ${portal ? `<a href="${esc(portal)}" target="_blank" rel="noopener">Im Bundesportal nachsehen</a>` : ""}
     </p>
     <p class="rechtsrat">${esc(hinweis ?? "Kein Rechtsrat.")}</p>`;
 }
