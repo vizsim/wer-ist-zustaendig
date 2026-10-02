@@ -308,7 +308,14 @@ map.on("load", () => {
     map.on("mouseleave", id, () => { map.getCanvas().style.cursor = ""; });
   }
   const p = punktAusHash();
-  if (p) map.once("idle", () => bestimme(map, basis, index, marker, p));
+  if (p) {
+    // Geteilter Link: Nach dem Verschieben oder auf einem kleineren Bildschirm liegt der Punkt
+    // womöglich außerhalb des Ausschnitts – dann fände queryRenderedFeatures keine Gemeinde.
+    if (map.getZoom() < 7 || !map.getBounds().contains(p)) {
+      map.jumpTo({ center: [p.lng, p.lat], zoom: Math.max(map.getZoom(), 7) });
+    }
+    map.once("idle", () => bestimme(map, basis, index, marker, p));
+  }
 });
 
 $("#antwort-zu").addEventListener("click", () => schliesseAntwort(map, marker));
