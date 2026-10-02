@@ -76,7 +76,7 @@ pipeline/
 - VG25 und GV-ISys mit derselben Gemeindemenge, gemeindefreie Gebiete eingeschlossen;
 - kreisfreie Städte in beiden Quellen gleich, je kreisfreiem Kreis genau eine Gemeinde;
 - Große Kreisstädte (Textkennzeichen 67) je Land in der Toleranz aus `pruefungen.yaml`, in
-  anderen Ländern keine.
+  anderen Ländern keine. Sachsen führt sie im GV-ISys nicht als 67 (siehe dort).
 
 `zust grenzen` bricht ab, wenn Gemeinden in den Landesdateien fehlen. `zust pruefen` endet mit
 Fehler, wenn ein fester Punkt den falschen ARS ergibt, ein Punkt in mehr als einer Fläche liegt

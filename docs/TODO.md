@@ -14,7 +14,7 @@ Offene Punkte stehen nur hier, und erst nach Abstimmung mit dem Repo-Owner (CLAU
 ### Teil A abschließen
 
 - [ ] **Echter Build** auf einem Rechner mit Zugang zu BKG und Destatis: `uv run zust alles`.
-  Danach festhalten: Gemeindezahl je Land, Große Kreisstädte je Land (BY 29, SN um 53, BW um 96),
+  Danach festhalten: Gemeindezahl je Land, Große Kreisstädte je Land (BY 29, BW 96; SN siehe Phase 2),
   Größe von `gemeinden.pmtiles` und der Landesdateien, Ergebnis von `zust pruefen`.
 - [ ] **20 Grenzpunkte** aus `pipeline/data/review/grenzpunkte.csv` am BKG-Dienst (WMS VG25)
   gegenprüfen. Das Link-Format (GetFeatureInfo, `CRS:84`) ist aus der Bau-Umgebung nicht
@@ -31,10 +31,14 @@ Offene Punkte stehen nur hier, und erst nach Abstimmung mit dem Repo-Owner (CLAU
 
 ### Regeln je Land (Plan § 7)
 
-- [ ] **Phase 2 – belegte Länder:** BY und SN (Gemeinde nur bei Gemeindestraßen; GKS über
+- [ ] **Phase 2 – belegte Länder:** BY und SN (Gemeinde nur bei Gemeindestraßen; GKS in BY über
   Textkennzeichen 67), NW (Liste nach § 4 GO NRW), BB (13 namentliche Kommunen, abgestuft), BW
   (Landratsamt, GKS, Stadtkreise, Verwaltungsgemeinschaften; Offenes als Alternative). Je Land
   5–10 Golden-Tests mit echten ARS; Review-CSV durchsehen.
+- [ ] **Große Kreisstädte in Sachsen** (abgestimmt 2026-10-02): GV-ISys führt sie als 63
+  (Stadt), nicht 67; VG25 kennzeichnet sie nicht. Liste der rund 53 GKS mit ARS aus der
+  Primärquelle als Konfiguration anlegen, dann `pruefungen.yaml` (SN, heute 0) anpassen. Bis
+  dahin bekommen sächsische Gemeinden keine GKS-Alternative.
 - [ ] **Phase 3 – Stadtstaaten:** Berlin (Netz-WFS: Straßen des übergeordneten Netzes,
   Bezirksgrenzen), Hamburg (Polizeikommissariate als Flächen).
 - [ ] **Phase 4/5:** HE, NI, MV, SH, TH; danach RP (Verbandsgemeinde über ARS-Stellen 6–9,
