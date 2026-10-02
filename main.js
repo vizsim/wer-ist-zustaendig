@@ -23,6 +23,9 @@ const PHOTON = "https://photon.komoot.io/api/";
 const STIL = "https://tiles.openfreemap.org/styles/positron";
 const ARTEN_PHASE1 = ["kreis", "stadt", "stadtstaat"]; // ab Phase 2 kommen gemeinde/verband dazu
 const STRASSEN_LAYER = ["strassen-neben", "strassen-haupt"];
+// Hauptstraßen der Unfallkarte erst ab z10: Darunter sind ihre Kacheln riesig (z7 im Mittel
+// 1,3 MB, z6 bis 7,9 MB), und die Hintergrundkarte zeigt die großen Straßen ohnehin.
+const STRASSEN_AB = 10;
 const nurWenigBewegung = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const $ = (sel) => document.querySelector(sel);
@@ -183,12 +186,12 @@ function baueLayer(map, basis) {
       layout: { "line-cap": "round", "line-join": "round" },
       paint: { "line-color": farbAusdruck(), "line-width": ["interpolate", ["linear"], ["zoom"], 13, 1, 17, 5] } },
     { id: "strassen-haupt-rand", type: "line", source: "strassen-haupt", "source-layer": "highways",
-      filter: ["==", klassenAusdruck(), "B"], layout: { "line-join": "round" },
-      paint: { "line-color": FARBE.gelbRand, "line-width": ["interpolate", ["linear"], ["zoom"], 6, 1.6, 12, 4, 17, 11] } },
-    { id: "strassen-haupt", type: "line", source: "strassen-haupt", "source-layer": "highways",
+      minzoom: STRASSEN_AB, filter: ["==", klassenAusdruck(), "B"], layout: { "line-join": "round" },
+      paint: { "line-color": FARBE.gelbRand, "line-width": ["interpolate", ["linear"], ["zoom"], 10, 3.2, 12, 4, 17, 11] } },
+    { id: "strassen-haupt", type: "line", source: "strassen-haupt", "source-layer": "highways", minzoom: STRASSEN_AB,
       layout: { "line-cap": "round", "line-join": "round" },
       paint: { "line-color": farbAusdruck(),
-        "line-width": ["interpolate", ["linear"], ["zoom"], 6, ["match", klassenAusdruck(), ["A", "B"], 1.2, 0.4],
+        "line-width": ["interpolate", ["linear"], ["zoom"], 10, ["match", klassenAusdruck(), ["A", "B"], 2.2, 1.1],
           12, ["match", klassenAusdruck(), ["A", "B"], 2.8, 1.6], 17, ["match", klassenAusdruck(), ["A", "B"], 8, 6]] } },
     { id: "gemeinde-auswahl", type: "line", source: "zust", "source-layer": "gemeinden",
       filter: ["==", ["get", "ars"], ""], paint: { "line-color": FARBE.tinte, "line-width": 2.5 } },
@@ -224,7 +227,9 @@ async function bestimme(map, basis, index, marker, lngLat) {
     const daten = await ladeLand(basis, land.lkz);
     const r = auswahl(daten, ars, klassenListe(strassen));
     if (!r) throw new Error(`Gemeinde ${ars} fehlt in ${landesdatei(land.lkz)}`);
-    if (map.getZoom() < 13 && !strassen.some((s) => s.klasse === "G")) {
+    if (map.getZoom() < STRASSEN_AB) {
+      r.hinweise.push(`Straßen erscheinen erst ab Zoomstufe ${STRASSEN_AB} – zum Anklicken näher heranzoomen.`);
+    } else if (map.getZoom() < 13 && !strassen.some((s) => s.klasse === "G")) {
       r.hinweise.push("Gemeindestraßen erscheinen erst ab Zoomstufe 13 – zum Anklicken näher heranzoomen.");
     }
     zeigeAntwort(antwortHtml(r, strassen, {

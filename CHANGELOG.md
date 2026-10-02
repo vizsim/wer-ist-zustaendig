@@ -27,6 +27,8 @@ Regeln 0.2.0 · Schema 1 · Datenstand 31.12.2025. Erster Lauf mit echten Daten 
 
 - Karte: Ein geteilter Link, dessen Punkt außerhalb des Ausschnitts lag, meldete „Hier liegt
   keine Gemeinde". Die Karte springt jetzt erst zum Punkt.
+- Karte: Bei kleinem Zoom lud sie die Straßenkacheln der Unfallkarte – bei Zoom 7 rund 20 MB.
+  Straßen erscheinen jetzt ab Zoomstufe 10; bei Zoom 7 lädt die Karte insgesamt etwa 1,5 MB.
 
 ### Sicherheit
 
