@@ -48,7 +48,8 @@ Offene Punkte stehen nur hier, und erst nach Abstimmung mit dem Repo-Owner (CLAU
   geändert 20.05.2026) an der Primärquelle lesen – landesrecht.thueringen.de lädt nur mit
   JavaScript; heute aus umwelt-online. Die Rechtsverordnung nach § 2 Abs. 8 mit der Liste der
   Städte auf Antrag beschaffen; heute erkannt am Bundesportal (Apolda, Eisenberg, Heilbad
-  Heiligenstadt) oder von Hand (Arnstadt, `TH_STAEDTE_AUF_ANTRAG`). Die großen kreisangehörigen
+  Heiligenstadt) oder von Hand (Arnstadt, `TH_STAEDTE_AUF_ANTRAG`); die übrigen 20 Gemeinden mit
+  10.000 bis 30.000 Einwohnern stehen bis dahin als Alternative da. Die großen kreisangehörigen
   Städte nach ThürKO abgleichen – GV-ISys führt in Thüringen kein Textkennzeichen 67.
 - [ ] **Phase 2 – weitere belegte Länder:** SN (Gemeinde nur bei Gemeindestraßen), NW (Liste nach
   § 4 GO NRW), BB (13 namentliche Kommunen, abgestuft), BW (Landratsamt, GKS, Stadtkreise,

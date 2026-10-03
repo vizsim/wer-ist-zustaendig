@@ -7,7 +7,7 @@ ein Git-Tag `v<version>` dazu.
 
 ## [Unveröffentlicht]
 
-Regeln 0.5.0 · Schema 1 · Datenstand 31.12.2025. Erster Lauf mit echten Daten (BKG, Destatis).
+Regeln 0.6.0 · Schema 1 · Datenstand 31.12.2025. Erster Lauf mit echten Daten (BKG, Destatis).
 
 ### Hinzugefügt
 
@@ -21,7 +21,9 @@ Regeln 0.5.0 · Schema 1 · Datenstand 31.12.2025. Erster Lauf mit echten Daten 
   einer Sekundärquelle gelesen): Städte über 30.000 Einwohner und Eisenach für alle Straßen;
   Städte, die auf Antrag Straßenverkehrsbehörde sind (§ 2 Abs. 7), für alle außer
   Bundesstraßen. Erkannt werden sie am Bundesportal (Apolda, Eisenberg, Heilbad Heiligenstadt)
-  oder von Hand (Arnstadt).
+  oder von Hand (Arnstadt). Im Übrigen ist laut Landesregel der Landkreis zuständig (Regeln
+  0.6.0) – alle Thüringer Gemeinden sind damit „vermutlich". Bei 20 Gemeinden mit 10.000 bis
+  30.000 Einwohnern, die auf Antrag zuständig sein könnten, steht die Gemeinde als Alternative.
 - Favicon: Fax-Symbol von SVG Repo (CC0).
 
 - Deutsch-luxemburgisches Kondominium (Mosel, Sauer, Our): Die 25 Flächen aus VG25 nennen die

@@ -3,7 +3,7 @@
 Dieses Dokument ist die Schnittstelle zwischen „Wer ist zuständig?" und allen, die die Dateien
 nutzen – zuerst die Karte in diesem Repo, dann die Unfallkarte.
 
-Stand: **Schema 1** · Regeln 0.5.0 (Phase 2: Landesregeln für Bayern und Thüringen) · Datenstand 31.12.2025
+Stand: **Schema 1** · Regeln 0.6.0 (Phase 2: Landesregeln für Bayern und Thüringen) · Datenstand 31.12.2025
 
 ## Regeln für alle Dateien
 
@@ -75,7 +75,7 @@ eigene Kreise); die Landesdatei nennt dort die Stelle der angrenzenden Gemeinde,
 ```json
 {
   "schema": 1,
-  "regeln": { "version": "0.5.0", "phase": 2, "stand": "2026-10-03" },
+  "regeln": { "version": "0.6.0", "phase": 2, "stand": "2026-10-03" },
   "daten": {
     "gebiet": "VG25 31.12.2025",
     "status": "GV-ISys 31.12.2025",

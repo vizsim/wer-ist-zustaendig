@@ -247,13 +247,26 @@ test("Thüringen: Stadt auf Antrag für alle Straßen außer Bundesstraßen", ()
   const arnstadt = resolveGemeinde(G.arnstadt).zust;
   assert.equal(arnstadt.G.stelle, "g160700004004");
   assert.equal(arnstadt.B.stelle, "k16070");
+});
 
-  const ohnePortal = resolveGemeinde(G.apolda).zust.G;
-  assert.equal(ohnePortal.stelle, "k16071", "weder Portal noch Liste: Kreisebene");
-  assert.equal(ohnePortal.sicherheit, SICHERHEIT.NUR_EBENE);
-  assert.equal(resolveGemeinde({ ...G.apolda, bundesportal: "passt" }).zust.G.sicherheit, SICHERHEIT.VERMUTLICH);
+test("Thüringen: sonst der Landkreis; Gemeinden bis 30.000 Einwohner als Alternative", () => {
+  const apolda = resolveGemeinde(G.apolda).zust; // weder im Portal noch in der Liste
+  assert.equal(apolda.G.stelle, "k16071");
+  assert.equal(apolda.G.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(apolda.G.grund, TEXTE.grund.thLandkreis);
+  assert.equal(apolda.G.quelle, TEXTE.quelle.thLandkreis);
+  assert.deepEqual(apolda.K.alternative, { stelle: "g160710001001", bedingung: TEXTE.bedingung.thAntragMoeglich });
+  assert.equal(apolda.B.alternative, null, "Bundesstraßen nie auf Antrag");
+  const bestaetigt = resolveGemeinde({ ...G.apolda, bundesportal: "passt" }).zust.G;
+  assert.equal(bestaetigt.grund, TEXTE.grund.thLandkreisPortal);
+  assert.equal(bestaetigt.sicherheit, SICHERHEIT.VERMUTLICH);
 
-  // Unter 10.000 Einwohnern gilt § 2 Abs. 7 nicht: Die Gemeinde steht nur als Alternative da.
+  const dorf = resolveGemeinde(G.grammetal).zust.G;
+  assert.equal(dorf.stelle, "k16071");
+  assert.equal(dorf.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(dorf.alternative, null, "unter 10.000 Einwohnern gilt § 2 Abs. 7 nicht");
+
+  // Nennt das Portal eine kleine Gemeinde als Straßenverkehrsbehörde, steht sie als Alternative da.
   const klein = resolveGemeinde({ ...G.grammetal, bundesportal: "stvb" });
   assert.equal(klein.zust.G.stelle, "k16071");
   assert.deepEqual(klein.zust.G.alternative, { stelle: "g160710103103", bedingung: TEXTE.bedingung.portalStvb });

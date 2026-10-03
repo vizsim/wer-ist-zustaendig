@@ -14,7 +14,7 @@
 import { kreisBehoerde, mitZusatz, stadtName } from "./namen.js";
 import { hoechsteKlasse } from "./strassenklasse.js";
 
-export const REGELN = Object.freeze({ version: "0.5.0", phase: 2, stand: "2026-10-03" });
+export const REGELN = Object.freeze({ version: "0.6.0", phase: 2, stand: "2026-10-03" });
 
 export const SICHERHEIT = Object.freeze({
   BELEGT: "belegt",
@@ -64,6 +64,10 @@ export const TEXTE = Object.freeze({
     thBundesstrasse:
       "Für Bundesstraßen bleibt in Thüringen der Landkreis zuständig, auch wo die Stadt sonst " +
       "Straßenverkehrsbehörde ist.",
+    thLandkreis: "In Thüringen ist für Gemeinden ohne eigene Straßenverkehrsbehörde der Landkreis zuständig.",
+    thLandkreisPortal:
+      "In Thüringen ist für Gemeinden ohne eigene Straßenverkehrsbehörde der Landkreis zuständig; " +
+      "das Land nennt im Bundesportal für diese Gemeinde dieselbe Stelle.",
   }),
   bedingung: Object.freeze({
     gks: "Große Kreisstadt – sie kann selbst zuständig sein",
@@ -71,6 +75,7 @@ export const TEXTE = Object.freeze({
     unklar: "falls es eine Gemeindestraße ist",
     berlinNetz: "falls die Straße zum übergeordneten Straßennetz gehört",
     portalStvb: "laut Bundesportal ist die Gemeinde selbst Straßenverkehrsbehörde",
+    thAntragMoeglich: "Gemeinde mit 10.000 bis 30.000 Einwohnern – sie kann auf Antrag selbst zuständig sein",
   }),
   quelle: Object.freeze({
     phase1: "Rückfall Phase 1: Kreisebene (Konzept § 6.1)",
@@ -99,6 +104,10 @@ export const TEXTE = Object.freeze({
       "§ 2 Abs. 3 Satz 1 Nr. 2 Buchst. d und Abs. 7 der Thüringer Verordnung über Zuständigkeiten " +
       "auf dem Gebiet des Straßenverkehrsrechts [S]; Stadt als Straßenverkehrsbehörde laut " +
       "Bundesportal bzw. Webseite",
+    thLandkreis:
+      "§ 2 Abs. 3 Satz 1 Nr. 2 Buchst. e der Thüringer Verordnung über Zuständigkeiten auf dem " +
+      "Gebiet des Straßenverkehrsrechts vom 13.02.2007, zuletzt geändert 20.05.2026 [S]; " +
+      "Gemeinden auf Antrag: Abs. 7; Einwohner laut GV-ISys 31.12.2025",
   }),
   hinweis: Object.freeze({
     autobahnDabei: "Für die Autobahn selbst ist das Fernstraßen-Bundesamt zuständig.",
@@ -231,20 +240,26 @@ export const TH_STAEDTE_AUF_ANTRAG = Object.freeze({
 
 /**
  * Thüringen (vermutlich): Städte über 30.000 Einwohner, große kreisangehörige Städte und Eisenach
- * für alle Straßen; Städte auf Antrag für alle außer Bundesstraßen; sonst der Landkreis (Phase 1).
+ * für alle Straßen; Städte auf Antrag für alle außer Bundesstraßen; im Übrigen der Landkreis.
+ * Ob eine Gemeinde mit 10.000 bis 30.000 Einwohnern auf Antrag zuständig ist, wissen wir nur aus
+ * Portal und Liste – sonst steht sie als Alternative da.
  */
 function regelThueringen(g, klasse) {
   const kreis = kreisStelle(g);
   if (g.kreis.kreisfrei) return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "kreisfrei", "thStadt");
   if (g.gemeindefrei) return null;
+  const ew = g.ew ?? 0;
   const stadt = gemeindeStelle(g, "stadt", "untere");
-  if ((g.ew ?? 0) > 30000 || g.ars === TH_EISENACH) {
-    return ergebnis(stadt, SICHERHEIT.VERMUTLICH, "thStadt", "thStadt");
-  }
-  const antrag = TH_STAEDTE_AUF_ANTRAG[g.ars] || (g.bundesportal === "stvb" && (g.ew ?? 0) > 10000);
-  if (!antrag) return null;
-  if (klasse === "B") return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "thBundesstrasse", "thAntrag");
-  return ergebnis(stadt, SICHERHEIT.VERMUTLICH, "thAntrag", "thAntrag");
+  if (ew > 30000 || g.ars === TH_EISENACH) return ergebnis(stadt, SICHERHEIT.VERMUTLICH, "thStadt", "thStadt");
+  const antrag = TH_STAEDTE_AUF_ANTRAG[g.ars] || (g.bundesportal === "stvb" && ew > 10000);
+  if (antrag && klasse === "B") return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "thBundesstrasse", "thAntrag");
+  if (antrag) return ergebnis(stadt, SICHERHEIT.VERMUTLICH, "thAntrag", "thAntrag");
+  const selbst = gemeindeStelle(g, istStadt(g) ? "stadt" : "gemeinde", "untere");
+  let alternative = null;
+  if (ew > 10000 && klasse !== "B") alternative = { stelle: selbst, bedingung: "thAntragMoeglich" };
+  else if (g.bundesportal === "stvb") alternative = { stelle: selbst, bedingung: "portalStvb" };
+  const grund = g.bundesportal === "passt" ? "thLandkreisPortal" : "thLandkreis";
+  return ergebnis(kreis, SICHERHEIT.VERMUTLICH, grund, "thLandkreis", alternative);
 }
 
 /** Landesregeln: (Gemeinde, Klasse) → Ergebnis, oder null für den Rückfall auf Phase 1. */
