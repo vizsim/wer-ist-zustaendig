@@ -18,8 +18,12 @@ function attr() {
     },
     gemeinden: {
       "091780124124": {
-        ars: "091780124124", gen: "Freising", name: "Freising", land: "BY", tkz: [67], ew: 50000,
+        ars: "091780124124", gen: "Freising", name: "Stadt Freising", land: "BY", tkz: [67], ew: 50000,
         kreis: kreis("09178", "Freising", "Landkreis", "ja"),
+      },
+      "092740128128": {
+        ars: "092740128128", gen: "Essenbach", name: "Gemeinde Essenbach", land: "BY", tkz: [60], ew: 11970,
+        kreis: kreis("09274", "Landshut", "Landkreis", "ja"),
       },
       "091620000000": {
         ars: "091620000000", gen: "München", name: "München", land: "BY", tkz: [61], ew: 1500000,
@@ -38,8 +42,9 @@ function attr() {
 test("baueLaender: eine Datei je Land, Index mit Zählern", () => {
   const { dateien, index } = baueLaender(attr());
   assert.deepEqual(Object.keys(dateien).sort(), ["by.json", "rp.json"]);
-  assert.deepEqual(index.laender.map((l) => [l.lkz, l.gemeinden]), [["BY", 2], ["RP", 1]]);
-  assert.deepEqual(index.laender[0].sicherheit, { belegt: 0, vermutlich: 1, "nur Ebene": 1 });
+  assert.deepEqual(index.laender.map((l) => [l.lkz, l.gemeinden]), [["BY", 3], ["RP", 1]]);
+  assert.deepEqual(index.laender[0].sicherheit, { belegt: 3, vermutlich: 0, "nur Ebene": 0 }, "Landesregel Bayern");
+  assert.deepEqual(index.laender[1].sicherheit, { belegt: 0, vermutlich: 0, "nur Ebene": 1 });
   const by = dateien["by.json"];
   assert.equal(by.land, "BY");
   assert.ok(by.stellen.fba, "Fernstraßen-Bundesamt ist in jeder Landesdatei");
@@ -51,12 +56,16 @@ test("baueLaender: eine Datei je Land, Index mit Zählern", () => {
 
 test("baueLaender: Ergebnisse sind entdoppelt und über Ids verknüpft", () => {
   const by = baueLaender(attr()).dateien["by.json"];
-  const z = by.gemeinden["091780124124"].z;
-  assert.equal(new Set(Object.values(z)).size, 1, "Phase 1: gleiches Ergebnis für alle Klassen");
-  assert.equal(Object.keys(by.ergebnisse).length, 2);
-  const r = auswahl(by, "091780124124", ["G"]);
-  assert.equal(r.zustaendig.name, "Landratsamt Freising – Straßenverkehrsbehörde");
-  assert.equal(r.alternative.stelle.name, "Stadt Freising – Straßenverkehrsbehörde");
+  assert.equal(new Set(Object.values(by.gemeinden["091780124124"].z)).size, 1, "Große Kreisstadt: alle Klassen gleich");
+  const z = by.gemeinden["092740128128"].z;
+  assert.notEqual(z.G, z.K, "Gemeindestraße bei der Gemeinde, der Rest beim Landratsamt");
+  assert.equal(z.K, z.B);
+  assert.equal(Object.keys(by.ergebnisse).length, 4);
+  assert.equal(auswahl(by, "091780124124", ["B"]).zustaendig.name, "Stadt Freising – Straßenverkehrsbehörde");
+  assert.equal(auswahl(by, "092740128128", ["G"]).zustaendig.name, "Gemeinde Essenbach – Straßenverkehrsbehörde");
+  const r = auswahl(by, "092740128128", ["K", "G"]);
+  assert.equal(r.zustaendig.name, "Landratsamt Landshut – Straßenverkehrsbehörde");
+  assert.equal(r.alternative.stelle.name, "Gemeinde Essenbach – Straßenverkehrsbehörde");
 });
 
 test("baueLaender + serialisiere: deterministisch, gültiges JSON, eine Zeile je Gemeinde", () => {
@@ -75,14 +84,16 @@ test("baueLaender + serialisiere: deterministisch, gültiges JSON, eine Zeile je
 
 test("baueLaender: Review-Zeilen je Gemeinde und Klasse", () => {
   const { review } = baueLaender(attr());
-  assert.equal(review.length, 3 * 4);
+  assert.equal(review.length, 4 * 4);
   const csv = reviewCsv(review);
   assert.ok(csv.startsWith("﻿land;ars;gemeinde"));
-  assert.ok(csv.includes("BY;091780124124;Freising;Landkreis Freising;G;Landratsamt Freising"));
+  assert.ok(csv.includes("BY;092740128128;Essenbach;Landkreis Landshut;G;Gemeinde Essenbach"));
+  assert.ok(csv.includes("BY;092740128128;Essenbach;Landkreis Landshut;K;Landratsamt Landshut"));
 });
 
 function kontakte() {
   const region = "https://verwaltung.bund.de/leistungsverzeichnis/de/leistung/99108014042000/herausgeber/BY-1806/region/{ars}";
+  const stelle = (name, email) => ({ name, adresse: null, telefon: ["+49 8161 600-0"], email: [email], web: [] });
   return {
     schema: 1,
     meta: {
@@ -92,63 +103,80 @@ function kontakte() {
     },
     gemeinden: {
       "091780124124": {
+        wahl: "passt", stellen: 2,
+        kreis: stelle("Landratsamt Freising", "poststelle@kreis-fs.de"),
+        gemeinde: stelle("Große Kreisstadt Freising", "stadtverwaltung@freising.de"),
+      },
+      "092740128128": {
+        wahl: "passt", stellen: 2,
+        kreis: stelle("Landratsamt Landshut - Verkehrswesen", "verkehr@landkreis-landshut.de"),
+        gemeinde: stelle("Markt Essenbach", "poststelle@essenbach.de"),
+      },
+      "091620000000": {
         wahl: "passt", stellen: 1,
-        kontakt: {
-          name: "Landratsamt Freising", adresse: "Landshuter Str. 31, 85356 Freising",
-          telefon: ["+49 8161 600-0"], email: ["poststelle@kreis-fs.de"], web: ["https://www.kreis-freising.de"],
-        },
-        gemeinde: {
-          name: "Große Kreisstadt Freising", adresse: "Obere Hauptstr. 2, 85354 Freising",
-          telefon: ["+49 8161 54-0"], email: ["stadtverwaltung@freising.de"], web: [],
-        },
+        kreis: stelle("Landeshauptstadt München - Kreisverwaltungsreferat", "kvr@muenchen.de"),
+        gemeinde: null,
       },
     },
   };
 }
 
-test("baueLaender + auswahl: in Bayern der Kontakt der Gemeinde bei Gemeindestraßen", () => {
+test("baueLaender + auswahl: Kontakt der Stelle, die für die Klasse zuständig ist", () => {
   const by = baueLaender(attr(), { kontakte: kontakte() }).dateien["by.json"];
-  const eintrag = by.gemeinden["091780124124"];
-  assert.match(eintrag.kontakt_gemeinde, /^c[0-9a-f]{8}$/);
-  assert.equal(by.kontakte[eintrag.kontakt_gemeinde].name, "Große Kreisstadt Freising");
-  assert.equal(auswahl(by, "091780124124", ["G"]).kontaktGemeinde.name, "Große Kreisstadt Freising");
-  assert.equal(auswahl(by, "091780124124", ["K", "G"]).kontaktGemeinde.name, "Große Kreisstadt Freising");
-  assert.equal(auswahl(by, "091780124124", []).kontaktGemeinde.name, "Große Kreisstadt Freising", "Klasse unklar");
-  assert.equal(auswahl(by, "091780124124", ["K"]).kontaktGemeinde, null, "nur Kreisstraße");
-  assert.equal(auswahl(by, "091780124124", ["A"]).kontaktGemeinde, null, "Autobahn");
+  const name = (ars, klassen) => auswahl(by, ars, klassen).kontakt?.name ?? null;
+  assert.equal(name("092740128128", ["G"]), "Markt Essenbach");
+  assert.equal(name("092740128128", ["K"]), "Landratsamt Landshut - Verkehrswesen");
+  const beide = auswahl(by, "092740128128", ["K", "G"]);
+  assert.equal(beide.kontakt.name, "Landratsamt Landshut - Verkehrswesen");
+  assert.equal(beide.alternative.kontakt.name, "Markt Essenbach");
+  assert.equal(auswahl(by, "092740128128", []).alternative.kontakt.name, "Markt Essenbach", "Klasse unklar");
+  assert.equal(name("092740128128", ["A"]), null, "Autobahn");
+  assert.equal(name("091780124124", ["B"]), "Große Kreisstadt Freising");
+  assert.equal(name("091620000000", ["G"]), "Landeshauptstadt München - Kreisverwaltungsreferat");
 
+  // Nur Kontakte von Stellen, die in den Ergebnissen der Gemeinde vorkommen.
+  const freising = by.gemeinden["091780124124"];
+  assert.match(freising.kontakt_gemeinde, /^c[0-9a-f]{8}$/);
+  assert.equal(freising.kontakt, undefined, "Landratsamt ist in Freising für keine Klasse zuständig");
+  assert.equal(by.gemeinden["091620000000"].kontakt_gemeinde, undefined);
+  assert.equal(Object.keys(by.kontakte).length, 4);
+});
+
+test("baueLaender: Kontakt der Gemeinde nur, wo sie zuständig sein kann", () => {
   const k = kontakte();
   k.meta.laender = { RP: { ...k.meta.laender.BY, herausgeber: "8958611" } };
-  k.gemeinden = { "073395001001": { ...k.gemeinden["091780124124"] } };
+  k.gemeinden = { "073395001001": { ...k.gemeinden["092740128128"] } };
   const rp = baueLaender(attr(), { kontakte: k }).dateien["rp.json"];
-  assert.equal(rp.gemeinden["073395001001"].kontakt_gemeinde, undefined, "nur in Ländern der Regel");
-  assert.equal(auswahl(rp, "073395001001", ["G"]).kontaktGemeinde, null);
+  const eintrag = rp.gemeinden["073395001001"];
+  assert.equal(rp.kontakte[eintrag.kontakt].name, "Landratsamt Landshut - Verkehrswesen");
+  assert.equal(eintrag.kontakt_gemeinde, undefined, "Rückfall Phase 1: nur die Kreisebene");
+
+  k.gemeinden["073395001001"].wahl = "stvb";
+  const stvb = baueLaender(attr(), { kontakte: k }).dateien["rp.json"];
+  const r = auswahl(stvb, "073395001001", ["G"]);
+  assert.equal(r.kontakt.name, "Landratsamt Landshut - Verkehrswesen");
+  assert.equal(r.alternative.stelle.id, "g073395001001", "Portal nennt die Gemeinde");
+  assert.equal(r.alternative.kontakt.name, "Markt Essenbach");
 });
 
 test("baueLaender: Kontakte nur im Land mit Abruf, entdoppelt und über Ids verknüpft", () => {
   const ohne = baueLaender(attr());
   const { dateien, index } = baueLaender(attr(), { kontakte: kontakte() });
   const by = dateien["by.json"];
-  const id = by.gemeinden["091780124124"].kontakt;
+  const id = by.gemeinden["092740128128"].kontakt;
   assert.match(id, /^c[0-9a-f]{8}$/);
-  assert.equal(by.kontakte[id].email[0], "poststelle@kreis-fs.de");
-  assert.equal(by.gemeinden["091620000000"].kontakt, undefined);
+  assert.equal(by.kontakte[id].email[0], "verkehr@landkreis-landshut.de");
   assert.equal(by.daten.kontakte, "Bundesportal 02.10.2026");
   assert.ok(by.bundesportal_region.endsWith("/region/{ars}"));
   assert.ok(by.quellen.some((q) => q.id === "bundesportal"));
-  assert.deepEqual(index.laender.map((l) => l.kontakte), [1, undefined]);
-  assert.deepEqual(index.laender[0].sicherheit, { belegt: 0, vermutlich: 2, "nur Ebene": 0 }, "Portal bestätigt Freising");
-  assert.deepEqual(ohne.index.laender[0].sicherheit, { belegt: 0, vermutlich: 1, "nur Ebene": 1 });
+  assert.deepEqual(index.laender.map((l) => l.kontakte), [3, undefined]);
   assert.ok(index.quellen.some((q) => q.id === "bundesportal"));
   assert.equal(serialisiere(dateien["rp.json"]), serialisiere(ohne.dateien["rp.json"]), "andere Länder unverändert");
 
-  const r = auswahl(by, "091780124124", ["G"]);
-  assert.equal(r.kontakt.name, "Landratsamt Freising");
-  assert.ok(r.bundesportal.endsWith("/herausgeber/BY-1806/region/091780124124"));
-  const a = auswahl(by, "091780124124", ["A"]);
-  assert.equal(a.kontakt, null, "Autobahn: kein Kontakt der Gemeinde");
-  assert.equal(auswahl(by, "091620000000", ["G"]).kontakt, null);
-  assert.equal(auswahl(ohne.dateien["by.json"], "091780124124", ["G"]).bundesportal, by.bundesportal);
+  const r = auswahl(by, "092740128128", ["G"]);
+  assert.ok(r.bundesportal.endsWith("/herausgeber/BY-1806/region/092740128128"));
+  assert.equal(auswahl(ohne.dateien["by.json"], "092740128128", ["G"]).kontakt, null);
+  assert.equal(auswahl(ohne.dateien["by.json"], "092740128128", ["G"]).bundesportal, by.bundesportal);
 });
 
 test("baueLaender: Kondominium verweist auf die angrenzende Gemeinde", () => {

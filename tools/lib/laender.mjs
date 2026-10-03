@@ -9,8 +9,7 @@
 
 import { LAENDER, landAusKuerzel, landesdatei } from "../../js/laender.js";
 import {
-  BAU_KLASSEN, BUNDESPORTAL, ergebnisId, FESTE_STELLEN, GEMEINDE_FUER_GEMEINDESTRASSEN, HINWEIS, REGELN,
-  resolveGemeinde,
+  BAU_KLASSEN, BUNDESPORTAL, ergebnisId, FESTE_STELLEN, HINWEIS, REGELN, resolveGemeinde,
 } from "../../js/resolve.js";
 
 export const SCHEMA = 1;
@@ -21,7 +20,6 @@ const MAP_KEYS = new Set(["stellen", "ergebnisse", "kontakte", "kreise", "gemein
 function kontaktEintrag(k) {
   const kontakt = {
     name: k.name, adresse: k.adresse ?? null, telefon: k.telefon ?? [], email: k.email ?? [], web: k.web ?? [],
-    ...(k.abweichend ? { abweichend: true } : {}),
     ...(k.quelle ? { quelle: k.quelle } : {}),
   };
   return { id: `c${ergebnisId(kontakt).slice(1)}`, kontakt };
@@ -109,18 +107,19 @@ export function baueLaender(attr, opts = {}) {
     if (g.verband?.name) eintrag.verband = g.verband.name;
     if (Number.isFinite(g.ew)) eintrag.ew = g.ew;
     eintrag.z = z;
-    const k = kontakte?.gemeinden?.[ars]?.kontakt;
-    if (k) {
-      const { id, kontakt } = kontaktEintrag(k);
-      land.kontakte[id] = kontakt;
-      eintrag.kontakt = id;
-    }
-    // Kontakt der Gemeinde selbst nur, wo sie für Gemeindestraßen zuständig sein kann.
-    const kg = kontakte?.gemeinden?.[ars]?.gemeinde;
-    if (kg && GEMEINDE_FUER_GEMEINDESTRASSEN.includes(g.land)) {
-      const { id, kontakt } = kontaktEintrag(kg);
-      land.kontakte[id] = kontakt;
-      eintrag.kontakt_gemeinde = id;
+    // Kontakte der Stellen, die in den Ergebnissen dieser Gemeinde vorkommen: Kreisebene bzw.
+    // kreisfreie Stadt (`k…` → kontakt) und die Gemeinde selbst (`g…` → kontakt_gemeinde).
+    const ids = new Set(BAU_KLASSEN.flatMap((kl) => [zust[kl].stelle, zust[kl].alternative?.stelle]).filter(Boolean));
+    for (const [rolle, feld, noetig] of [
+      ["kreis", "kontakt", [...ids].some((id) => id.startsWith("k"))],
+      ["gemeinde", "kontakt_gemeinde", ids.has(`g${ars}`)],
+    ]) {
+      const k = kontakte?.gemeinden?.[ars]?.[rolle];
+      if (k && noetig) {
+        const { id, kontakt } = kontaktEintrag(k);
+        land.kontakte[id] = kontakt;
+        eintrag[feld] = id;
+      }
     }
     if (g.kondominium?.nachbar) eintrag.nachbar = g.kondominium.nachbar;
     if (g.gebietsaenderung) eintrag.aenderung = g.gebietsaenderung;
@@ -139,7 +138,7 @@ export function baueLaender(attr, opts = {}) {
     // Kontakte (Bundesportal) nur in Ländern, für die es welche gibt; die übrigen Dateien bleiben
     // unverändert.
     const bp = kontakte?.meta?.laender?.[lkz];
-    const mitKontakt = Object.values(d.gemeinden).filter((e) => e.kontakt).length;
+    const mitKontakt = Object.values(d.gemeinden).filter((e) => e.kontakt || e.kontakt_gemeinde).length;
     dateien[datei] = {
       schema: SCHEMA,
       land: lkz,

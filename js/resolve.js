@@ -8,20 +8,13 @@
 //     einer Auswahl (höchste Klasse gewinnt; Gemeindestraße ggf. als Alternative).
 //
 // Phase 1 (Plan § 7): Rückfall auf die Kreisebene mit amtlichem Namen; Stadtstaaten nach Konzept
-// § 6.1. Landesregeln folgen je Land in Phase 2 – dann unterscheiden sich die Klassen.
-// Kein Rechtsrat: Jede Aussage trägt Sicherheit und Quelle.
+// § 6.1. Phase 2: Landesregeln für Bayern und Thüringen (`LANDESREGELN`) – dort unterscheiden sich
+// die Klassen. Kein Rechtsrat: Jede Aussage trägt Sicherheit und Quelle.
 
 import { kreisBehoerde, mitZusatz, stadtName } from "./namen.js";
 import { hoechsteKlasse } from "./strassenklasse.js";
 
-export const REGELN = Object.freeze({ version: "0.4.0", phase: 1, stand: "2026-10-03" });
-
-/**
- * Länder, in denen kreisangehörige Gemeinden für ihre Gemeindestraßen selbst Straßenverkehrs-
- * behörde sein können (Konzept § 6.1; Bayern auch laut Leistungstext im Bundesportal). Solange
- * die Landesregel fehlt, nennt die Auskunft dort den Kontakt der Gemeinde als Alternative.
- */
-export const GEMEINDE_FUER_GEMEINDESTRASSEN = Object.freeze(["BY"]);
+export const REGELN = Object.freeze({ version: "0.5.0", phase: 2, stand: "2026-10-03" });
 
 export const SICHERHEIT = Object.freeze({
   BELEGT: "belegt",
@@ -58,12 +51,26 @@ export const TEXTE = Object.freeze({
     bundesportal:
       "Das Land nennt im Bundesportal für diese Gemeinde dieselbe Stelle. Die Landesregel selbst " +
       "ist noch nicht eingearbeitet.",
+    byGemeinde: "In Bayern ist die Gemeinde für ihre Gemeindestraßen selbst Straßenverkehrsbehörde.",
+    byGemeindeVg:
+      "In Bayern ist die Gemeinde für ihre Gemeindestraßen selbst Straßenverkehrsbehörde; die " +
+      "Verwaltungsarbeit dafür erledigt ihre Verwaltungsgemeinschaft.",
+    byLandratsamt: "Für Kreis-, Staats- und Bundesstraßen ist in Bayern das Landratsamt Straßenverkehrsbehörde.",
+    byGks: "Große Kreisstädte sind in Bayern für alle Straßen ihres Gebiets Straßenverkehrsbehörde.",
+    thStadt:
+      "In Thüringen sind Städte mit über 30.000 Einwohnern und große kreisangehörige Städte selbst " +
+      "Straßenverkehrsbehörde – für alle Straßen außer Autobahnen.",
+    thAntrag: "Diese Stadt ist in Thüringen auf Antrag Straßenverkehrsbehörde – für alle Straßen außer Bundesstraßen.",
+    thBundesstrasse:
+      "Für Bundesstraßen bleibt in Thüringen der Landkreis zuständig, auch wo die Stadt sonst " +
+      "Straßenverkehrsbehörde ist.",
   }),
   bedingung: Object.freeze({
     gks: "Große Kreisstadt – sie kann selbst zuständig sein",
     gemeindestrasse: "falls nur die Gemeindestraße betroffen ist",
     unklar: "falls es eine Gemeindestraße ist",
     berlinNetz: "falls die Straße zum übergeordneten Straßennetz gehört",
+    portalStvb: "laut Bundesportal ist die Gemeinde selbst Straßenverkehrsbehörde",
   }),
   quelle: Object.freeze({
     phase1: "Rückfall Phase 1: Kreisebene (Konzept § 6.1)",
@@ -77,6 +84,21 @@ export const TEXTE = Object.freeze({
       "Rückfall: angrenzende Gemeinde laut VG25 (SDV_ARS); Grenzvertrag Deutschland–Luxemburg nicht ausgewertet",
     bundesportal:
       "Bundesportal, zuständige Stelle für „Aufstellung von Verkehrszeichen anregen\" (Angabe des Landes)",
+    byOertlich: "Art. 2 Abs. 1 Nr. 1, Art. 3 Abs. 1 und Art. 6 ZustGVerk (Bayern), Fassung vom 17.12.2024",
+    byOertlichVg:
+      "Art. 2 Abs. 1 Nr. 1, Art. 3 Abs. 1 und Art. 6 ZustGVerk (Bayern), Fassung vom 17.12.2024; " +
+      "§ 1 Nr. 5 der Verordnung über Aufgaben der Mitgliedsgemeinden von Verwaltungsgemeinschaften, " +
+      "zuletzt geändert 04.06.2024; Art. 4 Abs. 2 VGemO",
+    byUnter: "Art. 2 Abs. 1 Nr. 2 ZustGVerk (Bayern), Fassung vom 17.12.2024",
+    byGks: "§ 2 Nr. 2 GrKrV (Bayern), Fassung ab 01.03.2025",
+    thStadt:
+      "§ 2 Abs. 3 Satz 1 Nr. 2 Buchst. a–c der Thüringer Verordnung über Zuständigkeiten auf dem " +
+      "Gebiet des Straßenverkehrsrechts vom 13.02.2007, zuletzt geändert 20.05.2026 [S]; " +
+      "Einwohner laut GV-ISys 31.12.2025",
+    thAntrag:
+      "§ 2 Abs. 3 Satz 1 Nr. 2 Buchst. d und Abs. 7 der Thüringer Verordnung über Zuständigkeiten " +
+      "auf dem Gebiet des Straßenverkehrsrechts [S]; Stadt als Straßenverkehrsbehörde laut " +
+      "Bundesportal bzw. Webseite",
   }),
   hinweis: Object.freeze({
     autobahnDabei: "Für die Autobahn selbst ist das Fernstraßen-Bundesamt zuständig.",
@@ -169,21 +191,88 @@ function regelPhase1(g) {
   return ergebnis(kreis, SICHERHEIT.NUR_EBENE, "kreis", "phase1", alternative);
 }
 
+/** Die Gemeinde als Stelle (örtliche Straßenverkehrsbehörde bzw. Stadt als untere). */
+function gemeindeStelle(g, art = "gemeinde", ebene = "oertliche") {
+  const name = art === "stadt" ? stadtName(g.gen) : g.name ?? g.gen;
+  return { id: `g${g.ars}`, name: mitZusatz(name), ebene, art };
+}
+
+const istGks = (g) => Array.isArray(g.tkz) && g.tkz.includes(67);
+const istStadt = (g) => Array.isArray(g.tkz) && (g.tkz.includes(63) || g.tkz.includes(67));
+
+/**
+ * Bayern (belegt): kreisangehörige Gemeinden sind örtliche Straßenverkehrsbehörde für ihre
+ * Gemeindestraßen (Art. 3 ZustGVerk), sonst das Landratsamt; Große Kreisstädte und kreisfreie
+ * Städte für alle Straßen (§ 2 Nr. 2 GrKrV, Art. 2 ZustGVerk). In einer Verwaltungsgemeinschaft
+ * bleibt die Aufgabe bei der Gemeinde (§ 1 Nr. 5 AufVGem); die Gemeinschaft führt sie als deren
+ * Behörde aus (Art. 4 Abs. 2 VGemO) – ihr Amt ist dann der Kontakt.
+ */
+function regelBayern(g, klasse) {
+  const kreis = kreisStelle(g);
+  if (g.kreis.kreisfrei) return ergebnis(kreis, SICHERHEIT.BELEGT, "kreisfrei", "byUnter");
+  if (g.gemeindefrei) return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "gemeindefrei", "byUnter");
+  if (istGks(g)) return ergebnis(gemeindeStelle(g, "stadt", "untere"), SICHERHEIT.BELEGT, "byGks", "byGks");
+  if (klasse === "G") {
+    const vg = Boolean(g.verband);
+    return ergebnis(gemeindeStelle(g), SICHERHEIT.BELEGT, vg ? "byGemeindeVg" : "byGemeinde", vg ? "byOertlichVg" : "byOertlich");
+  }
+  return ergebnis(kreis, SICHERHEIT.BELEGT, "byLandratsamt", "byUnter");
+}
+
+const TH_EISENACH = "160630105105";
+/**
+ * Thüringer Gemeinden, die auf Antrag Straßenverkehrsbehörde sind (§ 2 Abs. 7 und 8 der
+ * Zuständigkeitsverordnung), soweit nicht schon das Bundesportal sie so nennt. Die Liste der
+ * Rechtsverordnung liegt nicht vor (docs/TODO.md); jeder Eintrag mit Beleg.
+ */
+export const TH_STAEDTE_AUF_ANTRAG = Object.freeze({
+  "160700004004": "Arnstadt – Webseite der Stadt und des Landratsamts Ilm-Kreis, 03.10.2026",
+});
+
+/**
+ * Thüringen (vermutlich): Städte über 30.000 Einwohner, große kreisangehörige Städte und Eisenach
+ * für alle Straßen; Städte auf Antrag für alle außer Bundesstraßen; sonst der Landkreis (Phase 1).
+ */
+function regelThueringen(g, klasse) {
+  const kreis = kreisStelle(g);
+  if (g.kreis.kreisfrei) return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "kreisfrei", "thStadt");
+  if (g.gemeindefrei) return null;
+  const stadt = gemeindeStelle(g, "stadt", "untere");
+  if ((g.ew ?? 0) > 30000 || g.ars === TH_EISENACH) {
+    return ergebnis(stadt, SICHERHEIT.VERMUTLICH, "thStadt", "thStadt");
+  }
+  const antrag = TH_STAEDTE_AUF_ANTRAG[g.ars] || (g.bundesportal === "stvb" && (g.ew ?? 0) > 10000);
+  if (!antrag) return null;
+  if (klasse === "B") return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "thBundesstrasse", "thAntrag");
+  return ergebnis(stadt, SICHERHEIT.VERMUTLICH, "thAntrag", "thAntrag");
+}
+
+/** Landesregeln: (Gemeinde, Klasse) → Ergebnis, oder null für den Rückfall auf Phase 1. */
+export const LANDESREGELN = Object.freeze({ BY: regelBayern, TH: regelThueringen });
+
 /**
  * Regel samt Sonderfällen:
  * - Kondominium (VG25 `BEZ = Kondominium`): Der Eintrag trägt Kreis und Verband der angrenzenden
  *   Gemeinde, also deren Stelle – aber nie sicherer als „nur Ebene".
+ * - Landesregel (`LANDESREGELN`), sonst Phase 1.
  * - Bundesportal (`g.bundesportal`, vom Build aus kontakte.json ergänzt): Nennt das Land dort für
- *   die Gemeinde dieselbe Stelle (`passt`), wird aus „nur Ebene" „vermutlich". Nennt es eine
- *   andere (`stvb`), bleibt es bei „nur Ebene"; die Karte zeigt deren Kontakt mit Hinweis.
+ *   die Gemeinde dieselbe Stelle (`passt`), wird aus „nur Ebene" „vermutlich". Nennt es die
+ *   Gemeinde selbst als Straßenverkehrsbehörde (`stvb`), steht sie als Alternative dabei.
  */
-function regel(g) {
-  const e = regelPhase1(g);
+function regel(g, klasse) {
   if (g.kondominium) {
+    const e = regelPhase1(g);
     return { ...e, sicherheit: SICHERHEIT.NUR_EBENE, grund: TEXTE.grund.kondominium, quelle: TEXTE.quelle.kondominium };
   }
+  const landesregel = LANDESREGELN[g.land]?.(g, klasse);
+  if (landesregel) return landesregel;
+  const e = regelPhase1(g);
   if (g.bundesportal === "passt" && e.sicherheit === SICHERHEIT.NUR_EBENE) {
     return { ...e, sicherheit: SICHERHEIT.VERMUTLICH, grund: TEXTE.grund.bundesportal, quelle: TEXTE.quelle.bundesportal };
+  }
+  if (g.bundesportal === "stvb" && !e.alternative && !g.kreis.kreisfrei && e.stelle.art === "kreis") {
+    const stelle = gemeindeStelle(g, istStadt(g) ? "stadt" : "gemeinde", "untere");
+    return { ...e, alternative: { stelle, bedingung: TEXTE.bedingung.portalStvb } };
   }
   return e;
 }
@@ -199,7 +288,7 @@ export function resolveGemeinde(g) {
   const stellen = {};
   const zust = {};
   for (const klasse of BAU_KLASSEN) {
-    const e = regel(g); // Phase 1: für alle Klassen gleich
+    const e = regel(g, klasse);
     stellen[e.stelle.id] = e.stelle;
     if (e.alternative) stellen[e.alternative.stelle.id] = e.alternative.stelle;
     zust[klasse] = {
@@ -240,6 +329,12 @@ export function auswahl(daten, ars, klassen = []) {
   const eintrag = daten?.gemeinden?.[ars];
   if (!eintrag) return null;
   const stelle = (id) => daten.stellen[id] ?? FESTE_STELLEN[id] ?? null;
+  // Kontakt einer Stelle: die Gemeinde selbst (`kontakt_gemeinde`) oder die Kreisebene bzw. die
+  // kreisfreie Stadt (`kontakt`); Bund und Stadtstaaten haben keinen.
+  const kontaktZu = (id) => {
+    const ref = id === `g${ars}` ? eintrag.kontakt_gemeinde : String(id ?? "").startsWith("k") ? eintrag.kontakt : null;
+    return (ref && daten.kontakte?.[ref]) ?? null;
+  };
   const erg = (k) => {
     const e = daten.ergebnisse[eintrag.z[k]];
     if (!e) throw new Error(`auswahl: ${ars} ohne Ergebnis für Klasse ${k}`);
@@ -277,7 +372,6 @@ export function auswahl(daten, ars, klassen = []) {
       hinweise,
       keinBrief: true,
       kontakt: null,
-      kontaktGemeinde: null,
       bundesportal: daten.bundesportal ?? null,
     };
   }
@@ -303,11 +397,6 @@ export function auswahl(daten, ars, klassen = []) {
     }
   }
   const a = e.alternative ?? alt;
-  // Kontakt der Gemeinde nur, wo sie zuständig sein kann und eine Gemeindestraße im Spiel ist.
-  const gemeindeKontakt = GEMEINDE_FUER_GEMEINDESTRASSEN.includes(daten.land) &&
-    (liste.includes("G") || top === "unklar") && eintrag.kontakt_gemeinde
-    ? daten.kontakte?.[eintrag.kontakt_gemeinde] ?? null
-    : null;
   return {
     ...basis,
     klasse: top,
@@ -315,11 +404,10 @@ export function auswahl(daten, ars, klassen = []) {
     sicherheit,
     grund: e.grund,
     quelle: e.quelle,
-    alternative: a ? { stelle: stelle(a.stelle), bedingung: a.bedingung } : null,
+    alternative: a ? { stelle: stelle(a.stelle), bedingung: a.bedingung, kontakt: kontaktZu(a.stelle) } : null,
     hinweise,
     keinBrief: false,
-    kontakt: (eintrag.kontakt && daten.kontakte?.[eintrag.kontakt]) ?? null,
-    kontaktGemeinde: gemeindeKontakt,
+    kontakt: kontaktZu(e.stelle),
     bundesportal: portal,
   };
 }

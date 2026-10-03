@@ -136,9 +136,11 @@ def kontakte(
         land_g = [g for a, g in daten["gemeinden"].items() if attr[a]["land"] == lkz]
         wahl = Counter(g["wahl"] for g in land_g)
         n = len(land_g)
-        mit = sum(g["kontakt"] is not None for g in land_g)
+        kreis = sum(g["kreis"] is not None for g in land_g)
+        gemeinde = sum(g["gemeinde"] is not None for g in land_g)
         typer.echo(
-            f"{lkz} {n:>5} Gemeinden · mit Kontakt {mit} ({mit / n:.0%}) · "
+            f"{lkz} {n:>5} Gemeinden · Kontakt Kreisebene {kreis} ({kreis / n:.0%}) · "
+            f"Gemeinde selbst {gemeinde} · Portal: "
             + " · ".join(f"{k} {v}" for k, v in sorted(wahl.items()))
         )
     offen = [x for x in bundesportal.laender_im_cache() if x not in daten["meta"]["laender"]]

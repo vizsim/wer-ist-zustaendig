@@ -3,22 +3,70 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   auswahl, BAU_KLASSEN, ergebnisId, FESTE_STELLEN, resolveGemeinde, schwaecher, SICHERHEIT, TEXTE,
+  TH_STAEDTE_AUF_ANTRAG,
 } from "../js/resolve.js";
 
 const kreis = (ars, gen, bez, nbd, kreisfrei = false) => ({ ars, gen, bez, nbd, kreisfrei, name: gen });
 
+// Echte Gemeinden (VG25, GV-ISys 31.12.2025). Baden-Württemberg steht für die Länder ohne
+// Landesregel (Rückfall Phase 1), Bayern und Thüringen haben eine.
 const G = {
+  stuttgart: {
+    ars: "081110000000", gen: "Stuttgart", land: "BW", tkz: [62],
+    kreis: kreis("08111", "Stuttgart", "Stadtkreis", "ja", true),
+  },
+  aichwald: {
+    ars: "081160076076", gen: "Aichwald", land: "BW", tkz: [64],
+    kreis: kreis("08116", "Esslingen", "Landkreis", "ja"),
+  },
+  esslingen: {
+    ars: "081160019019", gen: "Esslingen am Neckar", land: "BW", tkz: [67],
+    kreis: kreis("08116", "Esslingen", "Landkreis", "ja"),
+  },
   muenchen: {
     ars: "091620000000", gen: "München", land: "BY", tkz: [61],
     kreis: kreis("09162", "München", "Kreisfreie Stadt", "nein", true),
   },
-  unterhaching: {
-    ars: "091840148148", gen: "Unterhaching", land: "BY", tkz: [64],
-    kreis: kreis("09184", "München", "Landkreis", "ja"),
+  essenbach: {
+    ars: "092740128128", gen: "Essenbach", name: "Gemeinde Essenbach", land: "BY", tkz: [60], ew: 11970,
+    kreis: kreis("09274", "Landshut", "Landkreis", "ja"),
   },
   freising: {
-    ars: "091780124124", gen: "Freising", land: "BY", tkz: [67],
+    ars: "091780124124", gen: "Freising", land: "BY", tkz: [67], ew: 48953,
     kreis: kreis("09178", "Freising", "Landkreis", "ja"),
+  },
+  apfeldorf: {
+    ars: "091815142111", gen: "Apfeldorf", name: "Gemeinde Apfeldorf", land: "BY", tkz: [64], ew: 1200,
+    kreis: kreis("09181", "Landsberg am Lech", "Landkreis", "ja"),
+    verband: { ars: "091815142", gen: "Reichling", name: "Verwaltungsgemeinschaft Reichling" },
+  },
+  heinersreuth: {
+    ars: "094729458458", gen: "Heinersreuther Forst", land: "BY", tkz: [66], ew: 0, gemeindefrei: true,
+    kreis: kreis("09472", "Bayreuth", "Landkreis", "ja"),
+  },
+  weimar: {
+    ars: "160550000000", gen: "Weimar", land: "TH", tkz: [61], ew: 65566,
+    kreis: kreis("16055", "Weimar", "Kreisfreie Stadt", "ja", true),
+  },
+  gotha: {
+    ars: "160670029029", gen: "Gotha", land: "TH", tkz: [63], ew: 45904,
+    kreis: kreis("16067", "Gotha", "Landkreis", "ja"),
+  },
+  eisenach: {
+    ars: "160630105105", gen: "Eisenach", land: "TH", tkz: [63], ew: 40505,
+    kreis: kreis("16063", "Wartburgkreis", "Landkreis", "nein"),
+  },
+  apolda: {
+    ars: "160710001001", gen: "Apolda", land: "TH", tkz: [63], ew: 22572,
+    kreis: kreis("16071", "Weimarer Land", "Landkreis", "ja"),
+  },
+  grammetal: {
+    ars: "160710103103", gen: "Grammetal", name: "Gemeinde Grammetal", land: "TH", tkz: [64], ew: 6358,
+    kreis: kreis("16071", "Weimarer Land", "Landkreis", "ja"),
+  },
+  arnstadt: {
+    ars: "160700004004", gen: "Arnstadt", land: "TH", tkz: [63], ew: 28509,
+    kreis: kreis("16070", "Ilm-Kreis", "Landkreis", "nein"),
   },
   bremen: { ars: "040110000000", gen: "Bremen", land: "HB", kreis: kreis("04011", "Bremen", "Kreisfreie Stadt", "nein", true) },
   bremerhaven: {
@@ -44,28 +92,28 @@ const G = {
 };
 
 test("Phase 1: kreisfreie Stadt → die Stadt, vermutlich", () => {
-  const { zust, stellen } = resolveGemeinde(G.muenchen);
-  assert.equal(zust.G.stelle, "k09162");
+  const { zust, stellen } = resolveGemeinde(G.stuttgart);
+  assert.equal(zust.G.stelle, "k08111");
   assert.equal(zust.G.sicherheit, SICHERHEIT.VERMUTLICH);
   assert.equal(zust.G.grund, TEXTE.grund.kreisfrei);
-  assert.equal(stellen.k09162.name, "Stadt München – Straßenverkehrsbehörde");
-  assert.equal(stellen.k09162.art, "stadt");
+  assert.equal(stellen.k08111.name, "Stadt Stuttgart – Straßenverkehrsbehörde");
+  assert.equal(stellen.k08111.art, "stadt");
 });
 
 test("Phase 1: kreisangehörige Gemeinde → Landratsamt, nur Ebene", () => {
-  const { zust, stellen } = resolveGemeinde(G.unterhaching);
-  assert.equal(zust.K.stelle, "k09184");
+  const { zust, stellen } = resolveGemeinde(G.aichwald);
+  assert.equal(zust.K.stelle, "k08116");
   assert.equal(zust.K.sicherheit, SICHERHEIT.NUR_EBENE);
   assert.equal(zust.K.alternative, null);
-  assert.equal(stellen.k09184.name, "Landratsamt München – Straßenverkehrsbehörde");
-  assert.equal(stellen.k09184.art, "kreis");
+  assert.equal(stellen.k08116.name, "Landratsamt Esslingen – Straßenverkehrsbehörde");
+  assert.equal(stellen.k08116.art, "kreis");
 });
 
 test("Phase 1: Große Kreisstadt (Tkz 67) als Alternative", () => {
-  const { zust, stellen } = resolveGemeinde(G.freising);
-  assert.equal(zust.G.stelle, "k09178");
-  assert.deepEqual(zust.G.alternative, { stelle: "g091780124124", bedingung: TEXTE.bedingung.gks });
-  assert.equal(stellen.g091780124124.name, "Stadt Freising – Straßenverkehrsbehörde");
+  const { zust, stellen } = resolveGemeinde(G.esslingen);
+  assert.equal(zust.G.stelle, "k08116");
+  assert.deepEqual(zust.G.alternative, { stelle: "g081160019019", bedingung: TEXTE.bedingung.gks });
+  assert.equal(stellen.g081160019019.name, "Stadt Esslingen am Neckar – Straßenverkehrsbehörde");
 });
 
 test("Phase 1: Bremen und Bremerhaven belegt", () => {
@@ -110,19 +158,106 @@ test("Kondominium: Stelle der angrenzenden Gemeinde, nie sicherer als nur Ebene"
 });
 
 test("Bundesportal: dieselbe Stelle → vermutlich, andere Stelle oder Kondominium → nur Ebene", () => {
-  const bestaetigt = resolveGemeinde({ ...G.unterhaching, bundesportal: "passt" }).zust;
-  assert.equal(bestaetigt.G.stelle, "k09184");
+  const bestaetigt = resolveGemeinde({ ...G.aichwald, bundesportal: "passt" }).zust;
+  assert.equal(bestaetigt.G.stelle, "k08116");
   assert.equal(bestaetigt.G.sicherheit, SICHERHEIT.VERMUTLICH);
   assert.equal(bestaetigt.K.sicherheit, SICHERHEIT.VERMUTLICH);
   assert.equal(bestaetigt.G.grund, TEXTE.grund.bundesportal);
   assert.equal(bestaetigt.G.quelle, TEXTE.quelle.bundesportal);
-  const gks = resolveGemeinde({ ...G.freising, bundesportal: "passt" }).zust.G;
-  assert.equal(gks.alternative.stelle, "g091780124124", "Alternative bleibt");
-  assert.equal(resolveGemeinde({ ...G.unterhaching, bundesportal: "stvb" }).zust.G.sicherheit, SICHERHEIT.NUR_EBENE);
+  const gks = resolveGemeinde({ ...G.esslingen, bundesportal: "passt" }).zust.G;
+  assert.equal(gks.alternative.stelle, "g081160019019", "Alternative bleibt");
+  const stvb = resolveGemeinde({ ...G.aichwald, bundesportal: "stvb" });
+  assert.equal(stvb.zust.G.sicherheit, SICHERHEIT.NUR_EBENE);
+  assert.deepEqual(stvb.zust.G.alternative, { stelle: "g081160076076", bedingung: TEXTE.bedingung.portalStvb });
+  assert.equal(stvb.stellen.g081160076076.name, "Aichwald – Straßenverkehrsbehörde", "ohne Stadtrecht kein „Stadt\"");
   assert.equal(resolveGemeinde({ ...G.kondominium, bundesportal: "passt" }).zust.G.sicherheit, SICHERHEIT.NUR_EBENE);
-  const frei = resolveGemeinde({ ...G.muenchen, bundesportal: "passt" }).zust.G;
+  const frei = resolveGemeinde({ ...G.stuttgart, bundesportal: "passt" }).zust.G;
   assert.equal(frei.grund, TEXTE.grund.kreisfrei, "schon vermutlich: Regel bleibt maßgeblich");
-  assert.equal(resolveGemeinde(G.unterhaching).zust.G.sicherheit, SICHERHEIT.NUR_EBENE, "ohne Portal");
+  assert.equal(resolveGemeinde(G.aichwald).zust.G.sicherheit, SICHERHEIT.NUR_EBENE, "ohne Portal");
+});
+
+test("Bayern: Gemeindestraße → die Gemeinde, sonst das Landratsamt (belegt)", () => {
+  const { zust, stellen } = resolveGemeinde(G.essenbach);
+  assert.equal(zust.G.stelle, "g092740128128");
+  assert.equal(zust.G.sicherheit, SICHERHEIT.BELEGT);
+  assert.equal(zust.G.grund, TEXTE.grund.byGemeinde);
+  assert.equal(zust.G.quelle, TEXTE.quelle.byOertlich);
+  assert.equal(stellen.g092740128128.name, "Gemeinde Essenbach – Straßenverkehrsbehörde");
+  assert.equal(stellen.g092740128128.art, "gemeinde");
+  for (const k of ["K", "L", "B"]) {
+    assert.equal(zust[k].stelle, "k09274", k);
+    assert.equal(zust[k].sicherheit, SICHERHEIT.BELEGT);
+    assert.equal(zust[k].grund, TEXTE.grund.byLandratsamt);
+    assert.equal(zust[k].alternative, null);
+  }
+  assert.equal(stellen.k09274.name, "Landratsamt Landshut – Straßenverkehrsbehörde");
+  const mitPortal = resolveGemeinde({ ...G.essenbach, bundesportal: "stvb" }).zust;
+  assert.deepEqual(mitPortal, zust, "Landesregel geht dem Portal vor");
+});
+
+test("Bayern: in einer Verwaltungsgemeinschaft bleibt die Gemeinde zuständig", () => {
+  const { zust, stellen } = resolveGemeinde(G.apfeldorf);
+  assert.equal(zust.G.stelle, "g091815142111");
+  assert.equal(stellen.g091815142111.name, "Gemeinde Apfeldorf – Straßenverkehrsbehörde");
+  assert.equal(zust.G.sicherheit, SICHERHEIT.BELEGT);
+  assert.equal(zust.G.grund, TEXTE.grund.byGemeindeVg);
+  assert.equal(zust.G.quelle, TEXTE.quelle.byOertlichVg);
+  assert.equal(zust.K.stelle, "k09181");
+});
+
+test("Bayern: Große Kreisstadt und kreisfreie Stadt für alle Straßen, gemeindefreies Gebiet beim Kreis", () => {
+  const gks = resolveGemeinde(G.freising);
+  for (const k of BAU_KLASSEN) assert.equal(gks.zust[k].stelle, "g091780124124", k);
+  assert.equal(gks.zust.B.sicherheit, SICHERHEIT.BELEGT);
+  assert.equal(gks.zust.B.quelle, TEXTE.quelle.byGks);
+  assert.equal(gks.zust.B.alternative, null);
+  assert.equal(gks.stellen.g091780124124.name, "Stadt Freising – Straßenverkehrsbehörde");
+  const muenchen = resolveGemeinde(G.muenchen).zust.G;
+  assert.equal(muenchen.stelle, "k09162");
+  assert.equal(muenchen.sicherheit, SICHERHEIT.BELEGT);
+  assert.equal(muenchen.quelle, TEXTE.quelle.byUnter);
+  const forst = resolveGemeinde(G.heinersreuth).zust.G;
+  assert.equal(forst.stelle, "k09472");
+  assert.equal(forst.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(forst.grund, TEXTE.grund.gemeindefrei);
+});
+
+test("Thüringen: Städte über 30.000 Einwohner und Eisenach für alle Straßen (vermutlich)", () => {
+  const gotha = resolveGemeinde(G.gotha);
+  for (const k of BAU_KLASSEN) assert.equal(gotha.zust[k].stelle, "g160670029029", k);
+  assert.equal(gotha.zust.B.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(gotha.zust.B.grund, TEXTE.grund.thStadt);
+  assert.equal(gotha.zust.B.quelle, TEXTE.quelle.thStadt);
+  assert.equal(gotha.stellen.g160670029029.name, "Stadt Gotha – Straßenverkehrsbehörde");
+  assert.equal(gotha.stellen.g160670029029.art, "stadt");
+  assert.equal(resolveGemeinde({ ...G.eisenach, ew: 29000 }).zust.B.stelle, "g160630105105", "Eisenach auch darunter");
+  const weimar = resolveGemeinde(G.weimar).zust.G;
+  assert.equal(weimar.stelle, "k16055");
+  assert.equal(weimar.sicherheit, SICHERHEIT.VERMUTLICH);
+});
+
+test("Thüringen: Stadt auf Antrag für alle Straßen außer Bundesstraßen", () => {
+  const apolda = resolveGemeinde({ ...G.apolda, bundesportal: "stvb" }).zust;
+  for (const k of ["G", "K", "L"]) assert.equal(apolda[k].stelle, "g160710001001", k);
+  assert.equal(apolda.G.grund, TEXTE.grund.thAntrag);
+  assert.equal(apolda.G.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(apolda.B.stelle, "k16071");
+  assert.equal(apolda.B.grund, TEXTE.grund.thBundesstrasse);
+  assert.ok(TH_STAEDTE_AUF_ANTRAG[G.arnstadt.ars], "Arnstadt steht in der Liste");
+  const arnstadt = resolveGemeinde(G.arnstadt).zust;
+  assert.equal(arnstadt.G.stelle, "g160700004004");
+  assert.equal(arnstadt.B.stelle, "k16070");
+
+  const ohnePortal = resolveGemeinde(G.apolda).zust.G;
+  assert.equal(ohnePortal.stelle, "k16071", "weder Portal noch Liste: Kreisebene");
+  assert.equal(ohnePortal.sicherheit, SICHERHEIT.NUR_EBENE);
+  assert.equal(resolveGemeinde({ ...G.apolda, bundesportal: "passt" }).zust.G.sicherheit, SICHERHEIT.VERMUTLICH);
+
+  // Unter 10.000 Einwohnern gilt § 2 Abs. 7 nicht: Die Gemeinde steht nur als Alternative da.
+  const klein = resolveGemeinde({ ...G.grammetal, bundesportal: "stvb" });
+  assert.equal(klein.zust.G.stelle, "k16071");
+  assert.deepEqual(klein.zust.G.alternative, { stelle: "g160710103103", bedingung: TEXTE.bedingung.portalStvb });
+  assert.equal(klein.stellen.g160710103103.name, "Gemeinde Grammetal – Straßenverkehrsbehörde");
 });
 
 test("resolveGemeinde: prüft die Eingabe", () => {
@@ -132,9 +267,9 @@ test("resolveGemeinde: prüft die Eingabe", () => {
 });
 
 test("ergebnisId: stabil und inhaltsabhängig", () => {
-  const a = resolveGemeinde(G.unterhaching).zust.G;
-  const b = resolveGemeinde(G.unterhaching).zust.G;
-  const c = resolveGemeinde(G.freising).zust.G;
+  const a = resolveGemeinde(G.aichwald).zust.G;
+  const b = resolveGemeinde(G.aichwald).zust.G;
+  const c = resolveGemeinde(G.esslingen).zust.G;
   assert.equal(ergebnisId(a), ergebnisId(b));
   assert.notEqual(ergebnisId(a), ergebnisId(c));
   assert.match(ergebnisId(a), /^e[0-9a-f]{8}$/);
@@ -148,7 +283,7 @@ test("schwaecher", () => {
 // --- Laufzeit ------------------------------------------------------------------------------
 
 function landesdatei(land, gemeinden) {
-  const daten = { land, stellen: { fba: FESTE_STELLEN.fba }, ergebnisse: {}, kreise: {}, gemeinden: {} };
+  const daten = { land, stellen: { fba: FESTE_STELLEN.fba }, ergebnisse: {}, kontakte: {}, kreise: {}, gemeinden: {} };
   for (const g of gemeinden) {
     const { zust, stellen } = resolveGemeinde(g);
     Object.assign(daten.stellen, stellen);
@@ -165,34 +300,35 @@ function landesdatei(land, gemeinden) {
 }
 
 test("auswahl: nur Autobahn → Fernstraßen-Bundesamt, kein Brief", () => {
-  const d = landesdatei("BY", [G.unterhaching]);
-  const r = auswahl(d, G.unterhaching.ars, ["A"]);
+  const d = landesdatei("BW", [G.aichwald]);
+  const r = auswahl(d, G.aichwald.ars, ["A"]);
   assert.equal(r.zustaendig.id, "fba");
   assert.equal(r.keinBrief, true);
 });
 
 test("auswahl: Autobahn und Gemeindestraße → Kreis mit Hinweis", () => {
-  const d = landesdatei("BY", [G.unterhaching]);
-  const r = auswahl(d, G.unterhaching.ars, ["A", "G"]);
-  assert.equal(r.zustaendig.id, "k09184");
+  const d = landesdatei("BW", [G.aichwald]);
+  const r = auswahl(d, G.aichwald.ars, ["A", "G"]);
+  assert.equal(r.zustaendig.id, "k08116");
   assert.ok(r.hinweise.includes(TEXTE.hinweis.autobahnDabei));
-  assert.equal(r.kreis, "München");
-  assert.equal(r.gemeinde, "Unterhaching");
+  assert.equal(r.kreis, "Esslingen");
+  assert.equal(r.gemeinde, "Aichwald");
 });
 
 test("auswahl: keine Straße → Hinweis, schwächere Sicherheit", () => {
   const d = landesdatei("BY", [G.muenchen]);
   const r = auswahl(d, G.muenchen.ars, []);
   assert.equal(r.klasse, "unklar");
-  assert.equal(r.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(r.sicherheit, SICHERHEIT.VERMUTLICH, "belegt, aber Klasse unbekannt");
   assert.ok(r.hinweise.includes(TEXTE.hinweis.keineStrasse));
 });
 
 test("auswahl: Alternative aus dem Ergebnis (Große Kreisstadt)", () => {
-  const d = landesdatei("BY", [G.freising]);
-  const r = auswahl(d, G.freising.ars, ["B"]);
-  assert.equal(r.zustaendig.id, "k09178");
-  assert.equal(r.alternative.stelle.id, "g091780124124");
+  const d = landesdatei("BW", [G.esslingen]);
+  const r = auswahl(d, G.esslingen.ars, ["B"]);
+  assert.equal(r.zustaendig.id, "k08116");
+  assert.equal(r.alternative.stelle.id, "g081160019019");
+  assert.equal(r.alternative.kontakt, null);
 });
 
 test("auswahl: unbekannte Gemeinde → null", () => {
@@ -200,25 +336,37 @@ test("auswahl: unbekannte Gemeinde → null", () => {
 });
 
 test("auswahl: unterschiedliche Stellen je Klasse → Gemeindestraße als Alternative", () => {
-  // Wie ab Phase 2 in BY: Gemeinde für Gemeindestraßen, Landratsamt für den Rest.
-  const d = landesdatei("BY", [G.unterhaching]);
-  const eintrag = d.gemeinden[G.unterhaching.ars];
-  const gem = { id: "g091840148148", name: "Gemeinde Unterhaching – Straßenverkehrsbehörde", ebene: "örtliche", art: "gemeinde" };
-  d.stellen[gem.id] = gem;
-  const eG = { ...d.ergebnisse[eintrag.z.G], stelle: gem.id, alternative: null };
-  d.ergebnisse[ergebnisId(eG)] = eG;
-  eintrag.z.G = ergebnisId(eG);
-
-  const r = auswahl(d, G.unterhaching.ars, ["G", "K"]);
-  assert.equal(r.zustaendig.id, "k09184");
-  assert.equal(r.alternative.stelle.id, gem.id);
+  const d = landesdatei("BY", [G.essenbach]);
+  const r = auswahl(d, G.essenbach.ars, ["G", "K"]);
+  assert.equal(r.zustaendig.id, "k09274");
+  assert.equal(r.alternative.stelle.id, "g092740128128");
   assert.equal(r.alternative.bedingung, TEXTE.bedingung.gemeindestrasse);
 
-  const nurG = auswahl(d, G.unterhaching.ars, ["G"]);
-  assert.equal(nurG.zustaendig.id, gem.id);
+  const nurG = auswahl(d, G.essenbach.ars, ["G"]);
+  assert.equal(nurG.zustaendig.id, "g092740128128");
+  assert.equal(nurG.sicherheit, SICHERHEIT.BELEGT);
   assert.equal(nurG.alternative, null);
 
-  const unklar = auswahl(d, G.unterhaching.ars, ["unklar"]);
-  assert.equal(unklar.zustaendig.id, "k09184");
+  const unklar = auswahl(d, G.essenbach.ars, ["unklar"]);
+  assert.equal(unklar.zustaendig.id, "k09274");
+  assert.equal(unklar.sicherheit, SICHERHEIT.VERMUTLICH);
   assert.equal(unklar.alternative.bedingung, TEXTE.bedingung.unklar);
+});
+
+test("auswahl: Kontakt genau der zuständigen Stelle, die Alternative mit eigenem", () => {
+  const d = landesdatei("BY", [G.essenbach]);
+  d.kontakte = { c1: { name: "Landratsamt Landshut - Verkehrswesen" }, c2: { name: "Markt Essenbach - Ordnungsamt" } };
+  const eintrag = d.gemeinden[G.essenbach.ars];
+  Object.assign(eintrag, { kontakt: "c1", kontakt_gemeinde: "c2" });
+
+  assert.equal(auswahl(d, G.essenbach.ars, ["G"]).kontakt.name, "Markt Essenbach - Ordnungsamt");
+  assert.equal(auswahl(d, G.essenbach.ars, ["K"]).kontakt.name, "Landratsamt Landshut - Verkehrswesen");
+  const beide = auswahl(d, G.essenbach.ars, ["K", "G"]);
+  assert.equal(beide.kontakt.name, "Landratsamt Landshut - Verkehrswesen");
+  assert.equal(beide.alternative.kontakt.name, "Markt Essenbach - Ordnungsamt");
+  assert.equal(auswahl(d, G.essenbach.ars, ["A"]).kontakt, null, "Autobahn: keiner");
+
+  delete eintrag.kontakt_gemeinde;
+  assert.equal(auswahl(d, G.essenbach.ars, ["G"]).kontakt, null, "nie der Kontakt einer anderen Stelle");
+  assert.equal(auswahl(d, G.essenbach.ars, ["K", "G"]).alternative.kontakt, null);
 });

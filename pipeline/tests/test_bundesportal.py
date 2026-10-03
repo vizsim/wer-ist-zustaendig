@@ -143,7 +143,7 @@ def test_waehle_fremde_und_abweichende_stellen() -> None:
         ["03644 65036"],
         ["strassenverkehrsbehoerde@apolda.de"],
     )
-    assert bp.waehle([lra, apolda], weimarer_land) == ({**apolda, "abweichend": True}, "stvb")
+    assert bp.waehle([lra, apolda], weimarer_land) == (apolda, "stvb")
     ordnungsamt = _stelle(
         "Landgemeinde Am Ohmberg - Ordnungsamt", ["036077 939013"], ["ordnungsamt@lg-am-ohmberg.de"]
     )
@@ -159,6 +159,7 @@ def test_funktionspostfach() -> None:
         "info@vg-l.de",
         "kanzlei@lra-aoe.de",
         "post.ordnungsamt@weimarerland.de",
+        "infrastruktur@eisenach.de",
     ):
         assert bp.funktionspostfach(m), m
     for m in ("grassl@essenbach.de", "erika.mustermann@stadt-x.de", "k.gorski@blankenhain.de"):
@@ -176,16 +177,26 @@ def test_waehle_gemeinde_eigene_stelle() -> None:
         "Verwaltungsgemeinschaft Nassenfels", ["+49 8424 8911-0"], ["poststelle@nassenfels.de"]
     )
     nachbar = _stelle("Markt Kipfenberg - Ordnungsamt", ["08465 9410-0"], ["ordnung@kipfenberg.de"])
-    assert bp.waehle_gemeinde([lra, nachbar, vg], gemeinde, lra) == vg, "VG der Gemeinde"
-    assert bp.waehle_gemeinde([lra, nachbar], gemeinde, lra) is None, "fremde Gemeinde, Kreis"
-    assert bp.waehle_gemeinde([vg], gemeinde, vg) is None, "schon Hauptkontakt"
+    assert bp.waehle_gemeinde([lra, nachbar, vg], gemeinde) == vg, "VG der Gemeinde"
+    assert bp.waehle_gemeinde([lra, nachbar], gemeinde) is None, "fremde Gemeinde, Kreis"
+    assert bp.waehle_kreis([lra, nachbar, vg], gemeinde) == lra, "Landratsamt als Kreisstelle"
     lenggries = {"gen": "Lenggries", "verband": None, "kreis": {"gen": "Bad Tölz-Wolfratshausen"}}
     ordnung = _stelle(
         "Gemeinde Lenggries - 1.2 Standesamt, Amt für öffentliche Ordnung",
         ["08042 5008-0"],
         ["ordnungsamt@lenggries.de"],
     )
-    assert bp.waehle_gemeinde([ordnung], lenggries, None) == ordnung, "Ordnung zählt mit Standesamt"
+    assert bp.waehle_gemeinde([ordnung], lenggries) == ordnung, "Ordnung zählt mit Standesamt"
+
+    grainau = {"gen": "Grainau", "verband": None, "kreis": {"gen": "Garmisch-Partenkirchen"}}
+    buergerbuero = _stelle(
+        "Gemeinde Grainau - Sg. 21: Bürgerbüro", ["+49 8821 9818-0"], ["buergeramt@grainau.de"]
+    )
+    lra_gap = _stelle("Landratsamt Garmisch-Partenkirchen - Sg. 52", ["08821 751-1"], [])
+    gewaehlt = bp.waehle_gemeinde([lra_gap, buergerbuero], grainau)
+    assert gewaehlt == {**buergerbuero, "name": "Gemeinde Grainau"}, "nur Fachbereich: ohne Namen"
+    person = _stelle("Gemeinde Grainau - Verkehrsrecht", [], ["max.muster@grainau.de"])
+    assert bp.waehle_gemeinde([person], grainau) is None, "persönliche Adresse bleibt draußen"
 
 
 def test_tabelle_aus_cache(tmp_path, monkeypatch) -> None:
@@ -227,8 +238,9 @@ def test_tabelle_aus_cache(tmp_path, monkeypatch) -> None:
     assert rp["region_url"].endswith("/herausgeber/RP-8958611/region/{ars}")
     g = daten["gemeinden"]
     assert g["073395001001"]["wahl"] == "passt"
-    assert g["073395001001"]["kontakt"]["email"] == ["verkehr@mainz-bingen.de"]
-    assert g["079395001001"]["kontakt"] == g["073395001001"]["kontakt"], "Kondominium: Nachbar"
+    assert g["073395001001"]["kreis"]["email"] == ["verkehr@mainz-bingen.de"]
+    assert g["073395001001"]["gemeinde"] is None
+    assert g["079395001001"]["kreis"] == g["073395001001"]["kreis"], "Kondominium: Nachbar"
     assert "091620000000" not in g, "Land ohne Abruf"
     assert len(review) == 2 and review[0][:5] == [
         "RP",
@@ -246,7 +258,13 @@ def test_luecken_fuellen(monkeypatch) -> None:
         "email": ["fachbereich2@kreis-slf.de"],
         "stand": "2026-10-03",
     }
-    monkeypatch.setattr(bp, "ergaenzungen", lambda: {"16073": slf})
+    arnstadt = {
+        "rolle": "gemeinde",
+        "name": "Stadtverwaltung Arnstadt - Sachgebiet Verkehr",
+        "telefon": ["03628 745 879"],
+        "stand": "2026-10-03",
+    }
+    monkeypatch.setattr(bp, "ergaenzungen", lambda: {"16073": slf, "160700004004": arnstadt})
 
     def gem(kreis: str, kreisfrei: bool = False) -> dict:
         return {"land": "TH", "kreis": {"ars": kreis, "kreisfrei": kreisfrei}}
@@ -257,30 +275,39 @@ def test_luecken_fuellen(monkeypatch) -> None:
         "160610116116": gem("16061"),  # Am Ohmberg: Portal nennt nur das eigene Ordnungsamt
         "160730077077": gem("16073"),  # Saalfeld: Portalfehler, Kontakt von Hand
         "160540000000": gem("16054", kreisfrei=True),  # ohne Ergänzung: bleibt leer
+        "160700004004": gem("16070"),  # Arnstadt: Gemeindekontakt von Hand ersetzt das Portal
     }
     lra = _stelle(
         "Landratsamt Eichsfeld - Amt für Öffentliche Sicherheit und Ordnung", ["03606 650-3610"]
     )
+    rathaus = _stelle("Stadtverwaltung Arnstadt", ["03628 7456"], ["rathaus@arnstadt.de"])
+    vka = _stelle("Verkehrsamt", ["03628 738-800"], ["vka@ilm-kreis.de"])
     gemeinden = {
-        "160610001001": {"wahl": "passt", "kontakt": lra},
-        "160610002002": {"wahl": "passt", "kontakt": lra},
-        "160610116116": {"wahl": "fremd", "kontakt": None},
-        "160730077077": {"wahl": "fremd", "kontakt": None},
-        "160540000000": {"wahl": "keine", "kontakt": None},
+        "160610001001": {"wahl": "passt", "kreis": lra, "gemeinde": None},
+        "160610002002": {"wahl": "passt", "kreis": lra, "gemeinde": None},
+        "160610116116": {"wahl": "fremd", "kreis": None, "gemeinde": None},
+        "160730077077": {"wahl": "fremd", "kreis": None, "gemeinde": None},
+        "160540000000": {"wahl": "keine", "kreis": None, "gemeinde": None},
+        "160700004004": {"wahl": "passt", "kreis": vka, "gemeinde": rathaus},
     }
     bp.luecken_fuellen(gemeinden, attr, "TH")
-    assert gemeinden["160610116116"] == {"wahl": "kreis", "kontakt": lra}, "Kreiskontakt"
-    assert gemeinden["160730077077"]["wahl"] == "ergaenzt"
+    assert gemeinden["160610116116"]["kreis"] == lra, "Kreiskontakt der Nachbargemeinden"
+    assert gemeinden["160610116116"]["wahl"] == "fremd", "Urteil des Portals bleibt"
+    hand = gemeinden["160730077077"]["kreis"]
+    assert hand["quelle"] == "Webseite der Behörde, Stand 03.10.2026" and hand["web"] == []
+    assert gemeinden["160540000000"]["kreis"] is None
     assert (
-        gemeinden["160730077077"]["kontakt"]["quelle"] == "Webseite der Behörde, Stand 03.10.2026"
+        gemeinden["160700004004"]["gemeinde"]["name"]
+        == "Stadtverwaltung Arnstadt - Sachgebiet Verkehr"
     )
-    assert gemeinden["160730077077"]["kontakt"]["web"] == []
-    assert gemeinden["160540000000"] == {"wahl": "keine", "kontakt": None}
+    assert gemeinden["160700004004"]["kreis"] == vka, "andere Rolle bleibt"
 
 
 def test_ergaenzungen_von_hand_sind_vollstaendig() -> None:
     for schluessel, k in bp.ergaenzungen().items():
         assert len(schluessel) in (5, 12) and schluessel.isdigit(), schluessel
+        assert k.get("rolle", "kreis") in ("kreis", "gemeinde"), schluessel
+        assert len(schluessel) == 12 or k.get("rolle", "kreis") == "kreis", schluessel
         assert k["name"] and k["stand"], schluessel
         assert k.get("telefon") or k.get("email") or k.get("web"), f"{schluessel}: kein Kontaktweg"
         for m in k.get("email") or []:

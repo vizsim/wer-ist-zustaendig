@@ -7,33 +7,47 @@ ein Git-Tag `v<version>` dazu.
 
 ## [Unveröffentlicht]
 
-Regeln 0.4.0 · Schema 1 · Datenstand 31.12.2025. Erster Lauf mit echten Daten (BKG, Destatis).
+Regeln 0.5.0 · Schema 1 · Datenstand 31.12.2025. Erster Lauf mit echten Daten (BKG, Destatis).
 
 ### Hinzugefügt
+
+- Landesregel Bayern (Regeln 0.5.0, **belegt**): Gemeindestraßen – die Gemeinde selbst
+  (Art. 3 ZustGVerk); in einer Verwaltungsgemeinschaft bleibt die Aufgabe bei der Gemeinde, die
+  Gemeinschaft erledigt die Verwaltungsarbeit (§ 1 Nr. 5 AufVGem, Art. 4 VGemO). Kreis-, Staats-
+  und Bundesstraßen – das Landratsamt. Große Kreisstädte und kreisfreie Städte für alle Straßen
+  (§ 2 Nr. 2 GrKrV, Art. 2 ZustGVerk). 2 056 bayerische Gemeinden sind damit belegt, die 165
+  gemeindefreien Gebiete vermutlich.
+- Landesregel Thüringen (Regeln 0.5.0, **vermutlich** – die Zuständigkeitsverordnung ist nur aus
+  einer Sekundärquelle gelesen): Städte über 30.000 Einwohner und Eisenach für alle Straßen;
+  Städte, die auf Antrag Straßenverkehrsbehörde sind (§ 2 Abs. 7), für alle außer
+  Bundesstraßen. Erkannt werden sie am Bundesportal (Apolda, Eisenberg, Heilbad Heiligenstadt)
+  oder von Hand (Arnstadt).
 
 - Deutsch-luxemburgisches Kondominium (Mosel, Sauer, Our): Die 25 Flächen aus VG25 nennen die
   Stelle der angrenzenden Gemeinde, immer mit „nur Ebene". Neues Feld `kondominium` im
   Zwischenprodukt `gemeinden_attr.json`.
-- Kontakt der zuständigen Stelle in Thüringen und Bayern – für jede Gemeinde: Name, Anschrift,
-  Telefon, E-Mail und Webseite, vorn in der Antwortkarte. Quelle ist das Bundesportal; wo es
-  keine passende Stelle nennt, der Kreiskontakt der Nachbargemeinden oder ein Eintrag von Hand
-  von der Webseite der Behörde (mit Datum). Nennt das Portal eine andere Stelle, die sich selbst
-  Straßenverkehrsbehörde nennt, steht ein Hinweis dabei.
+- Kontakt der zuständigen Stelle in Thüringen und Bayern – für jede Gemeinde und jede
+  Straßenklasse: Name, Anschrift, Telefon, E-Mail und Webseite, vorn in der Antwortkarte. Je
+  Gemeinde gibt es zwei Kontakte, die Kreisebene und die Gemeinde selbst. Die Auskunft zeigt den
+  Kontakt genau der Stelle, die zuständig ist, und eine Alternative mit ihrem eigenen Kontakt.
+  Quelle ist das Bundesportal. Wo es keine passende Stelle nennt, gilt der Kreiskontakt der
+  Nachbargemeinden oder ein Eintrag von Hand von der Webseite der Behörde (mit Datum).
   Neuer Pipeline-Schritt `zust kontakte`; in den Landesdateien die Tabelle `kontakte`, je Gemeinde
-  `kontakt` (und `nachbar` bei Kondominium-Flächen), im Kopf `bundesportal_region`.
+  `kontakt` (Kreisebene) und `kontakt_gemeinde` (und `nachbar` bei Kondominium-Flächen), im Kopf
+  `bundesportal_region`. `auswahl()` liefert `kontakt` und `alternative.kontakt`.
 - Der Bundesportal-Link führt in Ländern mit Kontakten auf die Seite der Gemeinde mit allen
   Stellen.
-- Bayern (Regeln 0.4.0): Bei Gemeindestraßen nennt die Auskunft zusätzlich den Kontakt der
-  Gemeinde selbst („Oder die Gemeinde, falls nur die Gemeindestraße betroffen ist"); das
-  Landratsamt bleibt Hauptkontakt, bis die bayerische Landesregel eingebaut ist.
 
 ### Geändert
 
 - Karte: Die Antwortkarte zeigt zuerst, wen man anspricht – Behörde, Stelle, Anschrift und
   Buttons zum Anrufen, Schreiben und für die Webseite; ohne Kontakt ein Button ins Bundesportal.
-  In Bayern steht darunter die Gemeinde für Gemeindestraßen. Sicherheit, Begründung und Quellen
-  stehen eingeklappt unter „Wie sicher ist das?“. Die Karte antwortet auch ohne angeklickte
-  Straße; die Schraffur ist leichter.
+  Darunter steht, falls es eine gibt, die Alternative („Oder …") mit Bedingung und eigenem
+  Kontakt. Sicherheit, Begründung und Quellen stehen eingeklappt unter „Wie sicher ist das?“. Die
+  Karte antwortet auch ohne angeklickte Straße; die Schraffur ist leichter.
+- Karte: Die Legende kennt „Gemeinde selbst"; „Stadt" umfasst auch Große Kreisstädte und Städte
+  mit eigener Straßenverkehrsbehörde. Die Statuszeile nennt die Länder mit Landesregel.
+- `tools/lookup.mjs` zeigt die Kontakte der zuständigen Stelle und der Alternative.
 - Regeln 0.3.0: Nennt das Land im Bundesportal für eine Gemeinde dieselbe Stelle wie unsere
   Regel, gilt die Auskunft als „vermutlich" statt „nur Ebene" – auf der Karte ohne Schraffur. In
   Thüringen betrifft das 529 Gemeinden.

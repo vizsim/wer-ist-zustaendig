@@ -97,7 +97,8 @@ test("antwortHtml: escapet Text aus OSM und Daten", () => {
   assert.ok(html.includes("Grund &amp; mehr"));
   assert.ok(html.includes("Neu&quot;dorf"));
   assert.ok(html.includes("marke-nur-ebene"));
-  assert.ok(html.includes("Oder:</span> Stadt Freising, falls x."));
+  assert.ok(html.includes('<p class="alternative-name"><span>Oder</span>Stadt Freising</p>'));
+  assert.ok(html.includes('<p class="alternative-bedingung">Falls x.</p>'));
   assert.ok(html.includes("Musterdorf, Verwaltungsgemeinschaft Musterberg, Landkreis Freising, Bayern"));
   assert.ok(html.includes("Gebietsstand 31.12.2025"));
   assert.ok(html.includes('href="https://example.org/?a=1&amp;b=2"'));
@@ -184,27 +185,36 @@ test("antwortHtml: ohne Kontakt ist der Bundesportal-Link der Weg", () => {
   assert.ok(!html.includes("Kontaktdaten:"));
 });
 
-test("antwortHtml: abweichende Stelle aus dem Portal steht vorn, mit Hinweis auf unsere Regel", () => {
-  const html = antwortHtml({
-    ...BASIS, zustaendig: { name: "Landratsamt Weimarer Land – Straßenverkehrsbehörde" },
-    kontakt: { name: "Stadtverwaltung Apolda - Straßenverkehrsbehörde", telefon: ["03644 65036"], abweichend: true },
-  }, []);
-  assert.ok(html.includes('<h2 class="schild-behoerde">Stadtverwaltung Apolda</h2>'));
-  assert.ok(html.includes("Nach unserer Regel wäre sonst Landratsamt Weimarer Land zuständig."));
-});
-
-test("antwortHtml: Gemeinde für Gemeindestraßen unter dem Kopf; Herkunft je Quelle einmal", () => {
+test("antwortHtml: Alternative mit Bedingung und eigenem Kontakt; Herkunft je Quelle einmal", () => {
   const html = antwortHtml({
     ...BASIS, land: "BY", zustaendig: { name: "Landratsamt Altötting – Straßenverkehrsbehörde" },
     kontakt: { name: "Landratsamt Altötting - Verkehrswesen", telefon: ["+49 8671 502-0"], quelle: "Webseite der Behörde, Stand 03.10.2026" },
-    kontaktGemeinde: { name: "Stadt Burghausen", telefon: ["08677 887-0"] },
-  }, [{ name: "Marktler Straße", klasse: "G" }], { landName: "Bayern" });
+    alternative: {
+      stelle: { name: "Gemeinde Marktl – Straßenverkehrsbehörde" },
+      bedingung: TEXTE.bedingung.gemeindestrasse,
+      kontakt: { name: "Markt Marktl - Ordnungsamt", telefon: ["08678 9888-0"] },
+    },
+  }, [{ name: "Marktler Straße", klasse: "K" }], { landName: "Bayern" });
   assert.ok(html.includes('<p class="schild-zusatz">Verkehrswesen</p>'));
-  assert.ok(html.includes("Geht es nur um eine Gemeindestraße, ist oft die Gemeinde selbst zuständig:"));
-  assert.ok(html.indexOf("Stadt Burghausen</p>") > html.indexOf('class="schild-behoerde"'));
-  assert.ok(html.includes("Marktler Straße (Gemeindestraße) · "));
+  assert.ok(html.indexOf('class="alternative"') > html.indexOf('class="schild-behoerde"'));
+  assert.ok(html.includes('<span>Oder</span>Gemeinde Marktl</p>'));
+  assert.ok(html.includes("Falls nur die Gemeindestraße betroffen ist."));
+  assert.ok(html.includes('<p class="alternative-stelle">Markt Marktl - Ordnungsamt</p>'));
+  assert.ok(html.includes('href="tel:+49867898880"'), "Wege der Alternative");
+  assert.ok(html.includes("Marktler Straße (Kreisstraße) · "));
   assert.ok(html.includes("Kontaktdaten: Webseite der Behörde, Stand 03.10.2026."));
   assert.equal(html.split("Kontaktdaten: Bundesportal 02.10.2026").length - 1, 1);
+});
+
+test("antwortHtml: Alternative ohne Kontakt nur mit Name und Bedingung", () => {
+  const html = antwortHtml({
+    ...BASIS, zustaendig: { name: "Landratsamt Esslingen – Straßenverkehrsbehörde" },
+    alternative: { stelle: { name: "Stadt Esslingen am Neckar – Straßenverkehrsbehörde" }, bedingung: TEXTE.bedingung.gks, kontakt: null },
+  }, []);
+  assert.ok(html.includes('<span>Oder</span>Stadt Esslingen am Neckar</p>'));
+  assert.ok(html.includes("Große Kreisstadt – sie kann selbst zuständig sein."));
+  assert.ok(!html.includes("alternative-stelle"));
+  assert.equal(html.split('class="wege"').length - 1, 0, "keine Wege ohne Kontakt");
 });
 
 test("antwortHtml: ohne Bedienhinweis „Keine Straße erkannt\"", () => {

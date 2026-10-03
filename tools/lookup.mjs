@@ -30,6 +30,10 @@ const pfad = (datei) => (istUrl ? `${basis.replace(/\/$/, "")}/${datei}` : join(
 const lies = async (datei) =>
   JSON.parse(istUrl ? await (await fetch(pfad(datei))).text() : await readFile(pfad(datei), "utf8"));
 
+/** Kontakt in einer Zeile: Name, erste Nummer, erste E-Mail, erste Webseite. */
+const kontakt = (k) =>
+  [k.name, k.telefon?.[0], k.email?.[0], k.web?.[0]].filter(Boolean).join(" · ");
+
 const { archiv, schliessen } = oeffneArchiv(pfad("gemeinden.pmtiles"));
 try {
   const props = await flaecheAmPunkt(archiv, Number(lon), Number(lat));
@@ -42,8 +46,12 @@ try {
   const r = auswahl(daten, props.ars, klassen);
   console.log(`${r.gemeinde} (${props.ars}), ${r.kreis}, ${land.name}`);
   console.log(`Klasse ${r.klasse}: ${r.zustaendig.name}`);
+  if (r.kontakt) console.log(`Kontakt: ${kontakt(r.kontakt)}`);
   console.log(`Sicherheit: ${r.sicherheit} – ${r.grund}`);
-  if (r.alternative) console.log(`Alternative: ${r.alternative.stelle.name} (${r.alternative.bedingung})`);
+  if (r.alternative) {
+    console.log(`Alternative: ${r.alternative.stelle.name} (${r.alternative.bedingung})`);
+    if (r.alternative.kontakt) console.log(`  Kontakt: ${kontakt(r.alternative.kontakt)}`);
+  }
   for (const h of r.hinweise) console.log(`Hinweis: ${h}`);
   console.log(`Quelle: ${r.quelle}`);
 } finally {

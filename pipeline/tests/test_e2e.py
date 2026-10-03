@@ -56,7 +56,9 @@ def test_ende_zu_ende(fixture_daten, tmp_path) -> None:
     assert {land["lkz"] for land in index["laender"]} == {"BY", "HB", "BE", "SH", "NI", "RP"}
 
     typen = grenzen.typen_aus_landesdateien(aus)
-    assert typen["091780124124"] == ("kreis", "nur Ebene")
+    assert typen["091780124124"] == ("stadt", "belegt")  # Große Kreisstadt in Bayern
+    assert typen["091785101201"] == ("gemeinde", "belegt")  # Bayern: Gemeindestraßen
+    assert typen["073395001001"] == ("kreis", "nur Ebene")  # ohne Landesregel
     assert typen["040110000000"] == ("stadtstaat", "belegt")
     gem_fgb, krs_fgb = tmp_path / "gemeinden.fgb", tmp_path / "kreise.fgb"
     grenzen.schreibe_fgb(fixture_daten.gpkg, gem_fgb, krs_fgb, typen)
@@ -110,5 +112,14 @@ def test_ende_zu_ende(fixture_daten, tmp_path) -> None:
         text=True,
         check=True,
     )
-    assert "Landratsamt Freising – Straßenverkehrsbehörde" in r.stdout
-    assert "Stadt Freising" in r.stdout  # Große Kreisstadt als Alternative
+    assert "Klasse G: Stadt Freising – Straßenverkehrsbehörde" in r.stdout  # Große Kreisstadt
+
+    r = subprocess.run(
+        ["node", "tools/lookup.mjs", "48.40", "11.82", "K", "G", "--daten", str(aus)],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert "Klasse K: Landratsamt Freising – Straßenverkehrsbehörde" in r.stdout
+    assert "Alternative: Musterdorf – Straßenverkehrsbehörde" in r.stdout

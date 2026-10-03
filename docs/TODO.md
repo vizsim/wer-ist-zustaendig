@@ -38,10 +38,22 @@ Offene Punkte stehen nur hier, und erst nach Abstimmung mit dem Repo-Owner (CLAU
 
 ### Regeln je Land (Plan § 7)
 
-- [ ] **Phase 2 – belegte Länder:** BY und SN (Gemeinde nur bei Gemeindestraßen; GKS in BY über
-  Textkennzeichen 67), NW (Liste nach § 4 GO NRW), BB (13 namentliche Kommunen, abgestuft), BW
-  (Landratsamt, GKS, Stadtkreise, Verwaltungsgemeinschaften; Offenes als Alternative). Je Land
-  5–10 Golden-Tests mit echten ARS; Review-CSV durchsehen.
+- [x] **Bayern** (2026-10-03, Regeln 0.5.0, belegt an gesetze-bayern.de): Gemeinde für
+  Gemeindestraßen, auch in Verwaltungsgemeinschaften (§ 1 Nr. 5 AufVGem); Landratsamt für K, St,
+  B; GKS und kreisfreie Städte für alles. Golden-Tests mit Essenbach, Apfeldorf, Freising,
+  München, Heinersreuther Forst.
+- [x] **Thüringen** (2026-10-03, Regeln 0.5.0, vermutlich): Städte über 30.000 Einwohner und
+  Eisenach für alles; Städte auf Antrag (§ 2 Abs. 7) für alles außer Bundesstraßen.
+- [ ] **Thüringen belegen:** Zuständigkeitsverordnung Straßenverkehr (13.02.2007, zuletzt
+  geändert 20.05.2026) an der Primärquelle lesen – landesrecht.thueringen.de lädt nur mit
+  JavaScript; heute aus umwelt-online. Die Rechtsverordnung nach § 2 Abs. 8 mit der Liste der
+  Städte auf Antrag beschaffen; heute erkannt am Bundesportal (Apolda, Eisenberg, Heilbad
+  Heiligenstadt) oder von Hand (Arnstadt, `TH_STAEDTE_AUF_ANTRAG`). Die großen kreisangehörigen
+  Städte nach ThürKO abgleichen – GV-ISys führt in Thüringen kein Textkennzeichen 67.
+- [ ] **Phase 2 – weitere belegte Länder:** SN (Gemeinde nur bei Gemeindestraßen), NW (Liste nach
+  § 4 GO NRW), BB (13 namentliche Kommunen, abgestuft), BW (Landratsamt, GKS, Stadtkreise,
+  Verwaltungsgemeinschaften; Offenes als Alternative). Je Land 5–10 Golden-Tests mit echten
+  ARS; Review-CSV durchsehen.
 - [ ] **Große Kreisstädte in Sachsen** (abgestimmt 2026-10-02): GV-ISys führt sie als 63
   (Stadt), nicht 67; VG25 kennzeichnet sie nicht. Liste der rund 53 GKS mit ARS aus der
   Primärquelle als Konfiguration anlegen, dann `pruefungen.yaml` (SN, heute 0) anpassen. Bis
@@ -61,13 +73,18 @@ Offene Punkte stehen nur hier, und erst nach Abstimmung mit dem Repo-Owner (CLAU
 
 ### Kontakte (Bundesportal)
 
-- [x] **Thüringen und Bayern fertig** (2026-10-03, `freigegeben` in `sources.yaml`): jede
-  Gemeinde mit Kontakt. TH 605: 533 aus dem Portal bestätigt, 4 Städte, die sich selbst
-  Straßenverkehrsbehörde nennen (Apolda, Eisenberg, Heilbad Heiligenstadt, Ilmenau), 1 über den
-  Kreiskontakt, 67 von Hand. BY 2 221: 2 176 bestätigt, 19 Gemeinden mit eigener Straßenverkehrsbehörde,
-  1 über den Kreiskontakt, 25 von Hand; dazu bei 1 956 Gemeinden der Kontakt der Gemeinde selbst.
-  Von Hand (`config/kontakte_ergaenzt.yaml`): Saalfeld-Rudolstadt, Hildburghausen, Sonneberg,
-  Suhl, Altötting, Würzburg.
+- [x] **Thüringen und Bayern fertig** (2026-10-03, `freigegeben` in `sources.yaml`): Für jede
+  Gemeinde und jede Straßenklasse hat die zuständige Stelle einen Kontakt. Kreisebene: TH 605/605,
+  BY 2 221/2 221. Gemeinde selbst: TH 134, BY 2 055. Portal-Urteil TH: 533 bestätigt, 4 Städte, die
+  sich selbst Straßenverkehrsbehörde nennen (Apolda, Eisenberg, Heilbad Heiligenstadt, Ilmenau).
+  BY: 2 176 bestätigt, 19 mit eigener Straßenverkehrsbehörde. Von Hand
+  (`config/kontakte_ergaenzt.yaml`): Kreise Saalfeld-Rudolstadt, Hildburghausen, Sonneberg, Suhl,
+  Altötting, Würzburg; Städte Arnstadt, Gotha, Mühlhausen; Gemeinden Burgkirchen a.d.Alz, Bad
+  Aibling, Lautertal, VG Dentlein a.Forst.
+- [ ] **Kontakte nachprüfen** (aus der Stichprobe vom 03.10.2026): Wartburgkreis – im Portal
+  03695 61-6103, auf der Webseite 61-6106. Ebersberg – Postfach mit `.bayern.de` oder ohne.
+  Sömmerda – Webseite nicht geprüft. Mühlhausen – die Stadt nennt keine eigene Verkehrsstelle,
+  heute die allgemeine Adresse. Bei mehreren Landratsämtern nennt die Webseite nur die Zentrale.
 - [ ] **Die übrigen 7 Bundesportal-Länder** (BB, MV, NI, NW, RP, SH, ST): abrufen (RP liegt
   schon im Cache, BB zu einem Viertel), Review-CSV durchsehen, Auswahlregel nachschärfen und in
   `freigegeben` aufnehmen. RP: Das Portal nennt meist die Verbandsgemeinde (nach Konzept
@@ -81,8 +98,6 @@ Offene Punkte stehen nur hier, und erst nach Abstimmung mit dem Repo-Owner (CLAU
   `config/kontakte_ergaenzt.yaml` löschen.
 - [ ] **Länder ohne Bundesportal-Eintrag** (BW, BE, HB, HH, HE, SL, SN): Kontakte der rund 105
   Stellen der Kreisebene und der Stadtstaaten anders beschaffen (Landesportale oder von Hand).
-- [ ] **Landesregel Thüringen:** Laut Portal sind mehrere große kreisangehörige Städte selbst
-  Straßenverkehrsbehörde (siehe Pilot) – mit Primärquelle prüfen und in Phase 2 als Regel.
 - [ ] **Nutzungsbedingungen** des Bundesportals vor dem Veröffentlichen kurz prüfen (Seite
   „Rechtliche Hinweise"); einzelne Kontaktangaben sind Fakten, nur Funktionspostfächer.
 
@@ -92,6 +107,9 @@ Offene Punkte stehen nur hier, und erst nach Abstimmung mit dem Repo-Owner (CLAU
   (`bundesportal_region`, Herausgeber-Id aus der Länderliste der Leistung). Für die übrigen
   Bundesportal-Länder kommt er mit `zust kontakte`; Links im CI prüfen.
 - [ ] **Meldelink im Antwortschild:** Issue-Formular mit ARS und Permalink vorbefüllt.
+- [ ] **Größe `by.json`** (1,86 MB, gzip 188 KB): Jede bayerische Gemeinde hat ein eigenes
+  Ergebnis für Gemeindestraßen, weil die Stelle `g<ARS>` darin steht. Ein Platzhalter für „die
+  Gemeinde selbst" würde die Ergebnisse wieder entdoppeln – Bruch, also Schema 2.
 - [ ] **Einwohner aus VG250-EW**, sobald für 31.12.2025 erschienen (heute: GV-ISys).
 - [ ] **Gebietsänderungen** zusätzlich aus der Destatis-Liste der Namens- und
   Gebietsänderungen (heute: Vergleich mit der Monatsausgabe).

@@ -51,7 +51,8 @@ GEMEINDEEBENE = re.compile(
 FUNKTIONSPOSTFACH = re.compile(
     r"post|info|verwaltung|verkehr|stra(ß|ss)e|ordnung|amt|b(ü|ue)rger|service|kontakt|stadt|"
     r"gemeinde|rathaus|lra|kreis|mail|office|zentrale|fachdienst|fachbereich|sekretariat|"
-    r"tiefbau|bau|sicherheit|kfz|aufsicht|abteilung|referat|organisation|kanzlei|^fd|^sg|^vg",
+    r"tiefbau|bau|infrastruktur|sicherheit|kfz|aufsicht|abteilung|referat|organisation|kanzlei|"
+    r"^fd|^sg|^vg",
     re.I,
 )
 ALLGEMEIN = {"kreis", "land", "landkreis", "stadt", "an", "am", "der", "im", "in", "bei", "und"}
@@ -215,29 +216,41 @@ def eigene_stelle(stelle: dict[str, Any], gemeinde: dict[str, Any]) -> bool:
     return any(all(w in name for w in _woerter(n)) for n in namen if n)
 
 
-def _kandidaten(stellen: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Ohne persönliche E-Mail-Adressen; nur Stellen mit Kontaktweg und ohne fremden Fachbereich."""
+def _kandidaten(stellen: list[dict[str, Any]], *, fremde: bool = False) -> list[dict[str, Any]]:
+    """Ohne persönliche E-Mail-Adressen; nur Stellen mit Kontaktweg und (außer mit `fremde`)
+    ohne fremden Fachbereich."""
     kandidaten = []
     for s in stellen:
         s = {**s, "email": [m for m in s["email"] if funktionspostfach(m)]}
-        if (s["telefon"] or s["email"] or s["web"]) and punkte(s) >= 0:
+        if (s["telefon"] or s["email"] or s["web"]) and (fremde or punkte(s) >= 0):
             kandidaten.append(s)
     return kandidaten
 
 
+def _beste(stellen: list[dict[str, Any]]) -> dict[str, Any] | None:
+    return sorted(stellen, key=lambda s: (-punkte(s), s["name"]))[0] if stellen else None
+
+
 def waehle_gemeinde(
-    stellen: list[dict[str, Any]], gemeinde: dict[str, Any], kontakt: dict[str, Any] | None
+    stellen: list[dict[str, Any]], gemeinde: dict[str, Any]
 ) -> dict[str, Any] | None:
-    """Die Stelle der Gemeinde selbst, falls das Portal eine nennt und sie nicht schon `kontakt`
-    ist (in Bayern Kontakt für Gemeindestraßen); bei mehreren die beste nach `punkte`, dann Name.
+    """Die Stelle der Gemeinde selbst (Rathaus, Verwaltungsgemeinschaft), falls das Portal eine
+    nennt; bei mehreren die beste nach `punkte`, dann nach Name.
+
+    Kleine Verwaltungen hängen die Leistung oft an einen allgemeinen Fachbereich (Bürgerbüro,
+    Standesamt, Kämmerei). Nennt das Portal für die Gemeinde nur so einen, ist er trotzdem ihr
+    Kontakt für die Leistung – dann ohne den Namen des Fachbereichs, der nur verwirren würde.
     """
-    eigene = [
-        s for s in _kandidaten(stellen)
-        if eigene_stelle(s, gemeinde) and s["name"] != (kontakt or {}).get("name")
-    ]  # fmt: skip
-    if not eigene:
-        return None
-    return sorted(eigene, key=lambda s: (-punkte(s), s["name"]))[0]
+    s = _beste([s for s in _kandidaten(stellen) if eigene_stelle(s, gemeinde)])
+    if s:
+        return s
+    s = _beste([s for s in _kandidaten(stellen, fremde=True) if eigene_stelle(s, gemeinde)])
+    return {**s, "name": s["name"].split(" - ", 1)[0].strip()} if s else None
+
+
+def waehle_kreis(stellen: list[dict[str, Any]], gemeinde: dict[str, Any]) -> dict[str, Any] | None:
+    """Die Stelle der Kreisebene (Landratsamt bzw. kreisfreie Stadt), wenn das Portal eine nennt."""
+    return _beste([s for s in _kandidaten(stellen) if unsere_stelle(s, gemeinde)])
 
 
 def _ziffern(telefon: list[str]) -> set[str]:
@@ -255,10 +268,13 @@ def waehle(
     den meisten `punkte`n.
 
     Wahl: `passt` (Stelle unserer Behörde), `stvb` (andere Stelle, die sich Straßenverkehrs-
-    behörde nennt; Kontakt mit `abweichend: true`), `mehrdeutig` (gleich gute Stellen
-    verschiedener Behörden), `fremd` (nur andere Stellen, etwa ein Ordnungsamt), `keine`.
-    Nur `passt` und `stvb` liefern einen Kontakt. Gleich gute Stellen derselben Behörde (zwei
-    Standorte eines Landratsamts) sind nicht mehrdeutig; dann gilt die erste nach Namen.
+    behörde nennt, meist die Stadt selbst), `mehrdeutig` (gleich gute Stellen verschiedener
+    Behörden), `fremd` (nur andere Stellen, etwa ein Ordnungsamt), `keine`. Nur `passt` und
+    `stvb` liefern eine Stelle. Gleich gute Stellen derselben Behörde (zwei Standorte eines
+    Landratsamts) sind nicht mehrdeutig; dann gilt die erste nach Namen.
+
+    Die Wahl geht als `bundesportal` in die Regeln (js/resolve.js); die Kontakte je Rolle wählen
+    `waehle_kreis` und `waehle_gemeinde`.
     """
     kandidaten = _kandidaten(stellen)
     if not kandidaten:
@@ -273,7 +289,7 @@ def waehle(
     if not (gleiche_nummer or eine_behoerde):
         return None, "mehrdeutig"
     s = oben[0]
-    return (s, "passt") if unsere_stelle(s, gemeinde) else ({**s, "abweichend": True}, "stvb")
+    return s, "passt" if unsere_stelle(s, gemeinde) else "stvb"
 
 
 def _hole(session: Any, url: str) -> dict[str, Any]:
@@ -384,25 +400,30 @@ def _von_hand(eintrag: dict[str, Any]) -> dict[str, Any]:
 
 
 def luecken_fuellen(gemeinden: dict[str, Any], attr: dict[str, Any], land: str) -> None:
-    """Gemeinden eines Landes ohne Kontakt: erst die Ergänzung von Hand (Gemeinde, dann Kreis),
-    sonst der Kreiskontakt, den das Portal für die übrigen Gemeinden des Kreises nennt."""
+    """Kontakte je Rolle (`kreis`, `gemeinde`) ergänzen:
+    - Einträge von Hand mit ARS einer Gemeinde (12 Stellen) und `rolle` ersetzen den Portalwert;
+    - ein fehlender Kreiskontakt kommt von Hand (Kreis-ARS, 5 Stellen) oder ist der Kreiskontakt,
+      den das Portal für die übrigen Gemeinden des Kreises nennt.
+    """
     von_hand = ergaenzungen()
     je_kreis: dict[str, Counter] = defaultdict(Counter)
     for ars, e in gemeinden.items():
         g = attr[ars]
-        if g["land"] == land and e["wahl"] == "passt" and not g["kreis"].get("kreisfrei"):
-            schluessel = json.dumps(e["kontakt"], ensure_ascii=False, sort_keys=True)
+        if g["land"] == land and e["kreis"] and not g["kreis"].get("kreisfrei"):
+            schluessel = json.dumps(e["kreis"], ensure_ascii=False, sort_keys=True)
             je_kreis[g["kreis"]["ars"]][schluessel] += 1
     for ars, e in gemeinden.items():
         g = attr[ars]
-        if g["land"] != land or e["kontakt"] is not None:
+        if g["land"] != land:
             continue
-        hand = von_hand.get(ars) or von_hand.get(ars[:5])
+        hand = von_hand.get(ars)
         if hand:
-            e["kontakt"], e["wahl"] = _von_hand(hand), "ergaenzt"
-        elif je_kreis.get(g["kreis"]["ars"]):
-            e["kontakt"] = json.loads(je_kreis[g["kreis"]["ars"]].most_common(1)[0][0])
-            e["wahl"] = "kreis"
+            e[hand.get("rolle", "kreis")] = _von_hand(hand)
+        if e["kreis"] is None:
+            if ars[:5] in von_hand:
+                e["kreis"] = _von_hand(von_hand[ars[:5]])
+            elif je_kreis.get(g["kreis"]["ars"]):
+                e["kreis"] = json.loads(je_kreis[g["kreis"]["ars"]].most_common(1)[0][0])
 
 
 REVIEW_KOPF = [
@@ -412,11 +433,11 @@ REVIEW_KOPF = [
     "kreis",
     "wahl",
     "stellen",
-    "kontakt",
-    "telefon",
-    "email",
-    "web",
-    "stelle_der_gemeinde",
+    "kreis_kontakt",
+    "kreis_telefon",
+    "kreis_email",
+    "gemeinde_kontakt",
+    "gemeinde_telefon",
     "alle_stellen",
 ]
 
@@ -426,9 +447,9 @@ def tabelle(
 ) -> tuple[dict[str, Any], list[list[str]]]:
     """Cache + Gemeindetabelle → (kontakte.json, Review-Zeilen) für die freigegebenen Länder.
 
-    Je Gemeinde: die Wahl aus dem Portal (`waehle`), die Stelle der Gemeinde selbst
-    (`waehle_gemeinde`), danach `luecken_fuellen`. Kondominium-Flächen übernehmen den Kontakt
-    der angrenzenden Gemeinde.
+    Je Gemeinde: das Urteil des Portals (`waehle` → `wahl`, für die Regeln), der Kontakt der
+    Kreisebene (`waehle_kreis`) und der Gemeinde selbst (`waehle_gemeinde`), danach
+    `luecken_fuellen`. Kondominium-Flächen übernehmen die Kreisstelle der angrenzenden Gemeinde.
     """
     d = dienst()
     laender = freigegeben() if laender is None else laender
@@ -454,18 +475,18 @@ def tabelle(
             if e is None:
                 continue
             stellen = stellen_je[ars] = stellen_aus(e["antwort"])
-            kontakt, wahl = waehle(stellen, g)
-            eigene = None if g.get("kondominium") else waehle_gemeinde(stellen, g, kontakt)
+            _, wahl = waehle(stellen, g)
             gemeinden[ars] = {
                 "wahl": wahl,
                 "stellen": len(stellen),
-                "kontakt": kontakt,
-                "gemeinde": eigene,
+                "kreis": waehle_kreis(stellen, g),
+                "gemeinde": None if g.get("kondominium") else waehle_gemeinde(stellen, g),
             }
         luecken_fuellen(gemeinden, attr, land)
         for ars, stellen in stellen_je.items():
             g, e = attr[ars], gemeinden[ars]
-            k = e["kontakt"] or {"name": "", "telefon": [], "email": [], "web": []}
+            k = e["kreis"] or {"name": "", "telefon": [], "email": []}
+            gm = e["gemeinde"] or {"name": "", "telefon": []}
             review.append(
                 [
                     land,
@@ -477,8 +498,8 @@ def tabelle(
                     k["name"],
                     " / ".join(k["telefon"]),
                     " / ".join(k["email"]),
-                    " / ".join(k["web"]),
-                    (e["gemeinde"] or {}).get("name", ""),
+                    gm["name"],
+                    " / ".join(gm["telefon"]),
                     " | ".join(f"{s['name']} ({punkte(s)})" for s in stellen),
                 ]
             )

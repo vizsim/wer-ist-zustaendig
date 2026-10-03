@@ -44,19 +44,30 @@ und TH. `zust kontakte` fragt die (nicht dokumentierte) API des Bundesportals je
 Anfrage pro Sekunde; der Cache liegt in `data/raw/bundesportal/<LAND>/`, ein abgebrochener Lauf
 setzt fort. `zust alles` ruft den Schritt nicht auf.
 
-Je Gemeinde wird genau eine Stelle gewählt (`bundesportal.waehle`): Stellen mit fremdem
-Fachbereich (Gewerbe, Fahrerlaubnis, Zulassung …) und ohne Telefon, E-Mail oder Web scheiden aus;
+Je Gemeinde gibt es zwei Kontakte, einen je Rolle: die Kreisebene, also Landratsamt bzw.
+kreisfreie Stadt (`waehle_kreis`), und die Gemeinde selbst, also Rathaus oder
+Verwaltungsgemeinschaft (`waehle_gemeinde`). Stellen ohne Telefon, E-Mail oder Web scheiden aus.
 E-Mail-Adressen mit Personennamen und Links zu sozialen Netzwerken fallen weg, Kontaktpersonen
-werden nie übernommen. Von den
-übrigen gewinnt die mit „Verkehr" im Namen oder in der Adresse. Gleich gute Stellen mit
-verschiedenen Behörden gelten als `mehrdeutig` und bekommen keinen Kontakt – die Review-CSV
-zeigt alle Stellen mit Punkten. Daneben wird je Gemeinde die Stelle der Gemeinde selbst gesucht
-(Rathaus oder Verwaltungsgemeinschaft, `waehle_gemeinde`); der Build übernimmt sie nur in Ländern,
-in denen Gemeinden für Gemeindestraßen zuständig sein können (heute Bayern).
+werden nie übernommen. Auf der Kreisebene scheiden fremde Fachbereiche aus (Gewerbe,
+Fahrerlaubnis, Zulassung …); von den übrigen gewinnt die Stelle mit „Verkehr" im Namen oder in der
+Adresse. Hängt eine Gemeinde die Leistung nur an einen allgemeinen Fachbereich (Bürgerbüro,
+Standesamt), gilt er trotzdem als ihr Kontakt, dann ohne den Namen des Fachbereichs. Welche Rolle
+eine Auskunft braucht, entscheiden die Regeln (`js/resolve.js`). Der Build übernimmt einen Kontakt
+nur, wenn seine Stelle in den Ergebnissen der Gemeinde vorkommt.
 
-Lücken (`luecken_fuellen`): Fehlt einer Gemeinde der Kontakt, gilt zuerst ein Eintrag von Hand aus
-`config/kontakte_ergaenzt.yaml` (Kreis oder Gemeinde, abgeschrieben von der Webseite der Behörde,
-mit Datum), sonst der Kreiskontakt, den das Portal für die übrigen Gemeinden des Kreises nennt.
+Dazu kommt je Gemeinde das Urteil `wahl` (`bundesportal.waehle`). `passt` heißt, das Portal nennt
+dieselbe Stelle wie die Kreisregel. `stvb` heißt, es nennt eine andere Stelle, die sich
+Straßenverkehrsbehörde nennt. Die übrigen Werte sind `mehrdeutig` (gleich gute Stellen
+verschiedener Behörden), `fremd` und `keine`. Die Regeln nutzen das Urteil: `passt` hebt „nur
+Ebene" auf „vermutlich". `stvb` macht in Thüringen Städte über 10.000 Einwohner zur zuständigen
+Stelle (§ 2 Abs. 7), sonst steht die Gemeinde als Alternative da. Die Review-CSV zeigt alle
+Stellen mit Punkten.
+
+Lücken (`luecken_fuellen`): Fehlt einer Gemeinde ein Kontakt, gilt zuerst ein Eintrag von Hand aus
+`config/kontakte_ergaenzt.yaml`. Er ist von der Webseite der Behörde abgeschrieben, mit Datum, und
+gilt für einen ganzen Kreis (Kreis-ARS) oder für eine Gemeinde und eine Rolle (Gemeinde-ARS mit
+`rolle`). Sonst gilt für die Kreisebene der Kontakt, den das Portal für die übrigen Gemeinden des
+Kreises nennt.
 Im Telefonfeld des Portals steht die Beschriftung hinter der Nummer („03631 911-6303",
 „Straßenverkehr"); Nummern und Postfächer für den Straßenverkehr kommen nach vorn.
 

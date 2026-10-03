@@ -17,22 +17,24 @@ Es gibt zwei Wege zu den Daten:
 > **Kein Rechtsrat.** Die Auskunft ist eine begründete Vermutung mit Quelle. Vor einem Antrag
 > oder einer Anregung bitte prüfen, ob die genannte Stelle wirklich zuständig ist.
 
-## Stand: Phase 1
+## Stand: Phase 2 – Bayern und Thüringen
 
 | Was | Stand |
 |---|---|
 | Gemeindegrenzen, Schlüssel, Kreise | ganz Deutschland, Gebietsstand 31.12.2025 |
+| **Bayern** | **belegt**: Gemeindestraßen – die Gemeinde selbst (in einer Verwaltungsgemeinschaft erledigt die Gemeinschaft die Verwaltungsarbeit); Kreis-, Staats- und Bundesstraßen – das Landratsamt; Große Kreisstädte und kreisfreie Städte für alle Straßen |
+| **Thüringen** | **vermutlich**: Städte über 30.000 Einwohner und Eisenach für alle Straßen; Städte, die auf Antrag Straßenverkehrsbehörde sind (Apolda, Arnstadt, Eisenberg, Heilbad Heiligenstadt), für alle außer Bundesstraßen; sonst der Landkreis |
 | Bremen (Amt für Straßen und Verkehr, Bremerhaven: Magistrat) | **belegt** |
-| Kreisfreie Städte | **vermutlich**: die Stadt |
+| Kreisfreie Städte der übrigen Länder | **vermutlich**: die Stadt |
 | Alle übrigen Gemeinden | **nur Ebene**: Kreis (Landratsamt, Kreisverwaltung); Große Kreisstädte als Alternative |
 | Berlin, Hamburg | **nur Ebene**: Bezirksamt bzw. Senatsverwaltung; zuständiges Polizeikommissariat |
 | Autobahnen | Fernstraßen-Bundesamt, kein Brief an die Kommune |
-| **Kontakt** (Telefon, E-Mail, Webseite) | **Thüringen und Bayern: jede Gemeinde** – aus dem Bundesportal, einzelne Lücken von den Webseiten der Behörden; nennt das Land dort dieselbe Stelle, gilt die Auskunft als **vermutlich**. Bayern zusätzlich: die Gemeinde selbst für Gemeindestraßen. Übrige Länder: Link ins Bundesportal |
+| **Kontakt** (Telefon, E-Mail, Webseite) | **Thüringen und Bayern: jede Gemeinde, jede Straßenklasse** – der Kontakt genau der Stelle, die zuständig ist, aus dem Bundesportal; einzelne Lücken von den Webseiten der Behörden. Übrige Länder: Link ins Bundesportal; nennt das Land dort dieselbe Stelle wie unsere Regel, gilt die Auskunft als **vermutlich** |
 
-Die Regeln der einzelnen Länder folgen in Phase 2 (siehe [docs/TODO.md](docs/TODO.md)): erst
-die sechs voll belegten Länder (BW, BY, BB, HB, NW, SN), dann die Stadtstaaten, dann der Rest.
-Bis dahin zeigt die Karte für die meisten Gemeinden ehrlich nur die Kreisebene – schraffiert.
-Kontakte folgen Land für Land, sobald die Daten aus dem Bundesportal durchgesehen sind.
+Die Regeln der übrigen Länder folgen (siehe [docs/TODO.md](docs/TODO.md)): erst die voll
+belegten Länder (BW, BB, NW, SN), dann die Stadtstaaten, dann der Rest. Bis dahin zeigt die Karte
+für die meisten Gemeinden ehrlich nur die Kreisebene – schraffiert. Kontakte folgen Land für Land,
+sobald die Daten aus dem Bundesportal durchgesehen sind.
 
 ## So funktioniert es
 
@@ -54,9 +56,10 @@ Bundesportal (Stellen, Kontakte) ─── zust kontakte ─→ kontakte.json �
   Klasse aus OSM `ref` und `highway`, auch Bayerns und Mecklenburg-Vorpommerns Kreisstraßen mit
   Kfz-Kürzel („DAH 3", „VG 12").
 - **Kontakt je Gemeinde:** Im Bundesportal pflegen die Länder für jede Gemeinde die zuständige
-  Stelle mit Telefon und E-Mail. `zust kontakte` holt sie ab, wählt genau eine Stelle aus
-  (Verkehr vor Ordnung, keine fremden Fachbereiche, keine Personen) und füllt Lücken mit dem
-  Kreiskontakt oder von Hand (`pipeline/config/kontakte_ergaenzt.yaml`, mit Quelle und Datum).
+  Stelle mit Telefon und E-Mail. `zust kontakte` holt sie ab und wählt je Gemeinde zwei Kontakte:
+  die Kreisebene und die Gemeinde selbst (Verkehr vor Ordnung, keine Personen). Lücken füllt es
+  mit dem Kreiskontakt oder von Hand (`pipeline/config/kontakte_ergaenzt.yaml`, mit Quelle und
+  Datum). Die Auskunft zeigt den Kontakt der Stelle, die für die Straße zuständig ist.
 - **Vorberechnet:** Die Regeln laufen im Build einmal über alle Gemeinden. Heraus kommt eine
   Tabelle, die man lesen, stichprobenartig prüfen und freigeben kann; jede Änderung steht im
   Diff. Im Browser bleibt nur das Nachschlagen.
@@ -90,7 +93,7 @@ node tools/lookup.mjs 48.4005 11.7448 G     # Punkt (lat lon) und Straßenklasse
 | Hintergrundkarte | [OpenFreeMap](https://openfreemap.org) Positron | © OpenMapTiles, © OpenStreetMap-Mitwirkende |
 | Ortssuche | [Photon](https://photon.komoot.io) (komoot) | © OpenStreetMap-Mitwirkende |
 | Schrift | [Barlow](https://github.com/jpt/barlow), selbst gehostet | SIL Open Font License 1.1 ([assets/fonts/OFL.txt](assets/fonts/OFL.txt)) |
-| Rechtsgrundlagen | Fundstellen je Auskunft; Recherche im Konzept zum Analyse-Report der Unfallkarte (§ 6) | – |
+| Rechtsgrundlagen | Fundstellen je Auskunft; Bayern aus [BAYERN.RECHT](https://www.gesetze-bayern.de) (ZustGVerk, GrKrV, AufVGem, VGemO); sonst Recherche im Konzept zum Analyse-Report der Unfallkarte (§ 6) | – |
 
 Code: AGPL-3.0-or-later.
 

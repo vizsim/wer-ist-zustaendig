@@ -3,10 +3,78 @@
 # abgeschrieben, mit Datum. Beim jährlichen Durchgang prüfen, ob das Portal inzwischen eine
 # passende Stelle nennt – dann den Eintrag löschen.
 #
-# Schlüssel: Kreis-ARS (5 Stellen, gilt für alle Gemeinden des Kreises ohne Kontakt aus dem
-# Portal) oder ARS einer Gemeinde (12 Stellen). Nur Funktionspostfächer, keine Personen.
+# Schlüssel: Kreis-ARS (5 Stellen) – Kontakt der Kreisebene für alle Gemeinden des Kreises, für
+# die das Portal keinen nennt. Oder ARS einer Gemeinde (12 Stellen) mit `rolle` (`kreis` oder
+# `gemeinde`) – ersetzt den Portalwert dieser Rolle. Nur Funktionspostfächer, keine Personen.
 
 kontakte:
+  "160700004004":  # Stadt Arnstadt – Portal nennt nur das Rathaus; Stadt ist Straßenverkehrsbehörde
+    rolle: gemeinde
+    name: "Stadtverwaltung Arnstadt - Sachgebiet Verkehr"
+    adresse: "Markt 1, 99310 Arnstadt"
+    telefon: ["03628 745 879"]
+    email: ["verkehr@stadtverwaltung.arnstadt.de"]
+    web: ["https://www.arnstadt.de/kontakt/verkehr"]
+    stand: "2026-10-03"
+
+  "160670029029":  # Stadt Gotha – im Portal nur das Landratsamt
+    rolle: gemeinde
+    name: "Stadtverwaltung Gotha - Abt. Straßenverkehr/Gewerbe"
+    adresse: "Ekhofplatz 24, 99867 Gotha"
+    telefon: ["+49 3621 222-715"]
+    email: []  # nur über das Kontaktsystem der Stadt
+    web: ["https://www.gotha.de/de/zustaendige-stelle/organisationseinheit/53/abt_strassenverkehr__gewerbe.html"]
+    stand: "2026-10-03"
+
+  "160640046046":  # Stadt Mühlhausen/Thüringen – im Portal nur das Landratsamt; Stadt nennt keine eigene Verkehrsstelle
+    rolle: gemeinde
+    name: "Stadtverwaltung Mühlhausen/Thüringen"
+    adresse: "Ratsstraße 25, 99974 Mühlhausen"
+    telefon: ["03601 452 115"]
+    email: ["info@muehlhausen.de"]
+    web: ["https://www.muehlhausen.de/kontakt-1/"]
+    stand: "2026-10-03"
+
+  "091710113113":  # Gemeinde Burgkirchen a.d.Alz – Portal nennt die Verkehrsstelle nur mit persönlicher Adresse
+    rolle: gemeinde
+    name: "Gemeinde Burgkirchen a.d.Alz - Ordnungsamt"
+    adresse: "Max-Planck-Platz 5, 84508 Burgkirchen a.d.Alz"
+    telefon: ["08679 309-0"]
+    email: ["rathaus@burgkirchen.de"]
+    web: ["https://www.burgkirchen.de/buergerservice-views/abteilungen/BAY:department:50863/ordnungsamt/"]
+    stand: "2026-10-03"
+
+  "091870117117":  # Stadt Bad Aibling – Portal nennt keine Stelle der Stadt
+    rolle: gemeinde
+    name: "Stadt Bad Aibling - Verkehrsrecht"
+    adresse: "Marienplatz 1, 83043 Bad Aibling"
+    telefon: ["08061 4901-0"]  # Zentrale; die Durchwahlen auf der Seite gehören Personen
+    email: ["verkehrsrecht@bad-aibling.de"]
+    web: ["https://www.rathaus-bad-aibling.de/organisationseinheit/Verkehrsrecht-unit454"]
+    stand: "2026-10-03"
+
+  "094730141141":  # Gemeinde Lautertal (Lkr. Coburg) – Portal nennt nur einen „Bauhof" ohne Behörde
+    rolle: gemeinde
+    name: "Gemeinde Lautertal"
+    adresse: "Frankenstraße 3, 96486 Lautertal"
+    telefon: ["+49 9561 8620-0"]  # Zentrale; Straßenverkehr hat nur eine persönliche Durchwahl
+    email: ["info@gemeindelautertal.de"]
+    web: ["https://www.gemeindelautertal.de/rathaus/verwaltung/"]
+    stand: "2026-10-03"
+
+  # VG Dentlein a.Forst (Burk, Dentlein a.Forst, Wieseth) – Portal nennt nur ein „Ordnungsamt"
+  # ohne Behörde; die Gemeinschaft erledigt die Verwaltungsarbeit ihrer Mitglieder.
+  "095715507128": &vg_dentlein
+    rolle: gemeinde
+    name: "Verwaltungsgemeinschaft Dentlein a.Forst"
+    adresse: "Rathausplatz 1, 91599 Dentlein a.Forst"
+    telefon: ["09855 9799-0"]
+    email: ["poststelle@vg-dentlein.de"]
+    web: ["https://www.vg-dentlein.de/"]
+    stand: "2026-10-03"
+  "095715507132": *vg_dentlein
+  "095715507223": *vg_dentlein
+
   "16054":  # Kreisfreie Stadt Suhl – Portal nennt nur „Gewerbeangelegenheiten"
     name: "Stadtverwaltung Suhl - Ordnungs- und Bürgeramt, Straßenverkehrsbehörde"
     adresse: "Friedrich-König-Straße 42, 98527 Suhl"

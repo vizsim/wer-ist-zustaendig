@@ -6,8 +6,8 @@
 // Kacheln der Unfallkarte (Layer highways/highways_minor mit highway, ref, name).
 // Die Logik steckt in js/*.js (rein, getestet); hier nur Karte, Seite und Netz.
 
-import { landAusArs, landesdatei } from "./js/laender.js";
-import { auswahl } from "./js/resolve.js";
+import { landAusArs, landAusKuerzel, landesdatei } from "./js/laender.js";
+import { auswahl, LANDESREGELN } from "./js/resolve.js";
 import {
   antwortHtml, ARTEN, datenBasisAusParam, esc, FARBE, farbAusdruck, flaechenDeckkraft, flaechenFarbe,
   klassenAusdruck, klassenListe, SICHERHEIT_STIL, STRASSEN_LEGENDE, strassenAmPunkt,
@@ -21,7 +21,7 @@ const ENTFERNT = "https://tiles.vizsim.de/file/unfallkarte-data-v2/zustaendigkei
 const UNFALLKARTE = "https://tiles.vizsim.de/file/unfallkarte-data-v2/osm/";
 const PHOTON = "https://photon.komoot.io/api/";
 const STIL = "https://tiles.openfreemap.org/styles/positron";
-const ARTEN_PHASE1 = ["kreis", "stadt", "stadtstaat"]; // ab Phase 2 kommen gemeinde/verband dazu
+const ARTEN_LEGENDE = ["kreis", "stadt", "gemeinde", "stadtstaat"]; // verband folgt mit RP, SH
 const STRASSEN_LAYER = ["strassen-neben", "strassen-haupt"];
 // Hauptstraßen der Unfallkarte erst ab z10: Darunter sind ihre Kacheln riesig (z7 im Mittel
 // 1,3 MB, z6 bis 7,9 MB), und die Hintergrundkarte zeigt die großen Straßen ohnehin.
@@ -72,7 +72,7 @@ function meldung(text) {
 }
 
 function baueLegende() {
-  $("#legende-arten").innerHTML = ARTEN_PHASE1.map((art) =>
+  $("#legende-arten").innerHTML = ARTEN_LEGENDE.map((art) =>
     `<li><span class="probe flaeche" style="--f:${ARTEN[art].farbe}"></span>${esc(ARTEN[art].label)}</li>`).join("");
   $("#legende-sicherheit").innerHTML = Object.entries(SICHERHEIT_STIL).map(([s, st]) =>
     `<li><span class="probe flaeche ${st.schraffur ? "schraffiert" : ""}" style="--f:${ARTEN.kreis.farbe};--d:${st.deckkraft}"></span>` +
@@ -86,7 +86,8 @@ function zeigeStand(index) {
   const d = index.daten ?? {};
   const teile = [
     d.gebiet && `Gebietsstand ${d.gebiet.replace(/^VG25 /, "")}`,
-    index.regeln && `Regeln ${index.regeln.version} (Phase ${index.regeln.phase}: meist nur die Kreisebene)`,
+    index.regeln && `Regeln ${index.regeln.version}: Landesregeln für ${
+      Object.keys(LANDESREGELN).map((l) => landAusKuerzel(l)?.name ?? l).join(" und ")}, sonst meist nur die Kreisebene`,
   ].filter(Boolean);
   $("#stand").textContent = `${teile.join(". ")}.`;
 }

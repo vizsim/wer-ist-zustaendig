@@ -212,11 +212,20 @@ a:hover { text-decoration-thickness: 2px; }
 .weg:hover { color: var(--papier); background: var(--tinte); }
 .weg:hover span { color: var(--papier); }
 
-.gemeinde-kontakt { margin: 0 0 12px; padding: 2px 0 2px 11px; border-left: 3px solid var(--grau-hell); }
-.gemeinde-vorspann { margin: 0 0 3px; font-size: 13.5px; color: var(--grau); }
-.gemeinde-name { margin: 0; font-weight: 600; }
-.gemeinde-kontakt .wege { margin-top: 6px; }
-.gemeinde-kontakt .weg { padding: 6px 10px; border-width: 1px; }
+/* Alternative: andere Stelle mit Bedingung und eigenem Kontakt, schwächer gesetzt. */
+.alternative { margin: 0 0 12px; padding: 2px 0 2px 11px; border-left: 3px solid var(--grau-hell); }
+.alternative-name { margin: 0; font-weight: 600; }
+.alternative-name span {
+  margin-right: 6px;
+  font: 600 12px/1.2 var(--schrift);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--grau);
+}
+.alternative-bedingung, .alternative-stelle { margin: 2px 0 0; font-size: 13.5px; }
+.alternative-bedingung { color: var(--grau); }
+.alternative .wege { margin-top: 6px; }
+.alternative .weg { padding: 6px 10px; border-width: 1px; }
 
 .ort { margin: 0 0 8px; font-size: 14px; font-weight: 500; }
 .sicherheit { margin: 0 0 10px; font-size: 14px; }
@@ -240,15 +249,6 @@ a:hover { text-decoration-thickness: 2px; }
 .marke-nur-ebene {
   background: repeating-linear-gradient(135deg, var(--papier) 0 4px, #dfe3e6 4px 6px);
 }
-
-.alternative {
-  margin: 0 0 10px;
-  padding: 6px 0 6px 10px;
-  font-size: 14px;
-  border-left: 3px solid var(--grau-hell);
-}
-
-.alternative span { font-weight: 600; }
 
 .hinweise { margin: 0 0 10px; padding-left: 18px; font-size: 13.5px; }
 .hinweise li { margin: 2px 0; }

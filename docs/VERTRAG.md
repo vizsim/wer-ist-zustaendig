@@ -3,7 +3,7 @@
 Dieses Dokument ist die Schnittstelle zwischen „Wer ist zuständig?" und allen, die die Dateien
 nutzen – zuerst die Karte in diesem Repo, dann die Unfallkarte.
 
-Stand: **Schema 1** · Regeln 0.4.0 (Phase 1) · Datenstand 31.12.2025
+Stand: **Schema 1** · Regeln 0.5.0 (Phase 2: Landesregeln für Bayern und Thüringen) · Datenstand 31.12.2025
 
 ## Regeln für alle Dateien
 
@@ -31,11 +31,13 @@ oder im Bucket, auf `localhost` beliebig.
 |---|---|---|
 | `gemeinden.pmtiles` | Grenzschicht: Layer `gemeinden` und `kreise` | 30 MB; über 100 MB erst abstimmen |
 | `index.json` | Übersicht: Regel- und Datenstand, Quellen, Liste der Länder | wenige KB |
-| `<lkz>.json` (16, z. B. `by.json`) | Zuständigkeit je Gemeinde und Straßenklasse | 2–448 KB je Land, gzip höchstens 45 KB |
+| `<lkz>.json` (16, z. B. `by.json`) | Zuständigkeit je Gemeinde und Straßenklasse | 2–1 858 KB je Land, gzip höchstens 188 KB |
 | `../manifest.json` | Manifest der Pipeline (Muster Unfallkarte/SVZ) | wenige KB |
 
-Größen aus dem ersten echten Lauf (Datenstand 31.12.2025, Regeln 0.2.0): Landesdateien zusammen
-2 164 KB, gzip 221 KB. `zust grenzen` und `zust laender` geben die Größen bei jedem Lauf aus.
+Größen aus dem Lauf vom 03.10.2026 (Datenstand 31.12.2025, Regeln 0.5.0, Kontakte für BY und TH):
+Landesdateien zusammen 3 616 KB, gzip 368 KB. Am größten ist `by.json`, weil dort jede Gemeinde
+für ihre Gemeindestraßen ein eigenes Ergebnis hat. `zust grenzen` und `zust laender` geben die
+Größen bei jedem Lauf aus.
 
 ## `gemeinden.pmtiles`
 
@@ -49,7 +51,7 @@ für die Darstellung genügt das; nachgeschlagen wird in z12 mit voller Auflösu
 |---|---|---|---|---|
 | `gemeinden` | 7–12 | `ars` | String (12) | Amtlicher Regionalschlüssel |
 | | | `gen` | String | Gemeindename (VG25 `GEN`) |
-| | | `eg` | String | Art der Stelle für Gemeindestraßen: `kreis`, `stadt`, `stadtstaat`; ab Phase 2 auch `gemeinde`, `verband` |
+| | | `eg` | String | Art der Stelle für Gemeindestraßen: `kreis`, `stadt` (kreisfrei oder selbst zuständig), `gemeinde`, `stadtstaat`; später `verband` |
 | | | `sg` | String | Sicherheit dieser Stelle: `belegt`, `vermutlich`, `nur Ebene` |
 | `kreise` | 4–10 | `ars` | String (5) | Kreis (ARS-Präfix) |
 | | | `name` | String | voller Name nach `NBD` („Landkreis Freising", „Region Hannover") |
@@ -73,7 +75,7 @@ eigene Kreise); die Landesdatei nennt dort die Stelle der angrenzenden Gemeinde,
 ```json
 {
   "schema": 1,
-  "regeln": { "version": "0.4.0", "phase": 1, "stand": "2026-10-03" },
+  "regeln": { "version": "0.5.0", "phase": 2, "stand": "2026-10-03" },
   "daten": {
     "gebiet": "VG25 31.12.2025",
     "status": "GV-ISys 31.12.2025",
@@ -85,8 +87,8 @@ eigene Kreise); die Landesdatei nennt dort die Stelle der angrenzenden Gemeinde,
   "bundesportal": "https://verwaltung.bund.de/leistungsverzeichnis/de/leistung/99108014042000",
   "quellen": [{ "id": "vg25", "label": "…", "lizenz": "CC BY 4.0", "vermerk": "© BKG (2026) CC BY 4.0, …" }],
   "laender": [
-    { "lkz": "BY", "name": "Bayern", "datei": "by.json", "gemeinden": 2056,
-      "sicherheit": { "belegt": 0, "vermutlich": 25, "nur Ebene": 2031 } }
+    { "lkz": "BY", "name": "Bayern", "datei": "by.json", "gemeinden": 2221,
+      "sicherheit": { "belegt": 2056, "vermutlich": 165, "nur Ebene": 0 }, "kontakte": 2221 }
   ]
 }
 ```
@@ -102,31 +104,44 @@ eigene Kreise); die Landesdatei nennt dort die Stelle der angrenzenden Gemeinde,
 
 Kopf wie `index.json` (`schema`, `regeln`, `daten`, `erzeugt`, `hinweis`, `bundesportal`,
 `quellen`), dazu `land` (Kürzel) und `name`. Danach vier Tabellen, je ein Eintrag pro Zeile und
-nach Schlüssel sortiert (Beispiel aus den Testdaten, gekürzt):
+nach Schlüssel sortiert.
 
 Länder mit Kontakten aus dem Bundesportal (`zust kontakte`) haben zusätzlich:
 
 - im Kopf `bundesportal_region`: Link auf die Seite der Leistung für eine Gemeinde, `{ars}` wird
   ersetzt; `daten.kontakte` („Bundesportal 02.10.2026") und einen Eintrag in `quellen`;
-- eine fünfte Tabelle `kontakte` (siehe unten) und je Gemeinde das Feld `kontakt`.
+- eine fünfte Tabelle `kontakte` (siehe unten) und je Gemeinde die Felder `kontakt` und
+  `kontakt_gemeinde`.
+
+Beispiel: eine bayerische Gemeinde, gekürzt. Für Gemeindestraßen ist sie selbst zuständig, für
+die übrigen Klassen das Landratsamt. Die Kontaktangaben sind hier ausgelassen.
 
 ```json
 {
   "stellen": {
     "fba":           { "id": "fba", "name": "Fernstraßen-Bundesamt – Straßenverkehrsbehörde", "ebene": "bund", "art": "bund" },
-    "g091780124124": { "id": "g091780124124", "name": "Stadt Freising – Straßenverkehrsbehörde", "ebene": "untere", "art": "stadt" },
-    "k09178":        { "id": "k09178", "name": "Landratsamt Freising – Straßenverkehrsbehörde", "ebene": "untere", "art": "kreis" }
+    "g092740128128": { "id": "g092740128128", "name": "Gemeinde Essenbach – Straßenverkehrsbehörde", "ebene": "oertliche", "art": "gemeinde" },
+    "k09274":        { "id": "k09274", "name": "Landratsamt Landshut – Straßenverkehrsbehörde", "ebene": "untere", "art": "kreis" }
   },
   "ergebnisse": {
-    "ed61ec08b": { "stelle": "k09178", "sicherheit": "nur Ebene",
-                   "grund": "Für kreisangehörige Gemeinden ist meist die Kreisverwaltung zuständig. …",
-                   "quelle": "Rückfall Phase 1: Kreisebene (Konzept § 6.1)",
-                   "alternative": { "stelle": "g091780124124", "bedingung": "Große Kreisstadt – sie kann selbst zuständig sein" } }
+    "e874b7e9e": { "stelle": "g092740128128", "sicherheit": "belegt",
+                   "grund": "In Bayern ist die Gemeinde für ihre Gemeindestraßen selbst Straßenverkehrsbehörde.",
+                   "quelle": "Art. 2 Abs. 1 Nr. 1, Art. 3 Abs. 1 und Art. 6 ZustGVerk (Bayern), Fassung vom 17.12.2024",
+                   "alternative": null },
+    "ee99dca80": { "stelle": "k09274", "sicherheit": "belegt",
+                   "grund": "Für Kreis-, Staats- und Bundesstraßen ist in Bayern das Landratsamt Straßenverkehrsbehörde.",
+                   "quelle": "Art. 2 Abs. 1 Nr. 2 ZustGVerk (Bayern), Fassung vom 17.12.2024",
+                   "alternative": null }
   },
-  "kreise": { "09178": "Landkreis Freising" },
+  "kontakte": {
+    "c7da9c47b": { "name": "Landratsamt Landshut - …", "adresse": "…", "telefon": ["…"], "email": ["…"], "web": ["…"] },
+    "ca2304e20": { "name": "Markt Essenbach - …", "adresse": "…", "telefon": ["…"], "email": ["…"], "web": ["…"] }
+  },
+  "kreise": { "09274": "Landkreis Landshut" },
   "gemeinden": {
-    "091780124124": { "name": "Freising", "kreis": "09178", "ew": 50721,
-                      "z": { "G": "ed61ec08b", "K": "ed61ec08b", "L": "ed61ec08b", "B": "ed61ec08b" } }
+    "092740128128": { "name": "Gemeinde Essenbach", "kreis": "09274", "ew": 11970,
+                      "z": { "G": "e874b7e9e", "K": "ee99dca80", "L": "ee99dca80", "B": "ee99dca80" },
+                      "kontakt": "c7da9c47b", "kontakt_gemeinde": "ca2304e20" }
   }
 }
 ```
@@ -137,15 +152,15 @@ Länder mit Kontakten aus dem Bundesportal (`zust kontakte`) haben zusätzlich:
 |---|---|
 | `id` | stabile Id, siehe unten |
 | `name` | amtlicher Name mit Zusatz „– Straßenverkehrsbehörde" |
-| `ebene` | `bund`, `untere`; später `obere`, `oertliche` |
-| `art` | `bund`, `kreis`, `stadt`, `stadtstaat`; ab Phase 2 auch `gemeinde`, `verband` |
+| `ebene` | `bund`, `untere`, `oertliche` (bayerische Gemeinde für ihre Gemeindestraßen); später `obere` |
+| `art` | `bund`, `kreis`, `stadt`, `gemeinde`, `stadtstaat`; später `verband` |
 
 | Id | Stelle |
 |---|---|
 | `fba` | Fernstraßen-Bundesamt (Autobahnen); in jeder Landesdatei |
 | `k` + Kreis-ARS (5) | Kreisebene bzw. kreisfreie Stadt, z. B. `k09178`, `k09162` |
-| `g` + ARS (12) | eine Gemeinde, z. B. eine Große Kreisstadt |
-| `v` + Verbands-ARS (9) | ein Verband (Amt, Verbandsgemeinde, VG); ab Phase 2 |
+| `g` + ARS (12) | eine Gemeinde: Große Kreisstadt, Stadt mit eigener Straßenverkehrsbehörde, in Bayern jede kreisangehörige Gemeinde für ihre Gemeindestraßen |
+| `v` + Verbands-ARS (9) | ein Verband (Amt, Verbandsgemeinde); noch nicht vergeben |
 | `hb-asv`, `hb-bhv` | Bremen: Amt für Straßen und Verkehr; Magistrat Bremerhaven |
 | `be-bezirk`, `be-senat` | Berlin: Bezirksamt; Senatsverwaltung (übergeordnetes Netz) |
 | `hh-pk` | Hamburg: Polizei, zuständiges Polizeikommissariat |
@@ -155,7 +170,7 @@ Länder mit Kontakten aus dem Bundesportal (`zust kontakte`) haben zusätzlich:
 | Feld | Inhalt |
 |---|---|
 | `stelle` | Id in `stellen` |
-| `sicherheit` | `belegt` (Primärquelle, getestete Regel) · `vermutlich` (Regel belegt, Eingabe unsicher – oder das Land nennt im Bundesportal dieselbe Stelle) · `nur Ebene` (Land noch offen) |
+| `sicherheit` | `belegt` (Primärquelle, getestete Regel; heute BY und HB) · `vermutlich` (Regel aus Sekundärquelle wie in TH, Eingabe unsicher – oder das Land nennt im Bundesportal dieselbe Stelle) · `nur Ebene` (Land noch offen) |
 | `grund` | ein Satz für Popup und Report |
 | `quelle` | Fundstelle mit Fassung bzw. Verweis auf das Konzept |
 | `alternative` | `null` oder `{ stelle, bedingung }`; `bedingung` ist ein Satzteil („falls nur die Gemeindestraße betroffen ist") |
@@ -173,8 +188,8 @@ Konsumenten lesen sie nur als Verweis.
 | `verband` | optional: voller Name des Verbands (nur bei 6. ARS-Stelle `5`) |
 | `ew` | optional: Bevölkerung laut GV-ISys |
 | `z` | Ergebnis-Id je Straßenklasse `G`, `K`, `L`, `B`. Autobahnen (`A`) sind überall gleich und stehen nicht in der Tabelle |
-| `kontakt` | optional: Id in `kontakte` – die eine Stelle, die das Bundesportal für die Gemeinde nennt (Auswahl siehe `pipeline/README.md`) |
-| `kontakt_gemeinde` | optional: Id in `kontakte` – die Stelle der Gemeinde selbst (Rathaus, Verwaltungsgemeinschaft); nur in Ländern, in denen Gemeinden für Gemeindestraßen zuständig sein können (`GEMEINDE_FUER_GEMEINDESTRASSEN` in `js/resolve.js`, heute BY) |
+| `kontakt` | optional: Id in `kontakte` – Kontakt der Kreisebene (Landratsamt) bzw. der kreisfreien Stadt; nur, wenn diese Stelle (`k…`) in den Ergebnissen der Gemeinde vorkommt (Auswahl siehe `pipeline/README.md`) |
+| `kontakt_gemeinde` | optional: Id in `kontakte` – Kontakt der Gemeinde selbst (Rathaus; in Bayern oft die Verwaltungsgemeinschaft, die die Verwaltungsarbeit erledigt); nur, wenn die Gemeinde (`g` + ARS) in den Ergebnissen vorkommt, als Stelle oder Alternative |
 | `nachbar` | optional: ARS der angrenzenden Gemeinde, nur bei Kondominium-Flächen |
 | `aenderung` | optional: `{ art, stand, name_neu? }`, wenn die Gemeinde nach dem Datenstand aufgelöst, umgeschlüsselt oder umbenannt wurde |
 
@@ -182,14 +197,14 @@ Konsumenten lesen sie nur als Verweis.
 
 | Feld | Inhalt |
 |---|---|
-| `name` | Name der Stelle laut Bundesportal, oft mit Fachbereich („Landratsamt Eichsfeld - Amt für Öffentliche Sicherheit und Ordnung") |
+| `name` | Name der Stelle laut Bundesportal, oft mit Fachbereich („Landratsamt Eichsfeld - Amt für Öffentliche Sicherheit und Ordnung"). Nennt eine Gemeinde dort nur einen allgemeinen Fachbereich (Bürgerbüro, Standesamt), steht nur ihr Name da |
 | `adresse` | Hausanschrift oder `null` |
 | `telefon`, `email`, `web` | Listen, können leer sein. Nummern und Postfächer für den Straßenverkehr stehen vorn, Zulassung und Fahrerlaubnis hinten. Nur Funktionspostfächer, keine Adressen mit Personennamen |
 | `quelle` | optional: Herkunft, wenn der Kontakt nicht aus dem Bundesportal stammt („Webseite der Behörde, Stand 03.10.2026") |
 
-Die Id ist `c` + FNV-1a über das JSON des Kontakts, gültig nur innerhalb der Landesdatei. Die
-Stelle des Kontakts kann von `zustaendig` abweichen, solange die Landesregeln fehlen; Konsumenten
-zeigen ihren Namen deshalb mit an.
+Die Id ist `c` + FNV-1a über das JSON des Kontakts, gültig nur innerhalb der Landesdatei. Welcher
+Kontakt zu welcher Stelle gehört, ordnet `auswahl` zu (siehe unten). Der Name des Kontakts nennt
+oft den Fachbereich; Konsumenten zeigen ihn mit an.
 
 ### Nachschlagen
 
@@ -205,12 +220,16 @@ zeigen ihren Namen deshalb mit an.
 - leere Klassenliste → wie `unklar`, mit Hinweis „Keine Straße erkannt".
 
 Rückgabe: `{ ars, gemeinde, verband, kreis, land, stand, regeln, aenderung, klasse, zustaendig,
-sicherheit, grund, quelle, alternative, hinweise, keinBrief, kontakt, kontaktGemeinde, bundesportal }`;
-`zustaendig` und `alternative.stelle` sind Stellen-Objekte, `kontakt` ein Eintrag aus `kontakte`
-oder `null` (immer `null` bei `keinBrief`), `kontaktGemeinde` der Kontakt der Gemeinde, wenn sie
-zuständig sein kann und eine Gemeindestraße oder eine unklare Klasse ausgewählt ist (sonst `null`),
-`bundesportal` der Link auf die Seite der Gemeinde,
-sonst der allgemeine. `aufsicht` folgt mit Phase 6.
+sicherheit, grund, quelle, alternative, hinweise, keinBrief, kontakt, bundesportal }`:
+
+- `zustaendig` ist ein Stellen-Objekt, `alternative` `null` oder `{ stelle, bedingung, kontakt }`.
+- `kontakt` ist der Kontakt genau der zuständigen Stelle: `kontakt_gemeinde` für die Gemeinde
+  (`g` + ARS), `kontakt` für die Kreisebene (`k…`). Für Bund und Stadtstaaten und ohne Daten ist
+  er `null`, bei `keinBrief` immer. Den Kontakt einer anderen Stelle gibt `auswahl` nie aus.
+- `alternative.kontakt` gilt ebenso für die Stelle der Alternative.
+- `bundesportal` ist der Link auf die Seite der Gemeinde, sonst der allgemeine.
+
+`aufsicht` folgt mit Phase 6.
 
 ## Zwischenprodukt `gemeinden_attr.json` (nicht veröffentlicht)
 
@@ -240,9 +259,11 @@ dort erfunden.
 - `verband` nur bei 6. ARS-Stelle `5`: `{ ars (9), gen, bez, ibz, name, sitz }` (`sitz` =
   `SDV_ARS`, die Gemeinde, die die Verwaltung führt).
 - `rb` nur bei `FK_S3 = R` und 3. ARS-Stelle ≠ `0`.
-- `tkz`: Textkennzeichen aus GV-ISys. Genutzt werden 61/62 (kreisfreie Stadt, Stadtkreis),
-  65/66 (gemeindefreies Gebiet) und 67 (Große Kreisstadt); die übrigen Werte stehen in der
-  Satzbeschreibung des GV100AD. Nicht mit `ibz` (Bezeichnungsliste des BKG) verwechseln.
+- `tkz`: Textkennzeichen aus GV-ISys. Genutzt werden 61/62 (kreisfreie Stadt, Stadtkreis), 63
+  (Stadt), 65/66 (gemeindefreies Gebiet) und 67 (Große Kreisstadt); die übrigen Werte stehen in
+  der Satzbeschreibung des GV100AD. Nicht mit `ibz` (Bezeichnungsliste des BKG) verwechseln.
+- `ew`: Bevölkerung laut GV-ISys; die Thüringer Regel unterscheidet danach (über 30.000, über
+  10.000 Einwohner).
 - `gemeindefrei`: 6. ARS-Stelle `9`.
 - `kondominium`: `null` oder `{ nachbar }` für die Flächen des deutsch-luxemburgischen
   Kondominiums (VG25 `BEZ = Kondominium`). `nachbar` ist der ARS der angrenzenden Gemeinde
