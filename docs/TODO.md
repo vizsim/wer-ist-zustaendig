@@ -8,7 +8,8 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
 - [ ] **Push und Pages:** `feat/contacts` nach `main`, pushen, CI grün; GitHub Pages aus `main`
   (`https://vizsim.de/wer-ist-zustaendig/`).
 - [ ] **Bucket:** Dateien unter `zustaendigkeit/` hochladen (Grenzschicht, `index.json`,
-  Landesdateien, `manifest.json`). CORS für `https://vizsim.de` prüfen – für die eigenen Dateien
+  Landesdateien) – ohne `manifest.json`: In der Wurzel des Buckets liegt das Manifest der
+  Unfallkarte, das darf nicht überschrieben werden. CORS für `https://vizsim.de` prüfen – für die eigenen Dateien
   und für die Straßenkacheln der Unfallkarte (`osm/maxspeed_major.pmtiles`,
   `osm/maxspeed_minor.pmtiles`). Danach Tag `v0.7.1`.
 - [ ] **Rechtliches:** Nutzungsbedingungen des Bundesportals – übernommen sind die Kontakte fast

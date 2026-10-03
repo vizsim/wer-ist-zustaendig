@@ -32,7 +32,7 @@ oder im Bucket, auf `localhost` beliebig.
 | `gemeinden.pmtiles` | Grenzschicht: Layer `gemeinden` und `kreise` | 30 MB; über 100 MB erst abstimmen |
 | `index.json` | Übersicht: Regel- und Datenstand, Quellen, Liste der Länder | wenige KB |
 | `<lkz>.json` (16, z. B. `by.json`) | Zuständigkeit je Gemeinde und Straßenklasse | 2–1 858 KB je Land, gzip höchstens 188 KB |
-| `../manifest.json` | Manifest der Pipeline (Muster Unfallkarte/SVZ) | wenige KB |
+| `../manifest.json` | Manifest der Pipeline (Muster Unfallkarte/SVZ); nur lokal – im Bucket liegt an dieser Stelle das Manifest der Unfallkarte, dorthin kommen die Einträge beim Einbau | wenige KB |
 
 Größen aus dem Lauf vom 03.10.2026 (Datenstand 31.12.2025, Regeln 0.5.0, Kontakte für BY und TH):
 Landesdateien zusammen 3 616 KB, gzip 368 KB. Am größten ist `by.json`, weil dort jede Gemeinde
