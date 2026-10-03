@@ -56,6 +56,7 @@ für die Darstellung genügt das; nachgeschlagen wird in z12 mit voller Auflösu
 | `kreise` | 4–10 | `ars` | String (5) | Kreis (ARS-Präfix) |
 | | | `name` | String | voller Name nach `NBD` („Landkreis Freising", „Region Hannover") |
 | | | `art` | String | `kreis`, `stadt` (kreisfrei), `stadtstaat` |
+| | | `eg`, `sg` | String | was für die meisten Gemeinden des Kreises gilt (Werte wie im Layer `gemeinden`); für die Übersicht unter Zoom 7, wo es keine Gemeinden gibt |
 
 `eg` und `sg` dienen nur der Einfärbung; die Auskunft kommt immer aus der Landesdatei.
 

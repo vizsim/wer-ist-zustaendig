@@ -166,11 +166,15 @@ function baueLayer(map, basis) {
   });
   map.addSource("strassen-neben", { type: "vector", url: `pmtiles://${UNFALLKARTE}maxspeed_minor.pmtiles` });
 
-  const kreisArt = ["coalesce", ["get", "art"], "kreis"];
+  // Unter Zoom 7 gibt es nur die Kreise: Sie tragen, was für die meisten ihrer Gemeinden gilt
+  // (`eg`, `sg`); ältere Kacheln ohne diese Felder färben nach der Art des Kreises.
+  const kreisEg = ["coalesce", ["get", "eg"], ["get", "art"], "kreis"];
   const layers = [
     { id: "kreise-flaeche", type: "fill", source: "zust", "source-layer": "kreise", maxzoom: 7,
-      paint: { "fill-color": ["match", kreisArt, "stadt", ARTEN.stadt.farbe, "stadtstaat", ARTEN.stadtstaat.farbe, ARTEN.kreis.farbe],
-        "fill-opacity": 0.16 } },
+      paint: { "fill-color": flaechenFarbe(kreisEg), "fill-opacity": flaechenDeckkraft() } },
+    { id: "kreise-schraffur", type: "fill", source: "zust", "source-layer": "kreise", maxzoom: 7,
+      filter: ["==", ["get", "sg"], "nur Ebene"],
+      paint: { "fill-pattern": ["concat", "schraffur-", kreisEg], "fill-opacity": 0.4 } },
     { id: "gemeinden-flaeche", type: "fill", source: "zust", "source-layer": "gemeinden", minzoom: 7,
       paint: { "fill-color": flaechenFarbe(),
         // Auf Straßenebene zurücknehmen, damit die Straßen vorne stehen.

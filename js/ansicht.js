@@ -87,10 +87,13 @@ export function farbAusdruck() {
   ];
 }
 
-/** MapLibre-Ausdruck → Flächenfarbe je Art der Stelle. */
-export function flaechenFarbe() {
-  const paare = Object.entries(ARTEN).flatMap(([art, a]) => [art, a.farbe]);
-  return ["match", ["coalesce", ["get", "eg"], ""], ...paare, "#9aa3a8"];
+/**
+ * MapLibre-Ausdruck → Flächenfarbe je Art der Stelle.
+ * @param {Array} art Ausdruck für die Art; Default das Feld `eg`
+ */
+export function flaechenFarbe(art = ["get", "eg"]) {
+  const paare = Object.entries(ARTEN).flatMap(([a, x]) => [a, x.farbe]);
+  return ["match", ["coalesce", art, ""], ...paare, "#9aa3a8"];
 }
 
 /** MapLibre-Ausdruck → Deckkraft je Sicherheit. */

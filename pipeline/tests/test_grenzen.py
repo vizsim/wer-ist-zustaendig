@@ -39,10 +39,27 @@ def test_typen_aus_landesdateien(tmp_path) -> None:
     assert grenzen.typen_aus_landesdateien(tmp_path / "fehlt") == {}
 
 
+def test_kreis_typen() -> None:
+    typen = {
+        "091780124124": ("stadt", "belegt"),
+        "091785101201": ("gemeinde", "belegt"),
+        "091785101202": ("gemeinde", "belegt"),
+        "091620000000": ("stadt", "belegt"),
+        "073395001001": ("kreis", "nur Ebene"),
+        "073395001002": ("kreis", "vermutlich"),
+    }
+    assert grenzen.kreis_typen(typen) == {
+        "09178": ("gemeinde", "belegt"),
+        "09162": ("stadt", "belegt"),
+        "07339": ("kreis", "nur Ebene"),  # Gleichstand: das erste Paar nach Name
+    }
+
+
 def test_schreibe_fgb(fixture_daten, tmp_path) -> None:
     gem, krs = tmp_path / "gemeinden.fgb", tmp_path / "kreise.fgb"
     alle = [p["ars"] for p in fixture_daten.punkte]
     typen = {ars: ("kreis", "nur Ebene") for ars in alle}
+    typen["091785101201"] = ("gemeinde", "belegt")
     n = grenzen.schreibe_fgb(fixture_daten.gpkg, gem, krs, typen)
     assert n == 10
     df = pyogrio.read_dataframe(gem)
@@ -56,6 +73,9 @@ def test_schreibe_fgb(fixture_daten, tmp_path) -> None:
     assert art["09162"] == "stadt"
     assert art["11000"] == "stadtstaat" and art["04012"] == "stadtstaat"
     assert art["07939"] == "kreis", "Kondominium: eigener Kreis in VG25, Art kreis"
+    typ = {a: (e, s) for a, e, s in zip(k["ars"], k["eg"], k["sg"], strict=True)}
+    assert typ["09178"] == ("gemeinde", "belegt"), "Freising und Musterdorf 1:1, Paar nach Name"
+    assert typ["07339"] == ("kreis", "nur Ebene")
 
 
 def test_schreibe_fgb_verlangt_vollstaendige_landesdateien(fixture_daten, tmp_path) -> None:

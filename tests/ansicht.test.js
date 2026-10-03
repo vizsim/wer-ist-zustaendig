@@ -54,6 +54,9 @@ test("Farb- und Deckkraft-Ausdrücke decken alle Arten und Sicherheiten ab", () 
   assert.equal(werte(farbAusdruck(), { highway: "motorway" }), "#005387");
   for (const [art, a] of Object.entries(ARTEN)) assert.equal(werte(flaechenFarbe(), { eg: art }), a.farbe);
   assert.equal(werte(flaechenFarbe(), {}), "#9aa3a8");
+  const kreis = flaechenFarbe(["coalesce", ["get", "eg"], ["get", "art"]]);
+  assert.equal(werte(kreis, { eg: "gemeinde", art: "kreis" }), ARTEN.gemeinde.farbe, "Kreis nach seinen Gemeinden");
+  assert.equal(werte(kreis, { art: "stadt" }), ARTEN.stadt.farbe, "alte Kacheln: Art des Kreises");
   for (const [s, st] of Object.entries(SICHERHEIT_STIL)) assert.equal(werte(flaechenDeckkraft(), { sg: s }), st.deckkraft);
 });
 

@@ -2,7 +2,8 @@
 
 Layer (Vertrag, docs/VERTRAG.md):
 - `gemeinden` (z7–z12): ars, gen, eg (Art der Stelle für Gemeindestraßen), sg (Sicherheit)
-- `kreise` (z4–z10): ars, name, art (kreis | stadt | stadtstaat)
+- `kreise` (z4–z10): ars, name, art (kreis | stadt | stadtstaat), eg, sg (was für die meisten
+  Gemeinden des Kreises gilt – für die Übersicht unter Zoom 7, wo es keine Gemeinden gibt)
 `eg`/`sg` kommen aus den Landesdateien (tools/build-laender.mjs), damit die Karte nach der
 Zuständigkeit färben kann, ohne alle Landesdateien zu laden. Fehlen sie, bleiben die Felder weg.
 """
@@ -10,6 +11,7 @@ Zuständigkeit färben kann, ohne alle Landesdateien zu laden. Fehlen sie, bleib
 from __future__ import annotations
 
 import json
+from collections import Counter, defaultdict
 from pathlib import Path
 
 from zustkarte import tiles, vg25
@@ -39,6 +41,15 @@ def typen_aus_landesdateien(ordner: Path) -> dict[str, tuple[str, str]]:
     return typen
 
 
+def kreis_typen(typen: dict[str, tuple[str, str]]) -> dict[str, tuple[str, str]]:
+    """Kreis-ARS → (eg, sg), die für die meisten Gemeinden des Kreises gelten (bei Gleichstand das
+    erste Paar nach Name – deterministisch)."""
+    je_kreis: dict[str, Counter] = defaultdict(Counter)
+    for ars, typ in typen.items():
+        je_kreis[ars[:5]][typ] += 1
+    return {k: min(z.items(), key=lambda t: (-t[1], t[0]))[0] for k, z in je_kreis.items()}
+
+
 def schreibe_fgb(
     gpkg: Path, ziel_gem: Path, ziel_krs: Path, typen: dict[str, tuple[str, str]]
 ) -> int:
@@ -64,11 +75,14 @@ def schreibe_fgb(
     ibz = krs["IBZ"] if "IBZ" in krs.columns else [None] * len(krs)
     namen = [vg25.voller_name(g, b, n) for g, b, n in zip(krs["GEN"], krs["BEZ"], nbd, strict=True)]
     arten = [kreis_art(str(a), b, i) for a, b, i in zip(krs["ARS"], krs["BEZ"], ibz, strict=True)]
-    gpd.GeoDataFrame(
-        {"ars": krs["ARS"].astype(str), "name": namen, "art": arten},
-        geometry=krs.geometry.values,
-        crs=4326,
-    ).to_file(ziel_krs, driver="FlatGeobuf", engine="pyogrio")
+    spalten = {"ars": krs["ARS"].astype(str), "name": namen, "art": arten}
+    if typen:
+        je_kreis = kreis_typen(typen)
+        spalten["eg"] = [je_kreis.get(a, (None, None))[0] for a in spalten["ars"]]
+        spalten["sg"] = [je_kreis.get(a, (None, None))[1] for a in spalten["ars"]]
+    gpd.GeoDataFrame(spalten, geometry=krs.geometry.values, crs=4326).to_file(
+        ziel_krs, driver="FlatGeobuf", engine="pyogrio"
+    )
     return len(out)
 
 

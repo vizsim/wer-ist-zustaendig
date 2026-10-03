@@ -50,6 +50,9 @@ Regeln 0.6.0 · Schema 1 · Datenstand 31.12.2025. Erster Lauf mit echten Daten 
   Karte antwortet auch ohne angeklickte Straße; die Schraffur ist leichter.
 - Karte: Die Legende kennt „Gemeinde selbst"; „Stadt" umfasst auch Große Kreisstädte und Städte
   mit eigener Straßenverkehrsbehörde. Die Statuszeile nennt die Länder mit Landesregel.
+- Karte: Unter Zoomstufe 7 färbt die Übersicht jeden Kreis nach dem, was für die meisten seiner
+  Gemeinden gilt – Zuständigkeit und Sicherheit, mit Schraffur für „nur Ebene". Bisher zeigte
+  sie dort nur Landkreis oder kreisfreie Stadt. Neue Felder `eg` und `sg` im Layer `kreise`.
 - `tools/lookup.mjs` zeigt die Kontakte der zuständigen Stelle und der Alternative.
 - Regeln 0.3.0: Nennt das Land im Bundesportal für eine Gemeinde dieselbe Stelle wie unsere
   Regel, gilt die Auskunft als „vermutlich" statt „nur Ebene" – auf der Karte ohne Schraffur. In
