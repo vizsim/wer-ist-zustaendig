@@ -14,8 +14,9 @@ Es gibt zwei Wege zu den Daten:
   Grenzschicht als PMTiles und eine JSON-Datei je Land. Der Vertrag steht in
   [docs/VERTRAG.md](docs/VERTRAG.md).
 
-> **Kein Rechtsrat.** Die Auskunft ist eine begründete Vermutung mit Quelle. Vor einem Antrag
-> oder einer Anregung bitte prüfen, ob die genannte Stelle wirklich zuständig ist.
+> **Testversion, kein Rechtsrat.** Erst drei Länder haben eine eigene Regel (siehe „Stand").
+> Jede Auskunft ist eine begründete Vermutung mit Quelle. Vor einem Antrag oder einer Anregung
+> bitte prüfen, ob die genannte Stelle wirklich zuständig ist.
 
 ## Stand: Phase 2 – Bayern, Thüringen, Schleswig-Holstein
 

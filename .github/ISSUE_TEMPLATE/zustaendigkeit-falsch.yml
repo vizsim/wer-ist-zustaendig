@@ -15,7 +15,7 @@ body:
     attributes:
       label: Link zur Karte
       description: Den Link aus der Adresszeile kopieren, nachdem du die Straße angeklickt hast. Der Punkt steht darin (`&p=…`).
-      placeholder: "https://vizsim.github.io/wer-ist-zustaendig/#karte=15/48.4005/11.7448&p=48.4005,11.7448"
+      placeholder: "https://vizsim.de/wer-ist-zustaendig/#karte=15/48.4005/11.7448&p=48.4005,11.7448"
     validations:
       required: true
 
