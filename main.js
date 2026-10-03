@@ -177,7 +177,7 @@ function baueLayer(map, basis) {
     { id: "gemeinden-schraffur", type: "fill", source: "zust", "source-layer": "gemeinden", minzoom: 7,
       filter: ["==", ["get", "sg"], "nur Ebene"],
       paint: { "fill-pattern": ["concat", "schraffur-", ["coalesce", ["get", "eg"], "kreis"]],
-        "fill-opacity": ["interpolate", ["linear"], ["zoom"], 7, 0.55, 12, 0.32, 15, 0.12] } },
+        "fill-opacity": ["interpolate", ["linear"], ["zoom"], 7, 0.4, 12, 0.24, 15, 0.1] } },
     { id: "gemeinden-linie", type: "line", source: "zust", "source-layer": "gemeinden", minzoom: 9,
       paint: { "line-color": "#8a9399", "line-width": ["interpolate", ["linear"], ["zoom"], 9, 0.3, 14, 1] } },
     { id: "kreise-linie", type: "line", source: "zust", "source-layer": "kreise",
@@ -227,11 +227,6 @@ async function bestimme(map, basis, index, marker, lngLat) {
     const daten = await ladeLand(basis, land.lkz);
     const r = auswahl(daten, ars, klassenListe(strassen));
     if (!r) throw new Error(`Gemeinde ${ars} fehlt in ${landesdatei(land.lkz)}`);
-    if (map.getZoom() < STRASSEN_AB) {
-      r.hinweise.push(`Straßen erscheinen erst ab Zoomstufe ${STRASSEN_AB} – zum Anklicken näher heranzoomen.`);
-    } else if (map.getZoom() < 13 && !strassen.some((s) => s.klasse === "G")) {
-      r.hinweise.push("Gemeindestraßen erscheinen erst ab Zoomstufe 13 – zum Anklicken näher heranzoomen.");
-    }
     zeigeAntwort(antwortHtml(r, strassen, {
       landName: land.name, bundesportal: r.bundesportal ?? index?.bundesportal, hinweis: daten.hinweis,
     }));

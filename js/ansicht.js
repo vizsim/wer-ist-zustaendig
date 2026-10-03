@@ -5,6 +5,7 @@
 // verdrahtet nur Karte und Seite.
 
 import { klasse, klassenName, RANG } from "./strassenklasse.js";
+import { TEXTE } from "./resolve.js";
 
 // Farben nach den RAL-Verkehrsfarben: Verkehrsblau (Autobahn-Schilder), Verkehrsgelb
 // (Bundesstraßen-Schilder), Verkehrsschwarz für Schrift. Die Flächenfarben sind gedämpft,
@@ -189,92 +190,118 @@ function webUrl(adresse) {
 }
 
 /**
- * Kontakt der zuständigen Stelle (Bundesportal): Name, Telefon, E-Mail, Webseite. Nur Wege, die
- * sich sicher verlinken lassen; ohne einen davon kein Block. `abweichend`: Das Portal nennt eine
- * andere Stelle als unsere Auskunft, die sich selbst Straßenverkehrsbehörde nennt.
- * @param {{name: string, telefon?: string[], email?: string[], web?: string[], abweichend?: boolean}|null} k
- * @param {{kontakte?: string}|null} stand Kopf `daten` der Landesdatei („Bundesportal 02.10.2026")
- * @param {{vorspann?: string|null, quelle?: boolean}} opts vorspann: Zeile über dem Namen (macht
- *   den Block zur Alternative); quelle: Zeile mit Datenstand anzeigen
+ * Kontaktwege als Buttons: Anrufen, E-Mail, Webseite – nur, was sich sicher verlinken lässt.
+ * @param {{telefon?: string[], email?: string[], web?: string[]}|null} k
+ * @returns {string} Liste oder "", wenn es keinen Weg gibt
  */
-export function kontaktHtml(k, stand, { vorspann = null, quelle = true } = {}) {
+export function wegeHtml(k) {
   if (!k) return "";
   const tel = (k.telefon ?? []).map((t) => [t, telHref(t)]).find(([, h]) => h);
   const mail = (k.email ?? []).find((m) => EMAIL_RE.test(m));
   const web = (k.web ?? []).map(webUrl).find(Boolean);
   const wege = [
-    tel && `<li><span>Telefon</span> <a href="${esc(tel[1])}">${esc(tel[0])}</a></li>`,
-    mail && `<li><span>E-Mail</span> <a href="mailto:${esc(mail)}">${esc(mail)}</a></li>`,
-    web && `<li><span>Web</span> <a href="${esc(web.href)}" target="_blank" rel="noopener">` +
+    tel && `<li><a class="weg" href="${esc(tel[1])}"><span>Anrufen</span> ${esc(tel[0])}</a></li>`,
+    mail && `<li><a class="weg" href="mailto:${esc(mail)}"><span>E-Mail</span> ${esc(mail)}</a></li>`,
+    web && `<li><a class="weg" href="${esc(web.href)}" target="_blank" rel="noopener"><span>Webseite</span> ` +
       `${esc(web.hostname.replace(/^www\./, ""))}</a></li>`,
   ].filter(Boolean);
-  if (!wege.length) return "";
-  return `
-    <div class="kontakt${vorspann ? " kontakt-oder" : ""}">
-      ${vorspann ? `<p class="kontakt-vorspann">${esc(vorspann)}</p>` : ""}
-      <p class="kontakt-name">${esc(k.name)}</p>
-      ${k.adresse ? `<p class="kontakt-adresse">${esc(k.adresse)}</p>` : ""}
-      ${k.abweichend ? `<p class="kontakt-hinweis">Das Bundesportal nennt diese Stelle; sie kann statt der oben genannten zuständig sein.</p>` : ""}
-      <ul class="kontakt-wege">${wege.join("")}</ul>
-      ${quelle && herkunft(k, stand) ? `<p class="kontakt-quelle">Kontaktdaten: ${esc(herkunft(k, stand))}</p>` : ""}
-    </div>`;
+  return wege.length ? `<ul class="wege">${wege.join("")}</ul>` : "";
+}
+
+/** „Landratsamt Eichsfeld - Amt für Ordnung" ohne die Behörde davor → „Amt für Ordnung". */
+export function stelleOhneBehoerde(name, behoerde) {
+  const n = String(name ?? "").trim();
+  const b = String(behoerde ?? "").trim();
+  if (b && n.toLowerCase().startsWith(b.toLowerCase())) return n.slice(b.length).replace(/^[\s:,–-]+/, "");
+  return n;
+}
+
+/** „Stadtverwaltung Apolda - Straßenverkehrsbehörde" → { behoerde, stelle }. */
+function trenneStelle(name) {
+  const m = /^(.+?)(?: - |: | – )(.+)$/.exec(String(name ?? "").trim());
+  return m ? { behoerde: m[1], stelle: m[2] } : { behoerde: String(name ?? ""), stelle: "" };
 }
 
 /** Herkunft eines Kontakts: eigene (von Hand ergänzt) oder der Datenstand des Portals. */
 function herkunft(k, stand) {
-  return k?.quelle ?? stand?.kontakte ?? null;
-}
-
-/** Hauptkontakt und, wo die Gemeinde zuständig sein kann, ihr Kontakt; gleiche Herkunft nur
- *  einmal, unten. */
-function kontakteHtml(r) {
-  const gemeinde = kontaktHtml(r.kontaktGemeinde, r.stand, {
-    vorspann: "Oder die Gemeinde, falls nur die Gemeindestraße betroffen ist:",
-  });
-  const eigeneZeile = !gemeinde || herkunft(r.kontakt, r.stand) !== herkunft(r.kontaktGemeinde, r.stand);
-  return kontaktHtml(r.kontakt, r.stand, { quelle: eigeneZeile }) + gemeinde;
+  return k ? k.quelle ?? stand?.kontakte ?? null : null;
 }
 
 /**
- * HTML der Antwortkarte.
+ * HTML der Antwortkarte. Vorn steht, wen man anspricht: Behörde, Stelle, Anschrift und die
+ * Kontaktwege; in Bayern darunter die Gemeinde für Gemeindestraßen. Wie sicher die Auskunft ist,
+ * warum und woher, steht eingeklappt unter „Wie sicher ist das?".
  * @param {object} r Ergebnis von resolve.auswahl()
  * @param {object[]} strassen Ergebnis von strassenAmPunkt()
  * @param {{landName: string, bundesportal?: string, hinweis?: string}} opts
  */
 export function antwortHtml(r, strassen, { landName, bundesportal, hinweis } = {}) {
-  const { behoerde, zusatz } = teileName(r.zustaendig?.name);
+  const schild = teileName(r.zustaendig?.name);
+  const k = r.kontakt;
+  // Escapen allein hält „javascript:" nicht auf: nur https-Links.
+  const portal = /^https:\/\//i.test(String(bundesportal ?? "")) ? bundesportal : null;
+
+  let kopf = { behoerde: schild.behoerde, stelle: schild.zusatz };
+  let abweichung = "";
+  if (k?.abweichend) {
+    const t = trenneStelle(k.name);
+    kopf = { behoerde: t.behoerde, stelle: t.stelle || "Straßenverkehrsbehörde" };
+    abweichung = `<p class="schild-hinweis">Laut Bundesportal ist diese Stelle selbst Straßenverkehrsbehörde. ` +
+      `Nach unserer Regel wäre sonst ${esc(schild.behoerde)} zuständig.</p>`;
+  } else if (k) {
+    kopf.stelle = stelleOhneBehoerde(k.name, schild.behoerde) || schild.zusatz;
+  }
+  const wege = wegeHtml(k) || (portal && !r.keinBrief
+    ? `<ul class="wege"><li><a class="weg" href="${esc(portal)}" target="_blank" rel="noopener">` +
+      `<span>Kontakt</span> im Bundesportal suchen</a></li></ul>`
+    : "");
+
+  const kg = r.kontaktGemeinde;
+  const gemeinde = kg && wegeHtml(kg) ? `
+    <div class="gemeinde-kontakt">
+      <p class="gemeinde-vorspann">Geht es nur um eine Gemeindestraße, ist oft die Gemeinde selbst zuständig:</p>
+      <p class="gemeinde-name">${esc(kg.name)}</p>
+      ${wegeHtml(kg)}
+    </div>` : "";
+
+  const s = strassen?.[0];
+  const strasse = s ? `${esc(strassenName(s, r.land))} (${esc(klassenName(s.klasse, r.land))}) · ` : "";
   const ort = [r.gemeinde, r.verband, r.kreis && r.kreis !== r.gemeinde ? r.kreis : null, landName]
     .filter(Boolean).map(esc).join(", ");
-  const strassenText = strassen.length
-    ? strassen.slice(0, 3).map((s) => `${esc(strassenName(s, r.land))}, <span class="klasse">${esc(klassenName(s.klasse, r.land))}</span>`).join("<br>")
+  // Bedienhinweise wie „Keine Straße erkannt" braucht die Karte nicht mehr: Sie antwortet auch ohne Straße.
+  const hinweise = (r.hinweise ?? []).filter((h) => h !== TEXTE.hinweis.keineStrasse)
+    .map((h) => `<li>${esc(h)}</li>`).join("");
+  const aenderung = r.aenderung
+    ? `<p class="aenderung">Gebietsänderung seit dem Datenstand: ${esc(r.aenderung.art)}${r.aenderung.name_neu ? ` (${esc(r.aenderung.name_neu)})` : ""}.</p>`
     : "";
+
   const sStil = SICHERHEIT_STIL[r.sicherheit] ?? SICHERHEIT_STIL["nur Ebene"];
   const alt = r.alternative
     ? `<p class="alternative"><span>Oder:</span> ${esc(teileName(r.alternative.stelle?.name).behoerde)}, ${esc(r.alternative.bedingung)}.</p>`
     : "";
-  const hinweise = (r.hinweise ?? []).map((h) => `<li>${esc(h)}</li>`).join("");
-  const aenderung = r.aenderung
-    ? `<p class="aenderung">Gebietsänderung seit dem Datenstand: ${esc(r.aenderung.art)}${r.aenderung.name_neu ? ` (${esc(r.aenderung.name_neu)})` : ""}.</p>`
-    : "";
-  const stand = r.stand?.gebiet ? `Gebietsstand ${esc(r.stand.gebiet.replace(/^VG25 /, ""))}` : "";
-  // Escapen allein hält „javascript:" nicht auf: nur https-Links.
-  const portal = /^https:\/\//i.test(String(bundesportal ?? "")) ? bundesportal : null;
+  const stand = r.stand?.gebiet ? ` Gebietsstand ${esc(r.stand.gebiet.replace(/^VG25 /, ""))}.` : "";
+  const kontaktdaten = [...new Set([herkunft(k, r.stand), herkunft(kg, r.stand)].filter(Boolean))]
+    .map((h) => ` Kontaktdaten: ${esc(h)}.`).join("");
+
   return `
     <div class="schild">
-      <p class="schild-frage">${r.keinBrief ? "Auf der Autobahn zuständig" : "Zuständig für Schilder und Tempolimits"}</p>
-      <h2 class="schild-behoerde">${esc(behoerde)}</h2>
-      ${zusatz ? `<p class="schild-zusatz">${esc(zusatz)}</p>` : ""}
+      <p class="schild-frage">${r.keinBrief ? "Auf der Autobahn zuständig" : "Ansprechpartner für Schilder und Tempolimits"}</p>
+      <h2 class="schild-behoerde">${esc(kopf.behoerde)}</h2>
+      ${kopf.stelle ? `<p class="schild-zusatz">${esc(kopf.stelle)}</p>` : ""}
+      ${k?.adresse ? `<p class="schild-adresse">${esc(k.adresse)}</p>` : ""}
+      ${abweichung}
+      ${wege}
     </div>
-    ${kontakteHtml(r)}
-    <p class="ort">${ort}</p>
-    ${strassenText ? `<p class="strassen">${strassenText}</p>` : ""}
-    <p class="sicherheit"><span class="marke marke-${esc(String(r.sicherheit).toLowerCase().replace(" ", "-"))}">${esc(sStil.label)}</span> ${esc(r.grund)}</p>
-    ${alt}
+    ${gemeinde}
+    <p class="ort">${strasse}${ort}</p>
     ${hinweise ? `<ul class="hinweise">${hinweise}</ul>` : ""}
     ${aenderung}
-    <p class="quelle">Quelle: ${esc(r.quelle)}${stand ? `. ${stand}` : ""}.</p>
-    <p class="weiter">
-      ${portal ? `<a href="${esc(portal)}" target="_blank" rel="noopener">Im Bundesportal nachsehen</a>` : ""}
-    </p>
+    <details class="details">
+      <summary>Wie sicher ist das? <span class="marke marke-${esc(String(r.sicherheit).toLowerCase().replace(" ", "-"))}">${esc(sStil.label)}</span></summary>
+      <p class="sicherheit">${esc(r.grund)}</p>
+      ${alt}
+      <p class="quelle">Quelle: ${esc(r.quelle)}.${stand}${kontaktdaten}</p>
+      ${portal && k ? `<p class="weiter"><a href="${esc(portal)}" target="_blank" rel="noopener">Alle Stellen im Bundesportal</a></p>` : ""}
+    </details>
     <p class="rechtsrat">${esc(hinweis ?? "Kein Rechtsrat.")}</p>`;
 }

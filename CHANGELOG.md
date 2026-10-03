@@ -15,7 +15,7 @@ Regeln 0.4.0 · Schema 1 · Datenstand 31.12.2025. Erster Lauf mit echten Daten 
   Stelle der angrenzenden Gemeinde, immer mit „nur Ebene". Neues Feld `kondominium` im
   Zwischenprodukt `gemeinden_attr.json`.
 - Kontakt der zuständigen Stelle in Thüringen und Bayern – für jede Gemeinde: Name, Anschrift,
-  Telefon, E-Mail und Webseite, direkt unter der Auskunft. Quelle ist das Bundesportal; wo es
+  Telefon, E-Mail und Webseite, vorn in der Antwortkarte. Quelle ist das Bundesportal; wo es
   keine passende Stelle nennt, der Kreiskontakt der Nachbargemeinden oder ein Eintrag von Hand
   von der Webseite der Behörde (mit Datum). Nennt das Portal eine andere Stelle, die sich selbst
   Straßenverkehrsbehörde nennt, steht ein Hinweis dabei.
@@ -29,6 +29,11 @@ Regeln 0.4.0 · Schema 1 · Datenstand 31.12.2025. Erster Lauf mit echten Daten 
 
 ### Geändert
 
+- Karte: Die Antwortkarte zeigt zuerst, wen man anspricht – Behörde, Stelle, Anschrift und
+  Buttons zum Anrufen, Schreiben und für die Webseite; ohne Kontakt ein Button ins Bundesportal.
+  In Bayern steht darunter die Gemeinde für Gemeindestraßen. Sicherheit, Begründung und Quellen
+  stehen eingeklappt unter „Wie sicher ist das?“. Die Karte antwortet auch ohne angeklickte
+  Straße; die Schraffur ist leichter.
 - Regeln 0.3.0: Nennt das Land im Bundesportal für eine Gemeinde dieselbe Stelle wie unsere
   Regel, gilt die Auskunft als „vermutlich" statt „nur Ebene" – auf der Karte ohne Schraffur. In
   Thüringen betrifft das 529 Gemeinden.

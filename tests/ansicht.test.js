@@ -3,8 +3,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   antwortHtml, ARTEN, datenBasisAusParam, esc, farbAusdruck, flaechenDeckkraft, flaechenFarbe, klassenAusdruck,
-  klassenListe, kontaktHtml, SICHERHEIT_STIL, strassenAmPunkt, strassenName, teileName, telHref,
+  klassenListe, SICHERHEIT_STIL, stelleOhneBehoerde, strassenAmPunkt, strassenName, teileName, telHref, wegeHtml,
 } from "../js/ansicht.js";
+import { TEXTE } from "../js/resolve.js";
 
 // Mini-Auswerter für die genutzten MapLibre-Ausdrücke – prüft, dass die Darstellung dieselben
 // Klassen ergibt wie strassenklasse.js in den eindeutigen Fällen.
@@ -133,67 +134,86 @@ test("telHref: Ländervorwahl, sonst null", () => {
   assert.equal(telHref(undefined), null);
 });
 
-test("kontaktHtml: Telefon, E-Mail und Webseite als Links, nur sichere", () => {
-  const stand = { kontakte: "Bundesportal 02.10.2026" };
-  const html = kontaktHtml({
-    name: "Landratsamt <Eichsfeld>", adresse: "Aegidienstraße 24, 37308 <Heilbad> Heiligenstadt", telefon: ["03606 650-3610"],
-    email: ["strassenverkehrsamt@kreis-eic.de"], web: ["https://www.kreis-eic.de/verkehr"],
-  }, stand);
-  assert.ok(html.includes("Landratsamt &lt;Eichsfeld&gt;"));
-  assert.ok(html.includes('class="kontakt-adresse">Aegidienstraße 24, 37308 &lt;Heilbad&gt; Heiligenstadt</p>'));
-  assert.ok(html.includes('href="tel:+4936066503610">03606 650-3610</a>'));
-  assert.ok(html.includes('href="mailto:strassenverkehrsamt@kreis-eic.de"'));
-  assert.ok(html.includes('href="https://www.kreis-eic.de/verkehr" target="_blank" rel="noopener">kreis-eic.de</a>'));
-  assert.ok(html.includes("Kontaktdaten: Bundesportal 02.10.2026"));
-
-  const boese = kontaktHtml({
-    name: "X", telefon: ["javascript:alert(1)"], email: ["a@b.de?bcc=c@d.de", "x\"onclick@y.de"],
-    web: ["javascript:alert(1)", "data:text/html,x"],
-  }, stand);
-  assert.equal(boese, "", "kein sicherer Weg → kein Block");
-  assert.ok(!html.includes("kontakt-hinweis"));
-  const anders = kontaktHtml({ name: "Stadtverwaltung Apolda - Straßenverkehrsbehörde", telefon: ["03644 65036"], abweichend: true }, stand);
-  assert.ok(anders.includes("kontakt-hinweis") && anders.includes("statt der oben genannten"));
-  assert.equal(kontaktHtml(null, stand), "");
-  const nurMail = kontaktHtml({ name: "Y", telefon: [], email: ["info@y.de"], web: [] }, null);
-  assert.ok(nurMail.includes("mailto:info@y.de") && !nurMail.includes("Telefon") && !nurMail.includes("Kontaktdaten:"));
+test("wegeHtml: Anrufen, E-Mail und Webseite als Buttons, nur sichere", () => {
+  const html = wegeHtml({
+    telefon: ["03606 650-3610"], email: ["strassenverkehrsamt@kreis-eic.de"], web: ["https://www.kreis-eic.de/verkehr"],
+  });
+  assert.ok(html.includes('href="tel:+4936066503610"><span>Anrufen</span> 03606 650-3610</a>'));
+  assert.ok(html.includes('href="mailto:strassenverkehrsamt@kreis-eic.de"><span>E-Mail</span>'));
+  assert.ok(html.includes('href="https://www.kreis-eic.de/verkehr" target="_blank" rel="noopener"><span>Webseite</span> kreis-eic.de</a>'));
+  const boese = wegeHtml({
+    telefon: ["javascript:alert(1)"], email: ["a@b.de?bcc=c@d.de", "x\"onclick@y.de"], web: ["javascript:alert(1)", "data:text/html,x"],
+  });
+  assert.equal(boese, "", "kein sicherer Weg → nichts");
+  assert.equal(wegeHtml(null), "");
 });
 
-test("antwortHtml: Kontakt der Gemeinde als Alternative, Datenstand nur einmal unten", () => {
-  const html = antwortHtml({
-    zustaendig: { name: "Landratsamt Landshut – Straßenverkehrsbehörde" }, gemeinde: "Markt Essenbach",
-    land: "BY", sicherheit: "nur Ebene", grund: "g", quelle: "q", hinweise: [],
-    kontakt: { name: "Landratsamt Landshut", telefon: ["+49 8703 9073-0"] },
-    kontaktGemeinde: { name: "Markt Essenbach", telefon: ["+49 8703 808-0"], email: ["poststelle@essenbach.de"] },
-    stand: { kontakte: "Bundesportal 03.10.2026" },
-  }, [], { landName: "Bayern" });
-  assert.ok(html.includes("Oder die Gemeinde, falls nur die Gemeindestraße betroffen ist:"));
-  assert.ok(html.indexOf("Landratsamt Landshut</p>") < html.indexOf("Markt Essenbach</p>"));
-  assert.equal(html.split("Kontaktdaten: Bundesportal").length - 1, 1);
-  assert.ok(html.lastIndexOf("Kontaktdaten:") > html.indexOf("Markt Essenbach</p>"));
+test("stelleOhneBehoerde", () => {
+  assert.equal(stelleOhneBehoerde("Landratsamt Eichsfeld - Amt für Ordnung", "Landratsamt Eichsfeld"), "Amt für Ordnung");
+  assert.equal(stelleOhneBehoerde("Gewerbe und Verkehr", "Landratsamt Weimarer Land"), "Gewerbe und Verkehr");
+  assert.equal(stelleOhneBehoerde("Landratsamt Landshut", "Landratsamt Landshut"), "");
 });
 
-test("antwortHtml: Kontakt von Hand mit eigener Herkunft, Portal-Kontakt mit Datenstand", () => {
+const BASIS = {
+  gemeinde: "Leinefelde-Worbis", land: "TH", sicherheit: "vermutlich", grund: "g", quelle: "q", hinweise: [],
+  stand: { kontakte: "Bundesportal 02.10.2026" },
+};
+
+test("antwortHtml: vorn Behörde, Stelle, Anschrift und Wege; Sicherheit und Quellen eingeklappt", () => {
   const html = antwortHtml({
-    zustaendig: { name: "Landratsamt Altötting – Straßenverkehrsbehörde" }, gemeinde: "Stadt Burghausen",
-    land: "BY", sicherheit: "nur Ebene", grund: "g", quelle: "q", hinweise: [],
+    ...BASIS, zustaendig: { name: "Landratsamt Eichsfeld – Straßenverkehrsbehörde" },
+    kontakt: {
+      name: "Landratsamt Eichsfeld - Amt für Öffentliche Sicherheit und Ordnung",
+      adresse: "Aegidienstraße 24, 37308 <Heilbad> Heiligenstadt", telefon: ["03606 650-3610"],
+    },
+  }, [], { landName: "Thüringen" });
+  assert.ok(html.includes('<h2 class="schild-behoerde">Landratsamt Eichsfeld</h2>'));
+  assert.ok(html.includes('<p class="schild-zusatz">Amt für Öffentliche Sicherheit und Ordnung</p>'));
+  assert.ok(html.includes("37308 &lt;Heilbad&gt; Heiligenstadt"));
+  assert.ok(html.indexOf('class="wege"') < html.indexOf("</div>"), "Wege im Kopf");
+  assert.ok(html.indexOf('<details class="details">') > html.indexOf('class="ort"'));
+  assert.ok(html.indexOf("Kontaktdaten: Bundesportal 02.10.2026") > html.indexOf("<details"));
+});
+
+test("antwortHtml: ohne Kontakt ist der Bundesportal-Link der Weg", () => {
+  const html = antwortHtml({
+    ...BASIS, zustaendig: { name: "Kreisverwaltung Mainz-Bingen – Straßenverkehrsbehörde" }, kontakt: null,
+  }, [], { bundesportal: "https://verwaltung.bund.de/x" });
+  assert.ok(html.includes("<span>Kontakt</span> im Bundesportal suchen"));
+  assert.ok(html.includes('<p class="schild-zusatz">Straßenverkehrsbehörde</p>'));
+  assert.ok(!html.includes("Kontaktdaten:"));
+});
+
+test("antwortHtml: abweichende Stelle aus dem Portal steht vorn, mit Hinweis auf unsere Regel", () => {
+  const html = antwortHtml({
+    ...BASIS, zustaendig: { name: "Landratsamt Weimarer Land – Straßenverkehrsbehörde" },
+    kontakt: { name: "Stadtverwaltung Apolda - Straßenverkehrsbehörde", telefon: ["03644 65036"], abweichend: true },
+  }, []);
+  assert.ok(html.includes('<h2 class="schild-behoerde">Stadtverwaltung Apolda</h2>'));
+  assert.ok(html.includes("Nach unserer Regel wäre sonst Landratsamt Weimarer Land zuständig."));
+});
+
+test("antwortHtml: Gemeinde für Gemeindestraßen unter dem Kopf; Herkunft je Quelle einmal", () => {
+  const html = antwortHtml({
+    ...BASIS, land: "BY", zustaendig: { name: "Landratsamt Altötting – Straßenverkehrsbehörde" },
     kontakt: { name: "Landratsamt Altötting - Verkehrswesen", telefon: ["+49 8671 502-0"], quelle: "Webseite der Behörde, Stand 03.10.2026" },
     kontaktGemeinde: { name: "Stadt Burghausen", telefon: ["08677 887-0"] },
-    stand: { kontakte: "Bundesportal 03.10.2026" },
-  }, [], { landName: "Bayern" });
-  assert.ok(html.includes("Kontaktdaten: Webseite der Behörde, Stand 03.10.2026"));
-  assert.ok(html.includes("Kontaktdaten: Bundesportal 03.10.2026"), "andere Herkunft: eigene Zeile");
+  }, [{ name: "Marktler Straße", klasse: "G" }], { landName: "Bayern" });
+  assert.ok(html.includes('<p class="schild-zusatz">Verkehrswesen</p>'));
+  assert.ok(html.includes("Geht es nur um eine Gemeindestraße, ist oft die Gemeinde selbst zuständig:"));
+  assert.ok(html.indexOf("Stadt Burghausen</p>") > html.indexOf('class="schild-behoerde"'));
+  assert.ok(html.includes("Marktler Straße (Gemeindestraße) · "));
+  assert.ok(html.includes("Kontaktdaten: Webseite der Behörde, Stand 03.10.2026."));
+  assert.equal(html.split("Kontaktdaten: Bundesportal 02.10.2026").length - 1, 1);
 });
 
-test("antwortHtml: Kontakt steht direkt unter dem Schild", () => {
+test("antwortHtml: ohne Bedienhinweis „Keine Straße erkannt\"", () => {
   const html = antwortHtml({
-    zustaendig: { name: "Landratsamt Eichsfeld – Straßenverkehrsbehörde" }, gemeinde: "Leinefelde-Worbis",
-    land: "TH", sicherheit: "nur Ebene", grund: "g", quelle: "q", hinweise: [],
-    kontakt: { name: "Landratsamt Eichsfeld - Amt für Öffentliche Sicherheit und Ordnung", telefon: ["03606 650-3610"] },
-    stand: { kontakte: "Bundesportal 02.10.2026" },
-  }, [], { landName: "Thüringen" });
-  assert.ok(html.indexOf('class="kontakt"') > html.indexOf('class="schild"'));
-  assert.ok(html.indexOf('class="kontakt"') < html.indexOf('class="ort"'));
+    ...BASIS, zustaendig: { name: "X – Straßenverkehrsbehörde" },
+    hinweise: [TEXTE.hinweis.keineStrasse, TEXTE.hinweis.autobahnDabei],
+  }, []);
+  assert.ok(!html.includes("Keine Straße erkannt"));
+  assert.ok(html.includes(TEXTE.hinweis.autobahnDabei));
 });
 
 test("antwortHtml: Autobahn und kreisfreie Stadt ohne doppelten Ortsnamen", () => {
