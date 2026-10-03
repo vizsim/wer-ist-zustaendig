@@ -22,6 +22,7 @@ Regeln 0.5.0 · Schema 1 · Datenstand 31.12.2025. Erster Lauf mit echten Daten 
   Städte, die auf Antrag Straßenverkehrsbehörde sind (§ 2 Abs. 7), für alle außer
   Bundesstraßen. Erkannt werden sie am Bundesportal (Apolda, Eisenberg, Heilbad Heiligenstadt)
   oder von Hand (Arnstadt).
+- Favicon: Fax-Symbol von SVG Repo (CC0).
 
 - Deutsch-luxemburgisches Kondominium (Mosel, Sauer, Our): Die 25 Flächen aus VG25 nennen die
   Stelle der angrenzenden Gemeinde, immer mit „nur Ebene". Neues Feld `kondominium` im
