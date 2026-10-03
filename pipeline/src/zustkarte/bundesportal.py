@@ -16,6 +16,7 @@ from __future__ import annotations
 import json
 import re
 import time
+from collections import Counter, defaultdict
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -50,10 +51,14 @@ GEMEINDEEBENE = re.compile(
 FUNKTIONSPOSTFACH = re.compile(
     r"post|info|verwaltung|verkehr|stra(ß|ss)e|ordnung|amt|b(ü|ue)rger|service|kontakt|stadt|"
     r"gemeinde|rathaus|lra|kreis|mail|office|zentrale|fachdienst|fachbereich|sekretariat|"
-    r"tiefbau|bau|sicherheit|kfz|aufsicht|abteilung|referat|organisation|^fd|^sg|^vg",
+    r"tiefbau|bau|sicherheit|kfz|aufsicht|abteilung|referat|organisation|kanzlei|^fd|^sg|^vg",
     re.I,
 )
 ALLGEMEIN = {"kreis", "land", "landkreis", "stadt", "an", "am", "der", "im", "in", "bei", "und"}
+# Ein Landratsamt, das die Stelle ausdrücklich nennt („Landratsamt Neustadt a.d.Waldnaab").
+EXPLIZIT = re.compile(r"(landrats?amt|landkreis|kreisverwaltung)\s+\S", re.I)
+# Wie im Browser (js/ansicht.js): keine Zeichen, mit denen sich ein mailto: erweitern ließe.
+EMAIL = re.compile(r"^[^\s@<>\"'?&]+@[^\s@<>\"'?&]+\.[A-Za-z]{2,}$")
 # Webadressen sozialer Netzwerke sind keine Kontaktseite der Behörde.
 SOZIALE_NETZE = (
     "instagram.com", "facebook.com", "fb.com", "fb.me", "twitter.com", "x.com", "youtube.com",
@@ -88,6 +93,29 @@ def webseite(adresse: str) -> bool:
     return bool(host) and not any(host == d or host.endswith(f".{d}") for d in SOZIALE_NETZE)
 
 
+def _rang(text: str) -> int:
+    """Reihenfolge für Nummern und Postfächer: Verkehr vor Ordnung vor Allgemeinem; Termine
+    (Parkausweise) danach; fremde Fachbereiche (Zulassung, Fahrerlaubnis …) zuletzt."""
+    if FREMD.search(text) and not VERKEHR.search(text):
+        return 4
+    if VERKEHR.search(text):
+        return 1 if re.search(r"termin|park", text, re.I) else 0
+    return 2 if ORDNUNG.search(text) else 3
+
+
+def telefone(roh: list[str]) -> list[str]:
+    """`kontaktTelefon` mischt Nummern und Beschriftungen; eine Beschriftung gehört zur Nummer
+    davor („03631 911-6303", „Straßenverkehr"). Ergebnis: nur Nummern, nach `_rang` der
+    Beschriftung – ohne Beschriftung nach Ordnung, vor fremden Fachbereichen."""
+    paare: list[list[str]] = []
+    for t in (str(x).strip() for x in roh):
+        if re.match(r"^(\+|0)\d{5,}", re.sub(r"[^\d+]", "", t)):
+            paare.append([t, ""])
+        elif t and paare:
+            paare[-1][1] = f"{paare[-1][1]} {t}".strip()
+    return [n for n, b in sorted(paare, key=lambda p: _rang(p[1]) if p[1] else 3)]
+
+
 def stellen_aus(antwort: dict[str, Any] | None) -> list[dict[str, Any]]:
     """Antwort der Kontakt-API → Stellen mit Name, Anschrift, Telefon, E-Mail, Web (entdoppelt).
 
@@ -105,8 +133,11 @@ def stellen_aus(antwort: dict[str, Any] | None) -> list[dict[str, Any]]:
         stelle = {
             "name": str(c.get("name") or "").strip(),
             "adresse": next((a for a in haus + alle if a), None),
-            "telefon": [t.strip() for t in c.get("kontaktTelefon") or [] if str(t).strip()],
-            "email": [w for w in werte if "@" in w and not w.lower().startswith("http")],
+            "telefon": telefone(c.get("kontaktTelefon") or []),
+            "email": sorted(
+                (w for w in werte if EMAIL.match(w) and not w.lower().startswith("http")),
+                key=lambda m: _rang(m.split("@")[0]),
+            ),
             "web": [w for w in werte if webseite(w)],
         }
         schluessel = json.dumps(stelle, ensure_ascii=False, sort_keys=True)
@@ -152,7 +183,7 @@ def _norm(s: str) -> str:
 
 def _woerter(gen: str) -> list[str]:
     """Kennwörter eines Kreis- oder Stadtnamens: „Saale-Orla-Kreis" → [saale, orla]."""
-    teile = [re.sub(r"kreis$", "", t) for t in re.split(r"[-\s/()]+", _norm(gen))]
+    teile = [re.sub(r"kreis$", "", t) for t in re.split(r"[-\s/().]+", _norm(gen))]
     return [t for t in teile if len(t) > 2 and t not in ALLGEMEIN] or [_norm(gen)]
 
 
@@ -164,6 +195,9 @@ def unsere_stelle(stelle: dict[str, Any], gemeinde: dict[str, Any]) -> bool:
         return all(w in text for w in _woerter(kreis["gen"]))
     if GEMEINDEEBENE.search(stelle["name"]):
         return False
+    name = _norm(stelle["name"])
+    if EXPLIZIT.search(name):  # ein bestimmtes Landratsamt – dann muss es unseres sein
+        return any(w in name for w in _woerter(kreis["gen"]))
     return bool(KREISEBENE.search(text)) or all(w in text for w in _woerter(kreis["gen"]))
 
 
@@ -327,6 +361,50 @@ def laender_im_cache() -> list[str]:
     return sorted(p.name for p in basis.glob("[A-Z][A-Z]") if (p / "_herausgeber.json").exists())
 
 
+def freigegeben() -> list[str]:
+    """Länder, deren Kontakte in die Landesdateien gehen (sources.yaml)."""
+    return list(dienst().get("freigegeben") or [])
+
+
+def ergaenzungen() -> dict[str, dict[str, Any]]:
+    """Kontakte von Hand (config/kontakte_ergaenzt.yaml); Schlüssel Kreis-ARS (5) oder ARS (12)."""
+    return load_yaml("kontakte_ergaenzt.yaml").get("kontakte") or {}
+
+
+def _von_hand(eintrag: dict[str, Any]) -> dict[str, Any]:
+    datum = ".".join(reversed(str(eintrag["stand"]).split("-")))
+    return {
+        "name": eintrag["name"],
+        "adresse": eintrag.get("adresse"),
+        "telefon": list(eintrag.get("telefon") or []),
+        "email": list(eintrag.get("email") or []),
+        "web": list(eintrag.get("web") or []),
+        "quelle": f"Webseite der Behörde, Stand {datum}",
+    }
+
+
+def luecken_fuellen(gemeinden: dict[str, Any], attr: dict[str, Any], land: str) -> None:
+    """Gemeinden eines Landes ohne Kontakt: erst die Ergänzung von Hand (Gemeinde, dann Kreis),
+    sonst der Kreiskontakt, den das Portal für die übrigen Gemeinden des Kreises nennt."""
+    von_hand = ergaenzungen()
+    je_kreis: dict[str, Counter] = defaultdict(Counter)
+    for ars, e in gemeinden.items():
+        g = attr[ars]
+        if g["land"] == land and e["wahl"] == "passt" and not g["kreis"].get("kreisfrei"):
+            schluessel = json.dumps(e["kontakt"], ensure_ascii=False, sort_keys=True)
+            je_kreis[g["kreis"]["ars"]][schluessel] += 1
+    for ars, e in gemeinden.items():
+        g = attr[ars]
+        if g["land"] != land or e["kontakt"] is not None:
+            continue
+        hand = von_hand.get(ars) or von_hand.get(ars[:5])
+        if hand:
+            e["kontakt"], e["wahl"] = _von_hand(hand), "ergaenzt"
+        elif je_kreis.get(g["kreis"]["ars"]):
+            e["kontakt"] = json.loads(je_kreis[g["kreis"]["ars"]].most_common(1)[0][0])
+            e["wahl"] = "kreis"
+
+
 REVIEW_KOPF = [
     "land",
     "ars",
@@ -343,16 +421,21 @@ REVIEW_KOPF = [
 ]
 
 
-def tabelle(attr: dict[str, Any]) -> tuple[dict[str, Any], list[list[str]]]:
-    """Cache aller abgerufenen Länder + Gemeindetabelle → (kontakte.json, Review-Zeilen).
+def tabelle(
+    attr: dict[str, Any], laender: list[str] | None = None
+) -> tuple[dict[str, Any], list[list[str]]]:
+    """Cache + Gemeindetabelle → (kontakte.json, Review-Zeilen) für die freigegebenen Länder.
 
-    Kondominium-Flächen übernehmen den Kontakt der angrenzenden Gemeinde.
+    Je Gemeinde: die Wahl aus dem Portal (`waehle`), die Stelle der Gemeinde selbst
+    (`waehle_gemeinde`), danach `luecken_fuellen`. Kondominium-Flächen übernehmen den Kontakt
+    der angrenzenden Gemeinde.
     """
     d = dienst()
+    laender = freigegeben() if laender is None else laender
     meta: dict[str, Any] = {}
     gemeinden: dict[str, Any] = {}
     review: list[list[str]] = []
-    for land in laender_im_cache():
+    for land in [x for x in laender_im_cache() if x in laender]:
         cache = lies_cache(land)
         if not cache:
             continue
@@ -363,13 +446,14 @@ def tabelle(attr: dict[str, Any]) -> tuple[dict[str, Any], list[list[str]]]:
             "abgerufen": max(e["abgerufen"] for e in cache.values())[:10],
             "region_url": f"{d['seite']}/herausgeber/{land}-{hid}/region/{{ars}}",
         }
+        stellen_je: dict[str, list[dict[str, Any]]] = {}
         for ars, g in sorted(attr.items()):
             if g["land"] != land:
                 continue
             e = cache.get((g.get("kondominium") or {}).get("nachbar") or ars)
             if e is None:
                 continue
-            stellen = stellen_aus(e["antwort"])
+            stellen = stellen_je[ars] = stellen_aus(e["antwort"])
             kontakt, wahl = waehle(stellen, g)
             eigene = None if g.get("kondominium") else waehle_gemeinde(stellen, g, kontakt)
             gemeinden[ars] = {
@@ -378,20 +462,23 @@ def tabelle(attr: dict[str, Any]) -> tuple[dict[str, Any], list[list[str]]]:
                 "kontakt": kontakt,
                 "gemeinde": eigene,
             }
-            k = kontakt or {"name": "", "telefon": [], "email": [], "web": []}
+        luecken_fuellen(gemeinden, attr, land)
+        for ars, stellen in stellen_je.items():
+            g, e = attr[ars], gemeinden[ars]
+            k = e["kontakt"] or {"name": "", "telefon": [], "email": [], "web": []}
             review.append(
                 [
                     land,
                     ars,
                     g["name"],
                     g["kreis"]["name"],
-                    wahl,
+                    e["wahl"],
                     str(len(stellen)),
                     k["name"],
                     " / ".join(k["telefon"]),
                     " / ".join(k["email"]),
                     " / ".join(k["web"]),
-                    (eigene or {}).get("name", ""),
+                    (e["gemeinde"] or {}).get("name", ""),
                     " | ".join(f"{s['name']} ({punkte(s)})" for s in stellen),
                 ]
             )

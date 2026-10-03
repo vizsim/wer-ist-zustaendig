@@ -157,6 +157,7 @@ def test_funktionspostfach() -> None:
         "kfz@rhoen-grabfeld.de",
         "vka@ilm-kreis.de",
         "info@vg-l.de",
+        "kanzlei@lra-aoe.de",
         "post.ordnungsamt@weimarerland.de",
     ):
         assert bp.funktionspostfach(m), m
@@ -203,7 +204,12 @@ def test_tabelle_aus_cache(tmp_path, monkeypatch) -> None:
     monkeypatch.setattr(bp, "cache_ordner", lambda land: tmp_path / land)
     monkeypatch.setattr(bp, "laender_im_cache", lambda: ["RP"])
 
-    kreis = {"name": "Landkreis Mainz-Bingen", "gen": "Mainz-Bingen", "kreisfrei": False}
+    kreis = {
+        "ars": "07339",
+        "name": "Landkreis Mainz-Bingen",
+        "gen": "Mainz-Bingen",
+        "kreisfrei": False,
+    }
     attr = {
         "073395001001": {"land": "RP", "name": "Musterdorf", "kreis": kreis, "kondominium": None},
         "079395001001": {
@@ -214,7 +220,8 @@ def test_tabelle_aus_cache(tmp_path, monkeypatch) -> None:
         },
         "091620000000": {"land": "BY", "name": "München", "kreis": kreis, "kondominium": None},
     }
-    daten, review = bp.tabelle(attr)
+    assert bp.tabelle(attr)[0]["gemeinden"] == {}, "RP ist nicht freigegeben"
+    daten, review = bp.tabelle(attr, laender=["RP"])
     rp = daten["meta"]["laender"]["RP"]
     assert rp["abgerufen"] == "2026-10-02"
     assert rp["region_url"].endswith("/herausgeber/RP-8958611/region/{ars}")
@@ -230,3 +237,94 @@ def test_tabelle_aus_cache(tmp_path, monkeypatch) -> None:
         "Landkreis Mainz-Bingen",
         "passt",
     ]
+
+
+def test_luecken_fuellen(monkeypatch) -> None:
+    slf = {
+        "name": "Landratsamt Saalfeld-Rudolstadt - Straßenverkehrsamt (Fachbereich 2)",
+        "telefon": ["03671 823-341"],
+        "email": ["fachbereich2@kreis-slf.de"],
+        "stand": "2026-10-03",
+    }
+    monkeypatch.setattr(bp, "ergaenzungen", lambda: {"16073": slf})
+
+    def gem(kreis: str, kreisfrei: bool = False) -> dict:
+        return {"land": "TH", "kreis": {"ars": kreis, "kreisfrei": kreisfrei}}
+
+    attr = {
+        "160610001001": gem("16061"),
+        "160610002002": gem("16061"),
+        "160610116116": gem("16061"),  # Am Ohmberg: Portal nennt nur das eigene Ordnungsamt
+        "160730077077": gem("16073"),  # Saalfeld: Portalfehler, Kontakt von Hand
+        "160540000000": gem("16054", kreisfrei=True),  # ohne Ergänzung: bleibt leer
+    }
+    lra = _stelle(
+        "Landratsamt Eichsfeld - Amt für Öffentliche Sicherheit und Ordnung", ["03606 650-3610"]
+    )
+    gemeinden = {
+        "160610001001": {"wahl": "passt", "kontakt": lra},
+        "160610002002": {"wahl": "passt", "kontakt": lra},
+        "160610116116": {"wahl": "fremd", "kontakt": None},
+        "160730077077": {"wahl": "fremd", "kontakt": None},
+        "160540000000": {"wahl": "keine", "kontakt": None},
+    }
+    bp.luecken_fuellen(gemeinden, attr, "TH")
+    assert gemeinden["160610116116"] == {"wahl": "kreis", "kontakt": lra}, "Kreiskontakt"
+    assert gemeinden["160730077077"]["wahl"] == "ergaenzt"
+    assert (
+        gemeinden["160730077077"]["kontakt"]["quelle"] == "Webseite der Behörde, Stand 03.10.2026"
+    )
+    assert gemeinden["160730077077"]["kontakt"]["web"] == []
+    assert gemeinden["160540000000"] == {"wahl": "keine", "kontakt": None}
+
+
+def test_ergaenzungen_von_hand_sind_vollstaendig() -> None:
+    for schluessel, k in bp.ergaenzungen().items():
+        assert len(schluessel) in (5, 12) and schluessel.isdigit(), schluessel
+        assert k["name"] and k["stand"], schluessel
+        assert k.get("telefon") or k.get("email") or k.get("web"), f"{schluessel}: kein Kontaktweg"
+        for m in k.get("email") or []:
+            assert bp.funktionspostfach(m), f"{schluessel}: {m} sieht nach Person aus"
+        for w in k.get("web") or []:
+            assert bp.webseite(w), f"{schluessel}: {w}"
+
+
+def test_telefone_und_postfaecher_nach_beschriftung() -> None:
+    greiz = _kontakt(
+        "Landratsamt Greiz - Straßenverkehrsbehörde",
+        telefon=[
+            "+49 36603 25520",
+            "Zulassungsbehörde",
+            "+49 36603 255554",
+            "Straßenverkehrsbehörde (Terminvereinbarung für Parkausweise)",
+            "+49 36603 25530",
+            "Fahrerlaubnisbehörde",
+            "+49 36603 25539",
+            "Straßenverkehr",
+        ],
+        web=["zulassung@landkreis-greiz.de", "ordnungsamt@landkreis-greiz.de", "kaputt@x de."],
+    )
+    s = bp.stellen_aus(_antwort(greiz))[0]
+    assert s["telefon"] == [
+        "+49 36603 25539",
+        "+49 36603 255554",
+        "+49 36603 25520",
+        "+49 36603 25530",
+    ], "Straßenverkehr zuerst, Termine danach, Zulassung und Fahrerlaubnis zuletzt"
+    assert s["email"] == ["ordnungsamt@landkreis-greiz.de", "zulassung@landkreis-greiz.de"]
+    nordhausen = _kontakt(
+        "Landratsamt Nordhausen - Fachgebiet Verkehrs- und Straßendienste",
+        telefon=["03631 911-6000", "Sekretariat", "03631 911-6303", "Straßenverkehr"],
+        web=["strassen@lrandh.thueringen.de", "verkehr@lrandh.thueringen.de"],
+    )
+    s = bp.stellen_aus(_antwort(nordhausen))[0]
+    assert s["telefon"][0] == "03631 911-6303" and s["email"][0] == "verkehr@lrandh.thueringen.de"
+
+
+def test_ausdruecklich_anderes_landratsamt_ist_nicht_unseres() -> None:
+    bayreuth = _gemeinde("Bayreuth")
+    fremd = _stelle("Landratsamt Neustadt a.d.Waldnaab - Verkehrswesen", ["+49 9602 79-3333"])
+    eigen = _stelle("Landratsamt Bayreuth - Straßenverkehr", ["0921 728-0"])
+    assert not bp.unsere_stelle(fremd, bayreuth)
+    assert bp.unsere_stelle(eigen, bayreuth)
+    assert bp.unsere_stelle(fremd, _gemeinde("Neustadt a.d.Waldnaab"))

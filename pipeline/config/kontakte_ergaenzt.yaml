@@ -1,0 +1,56 @@
+# Kontakte von Hand – nur wo das Bundesportal für die Gemeinden keine passende Stelle nennt
+# (Portalfehler, siehe docs/TODO.md). Jeder Eintrag ist von der Webseite der Behörde selbst
+# abgeschrieben, mit Datum. Beim jährlichen Durchgang prüfen, ob das Portal inzwischen eine
+# passende Stelle nennt – dann den Eintrag löschen.
+#
+# Schlüssel: Kreis-ARS (5 Stellen, gilt für alle Gemeinden des Kreises ohne Kontakt aus dem
+# Portal) oder ARS einer Gemeinde (12 Stellen). Nur Funktionspostfächer, keine Personen.
+
+kontakte:
+  "16054":  # Kreisfreie Stadt Suhl – Portal nennt nur „Gewerbeangelegenheiten"
+    name: "Stadtverwaltung Suhl - Ordnungs- und Bürgeramt, Straßenverkehrsbehörde"
+    adresse: "Friedrich-König-Straße 42, 98527 Suhl"
+    telefon: ["03681 74-2401"]
+    email: ["ordnungsamt@stadtsuhl.de"]
+    web: ["https://www.suhl.eu/ordnungs-buergeramt"]
+    stand: "2026-10-03"
+
+  "16069":  # Landkreis Hildburghausen – Portal nennt für alle Gemeinden die Stadtverwaltung
+    name: "Landratsamt Hildburghausen - Straßenaufsichts- und Straßenverkehrsbehörde"
+    adresse: "Wiesenstraße 18, 98646 Hildburghausen"
+    telefon: ["03685 7818-3221"]
+    email: []  # nur Kontaktformular auf der Seite
+    web: ["https://www.landkreis-hildburghausen.de/Aktuelles/index.php?object=tx,2903.1&ModID=9&FID=328.679.1&NavID=2902.17.1"]
+    stand: "2026-10-03"
+
+  "16072":  # Landkreis Sonneberg – Portal nennt nur Stadtverwaltungen
+    name: "Landratsamt Sonneberg - Sachbereich untere Straßenverkehrsbehörde"
+    adresse: "Bahnhofstraße 66, 96515 Sonneberg"
+    telefon: ["03675 871-508"]
+    email: ["strassenverkehrsbehoerde@lkson.de"]
+    web: ["https://www.kreis-sonneberg.de/buergerservice-views/abteilungen/THU:department:8968/2-36-1-sachbereich-untere-strassenverkehrsbehoerde/"]
+    stand: "2026-10-03"
+
+  "16073":  # Landkreis Saalfeld-Rudolstadt – Portal nennt nur das Ordnungsamt der VG Schwarzatal
+    name: "Landratsamt Saalfeld-Rudolstadt - Straßenverkehrsamt (Fachbereich 2)"
+    adresse: "Schwarzburger Chaussee 12, 07407 Rudolstadt"
+    telefon: ["03671 823-341"]
+    email: ["fachbereich2@kreis-slf.de"]
+    web: ["https://kreis-slf.de/Service-Verwaltung/%C3%84mter-und-Telefonverzeichnis/Stra%C3%9Fenverkehrsamt.php?object=tx%2C4147.1.1&ModID=9&FID=4147.24.1&NavID=4147.13&La=1"]
+    stand: "2026-10-03"
+
+  "09663":  # Kreisfreie Stadt Würzburg – Portal nennt „Verkehrsregelung", aber ohne Kontaktweg
+    name: "Stadt Würzburg - Fachbereich Tiefbau und Verkehrswesen, Verkehrsregelung"
+    adresse: "Veitshöchheimer Straße 1, 97080 Würzburg"
+    telefon: ["0931 37-2298"]
+    email: ["tiefbau@stadt.wuerzburg.de"]
+    web: ["https://www.wuerzburg.de/themen/bauen-planen/tiefbau-verkehrswesen/verkplan/541059.Verkehrsregelung.html"]
+    stand: "2026-10-03"
+
+  "09171":  # Landkreis Altötting – Portal nennt beim Landratsamt nur die Fahrerlaubnisbehörde
+    name: "Landratsamt Altötting - Verkehrswesen (Straßenverkehrsbehörde)"
+    adresse: "Bahnhofstraße 38, 84503 Altötting"
+    telefon: ["+49 8671 502-0"]  # Zentrale; die Durchwahlen auf der Seite gehören Personen
+    email: ["kanzlei@lra-aoe.de"]
+    web: ["https://www.lra-aoe.de/themen/fahrzeug-verkehr/verkehrswesen-allgemein/"]
+    stand: "2026-10-03"

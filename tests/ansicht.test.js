@@ -136,10 +136,11 @@ test("telHref: Ländervorwahl, sonst null", () => {
 test("kontaktHtml: Telefon, E-Mail und Webseite als Links, nur sichere", () => {
   const stand = { kontakte: "Bundesportal 02.10.2026" };
   const html = kontaktHtml({
-    name: "Landratsamt <Eichsfeld>", telefon: ["03606 650-3610"],
+    name: "Landratsamt <Eichsfeld>", adresse: "Aegidienstraße 24, 37308 <Heilbad> Heiligenstadt", telefon: ["03606 650-3610"],
     email: ["strassenverkehrsamt@kreis-eic.de"], web: ["https://www.kreis-eic.de/verkehr"],
   }, stand);
   assert.ok(html.includes("Landratsamt &lt;Eichsfeld&gt;"));
+  assert.ok(html.includes('class="kontakt-adresse">Aegidienstraße 24, 37308 &lt;Heilbad&gt; Heiligenstadt</p>'));
   assert.ok(html.includes('href="tel:+4936066503610">03606 650-3610</a>'));
   assert.ok(html.includes('href="mailto:strassenverkehrsamt@kreis-eic.de"'));
   assert.ok(html.includes('href="https://www.kreis-eic.de/verkehr" target="_blank" rel="noopener">kreis-eic.de</a>'));
@@ -170,6 +171,18 @@ test("antwortHtml: Kontakt der Gemeinde als Alternative, Datenstand nur einmal u
   assert.ok(html.indexOf("Landratsamt Landshut</p>") < html.indexOf("Markt Essenbach</p>"));
   assert.equal(html.split("Kontaktdaten: Bundesportal").length - 1, 1);
   assert.ok(html.lastIndexOf("Kontaktdaten:") > html.indexOf("Markt Essenbach</p>"));
+});
+
+test("antwortHtml: Kontakt von Hand mit eigener Herkunft, Portal-Kontakt mit Datenstand", () => {
+  const html = antwortHtml({
+    zustaendig: { name: "Landratsamt Altötting – Straßenverkehrsbehörde" }, gemeinde: "Stadt Burghausen",
+    land: "BY", sicherheit: "nur Ebene", grund: "g", quelle: "q", hinweise: [],
+    kontakt: { name: "Landratsamt Altötting - Verkehrswesen", telefon: ["+49 8671 502-0"], quelle: "Webseite der Behörde, Stand 03.10.2026" },
+    kontaktGemeinde: { name: "Stadt Burghausen", telefon: ["08677 887-0"] },
+    stand: { kontakte: "Bundesportal 03.10.2026" },
+  }, [], { landName: "Bayern" });
+  assert.ok(html.includes("Kontaktdaten: Webseite der Behörde, Stand 03.10.2026"));
+  assert.ok(html.includes("Kontaktdaten: Bundesportal 03.10.2026"), "andere Herkunft: eigene Zeile");
 });
 
 test("antwortHtml: Kontakt steht direkt unter dem Schild", () => {

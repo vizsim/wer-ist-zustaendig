@@ -47,6 +47,9 @@ dienste:
     kontakt_url: "https://verwaltung.bund.de/leistungsverzeichnis/de/api/kontakt/{land}/{id}/{ars}?name=zustaendigestellen"
     seite: "https://verwaltung.bund.de/leistungsverzeichnis/de/leistung/99108014042000"
     pause: 1.0  # Sekunden zwischen zwei Anfragen
+    # Länder, deren Kontakte in die Landesdateien gehen – nach Durchsicht der Review-CSV
+    # freigegeben. Weitere Länder dürfen schon im Cache liegen.
+    freigegeben: [TH, BY]
     lizenz: "Amtliche Kontaktangaben; Nutzungsbedingungen des Portals nicht gesondert geprüft"
     vermerk: "Kontakt laut Bundesportal (verwaltung.bund.de)"
 

@@ -61,19 +61,24 @@ Offene Punkte stehen nur hier, und erst nach Abstimmung mit dem Repo-Owner (CLAU
 
 ### Kontakte (Bundesportal)
 
-- [x] **Pilot Thüringen** (2026-10-03): 605 Gemeinden abgefragt; 537 (89 %) mit eindeutigem
-  Kontakt – 533 Stellen unserer Behörde, meist direkt die Verkehrsabteilung, 4 Städte, die sich
-  selbst Straßenverkehrsbehörde nennen (Apolda, Eisenberg, Heilbad Heiligenstadt, Ilmenau). Ohne
-  Kontakt: 67 Gemeinden, für die das Portal nur Gemeinde- oder VG-Stellen nennt, und Suhl (nur
-  „Gewerbeangelegenheiten").
-- [ ] **Die übrigen 8 Bundesportal-Länder** (BB, BY, MV, NI, NW, RP, SH, ST, zusammen rund
-  8 400 Gemeinden, Abruf etwa 2,5 Stunden): `uv run zust kontakte`, dann je Land die
-  Review-CSV durchsehen und die Auswahlregel nachschärfen (Stichprobe 10/2026: in BB, NW, ST
-  teils ohne Eintrag oder mit fremden Fachbereichen).
+- [x] **Thüringen und Bayern fertig** (2026-10-03, `freigegeben` in `sources.yaml`): jede
+  Gemeinde mit Kontakt. TH 605: 533 aus dem Portal bestätigt, 4 Städte, die sich selbst
+  Straßenverkehrsbehörde nennen (Apolda, Eisenberg, Heilbad Heiligenstadt, Ilmenau), 1 über den
+  Kreiskontakt, 67 von Hand. BY 2 221: 2 176 bestätigt, 19 Gemeinden mit eigener Straßenverkehrsbehörde,
+  1 über den Kreiskontakt, 25 von Hand; dazu bei 1 956 Gemeinden der Kontakt der Gemeinde selbst.
+  Von Hand (`config/kontakte_ergaenzt.yaml`): Saalfeld-Rudolstadt, Hildburghausen, Sonneberg,
+  Suhl, Altötting, Würzburg.
+- [ ] **Die übrigen 7 Bundesportal-Länder** (BB, MV, NI, NW, RP, SH, ST): abrufen (RP liegt
+  schon im Cache, BB zu einem Viertel), Review-CSV durchsehen, Auswahlregel nachschärfen und in
+  `freigegeben` aufnehmen. RP: Das Portal nennt meist die Verbandsgemeinde (nach Konzept
+  innerorts zuständig) – Regel dafür klären, bevor RP freigegeben wird.
 - [ ] **Fehler im Portal melden** – Redaktion Thüringen: Landkreis Saalfeld-Rudolstadt (für alle
   Gemeinden nur das Ordnungsamt der VG „Schwarzatal"), Landkreis Hildburghausen (für alle
   Gemeinden die Stadtverwaltung Hildburghausen), Suhl (nur „Gewerbeangelegenheiten").
-  Redaktion Bayern: Landkreis Altötting (beim Landratsamt nur die Fahrerlaubnisbehörde).
+  Redaktion Bayern: Landkreis Altötting (beim Landratsamt nur die Fahrerlaubnisbehörde),
+  Würzburg („Verkehrsregelung" ohne Telefon und E-Mail), gemeindefreies Gebiet Heinersreuther
+  Forst (Landratsamt Neustadt a.d.Waldnaab statt Bayreuth). Danach die Einträge in
+  `config/kontakte_ergaenzt.yaml` löschen.
 - [ ] **Länder ohne Bundesportal-Eintrag** (BW, BE, HB, HH, HE, SL, SN): Kontakte der rund 105
   Stellen der Kreisebene und der Stadtstaaten anders beschaffen (Landesportale oder von Hand).
 - [ ] **Landesregel Thüringen:** Laut Portal sind mehrere große kreisangehörige Städte selbst

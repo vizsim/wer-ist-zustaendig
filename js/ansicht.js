@@ -213,18 +213,26 @@ export function kontaktHtml(k, stand, { vorspann = null, quelle = true } = {}) {
     <div class="kontakt${vorspann ? " kontakt-oder" : ""}">
       ${vorspann ? `<p class="kontakt-vorspann">${esc(vorspann)}</p>` : ""}
       <p class="kontakt-name">${esc(k.name)}</p>
+      ${k.adresse ? `<p class="kontakt-adresse">${esc(k.adresse)}</p>` : ""}
       ${k.abweichend ? `<p class="kontakt-hinweis">Das Bundesportal nennt diese Stelle; sie kann statt der oben genannten zuständig sein.</p>` : ""}
       <ul class="kontakt-wege">${wege.join("")}</ul>
-      ${quelle && stand?.kontakte ? `<p class="kontakt-quelle">Kontaktdaten: ${esc(stand.kontakte)}</p>` : ""}
+      ${quelle && herkunft(k, stand) ? `<p class="kontakt-quelle">Kontaktdaten: ${esc(herkunft(k, stand))}</p>` : ""}
     </div>`;
 }
 
-/** Hauptkontakt und, wo die Gemeinde zuständig sein kann, ihr Kontakt; Datenstand einmal, unten. */
+/** Herkunft eines Kontakts: eigene (von Hand ergänzt) oder der Datenstand des Portals. */
+function herkunft(k, stand) {
+  return k?.quelle ?? stand?.kontakte ?? null;
+}
+
+/** Hauptkontakt und, wo die Gemeinde zuständig sein kann, ihr Kontakt; gleiche Herkunft nur
+ *  einmal, unten. */
 function kontakteHtml(r) {
   const gemeinde = kontaktHtml(r.kontaktGemeinde, r.stand, {
     vorspann: "Oder die Gemeinde, falls nur die Gemeindestraße betroffen ist:",
   });
-  return kontaktHtml(r.kontakt, r.stand, { quelle: !gemeinde }) + gemeinde;
+  const eigeneZeile = !gemeinde || herkunft(r.kontakt, r.stand) !== herkunft(r.kontaktGemeinde, r.stand);
+  return kontaktHtml(r.kontakt, r.stand, { quelle: eigeneZeile }) + gemeinde;
 }
 
 /**

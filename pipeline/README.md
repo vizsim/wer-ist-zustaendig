@@ -54,6 +54,15 @@ zeigt alle Stellen mit Punkten. Daneben wird je Gemeinde die Stelle der Gemeinde
 (Rathaus oder Verwaltungsgemeinschaft, `waehle_gemeinde`); der Build übernimmt sie nur in Ländern,
 in denen Gemeinden für Gemeindestraßen zuständig sein können (heute Bayern).
 
+Lücken (`luecken_fuellen`): Fehlt einer Gemeinde der Kontakt, gilt zuerst ein Eintrag von Hand aus
+`config/kontakte_ergaenzt.yaml` (Kreis oder Gemeinde, abgeschrieben von der Webseite der Behörde,
+mit Datum), sonst der Kreiskontakt, den das Portal für die übrigen Gemeinden des Kreises nennt.
+Im Telefonfeld des Portals steht die Beschriftung hinter der Nummer („03631 911-6303",
+„Straßenverkehr"); Nummern und Postfächer für den Straßenverkehr kommen nach vorn.
+
+In die Landesdateien gehen nur die Länder aus `freigegeben` in `sources.yaml` – weitere Länder
+dürfen schon im Cache liegen.
+
 ## Ordner
 
 ```text

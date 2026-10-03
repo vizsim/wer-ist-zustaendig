@@ -195,6 +195,8 @@ a:hover { text-decoration-thickness: 2px; }
 .kontakt-oder { background: transparent; border-left-color: var(--grau-hell); padding-top: 4px; padding-bottom: 4px; }
 .kontakt-vorspann { margin: 0 0 4px; font-size: 13px; color: var(--grau); }
 .kontakt-name { margin: 0 0 6px; font-weight: 600; font-size: 14.5px; line-height: 1.3; }
+.kontakt-name:has(+ .kontakt-adresse) { margin-bottom: 1px; }
+.kontakt-adresse { margin: 0 0 6px; font-size: 13px; color: var(--grau); }
 .kontakt-hinweis { margin: -2px 0 6px; font-size: 13px; }
 .kontakt-wege { margin: 0; padding: 0; list-style: none; font-size: 15px; }
 .kontakt-wege li { margin: 3px 0; overflow-wrap: anywhere; }

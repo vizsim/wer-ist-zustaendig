@@ -22,6 +22,7 @@ function kontaktEintrag(k) {
   const kontakt = {
     name: k.name, adresse: k.adresse ?? null, telefon: k.telefon ?? [], email: k.email ?? [], web: k.web ?? [],
     ...(k.abweichend ? { abweichend: true } : {}),
+    ...(k.quelle ? { quelle: k.quelle } : {}),
   };
   return { id: `c${ergebnisId(kontakt).slice(1)}`, kontakt };
 }

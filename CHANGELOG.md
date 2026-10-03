@@ -14,9 +14,11 @@ Regeln 0.4.0 · Schema 1 · Datenstand 31.12.2025. Erster Lauf mit echten Daten 
 - Deutsch-luxemburgisches Kondominium (Mosel, Sauer, Our): Die 25 Flächen aus VG25 nennen die
   Stelle der angrenzenden Gemeinde, immer mit „nur Ebene". Neues Feld `kondominium` im
   Zwischenprodukt `gemeinden_attr.json`.
-- Kontakt der zuständigen Stelle (Pilot Thüringen): Telefon, E-Mail und Webseite aus dem
-  Bundesportal, direkt unter der Auskunft – für 537 von 605 Gemeinden eindeutig. Nennt das Portal
-  eine andere Stelle, die sich selbst Straßenverkehrsbehörde nennt, steht ein Hinweis dabei.
+- Kontakt der zuständigen Stelle in Thüringen und Bayern – für jede Gemeinde: Name, Anschrift,
+  Telefon, E-Mail und Webseite, direkt unter der Auskunft. Quelle ist das Bundesportal; wo es
+  keine passende Stelle nennt, der Kreiskontakt der Nachbargemeinden oder ein Eintrag von Hand
+  von der Webseite der Behörde (mit Datum). Nennt das Portal eine andere Stelle, die sich selbst
+  Straßenverkehrsbehörde nennt, steht ein Hinweis dabei.
   Neuer Pipeline-Schritt `zust kontakte`; in den Landesdateien die Tabelle `kontakte`, je Gemeinde
   `kontakt` (und `nachbar` bei Kondominium-Flächen), im Kopf `bundesportal_region`.
 - Der Bundesportal-Link führt in Ländern mit Kontakten auf die Seite der Gemeinde mit allen

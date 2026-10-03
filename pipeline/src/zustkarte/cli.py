@@ -141,6 +141,9 @@ def kontakte(
             f"{lkz} {n:>5} Gemeinden · mit Kontakt {mit} ({mit / n:.0%}) · "
             + " · ".join(f"{k} {v}" for k, v in sorted(wahl.items()))
         )
+    offen = [x for x in bundesportal.laender_im_cache() if x not in daten["meta"]["laender"]]
+    if offen:
+        typer.echo(f"Im Cache, aber nicht freigegeben (sources.yaml): {', '.join(offen)}")
     typer.secho(f"→ {paths.kontakte_json}", fg="green")
 
 

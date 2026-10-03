@@ -184,7 +184,8 @@ Konsumenten lesen sie nur als Verweis.
 |---|---|
 | `name` | Name der Stelle laut Bundesportal, oft mit Fachbereich („Landratsamt Eichsfeld - Amt für Öffentliche Sicherheit und Ordnung") |
 | `adresse` | Hausanschrift oder `null` |
-| `telefon`, `email`, `web` | Listen, können leer sein. Nur Funktionspostfächer, keine Adressen mit Personennamen |
+| `telefon`, `email`, `web` | Listen, können leer sein. Nummern und Postfächer für den Straßenverkehr stehen vorn, Zulassung und Fahrerlaubnis hinten. Nur Funktionspostfächer, keine Adressen mit Personennamen |
+| `quelle` | optional: Herkunft, wenn der Kontakt nicht aus dem Bundesportal stammt („Webseite der Behörde, Stand 03.10.2026") |
 
 Die Id ist `c` + FNV-1a über das JSON des Kontakts, gültig nur innerhalb der Landesdatei. Die
 Stelle des Kontakts kann von `zustaendig` abweichen, solange die Landesregeln fehlen; Konsumenten
