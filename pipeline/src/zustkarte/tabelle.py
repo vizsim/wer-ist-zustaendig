@@ -1,7 +1,7 @@
 """Gemeindetabelle bauen: VG25 + GV-ISys (Textkennzeichen, Bevölkerung) → gemeinden_attr.json.
 
 Ein Eintrag je Gemeinde (Schlüssel ARS), Felder siehe docs/VERTRAG.md („Zwischenprodukt").
-Die Prüfungen brechen den Build ab, statt halbe Daten durchzulassen (Auftrag A2/A6):
+Die Prüfungen brechen den Build ab, statt halbe Daten durchzulassen:
 ARS 12-stellig und eindeutig, jede Gemeinde mit Kreis und Land, VG25 und GV-ISys mit derselben
 Gemeindemenge, kreisfreie Städte in beiden Quellen gleich, Große Kreisstädte plausibel.
 

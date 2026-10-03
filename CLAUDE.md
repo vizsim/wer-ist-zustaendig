@@ -62,7 +62,8 @@ npm run serve                              # Karte lokal auf :8080
   Quelle verwenden oder zitieren; dort Gefundenes an der Primärquelle prüfen.
 - Fundstelle mit Fassung und Datum in `TEXTE.quelle` (`js/resolve.js`).
 - Die Recherche je Land steht im Konzept zum Analyse-Report der Unfallkarte (§ 6) und im Plan
-  „Zuständigkeitstabelle" im Projekt; neue Befunde dort und in `docs/TODO.md` nachziehen.
+  „Zuständigkeitstabelle" im Projekt (beide nicht öffentlich); neue Befunde dort und in
+  `docs/TODO.md` nachziehen, die Fundstellen in `TEXTE.quelle`.
 
 ## Arbeitsweise
 

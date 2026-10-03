@@ -4,7 +4,7 @@
 // Klassen: A Autobahn · B Bundesstraße · L Landes-/Staatsstraße · K Kreisstraße · G Gemeindestraße
 // · „unklar". Die Rangfolge entscheidet bei mehreren Straßen bzw. mehreren Nummern („B 2;St 2068").
 //
-// Länderbesonderheiten (Plan § 5):
+// Länderbesonderheiten:
 //  - BY: Staatsstraßen „St" + Nummer; Kreisstraßen mit Kfz-Kürzel des Kreises („DAH 3"), in
 //    kreisfreien Städten ggf. mit angehängtem „s" („ROs 1"). „A 8" ist in BY ohne Autobahn-Tag
 //    eine Kreisstraße des Landkreises Augsburg.

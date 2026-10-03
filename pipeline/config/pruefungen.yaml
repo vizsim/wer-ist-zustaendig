@@ -8,7 +8,7 @@
 # vorliegt (docs/TODO.md), 0 erwarten – taucht 67 in SN auf, fällt es hier auf.
 grosse_kreisstaedte:
   BW: { erwartet: 96, toleranz: 6, quelle: "Statistik BW, Große Kreisstädte am 01.01.2025" }
-  BY: { erwartet: 29, toleranz: 3, quelle: "Konzept § 6.1 (ZustGVerk Art. 3)" }
+  BY: { erwartet: 29, toleranz: 3, quelle: "GrKrV (Bayern), Liste der Großen Kreisstädte" }
   SN: { erwartet: 0, toleranz: 0, quelle: "GV100AD 31.12.2025: in SN kein Textkennzeichen 67" }
 
 # Untergrenze je Land für die Zahl der Gemeinden (fängt abgeschnittene Downloads ab).

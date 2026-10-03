@@ -17,7 +17,7 @@ from zustkarte.config import get_paths, load_yaml, quellen, repo_root
 
 app = typer.Typer(no_args_is_help=True, add_completion=False, help="Wer ist zuständig? – Pipeline")
 
-GRENZE_MB = 100  # Grenzschicht darüber: erst abstimmen (Auftrag A1)
+GRENZE_MB = 100  # Grenzschicht darüber: erst abstimmen (docs/VERTRAG.md)
 
 
 def _node(*args: str) -> None:
@@ -179,7 +179,7 @@ def grenzen(dry_run: bool = typer.Option(False, "--dry-run")) -> None:
         typer.secho(f"{ziel} ({mb:.1f} MB)", fg="green")
         if mb > GRENZE_MB:
             typer.secho(
-                f"Größer als {GRENZE_MB} MB: vor dem Hochladen abstimmen (Auftrag A1) – "
+                f"Größer als {GRENZE_MB} MB: vor dem Hochladen abstimmen (docs/VERTRAG.md) – "
                 "z. B. maxzoom 11 oder simplification in config/tiles.yaml.",
                 fg="yellow",
             )

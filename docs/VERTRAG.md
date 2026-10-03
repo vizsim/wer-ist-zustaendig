@@ -3,7 +3,7 @@
 Dieses Dokument ist die Schnittstelle zwischen „Wer ist zuständig?" und allen, die die Dateien
 nutzen – zuerst die Karte in diesem Repo, dann die Unfallkarte.
 
-Stand: **Schema 1** · Regeln 0.7.0 (Phase 2: Landesregeln für Bayern, Thüringen und Schleswig-Holstein) · Datenstand 31.12.2025
+Stand: **Schema 1** · Regeln 0.7.1 (Phase 2: Landesregeln für Bayern, Thüringen und Schleswig-Holstein) · Datenstand 31.12.2025
 
 ## Regeln für alle Dateien
 
@@ -76,7 +76,7 @@ eigene Kreise); die Landesdatei nennt dort die Stelle der angrenzenden Gemeinde,
 ```json
 {
   "schema": 1,
-  "regeln": { "version": "0.7.0", "phase": 2, "stand": "2026-10-03" },
+  "regeln": { "version": "0.7.1", "phase": 2, "stand": "2026-10-03" },
   "daten": {
     "gebiet": "VG25 31.12.2025",
     "status": "GV-ISys 31.12.2025",
@@ -175,7 +175,7 @@ die übrigen Klassen das Landratsamt. Die Kontaktangaben sind hier ausgelassen.
 | `stelle` | Id in `stellen` |
 | `sicherheit` | `belegt` (Primärquelle, getestete Regel; heute BY und HB) · `vermutlich` (Regel aus Sekundärquelle wie in TH, Eingabe unsicher – oder das Land nennt im Bundesportal dieselbe Stelle) · `nur Ebene` (Land noch offen) |
 | `grund` | ein Satz für Popup und Report |
-| `quelle` | Fundstelle mit Fassung bzw. Verweis auf das Konzept |
+| `quelle` | Fundstelle mit Fassung; beim Rückfall auf die Kreisebene der Hinweis darauf |
 | `alternative` | `null` oder `{ stelle, bedingung }`; `bedingung` ist ein Satzteil („falls nur die Gemeindestraße betroffen ist") |
 
 Die Id ist `e` + FNV-1a (32 bit, hex) über das JSON des Ergebnisses: gleiche Inhalte, gleiche Id.
@@ -293,7 +293,7 @@ dort erfunden.
 | `daten` | aus den Quellen | neuer Gebietsstand (jährlich) |
 | Git-Tag `v<regeln.version>` | Repo | mit jeder Veröffentlichung im Bucket |
 
-## Für die Unfallkarte (Teil B)
+## Für die Unfallkarte
 
 - Dateien unter dem Präfix `zustaendigkeit/` im eigenen Bucket; Quelle in
   `pipeline/config/sources.yaml` der Unfallkarte, Datum aus `index.json`.

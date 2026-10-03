@@ -7,14 +7,14 @@
 //  2. Laufzeit: `auswahl(landesdatei, ars, klassen)` → eine zuständige Stelle für die Straßen
 //     einer Auswahl (höchste Klasse gewinnt; Gemeindestraße ggf. als Alternative).
 //
-// Phase 1 (Plan § 7): Rückfall auf die Kreisebene mit amtlichem Namen; Stadtstaaten nach Konzept
-// § 6.1. Phase 2: Landesregeln für Bayern, Thüringen und Schleswig-Holstein (`LANDESREGELN`).
+// Ohne Landesregel (Phase 1): Rückfall auf die Kreisebene mit amtlichem Namen; Stadtstaaten mit
+// eigener Regel. Phase 2: Landesregeln für Bayern, Thüringen und Schleswig-Holstein (`LANDESREGELN`).
 // Kein Rechtsrat: Jede Aussage trägt Sicherheit und Quelle.
 
 import { kreisBehoerde, mitZusatz, stadtName } from "./namen.js";
 import { hoechsteKlasse } from "./strassenklasse.js";
 
-export const REGELN = Object.freeze({ version: "0.7.0", phase: 2, stand: "2026-10-03" });
+export const REGELN = Object.freeze({ version: "0.7.1", phase: 2, stand: "2026-10-03" });
 
 export const SICHERHEIT = Object.freeze({
   BELEGT: "belegt",
@@ -90,13 +90,13 @@ export const TEXTE = Object.freeze({
     shParken: "falls es nur um Halten und Parken, eine Baustelle oder eine Veranstaltung geht",
   }),
   quelle: Object.freeze({
-    phase1: "Rückfall Phase 1: Kreisebene (Konzept § 6.1)",
+    phase1: "Rückfall auf die Kreisebene – die Regel dieses Landes ist noch nicht eingearbeitet",
     bremen:
       "Verordnung über die Zuständigkeiten nach der Straßenverkehrs-Ordnung (Bremen) vom " +
       "19.01.2016, zuletzt geändert 02.09.2025",
     berlin: "ASOG Bln, Zuständigkeitskatalog Ordnungsaufgaben Nr. 11 Abs. 4, Nr. 22b Abs. 3 (Wortlaut nur sekundär geprüft)",
     hamburg: "Zuständigkeitsanordnung Hamburg (Titel und Fassung noch nicht geprüft)",
-    autobahn: "Konzept § 6.1",
+    autobahn: "§ 45 Abs. 11 StVO",
     kondominium:
       "Rückfall: angrenzende Gemeinde laut VG25 (SDV_ARS); Grenzvertrag Deutschland–Luxemburg nicht ausgewertet",
     bundesportal:
