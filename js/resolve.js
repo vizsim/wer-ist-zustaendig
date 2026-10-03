@@ -8,13 +8,13 @@
 //     einer Auswahl (höchste Klasse gewinnt; Gemeindestraße ggf. als Alternative).
 //
 // Phase 1 (Plan § 7): Rückfall auf die Kreisebene mit amtlichem Namen; Stadtstaaten nach Konzept
-// § 6.1. Phase 2: Landesregeln für Bayern und Thüringen (`LANDESREGELN`) – dort unterscheiden sich
-// die Klassen. Kein Rechtsrat: Jede Aussage trägt Sicherheit und Quelle.
+// § 6.1. Phase 2: Landesregeln für Bayern, Thüringen und Schleswig-Holstein (`LANDESREGELN`).
+// Kein Rechtsrat: Jede Aussage trägt Sicherheit und Quelle.
 
 import { kreisBehoerde, mitZusatz, stadtName } from "./namen.js";
 import { hoechsteKlasse } from "./strassenklasse.js";
 
-export const REGELN = Object.freeze({ version: "0.6.0", phase: 2, stand: "2026-10-03" });
+export const REGELN = Object.freeze({ version: "0.7.0", phase: 2, stand: "2026-10-03" });
 
 export const SICHERHEIT = Object.freeze({
   BELEGT: "belegt",
@@ -68,6 +68,17 @@ export const TEXTE = Object.freeze({
     thLandkreisPortal:
       "In Thüringen ist für Gemeinden ohne eigene Straßenverkehrsbehörde der Landkreis zuständig; " +
       "das Land nennt im Bundesportal für diese Gemeinde dieselbe Stelle.",
+    shKreis:
+      "In Schleswig-Holstein ist der Kreis Straßenverkehrsbehörde. Halten und Parken, Baustellen " +
+      "und Veranstaltungen ordnet das Amt bzw. die amtsfreie Gemeinde an.",
+    shKreisKnapp:
+      "In Schleswig-Holstein ist der Kreis Straßenverkehrsbehörde, solange eine Gemeinde nicht mehr " +
+      "als 20.000 Einwohner hat. Diese liegt knapp darunter; die maßgebliche Zahl kann abweichen.",
+    shGemeinde: "In Schleswig-Holstein ordnen Gemeinden mit mehr als 20.000 Einwohnern Verkehrszeichen selbst an.",
+    shGemeindeKnapp:
+      "In Schleswig-Holstein ordnen Gemeinden mit mehr als 20.000 Einwohnern Verkehrszeichen selbst " +
+      "an. Diese liegt knapp darüber; die maßgebliche Zahl kann abweichen.",
+    shAntrag: "Diese Gemeinde ordnet in Schleswig-Holstein auf Antrag selbst Verkehrszeichen an.",
   }),
   bedingung: Object.freeze({
     gks: "Große Kreisstadt – sie kann selbst zuständig sein",
@@ -76,6 +87,7 @@ export const TEXTE = Object.freeze({
     berlinNetz: "falls die Straße zum übergeordneten Straßennetz gehört",
     portalStvb: "laut Bundesportal ist die Gemeinde selbst Straßenverkehrsbehörde",
     thAntragMoeglich: "Gemeinde mit 10.000 bis 30.000 Einwohnern – sie kann auf Antrag selbst zuständig sein",
+    shParken: "falls es nur um Halten und Parken, eine Baustelle oder eine Veranstaltung geht",
   }),
   quelle: Object.freeze({
     phase1: "Rückfall Phase 1: Kreisebene (Konzept § 6.1)",
@@ -108,6 +120,14 @@ export const TEXTE = Object.freeze({
       "§ 2 Abs. 3 Satz 1 Nr. 2 Buchst. e der Thüringer Verordnung über Zuständigkeiten auf dem " +
       "Gebiet des Straßenverkehrsrechts vom 13.02.2007, zuletzt geändert 20.05.2026 [S]; " +
       "Gemeinden auf Antrag: Abs. 7; Einwohner laut GV-ISys 31.12.2025",
+    shStadt: "§ 3 Abs. 1 Nr. 1 Buchst. a StrVRZustVO (Schleswig-Holstein) vom 08.11.2004, Fassung vom 01.12.2025",
+    shKreis:
+      "§ 3 Abs. 1 Nr. 1 Buchst. a und § 5 Abs. 1 StrVRZustVO (Schleswig-Holstein) vom 08.11.2004, " +
+      "Fassung vom 01.12.2025; Einwohner laut GV-ISys 31.12.2025",
+    shGemeinde:
+      "§ 4 Abs. 1 StrVRZustVO (Schleswig-Holstein) vom 08.11.2004, Fassung vom 01.12.2025; " +
+      "Einwohner laut GV-ISys 31.12.2025",
+    shAntrag: "§ 4 Abs. 2 und Anlage Nr. 1 StrVRZustVO (Schleswig-Holstein) vom 08.11.2004, Fassung vom 01.12.2025",
   }),
   hinweis: Object.freeze({
     autobahnDabei: "Für die Autobahn selbst ist das Fernstraßen-Bundesamt zuständig.",
@@ -262,8 +282,40 @@ function regelThueringen(g, klasse) {
   return ergebnis(kreis, SICHERHEIT.VERMUTLICH, grund, "thLandkreis", alternative);
 }
 
+/** Ein Verband (in Schleswig-Holstein das Amt) als Stelle. */
+function verbandStelle(g) {
+  return { id: `v${g.verband.ars}`, name: mitZusatz(g.verband.name), ebene: "oertliche", art: "verband" };
+}
+
+/**
+ * Schleswig-Holsteiner Gemeinden, die auf Antrag Straßenverkehrsbehörde nach § 45 StVO sind
+ * (§ 4 Abs. 2 StrVRZustVO, Anlage Nr. 1).
+ */
+export const SH_AUF_ANTRAG = Object.freeze({ "010620018018": "Glinde" });
+
+/**
+ * Schleswig-Holstein (belegt, StrVRZustVO): Kreise und kreisfreie Städte sind Straßenverkehrs-
+ * behörde (§ 3). Gemeinden mit mehr als 20.000 Einwohnern ordnen Verkehrszeichen selbst an
+ * (§ 4 Abs. 1), auf Antrag auch kleinere (§ 4 Abs. 2, Anlage). Halten und Parken, Baustellen und
+ * Veranstaltungen ordnen sonst das Amt bzw. die amtsfreie Gemeinde an (§ 5) – die Alternative.
+ * Nahe an 20.000 Einwohnern hängt es von der maßgeblichen Zahl ab: dort nur „vermutlich".
+ */
+function regelSchleswigHolstein(g) {
+  const kreis = kreisStelle(g);
+  if (g.kreis.kreisfrei) return ergebnis(kreis, SICHERHEIT.BELEGT, "kreisfrei", "shStadt");
+  if (g.gemeindefrei) return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "gemeindefrei", "shKreis");
+  const ew = g.ew ?? 0;
+  const knapp = Math.abs(ew - 20000) <= 1000;
+  const sicherheit = knapp ? SICHERHEIT.VERMUTLICH : SICHERHEIT.BELEGT;
+  const selbst = gemeindeStelle(g, istStadt(g) ? "stadt" : "gemeinde", "oertliche");
+  if (SH_AUF_ANTRAG[g.ars]) return ergebnis(selbst, SICHERHEIT.BELEGT, "shAntrag", "shAntrag");
+  if (ew > 20000) return ergebnis(selbst, sicherheit, knapp ? "shGemeindeKnapp" : "shGemeinde", "shGemeinde");
+  const ort = g.verband ? verbandStelle(g) : selbst;
+  return ergebnis(kreis, sicherheit, knapp ? "shKreisKnapp" : "shKreis", "shKreis", { stelle: ort, bedingung: "shParken" });
+}
+
 /** Landesregeln: (Gemeinde, Klasse) → Ergebnis, oder null für den Rückfall auf Phase 1. */
-export const LANDESREGELN = Object.freeze({ BY: regelBayern, TH: regelThueringen });
+export const LANDESREGELN = Object.freeze({ BY: regelBayern, SH: regelSchleswigHolstein, TH: regelThueringen });
 
 /**
  * Regel samt Sonderfällen:
@@ -344,10 +396,11 @@ export function auswahl(daten, ars, klassen = []) {
   const eintrag = daten?.gemeinden?.[ars];
   if (!eintrag) return null;
   const stelle = (id) => daten.stellen[id] ?? FESTE_STELLEN[id] ?? null;
-  // Kontakt einer Stelle: die Gemeinde selbst (`kontakt_gemeinde`) oder die Kreisebene bzw. die
-  // kreisfreie Stadt (`kontakt`); Bund und Stadtstaaten haben keinen.
+  // Kontakt einer Stelle: die Gemeinde selbst bzw. ihr Amt (`kontakt_gemeinde`) oder die
+  // Kreisebene bzw. die kreisfreie Stadt (`kontakt`); Bund und Stadtstaaten haben keinen.
   const kontaktZu = (id) => {
-    const ref = id === `g${ars}` ? eintrag.kontakt_gemeinde : String(id ?? "").startsWith("k") ? eintrag.kontakt : null;
+    const s = String(id ?? "");
+    const ref = s === `g${ars}` || s.startsWith("v") ? eintrag.kontakt_gemeinde : s.startsWith("k") ? eintrag.kontakt : null;
     return (ref && daten.kontakte?.[ref]) ?? null;
   };
   const erg = (k) => {

@@ -51,7 +51,9 @@ E-Mail-Adressen mit Personennamen und Links zu sozialen Netzwerken fallen weg, K
 werden nie übernommen. Auf der Kreisebene scheiden fremde Fachbereiche aus (Gewerbe,
 Fahrerlaubnis, Zulassung …); von den übrigen gewinnt die Stelle mit „Verkehr" im Namen oder in der
 Adresse. Hängt eine Gemeinde die Leistung nur an einen allgemeinen Fachbereich (Bürgerbüro,
-Standesamt), gilt er trotzdem als ihr Kontakt, dann ohne den Namen des Fachbereichs. Welche Rolle
+Standesamt), gilt er trotzdem als ihr Kontakt, dann ohne den Namen des Fachbereichs. Stellen
+ohne Behördennamen („Fachdienst Verkehr") erkennt die Auswahl an der Domain ihrer E-Mail oder
+Webseite (`verkehr@henstedt-ulzburg.de`). Welche Rolle
 eine Auskunft braucht, entscheiden die Regeln (`js/resolve.js`). Der Build übernimmt einen Kontakt
 nur, wenn seine Stelle in den Ergebnissen der Gemeinde vorkommt.
 
@@ -67,7 +69,8 @@ Lücken (`luecken_fuellen`): Fehlt einer Gemeinde ein Kontakt, gilt zuerst ein E
 `config/kontakte_ergaenzt.yaml`. Er ist von der Webseite der Behörde abgeschrieben, mit Datum, und
 gilt für einen ganzen Kreis (Kreis-ARS) oder für eine Gemeinde und eine Rolle (Gemeinde-ARS mit
 `rolle`). Sonst gilt für die Kreisebene der Kontakt, den das Portal für die übrigen Gemeinden des
-Kreises nennt.
+Kreises nennt, und für die Gemeinde in einem Amt oder einer Verwaltungsgemeinschaft der Kontakt
+des Verbands, den es für die übrigen Mitglieder nennt.
 Im Telefonfeld des Portals steht die Beschriftung hinter der Nummer („03631 911-6303",
 „Straßenverkehr"); Nummern und Postfächer für den Straßenverkehr kommen nach vorn.
 

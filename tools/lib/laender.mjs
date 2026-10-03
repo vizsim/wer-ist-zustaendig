@@ -108,11 +108,12 @@ export function baueLaender(attr, opts = {}) {
     if (Number.isFinite(g.ew)) eintrag.ew = g.ew;
     eintrag.z = z;
     // Kontakte der Stellen, die in den Ergebnissen dieser Gemeinde vorkommen: Kreisebene bzw.
-    // kreisfreie Stadt (`k…` → kontakt) und die Gemeinde selbst (`g…` → kontakt_gemeinde).
-    const ids = new Set(BAU_KLASSEN.flatMap((kl) => [zust[kl].stelle, zust[kl].alternative?.stelle]).filter(Boolean));
+    // kreisfreie Stadt (`k…` → kontakt) und die Gemeinde selbst bzw. ihr Amt (`g…`, `v…` →
+    // kontakt_gemeinde).
+    const ids = [...new Set(BAU_KLASSEN.flatMap((kl) => [zust[kl].stelle, zust[kl].alternative?.stelle]).filter(Boolean))];
     for (const [rolle, feld, noetig] of [
-      ["kreis", "kontakt", [...ids].some((id) => id.startsWith("k"))],
-      ["gemeinde", "kontakt_gemeinde", ids.has(`g${ars}`)],
+      ["kreis", "kontakt", ids.some((id) => id.startsWith("k"))],
+      ["gemeinde", "kontakt_gemeinde", ids.some((id) => id === `g${ars}` || id.startsWith("v"))],
     ]) {
       const k = kontakte?.gemeinden?.[ars]?.[rolle];
       if (k && noetig) {

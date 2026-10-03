@@ -159,6 +159,28 @@ test("baueLaender: Kontakt der Gemeinde nur, wo sie zuständig sein kann", () =>
   assert.equal(r.alternative.kontakt.name, "Markt Essenbach");
 });
 
+test("baueLaender + auswahl: in Schleswig-Holstein das Amt mit dem Kontakt der Gemeinde-Rolle", () => {
+  const a = attr();
+  a.gemeinden["010585890008"] = {
+    ars: "010585890008", gen: "Ascheffel", name: "Gemeinde Ascheffel", land: "SH", tkz: [64], ew: 977,
+    kreis: kreis("01058", "Rendsburg-Eckernförde", "Kreis", "ja"),
+    verband: { ars: "010585890", gen: "Hüttener Berge", name: "Amt Hüttener Berge" },
+  };
+  const k = kontakte();
+  k.meta.laender.SH = { herausgeber: "8958611", abgerufen: "2026-10-03", region_url: "https://…/region/{ars}" };
+  k.gemeinden["010585890008"] = {
+    wahl: "passt", stellen: 2,
+    kreis: { name: "Kreis Rendsburg-Eckernförde - Der Landrat", adresse: null, telefon: ["+49 4331 202-0"], email: [], web: [] },
+    gemeinde: { name: "Amt Hüttener Berge - FD III Ordnungsamt", adresse: null, telefon: ["+49 4356 9949-0"], email: [], web: [] },
+  };
+  const sh = baueLaender(a, { kontakte: k }).dateien["sh.json"];
+  const r = auswahl(sh, "010585890008", ["K"]);
+  assert.equal(r.zustaendig.name, "Kreis Rendsburg-Eckernförde – Straßenverkehrsbehörde");
+  assert.equal(r.kontakt.name, "Kreis Rendsburg-Eckernförde - Der Landrat");
+  assert.equal(r.alternative.stelle.name, "Amt Hüttener Berge – Straßenverkehrsbehörde");
+  assert.equal(r.alternative.kontakt.name, "Amt Hüttener Berge - FD III Ordnungsamt");
+});
+
 test("baueLaender: Kontakte nur im Land mit Abruf, entdoppelt und über Ids verknüpft", () => {
   const ohne = baueLaender(attr());
   const { dateien, index } = baueLaender(attr(), { kontakte: kontakte() });

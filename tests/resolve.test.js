@@ -75,9 +75,38 @@ const G = {
   },
   berlin: { ars: "110000000000", gen: "Berlin", land: "BE", kreis: kreis("11000", "Berlin", "Kreisfreie Stadt", "nein", true) },
   hamburg: { ars: "020000000000", gen: "Hamburg", land: "HH", kreis: kreis("02000", "Hamburg", "Kreisfreie Stadt", "nein", true) },
-  sachsenwald: {
-    ars: "010539105105", gen: "Sachsenwald", land: "SH", gemeindefrei: true,
-    kreis: kreis("01053", "Herzogtum Lauenburg", "Kreis", "ja"),
+  harz: {
+    ars: "031539504504", gen: "Harz (Landkreis Goslar)", land: "NI", gemeindefrei: true,
+    kreis: kreis("03153", "Goslar", "Landkreis", "ja"),
+  },
+  kiel: {
+    ars: "010020000000", gen: "Kiel", land: "SH", tkz: [61], ew: 251842,
+    kreis: kreis("01002", "Kiel", "Kreisfreie Stadt", "ja", true),
+  },
+  norderstedt: {
+    ars: "010600063063", gen: "Norderstedt", land: "SH", tkz: [63], ew: 83196,
+    kreis: kreis("01060", "Segeberg", "Kreis", "ja"),
+  },
+  henstedtUlzburg: {
+    ars: "010600039039", gen: "Henstedt-Ulzburg", name: "Gemeinde Henstedt-Ulzburg", land: "SH", tkz: [64], ew: 28345,
+    kreis: kreis("01060", "Segeberg", "Kreis", "ja"),
+  },
+  glinde: {
+    ars: "010620018018", gen: "Glinde", land: "SH", tkz: [63], ew: 18856,
+    kreis: kreis("01062", "Stormarn", "Kreis", "ja"),
+  },
+  ascheffel: {
+    ars: "010585890008", gen: "Ascheffel", name: "Gemeinde Ascheffel", land: "SH", tkz: [64], ew: 977,
+    kreis: kreis("01058", "Rendsburg-Eckernförde", "Kreis", "ja"),
+    verband: { ars: "010585890", gen: "Hüttener Berge", name: "Amt Hüttener Berge" },
+  },
+  altenholz: {
+    ars: "010580005005", gen: "Altenholz", name: "Gemeinde Altenholz", land: "SH", tkz: [64], ew: 9781,
+    kreis: kreis("01058", "Rendsburg-Eckernförde", "Kreis", "ja"),
+  },
+  badSchwartau: {
+    ars: "010550004004", gen: "Bad Schwartau", land: "SH", tkz: [63], ew: 19918,
+    kreis: kreis("01055", "Ostholstein", "Kreis", "ja"),
   },
   mainz_bingen: {
     ars: "073395001001", gen: "Musterdorf", land: "RP",
@@ -131,10 +160,10 @@ test("Phase 1: Berlin mit Senatsverwaltung als Alternative, Hamburg Polizei", ()
 });
 
 test("Phase 1: gemeindefreies Gebiet → Kreis", () => {
-  const { zust, stellen } = resolveGemeinde(G.sachsenwald);
-  assert.equal(zust.G.stelle, "k01053");
+  const { zust, stellen } = resolveGemeinde(G.harz);
+  assert.equal(zust.G.stelle, "k03153");
   assert.equal(zust.G.grund, TEXTE.grund.gemeindefrei);
-  assert.equal(stellen.k01053.name, "Kreis Herzogtum Lauenburg – Straßenverkehrsbehörde");
+  assert.equal(stellen.k03153.name, "Landkreis Goslar – Straßenverkehrsbehörde");
 });
 
 test("Phase 1: RP-Kreisverwaltung, alle Klassen gleich", () => {
@@ -271,6 +300,51 @@ test("Thüringen: sonst der Landkreis; Gemeinden bis 30.000 Einwohner als Altern
   assert.equal(klein.zust.G.stelle, "k16071");
   assert.deepEqual(klein.zust.G.alternative, { stelle: "g160710103103", bedingung: TEXTE.bedingung.portalStvb });
   assert.equal(klein.stellen.g160710103103.name, "Gemeinde Grammetal – Straßenverkehrsbehörde");
+});
+
+test("Schleswig-Holstein: Kreis, für Halten und Parken das Amt bzw. die amtsfreie Gemeinde (belegt)", () => {
+  const { zust, stellen } = resolveGemeinde(G.ascheffel);
+  for (const k of BAU_KLASSEN) {
+    assert.equal(zust[k].stelle, "k01058", k);
+    assert.deepEqual(zust[k].alternative, { stelle: "v010585890", bedingung: TEXTE.bedingung.shParken });
+  }
+  assert.equal(zust.G.sicherheit, SICHERHEIT.BELEGT);
+  assert.equal(zust.G.grund, TEXTE.grund.shKreis);
+  assert.equal(zust.G.quelle, TEXTE.quelle.shKreis);
+  assert.equal(stellen.k01058.name, "Kreis Rendsburg-Eckernförde – Straßenverkehrsbehörde");
+  assert.deepEqual(stellen.v010585890, {
+    id: "v010585890", name: "Amt Hüttener Berge – Straßenverkehrsbehörde", ebene: "oertliche", art: "verband",
+  });
+  const amtsfrei = resolveGemeinde(G.altenholz);
+  assert.equal(amtsfrei.zust.K.alternative.stelle, "g010580005005");
+  assert.equal(amtsfrei.stellen.g010580005005.name, "Gemeinde Altenholz – Straßenverkehrsbehörde");
+  const kiel = resolveGemeinde(G.kiel).zust.B;
+  assert.equal(kiel.stelle, "k01002");
+  assert.equal(kiel.sicherheit, SICHERHEIT.BELEGT);
+  assert.equal(kiel.alternative, null);
+});
+
+test("Schleswig-Holstein: Gemeinden über 20.000 Einwohner und Glinde selbst; knapp darunter vermutlich", () => {
+  const norderstedt = resolveGemeinde(G.norderstedt);
+  for (const k of BAU_KLASSEN) assert.equal(norderstedt.zust[k].stelle, "g010600063063", k);
+  assert.equal(norderstedt.zust.B.sicherheit, SICHERHEIT.BELEGT);
+  assert.equal(norderstedt.zust.B.grund, TEXTE.grund.shGemeinde);
+  assert.equal(norderstedt.zust.B.alternative, null);
+  assert.equal(norderstedt.stellen.g010600063063.name, "Stadt Norderstedt – Straßenverkehrsbehörde");
+  const hu = resolveGemeinde(G.henstedtUlzburg);
+  assert.equal(hu.stellen.g010600039039.name, "Gemeinde Henstedt-Ulzburg – Straßenverkehrsbehörde");
+  assert.equal(hu.stellen.g010600039039.art, "gemeinde");
+
+  const glinde = resolveGemeinde(G.glinde).zust.K;
+  assert.equal(glinde.stelle, "g010620018018", "auf Antrag (Anlage Nr. 1)");
+  assert.equal(glinde.grund, TEXTE.grund.shAntrag);
+  assert.equal(glinde.sicherheit, SICHERHEIT.BELEGT);
+
+  const knapp = resolveGemeinde(G.badSchwartau).zust.G;
+  assert.equal(knapp.stelle, "k01055");
+  assert.equal(knapp.sicherheit, SICHERHEIT.VERMUTLICH, "19.918 Einwohner");
+  assert.equal(knapp.grund, TEXTE.grund.shKreisKnapp);
+  assert.equal(resolveGemeinde({ ...G.badSchwartau, ew: 20500 }).zust.G.grund, TEXTE.grund.shGemeindeKnapp);
 });
 
 test("resolveGemeinde: prüft die Eingabe", () => {

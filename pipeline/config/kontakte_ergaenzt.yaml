@@ -75,6 +75,50 @@ kontakte:
   "095715507132": *vg_dentlein
   "095715507223": *vg_dentlein
 
+  "01057":  # Kreis Plön – Portal nennt eine „Abteilung Verkehrsangelegenheiten" ohne Kontaktweg und die Stadt Quickborn
+    name: "Kreis Plön - Abteilung Verkehrsangelegenheiten (Verkehrsaufsicht)"
+    adresse: "Hamburger Straße 17–18, 24306 Plön"
+    telefon: ["04522 743-345", "04522 743-0"]  # Nummer der Verkehrsaufsicht, dann die Zentrale
+    email: ["verkehrsaufsicht@kreis-ploen.de"]
+    web: ["https://www.kreis-ploen.de/Kurzmen%C3%BC/Suchergebnis/Adressen/Verkehrsaufsicht.php?ModID=9&FID=2158.4428.1"]
+    stand: "2026-10-03"
+
+  "010600063063":  # Stadt Norderstedt – Portal nennt die eigene Stelle ohne Kontaktweg
+    rolle: gemeinde
+    name: "Stadt Norderstedt - Amt für Bauordnung, Straßen- und Wegerecht, Sachgebiet Verkehrsaufsicht"
+    adresse: "Rathausallee 50, 22846 Norderstedt"
+    telefon: ["040 535 95-0"]  # Zentrale; die Durchwahlen auf der Seite gehören Personen
+    email: ["verkehrsaufsicht@norderstedt.de"]
+    web: ["https://www.norderstedt.de/Aktuelles-und-Service/Dienstleistungen-und-Service/Andere-Beh%C3%B6rden/Sachgebiet-Verkehrsaufsicht.php?object=tx%2C3223.1&ModID=9&FID=3224.212.1&NavID=1087.63&La=1"]
+    stand: "2026-10-03"
+
+  "010580043043":  # Stadt Eckernförde – im Portal nur der Kreis
+    rolle: gemeinde
+    name: "Stadt Eckernförde - Amt für Ordnungs- und Sozialwesen, Ordnungsamt"
+    adresse: "Rathausmarkt 4–6, 24340 Eckernförde"
+    telefon: ["04351 710-0"]  # Zentrale; das Ordnungsamt nennt nur Personen
+    email: ["stadt@eckernfoerde.de"]
+    web: ["https://www.eckernfoerde.de/F%C3%BCr-die-B%C3%BCrger/Service/B%C3%BCrgerinformationssystem/index.php?object=tx,3457.1&ModID=9&FID=296.3.1&NavID=2460.48"]
+    stand: "2026-10-03"
+
+  "010600044044":  # Stadt Kaltenkirchen – im Portal nur der Kreis
+    rolle: gemeinde
+    name: "Stadt Kaltenkirchen - Fachbereich 3 Ordnung und Soziales, Sachgebiet Verkehrswesen"
+    adresse: "Holstenstraße 14, 24568 Kaltenkirchen"
+    telefon: ["04191 939-0"]  # Zentrale; die Durchwahlen auf der Seite gehören Personen
+    email: ["verkehrsangelegenheiten@kaltenkirchen.de"]
+    web: ["https://www.kaltenkirchen.de/de/lebenslagen/dienstleistungen/630095585.php"]
+    stand: "2026-10-03"
+
+  "010620018018":  # Stadt Glinde – Portal nennt ein „Ordnungsamt" ohne Kontaktweg
+    rolle: gemeinde
+    name: "Stadt Glinde - Amt für Bürgerservice, Ordnungsamt"
+    adresse: "Markt 1, 21509 Glinde"
+    telefon: ["040 71002-0"]  # Zentrale; die Durchwahlen auf der Seite gehören Personen
+    email: ["ordnungsamt@glinde.de"]
+    web: ["https://www.glinde.de/rathaus-politik/rathaus/organisation/organisation/ordnungsamt-236"]
+    stand: "2026-10-03"
+
   "16054":  # Kreisfreie Stadt Suhl – Portal nennt nur „Gewerbeangelegenheiten"
     name: "Stadtverwaltung Suhl - Ordnungs- und Bürgeramt, Straßenverkehrsbehörde"
     adresse: "Friedrich-König-Straße 42, 98527 Suhl"

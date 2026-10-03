@@ -3,7 +3,7 @@
 Dieses Dokument ist die Schnittstelle zwischen „Wer ist zuständig?" und allen, die die Dateien
 nutzen – zuerst die Karte in diesem Repo, dann die Unfallkarte.
 
-Stand: **Schema 1** · Regeln 0.6.0 (Phase 2: Landesregeln für Bayern und Thüringen) · Datenstand 31.12.2025
+Stand: **Schema 1** · Regeln 0.7.0 (Phase 2: Landesregeln für Bayern, Thüringen und Schleswig-Holstein) · Datenstand 31.12.2025
 
 ## Regeln für alle Dateien
 
@@ -76,7 +76,7 @@ eigene Kreise); die Landesdatei nennt dort die Stelle der angrenzenden Gemeinde,
 ```json
 {
   "schema": 1,
-  "regeln": { "version": "0.6.0", "phase": 2, "stand": "2026-10-03" },
+  "regeln": { "version": "0.7.0", "phase": 2, "stand": "2026-10-03" },
   "daten": {
     "gebiet": "VG25 31.12.2025",
     "status": "GV-ISys 31.12.2025",
@@ -155,15 +155,15 @@ die übrigen Klassen das Landratsamt. Die Kontaktangaben sind hier ausgelassen.
 |---|---|
 | `id` | stabile Id, siehe unten |
 | `name` | amtlicher Name mit Zusatz „– Straßenverkehrsbehörde" |
-| `ebene` | `bund`, `untere`, `oertliche` (bayerische Gemeinde für ihre Gemeindestraßen); später `obere` |
-| `art` | `bund`, `kreis`, `stadt`, `gemeinde`, `stadtstaat`; später `verband` |
+| `ebene` | `bund`, `untere`, `oertliche` (Gemeinde oder Amt als örtliche Behörde, etwa in Bayern für Gemeindestraßen); später `obere` |
+| `art` | `bund`, `kreis`, `stadt`, `gemeinde`, `verband`, `stadtstaat` |
 
 | Id | Stelle |
 |---|---|
 | `fba` | Fernstraßen-Bundesamt (Autobahnen); in jeder Landesdatei |
 | `k` + Kreis-ARS (5) | Kreisebene bzw. kreisfreie Stadt, z. B. `k09178`, `k09162` |
 | `g` + ARS (12) | eine Gemeinde: Große Kreisstadt, Stadt mit eigener Straßenverkehrsbehörde, in Bayern jede kreisangehörige Gemeinde für ihre Gemeindestraßen |
-| `v` + Verbands-ARS (9) | ein Verband (Amt, Verbandsgemeinde); noch nicht vergeben |
+| `v` + Verbands-ARS (9) | ein Verband: in Schleswig-Holstein das Amt (Halten und Parken, Baustellen, Veranstaltungen) |
 | `hb-asv`, `hb-bhv` | Bremen: Amt für Straßen und Verkehr; Magistrat Bremerhaven |
 | `be-bezirk`, `be-senat` | Berlin: Bezirksamt; Senatsverwaltung (übergeordnetes Netz) |
 | `hh-pk` | Hamburg: Polizei, zuständiges Polizeikommissariat |
@@ -192,7 +192,7 @@ Konsumenten lesen sie nur als Verweis.
 | `ew` | optional: Bevölkerung laut GV-ISys |
 | `z` | Ergebnis-Id je Straßenklasse `G`, `K`, `L`, `B`. Autobahnen (`A`) sind überall gleich und stehen nicht in der Tabelle |
 | `kontakt` | optional: Id in `kontakte` – Kontakt der Kreisebene (Landratsamt) bzw. der kreisfreien Stadt; nur, wenn diese Stelle (`k…`) in den Ergebnissen der Gemeinde vorkommt (Auswahl siehe `pipeline/README.md`) |
-| `kontakt_gemeinde` | optional: Id in `kontakte` – Kontakt der Gemeinde selbst (Rathaus; in Bayern oft die Verwaltungsgemeinschaft, die die Verwaltungsarbeit erledigt); nur, wenn die Gemeinde (`g` + ARS) in den Ergebnissen vorkommt, als Stelle oder Alternative |
+| `kontakt_gemeinde` | optional: Id in `kontakte` – Kontakt der Gemeinde selbst (Rathaus; in Bayern oft die Verwaltungsgemeinschaft, in Schleswig-Holstein das Amt); nur, wenn die Gemeinde (`g` + ARS) oder ihr Verband (`v` + ARS) in den Ergebnissen vorkommt, als Stelle oder Alternative |
 | `nachbar` | optional: ARS der angrenzenden Gemeinde, nur bei Kondominium-Flächen |
 | `aenderung` | optional: `{ art, stand, name_neu? }`, wenn die Gemeinde nach dem Datenstand aufgelöst, umgeschlüsselt oder umbenannt wurde |
 
@@ -227,8 +227,9 @@ sicherheit, grund, quelle, alternative, hinweise, keinBrief, kontakt, bundesport
 
 - `zustaendig` ist ein Stellen-Objekt, `alternative` `null` oder `{ stelle, bedingung, kontakt }`.
 - `kontakt` ist der Kontakt genau der zuständigen Stelle: `kontakt_gemeinde` für die Gemeinde
-  (`g` + ARS), `kontakt` für die Kreisebene (`k…`). Für Bund und Stadtstaaten und ohne Daten ist
-  er `null`, bei `keinBrief` immer. Den Kontakt einer anderen Stelle gibt `auswahl` nie aus.
+  (`g` + ARS) und ihren Verband (`v` + ARS), `kontakt` für die Kreisebene (`k…`). Für Bund und
+  Stadtstaaten und ohne Daten ist er `null`, bei `keinBrief` immer. Den Kontakt einer anderen
+  Stelle gibt `auswahl` nie aus.
 - `alternative.kontakt` gilt ebenso für die Stelle der Alternative.
 - `bundesportal` ist der Link auf die Seite der Gemeinde im Bundesportal, wenn das Land die
   Leistung dort führt (`bundesportal_region`); sonst `null`, ebenso bei `keinBrief`. Der

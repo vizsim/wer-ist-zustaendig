@@ -7,7 +7,7 @@ ein Git-Tag `v<version>` dazu.
 
 ## [Unveröffentlicht]
 
-Regeln 0.6.0 · Schema 1 · Datenstand 31.12.2025. Erster Lauf mit echten Daten (BKG, Destatis).
+Regeln 0.7.0 · Schema 1 · Datenstand 31.12.2025. Erster Lauf mit echten Daten (BKG, Destatis).
 
 ### Hinzugefügt
 
@@ -24,6 +24,14 @@ Regeln 0.6.0 · Schema 1 · Datenstand 31.12.2025. Erster Lauf mit echten Daten 
   oder von Hand (Arnstadt). Im Übrigen ist laut Landesregel der Landkreis zuständig (Regeln
   0.6.0) – alle Thüringer Gemeinden sind damit „vermutlich". Bei 20 Gemeinden mit 10.000 bis
   30.000 Einwohnern, die auf Antrag zuständig sein könnten, steht die Gemeinde als Alternative.
+- Landesregel Schleswig-Holstein (Regeln 0.7.0, **belegt**, StrVRZustVO in der Fassung vom
+  01.12.2025): der Kreis bzw. die kreisfreie Stadt (§ 3); Gemeinden mit mehr als 20.000
+  Einwohnern ordnen Verkehrszeichen selbst an (§ 4 Abs. 1), auf Antrag auch Glinde (§ 4 Abs. 2,
+  Anlage). Halten und Parken, Baustellen und Veranstaltungen ordnet das Amt bzw. die amtsfreie
+  Gemeinde an (§ 5) – in der Karte als Alternative mit dem Kontakt des Amts. Drei Städte knapp
+  unter 20.000 Einwohnern (Bad Schwartau, Schenefeld, Mölln) sind nur „vermutlich".
+- Kontakte für Schleswig-Holstein aus dem Bundesportal; Kreis Plön und die Städte Norderstedt,
+  Eckernförde, Kaltenkirchen und Glinde von den Webseiten der Behörden.
 - Favicon: Fax-Symbol von SVG Repo (CC0).
 
 - Deutsch-luxemburgisches Kondominium (Mosel, Sauer, Our): Die 25 Flächen aus VG25 nennen die
@@ -58,6 +66,10 @@ Regeln 0.6.0 · Schema 1 · Datenstand 31.12.2025. Erster Lauf mit echten Daten 
   öffnet direkt die Seite der Gemeinde. In den übrigen Ländern (BW, BE, HB, HH, HE, SL, SN) steht
   statt eines Links ins Leere: „Kontaktdaten für … haben wir noch nicht." `auswahl()` liefert
   dort `bundesportal: null`; `kontakte.json` führt die Länderliste des Portals (`meta.portal`).
+- Kontaktauswahl: Stellen ohne Behördennamen („Fachdienst Verkehr") erkennt sie an der Domain
+  ihrer E-Mail oder Webseite. Gemeinden eines Amts oder einer Verwaltungsgemeinschaft ohne
+  eigenen Kontakt bekommen den Kontakt des Verbands, den das Portal für die übrigen Mitglieder
+  nennt.
 - Regeln 0.3.0: Nennt das Land im Bundesportal für eine Gemeinde dieselbe Stelle wie unsere
   Regel, gilt die Auskunft als „vermutlich" statt „nur Ebene" – auf der Karte ohne Schraffur. In
   Thüringen betrifft das 529 Gemeinden.

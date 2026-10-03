@@ -207,13 +207,27 @@ def ist_stvb(stelle: dict[str, Any]) -> bool:
     return bool(BEHOERDE.search(stelle["name"]) or BEHOERDE.search(" ".join(stelle["email"])))
 
 
+def _domains(stelle: dict[str, Any]) -> set[str]:
+    """Teile der Domains von E-Mail und Webseite: „verkehr@henstedt-ulzburg.de" → henstedt, …"""
+    hosts = [m.split("@", 1)[1] for m in stelle["email"] if "@" in m]
+    hosts += [urlparse(w).hostname or "" for w in stelle["web"]]
+    return {teil for h in hosts for teil in re.split(r"[.-]", _norm(h)) if teil}
+
+
+def _gehoert_zu(stelle: dict[str, Any], gen: str) -> bool:
+    """Trägt die Stelle den Namen (`gen`) im Namen oder in der Domain ihrer Adressen?"""
+    name, domains = _norm(stelle["name"]), _domains(stelle)
+    woerter = _woerter(gen)
+    return all(w in name for w in woerter) or all(w in domains for w in woerter)
+
+
 def eigene_stelle(stelle: dict[str, Any], gemeinde: dict[str, Any]) -> bool:
-    """Stelle der Gemeinde selbst oder ihres Verbands (Rathaus, Verwaltungsgemeinschaft, Amt)?"""
-    name = _norm(stelle["name"])
-    if KREISEBENE.search(name):
+    """Stelle der Gemeinde selbst oder ihres Verbands (Rathaus, Verwaltungsgemeinschaft, Amt)?
+    Erkannt am Namen oder an der Domain („Amt für Tiefbau und Verkehr", tiefbau@elmshorn.de)."""
+    if KREISEBENE.search(_norm(stelle["name"])):
         return False
     namen = [gemeinde["gen"]] + ([gemeinde["verband"]["gen"]] if gemeinde.get("verband") else [])
-    return any(all(w in name for w in _woerter(n)) for n in namen if n)
+    return any(_gehoert_zu(stelle, n) for n in namen if n)
 
 
 def _kandidaten(stellen: list[dict[str, Any]], *, fremde: bool = False) -> list[dict[str, Any]]:
@@ -420,15 +434,24 @@ def luecken_fuellen(gemeinden: dict[str, Any], attr: dict[str, Any], land: str) 
     """Kontakte je Rolle (`kreis`, `gemeinde`) ergänzen:
     - Einträge von Hand mit ARS einer Gemeinde (12 Stellen) und `rolle` ersetzen den Portalwert;
     - ein fehlender Kreiskontakt kommt von Hand (Kreis-ARS, 5 Stellen) oder ist der Kreiskontakt,
-      den das Portal für die übrigen Gemeinden des Kreises nennt.
+      den das Portal für die übrigen Gemeinden des Kreises nennt;
+    - einer Gemeinde in einem Verband (Amt, Verwaltungsgemeinschaft) ohne eigenen Kontakt hilft der
+      Kontakt des Verbands, den das Portal für die übrigen Mitglieder nennt.
     """
     von_hand = ergaenzungen()
     je_kreis: dict[str, Counter] = defaultdict(Counter)
+    je_verband: dict[str, Counter] = defaultdict(Counter)
     for ars, e in gemeinden.items():
         g = attr[ars]
-        if g["land"] == land and e["kreis"] and not g["kreis"].get("kreisfrei"):
+        if g["land"] != land:
+            continue
+        if e["kreis"] and not g["kreis"].get("kreisfrei"):
             schluessel = json.dumps(e["kreis"], ensure_ascii=False, sort_keys=True)
             je_kreis[g["kreis"]["ars"]][schluessel] += 1
+        verband = g.get("verband")
+        if verband and e["gemeinde"] and _gehoert_zu(e["gemeinde"], verband["gen"]):
+            schluessel = json.dumps(e["gemeinde"], ensure_ascii=False, sort_keys=True)
+            je_verband[verband["ars"]][schluessel] += 1
     for ars, e in gemeinden.items():
         g = attr[ars]
         if g["land"] != land:
@@ -441,6 +464,14 @@ def luecken_fuellen(gemeinden: dict[str, Any], attr: dict[str, Any], land: str) 
                 e["kreis"] = _von_hand(von_hand[ars[:5]])
             elif je_kreis.get(g["kreis"]["ars"]):
                 e["kreis"] = json.loads(je_kreis[g["kreis"]["ars"]].most_common(1)[0][0])
+        verband = g.get("verband")
+        if (
+            e["gemeinde"] is None
+            and verband
+            and not g.get("kondominium")
+            and je_verband.get(verband["ars"])
+        ):
+            e["gemeinde"] = json.loads(je_verband[verband["ars"]].most_common(1)[0][0])
 
 
 REVIEW_KOPF = [

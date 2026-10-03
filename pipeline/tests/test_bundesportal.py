@@ -304,6 +304,47 @@ def test_luecken_fuellen(monkeypatch) -> None:
     assert gemeinden["160700004004"]["kreis"] == vka, "andere Rolle bleibt"
 
 
+def test_luecken_fuellen_amt(monkeypatch) -> None:
+    monkeypatch.setattr(bp, "ergaenzungen", lambda: {})
+    amt = {"ars": "010585890", "gen": "Hüttener Berge"}
+
+    def gem(verband: dict | None) -> dict:
+        return {"land": "SH", "kreis": {"ars": "01058", "kreisfrei": False}, "verband": verband}
+
+    attr = {
+        "010585890008": gem(amt),
+        "010585890025": gem(amt),
+        "010585890031": gem(amt),
+        "010580005005": gem(None),  # amtsfrei: kein Verband, keine Hilfe
+    }
+    amtsstelle = _stelle("Amt Hüttener Berge - FD III Ordnungsamt", ["+49 4356 9949-0"])
+    buergermeister = _stelle("Gemeinde Ascheffel", ["04353 1234"])
+    gemeinden = {
+        "010585890008": {"wahl": "passt", "kreis": None, "gemeinde": amtsstelle},
+        "010585890025": {"wahl": "passt", "kreis": None, "gemeinde": None},
+        "010585890031": {"wahl": "passt", "kreis": None, "gemeinde": buergermeister},
+        "010580005005": {"wahl": "passt", "kreis": None, "gemeinde": None},
+    }
+    bp.luecken_fuellen(gemeinden, attr, "SH")
+    assert gemeinden["010585890025"]["gemeinde"] == amtsstelle, "Kontakt des Amts der Nachbarn"
+    assert gemeinden["010585890031"]["gemeinde"] == buergermeister, "eigener Kontakt bleibt"
+    assert gemeinden["010580005005"]["gemeinde"] is None
+
+
+def test_eigene_stelle_an_der_domain() -> None:
+    elmshorn = {"gen": "Elmshorn", "verband": None, "kreis": {"gen": "Pinneberg"}}
+    tiefbau = _stelle("Amt für Tiefbau und Verkehr", [], ["tiefbauundverkehr@elmshorn.de"])
+    assert bp.eigene_stelle(tiefbau, elmshorn)
+    hu = {"gen": "Henstedt-Ulzburg", "verband": None, "kreis": {"gen": "Segeberg"}}
+    web = _stelle("Fachdienst Verkehr", [], [], ["https://www.henstedt-ulzburg.de/verkehr"])
+    assert bp.eigene_stelle(web, hu)
+    quickborn = _stelle("Stadt Quickborn - Verkehr", ["04106 6110"], ["verkehr@quickborn.de"])
+    ascheberg = {"gen": "Ascheberg (Holstein)", "verband": None, "kreis": {"gen": "Plön"}}
+    assert not bp.eigene_stelle(quickborn, ascheberg), "fremde Stadt im Portal (Kreis Plön)"
+    segeberg = _stelle("Verkehrsaufsicht", ["+49 4551 951-8823"], ["verkehrsaufsicht@segeberg.de"])
+    assert not bp.eigene_stelle(segeberg, elmshorn)
+
+
 def test_ergaenzungen_von_hand_sind_vollstaendig() -> None:
     for schluessel, k in bp.ergaenzungen().items():
         assert len(schluessel) in (5, 12) and schluessel.isdigit(), schluessel

@@ -51,6 +51,11 @@ Offene Punkte stehen nur hier, und erst nach Abstimmung mit dem Repo-Owner (CLAU
   Heiligenstadt) oder von Hand (Arnstadt, `TH_STAEDTE_AUF_ANTRAG`); die übrigen 20 Gemeinden mit
   10.000 bis 30.000 Einwohnern stehen bis dahin als Alternative da. Die großen kreisangehörigen
   Städte nach ThürKO abgleichen – GV-ISys führt in Thüringen kein Textkennzeichen 67.
+- [x] **Schleswig-Holstein** (2026-10-03, Regeln 0.7.0, belegt an
+  gesetze-rechtsprechung.sh.juris.de, StrVRZustVO Fassung 01.12.2025): Kreis bzw. kreisfreie
+  Stadt; Gemeinden über 20.000 Einwohner und Glinde (Anlage) selbst; Amt bzw. amtsfreie Gemeinde
+  für Halten und Parken, Baustellen, Veranstaltungen (Alternative). Knapp um 20.000 Einwohner
+  (± 1.000) nur vermutlich – welche Einwohnerzahl maßgeblich ist, sagt die Verordnung nicht.
 - [ ] **Phase 2 – weitere belegte Länder:** SN (Gemeinde nur bei Gemeindestraßen), NW (Liste nach
   § 4 GO NRW), BB (13 namentliche Kommunen, abgestuft), BW (Landratsamt, GKS, Stadtkreise,
   Verwaltungsgemeinschaften; Offenes als Alternative). Je Land 5–10 Golden-Tests mit echten
@@ -82,12 +87,25 @@ Offene Punkte stehen nur hier, und erst nach Abstimmung mit dem Repo-Owner (CLAU
   (`config/kontakte_ergaenzt.yaml`): Kreise Saalfeld-Rudolstadt, Hildburghausen, Sonneberg, Suhl,
   Altötting, Würzburg; Städte Arnstadt, Gotha, Mühlhausen; Gemeinden Burgkirchen a.d.Alz, Bad
   Aibling, Lautertal, VG Dentlein a.Forst.
+- [x] **Schleswig-Holstein fertig** (2026-10-03): Für jede Gemeinde und jede Straßenklasse hat die
+  zuständige Stelle einen Kontakt (1 106/1 106). Portal-Urteil: 1 021 bestätigt, 68 fremd, 17
+  keine Stelle. Von Hand: Kreis Plön, Städte Norderstedt, Eckernförde, Kaltenkirchen, Glinde.
 - [ ] **Kontakte nachprüfen** (aus der Stichprobe vom 03.10.2026): Wartburgkreis – im Portal
   03695 61-6103, auf der Webseite 61-6106. Ebersberg – Postfach mit `.bayern.de` oder ohne.
   Sömmerda – Webseite nicht geprüft. Mühlhausen – die Stadt nennt keine eigene Verkehrsstelle,
   heute die allgemeine Adresse. Bei mehreren Landratsämtern nennt die Webseite nur die Zentrale.
-- [ ] **Die übrigen 7 Bundesportal-Länder** (BB, MV, NI, NW, RP, SH, ST): abrufen (RP liegt
-  schon im Cache, BB zu einem Viertel), Review-CSV durchsehen, Auswahlregel nachschärfen und in
+  Flensburg – das Portal nennt das Technische Betriebszentrum (TBZ, info@tbz-flensburg.de);
+  prüfen, ob die Straßenverkehrsbehörde dort sitzt oder in einer anderen Stelle der Stadt.
+  Kreis Plön – die Verkehrsaufsicht nennt sich auf der Webseite nicht Straßenverkehrsbehörde;
+  zugeordnet über die Nummer der „Abteilung Verkehrsangelegenheiten". Kaltenkirchen – die Seite
+  nennt das Sachgebiet Verkehrswesen für Verkehrszeichen, nicht ausdrücklich als
+  Straßenverkehrsbehörde.
+- [ ] **Schleswig-Holstein, Kontakte der Alternative:** Für 194 Gemeinden in Ämtern (etwa Amt
+  Südtondern, Nordsee-Treene, Geltinger Bucht) und 34 amtsfreie Gemeinden nennt das Portal keinen
+  Kontakt des Amts bzw. der Gemeinde – die Alternative steht dort ohne Kontakt. Von den
+  Webseiten der Ämter ergänzen.
+- [ ] **Die übrigen Bundesportal-Länder** (BB, MV, NI, NW, RP, ST): abrufen (RP und NI liegen
+  im Cache, BB zu einem Viertel), Review-CSV durchsehen, Auswahlregel nachschärfen und in
   `freigegeben` aufnehmen. RP: Das Portal nennt meist die Verbandsgemeinde (nach Konzept
   innerorts zuständig) – Regel dafür klären, bevor RP freigegeben wird.
 - [ ] **Fehler im Portal melden** – Redaktion Thüringen: Landkreis Saalfeld-Rudolstadt (für alle
@@ -95,8 +113,10 @@ Offene Punkte stehen nur hier, und erst nach Abstimmung mit dem Repo-Owner (CLAU
   Gemeinden die Stadtverwaltung Hildburghausen), Suhl (nur „Gewerbeangelegenheiten").
   Redaktion Bayern: Landkreis Altötting (beim Landratsamt nur die Fahrerlaubnisbehörde),
   Würzburg („Verkehrsregelung" ohne Telefon und E-Mail), gemeindefreies Gebiet Heinersreuther
-  Forst (Landratsamt Neustadt a.d.Waldnaab statt Bayreuth). Danach die Einträge in
-  `config/kontakte_ergaenzt.yaml` löschen.
+  Forst (Landratsamt Neustadt a.d.Waldnaab statt Bayreuth). Redaktion Schleswig-Holstein: Kreis
+  Plön (für alle Gemeinden eine „Abteilung Verkehrsangelegenheiten" ohne Kontaktweg und die Stadt
+  Quickborn aus dem Kreis Pinneberg); Norderstedt und Glinde (eigene Stelle ohne Kontaktweg,
+  dafür der Kreis). Danach die Einträge in `config/kontakte_ergaenzt.yaml` löschen.
 - [ ] **Länder ohne Bundesportal-Eintrag** (BW, BE, HB, HH, HE, SL, SN): Kontakte der rund 105
   Stellen der Kreisebene und der Stadtstaaten anders beschaffen (Landesportale oder von Hand).
 - [ ] **Nutzungsbedingungen** des Bundesportals vor dem Veröffentlichen kurz prüfen (Seite
