@@ -183,9 +183,19 @@ test("antwortHtml: ohne Kontakt ist der Bundesportal-Link der Weg", () => {
   const html = antwortHtml({
     ...BASIS, zustaendig: { name: "Kreisverwaltung Mainz-Bingen – Straßenverkehrsbehörde" }, kontakt: null,
   }, [], { bundesportal: "https://verwaltung.bund.de/x" });
-  assert.ok(html.includes("<span>Kontakt</span> im Bundesportal suchen"));
+  assert.ok(html.includes("<span>Kontakt</span> im Bundesportal ansehen"));
   assert.ok(html.includes('<p class="schild-zusatz">Straßenverkehrsbehörde</p>'));
   assert.ok(!html.includes("Kontaktdaten:"));
+});
+
+test("antwortHtml: Land nicht im Bundesportal – Hinweis statt Link ins Leere", () => {
+  const html = antwortHtml({
+    ...BASIS, land: "BE", zustaendig: { name: "Bezirksamt (Berlin) – Straßenverkehrsbehörde" }, kontakt: null,
+  }, [], { landName: "Berlin" });
+  assert.ok(html.includes('<p class="schild-hinweis">Kontaktdaten für Berlin haben wir noch nicht.</p>'));
+  assert.ok(!html.includes("Bundesportal"));
+  const autobahn = antwortHtml({ ...BASIS, keinBrief: true, zustaendig: { name: "Fernstraßen-Bundesamt – Straßenverkehrsbehörde" } }, []);
+  assert.ok(!autobahn.includes("schild-hinweis"), "Autobahn: kein Hinweis");
 });
 
 test("antwortHtml: Alternative mit Bedingung und eigenem Kontakt; Herkunft je Quelle einmal", () => {

@@ -176,7 +176,19 @@ test("baueLaender: Kontakte nur im Land mit Abruf, entdoppelt und über Ids verk
   const r = auswahl(by, "092740128128", ["G"]);
   assert.ok(r.bundesportal.endsWith("/herausgeber/BY-1806/region/092740128128"));
   assert.equal(auswahl(ohne.dateien["by.json"], "092740128128", ["G"]).kontakt, null);
-  assert.equal(auswahl(ohne.dateien["by.json"], "092740128128", ["G"]).bundesportal, by.bundesportal);
+  assert.equal(auswahl(ohne.dateien["by.json"], "092740128128", ["G"]).bundesportal, null, "Land nicht im Portal bekannt");
+});
+
+test("baueLaender: Link ins Bundesportal für jedes Land, das die Leistung dort führt", () => {
+  const k = kontakte();
+  k.meta.portal = { RP: "https://verwaltung.bund.de/…/herausgeber/RP-8958611/region/{ars}" };
+  const { dateien, index } = baueLaender(attr(), { kontakte: k });
+  const rp = dateien["rp.json"];
+  assert.equal(rp.bundesportal_region, k.meta.portal.RP, "ohne Kontakte, aber im Portal");
+  assert.equal(rp.kontakte, undefined);
+  assert.equal(auswahl(rp, "073395001001", ["G"]).bundesportal, "https://verwaltung.bund.de/…/herausgeber/RP-8958611/region/073395001001");
+  assert.equal(index.laender.find((l) => l.lkz === "RP").kontakte, undefined);
+  assert.equal(auswahl(rp, "073395001001", ["A"]).bundesportal, null, "Autobahn: kein Link");
 });
 
 test("baueLaender: Kondominium verweist auf die angrenzende Gemeinde", () => {

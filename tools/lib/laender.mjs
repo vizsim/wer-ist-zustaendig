@@ -135,9 +135,10 @@ export function baueLaender(attr, opts = {}) {
     const sicherheit = { belegt: 0, vermutlich: 0, "nur Ebene": 0 };
     for (const e of Object.values(d.gemeinden)) sicherheit[d.ergebnisse[e.z.G].sicherheit] += 1;
     const datei = landesdatei(lkz);
-    // Kontakte (Bundesportal) nur in Ländern, für die es welche gibt; die übrigen Dateien bleiben
-    // unverändert.
+    // Kontakte (Bundesportal) nur in Ländern, für die es welche gibt. Den Link auf die Seite der
+    // Gemeinde bekommt jedes Land, das die Leistung im Portal führt (`meta.portal`).
     const bp = kontakte?.meta?.laender?.[lkz];
+    const region = kontakte?.meta?.portal?.[lkz] ?? bp?.region_url;
     const mitKontakt = Object.values(d.gemeinden).filter((e) => e.kontakt || e.kontakt_gemeinde).length;
     dateien[datei] = {
       schema: SCHEMA,
@@ -148,7 +149,7 @@ export function baueLaender(attr, opts = {}) {
       erzeugt,
       hinweis: HINWEIS,
       bundesportal: BUNDESPORTAL,
-      ...(bp ? { bundesportal_region: bp.region_url } : {}),
+      ...(region ? { bundesportal_region: region } : {}),
       quellen: bp ? [...(meta.quellen ?? []), kontakte.meta.quelle] : meta.quellen ?? [],
       stellen: d.stellen,
       ergebnisse: d.ergebnisse,

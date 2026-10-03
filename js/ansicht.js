@@ -246,10 +246,15 @@ export function antwortHtml(r, strassen, { landName, bundesportal, hinweis } = {
   const portal = /^https:\/\//i.test(String(bundesportal ?? "")) ? bundesportal : null;
 
   const stelleZeile = (k && stelleOhneBehoerde(k.name, schild.behoerde)) || schild.zusatz;
-  const wege = wegeHtml(k) || (portal && !r.keinBrief
-    ? `<ul class="wege"><li><a class="weg" href="${esc(portal)}" target="_blank" rel="noopener">` +
-      `<span>Kontakt</span> im Bundesportal suchen</a></li></ul>`
-    : "");
+  // Ohne eigenen Kontakt: die Seite der Gemeinde im Bundesportal, wo das Land die Leistung dort
+  // führt – sonst ehrlich ein Hinweis statt eines Links ins Leere.
+  let wege = wegeHtml(k);
+  if (!wege && !r.keinBrief) {
+    wege = portal
+      ? `<ul class="wege"><li><a class="weg" href="${esc(portal)}" target="_blank" rel="noopener">` +
+        "<span>Kontakt</span> im Bundesportal ansehen</a></li></ul>"
+      : `<p class="schild-hinweis">Kontaktdaten${landName ? ` für ${esc(landName)}` : ""} haben wir noch nicht.</p>`;
+  }
 
   const a = r.alternative;
   const altBehoerde = teileName(a?.stelle?.name).behoerde;

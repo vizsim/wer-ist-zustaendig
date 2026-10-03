@@ -236,6 +236,7 @@ def test_tabelle_aus_cache(tmp_path, monkeypatch) -> None:
     rp = daten["meta"]["laender"]["RP"]
     assert rp["abgerufen"] == "2026-10-02"
     assert rp["region_url"].endswith("/herausgeber/RP-8958611/region/{ars}")
+    assert daten["meta"]["portal"] == {"RP": rp["region_url"]}, "Länder laut Länderliste"
     g = daten["gemeinden"]
     assert g["073395001001"]["wahl"] == "passt"
     assert g["073395001001"]["kreis"]["email"] == ["verkehr@mainz-bingen.de"]

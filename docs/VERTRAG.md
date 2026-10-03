@@ -107,10 +107,12 @@ Kopf wie `index.json` (`schema`, `regeln`, `daten`, `erzeugt`, `hinweis`, `bunde
 `quellen`), dazu `land` (Kürzel) und `name`. Danach vier Tabellen, je ein Eintrag pro Zeile und
 nach Schlüssel sortiert.
 
-Länder mit Kontakten aus dem Bundesportal (`zust kontakte`) haben zusätzlich:
+Länder, die die Leistung im Bundesportal führen (Stand 10/2026: BB, BY, MV, NI, NW, RP, SH, ST,
+TH), haben im Kopf `bundesportal_region`: den Link auf die Seite der Leistung für eine Gemeinde,
+`{ars}` wird ersetzt. Länder, deren Kontakte eingebunden sind (`zust kontakte`, `freigegeben` in
+`sources.yaml`), haben zusätzlich:
 
-- im Kopf `bundesportal_region`: Link auf die Seite der Leistung für eine Gemeinde, `{ars}` wird
-  ersetzt; `daten.kontakte` („Bundesportal 02.10.2026") und einen Eintrag in `quellen`;
+- im Kopf `daten.kontakte` („Bundesportal 02.10.2026") und einen Eintrag in `quellen`;
 - eine fünfte Tabelle `kontakte` (siehe unten) und je Gemeinde die Felder `kontakt` und
   `kontakt_gemeinde`.
 
@@ -228,7 +230,9 @@ sicherheit, grund, quelle, alternative, hinweise, keinBrief, kontakt, bundesport
   (`g` + ARS), `kontakt` für die Kreisebene (`k…`). Für Bund und Stadtstaaten und ohne Daten ist
   er `null`, bei `keinBrief` immer. Den Kontakt einer anderen Stelle gibt `auswahl` nie aus.
 - `alternative.kontakt` gilt ebenso für die Stelle der Alternative.
-- `bundesportal` ist der Link auf die Seite der Gemeinde, sonst der allgemeine.
+- `bundesportal` ist der Link auf die Seite der Gemeinde im Bundesportal, wenn das Land die
+  Leistung dort führt (`bundesportal_region`); sonst `null`, ebenso bei `keinBrief`. Der
+  allgemeine Link steht weiter im Kopf jeder Datei (`bundesportal`).
 
 `aufsicht` folgt mit Phase 6.
 

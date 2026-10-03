@@ -54,6 +54,10 @@ Regeln 0.6.0 · Schema 1 · Datenstand 31.12.2025. Erster Lauf mit echten Daten 
   Gemeinden gilt – Zuständigkeit und Sicherheit, mit Schraffur für „nur Ebene". Bisher zeigte
   sie dort nur Landkreis oder kreisfreie Stadt. Neue Felder `eg` und `sg` im Layer `kreise`.
 - `tools/lookup.mjs` zeigt die Kontakte der zuständigen Stelle und der Alternative.
+- Karte: Den Link ins Bundesportal gibt es nur noch in Ländern, die die Leistung dort führen, und er
+  öffnet direkt die Seite der Gemeinde. In den übrigen Ländern (BW, BE, HB, HH, HE, SL, SN) steht
+  statt eines Links ins Leere: „Kontaktdaten für … haben wir noch nicht." `auswahl()` liefert
+  dort `bundesportal: null`; `kontakte.json` führt die Länderliste des Portals (`meta.portal`).
 - Regeln 0.3.0: Nennt das Land im Bundesportal für eine Gemeinde dieselbe Stelle wie unsere
   Regel, gilt die Auskunft als „vermutlich" statt „nur Ebene" – auf der Karte ohne Schraffur. In
   Thüringen betrifft das 529 Gemeinden.

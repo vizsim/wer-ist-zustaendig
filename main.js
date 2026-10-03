@@ -212,7 +212,7 @@ function punktMarker() {
 }
 
 // ---------------------------------------------------------------------------- Auskunft
-async function bestimme(map, basis, index, marker, lngLat) {
+async function bestimme(map, basis, marker, lngLat) {
   const punkt = map.project(lngLat);
   const gem = map.queryRenderedFeatures(punkt, { layers: ["gemeinden-flaeche"] })[0];
   marker.setLngLat(lngLat).addTo(map);
@@ -233,7 +233,7 @@ async function bestimme(map, basis, index, marker, lngLat) {
     const r = auswahl(daten, ars, klassenListe(strassen));
     if (!r) throw new Error(`Gemeinde ${ars} fehlt in ${landesdatei(land.lkz)}`);
     zeigeAntwort(antwortHtml(r, strassen, {
-      landName: land.name, bundesportal: r.bundesportal ?? index?.bundesportal, hinweis: daten.hinweis,
+      landName: land.name, bundesportal: r.bundesportal, hinweis: daten.hinweis,
     }));
     punktFreistellen(map, lngLat);
   } catch (e) {
@@ -301,13 +301,13 @@ const fliegeUndBestimme = (lngLat, zoom = 16) => {
   const ziel = { center: [lngLat.lng, lngLat.lat], zoom: Math.max(map.getZoom(), zoom) };
   if (nurWenigBewegung) map.jumpTo(ziel);
   else map.flyTo({ ...ziel, speed: 1.6 });
-  map.once("idle", () => bestimme(map, basis, index, marker, lngLat));
+  map.once("idle", () => bestimme(map, basis, marker, lngLat));
 };
 
 map.on("load", () => {
   if (!basis) return;
   baueLayer(map, basis);
-  map.on("click", (e) => bestimme(map, basis, index, marker, e.lngLat));
+  map.on("click", (e) => bestimme(map, basis, marker, e.lngLat));
   for (const id of ["gemeinden-flaeche", "kreise-flaeche"]) {
     map.on("mouseenter", id, () => { map.getCanvas().style.cursor = "pointer"; });
     map.on("mouseleave", id, () => { map.getCanvas().style.cursor = ""; });
@@ -319,7 +319,7 @@ map.on("load", () => {
     if (map.getZoom() < 7 || !map.getBounds().contains(p)) {
       map.jumpTo({ center: [p.lng, p.lat], zoom: Math.max(map.getZoom(), 7) });
     }
-    map.once("idle", () => bestimme(map, basis, index, marker, p));
+    map.once("idle", () => bestimme(map, basis, marker, p));
   }
 });
 

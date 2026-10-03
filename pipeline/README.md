@@ -71,8 +71,10 @@ Kreises nennt.
 Im Telefonfeld des Portals steht die Beschriftung hinter der Nummer („03631 911-6303",
 „Straßenverkehr"); Nummern und Postfächer für den Straßenverkehr kommen nach vorn.
 
-In die Landesdateien gehen nur die Länder aus `freigegeben` in `sources.yaml` – weitere Länder
-dürfen schon im Cache liegen.
+In die Landesdateien gehen nur die Kontakte der Länder aus `freigegeben` in `sources.yaml` –
+weitere Länder dürfen schon im Cache liegen. Den Link auf die Seite der Gemeinde im Portal
+(`bundesportal_region`) bekommt jedes Land aus der Länderliste der Leistung (`meta.portal` in
+`kontakte.json`); Länder, die die Leistung nicht im Portal führen, bekommen keinen.
 
 ## Ordner
 

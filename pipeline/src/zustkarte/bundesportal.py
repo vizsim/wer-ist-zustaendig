@@ -372,6 +372,23 @@ def lies_cache(land: str) -> dict[str, dict[str, Any]]:
     }
 
 
+def portal_laender() -> dict[str, str]:
+    """Länder, die die Leistung im Bundesportal führen → Link auf die Seite einer Gemeinde (`{ars}`
+    wird ersetzt). Aus der zuletzt abgerufenen Länderliste im Cache; leer, wenn es keine gibt."""
+    d = dienst()
+    listen = [
+        json.loads((cache_ordner(land) / "_herausgeber.json").read_text(encoding="utf-8"))
+        for land in laender_im_cache()
+    ]
+    if not listen:
+        return {}
+    ids = max(listen, key=lambda x: x.get("abgerufen", ""))["ids"]
+    return {
+        land: f"{d['seite']}/herausgeber/{land}-{hid}/region/{{ars}}"
+        for land, hid in sorted(ids.items())
+    }
+
+
 def laender_im_cache() -> list[str]:
     basis = get_paths().raw_quelle("bundesportal")
     return sorted(p.name for p in basis.glob("[A-Z][A-Z]") if (p / "_herausgeber.json").exists())
@@ -514,6 +531,7 @@ def tabelle(
             },
             "leistung": d["leistung"],
             "laender": meta,
+            "portal": portal_laender(),
         },
         "gemeinden": gemeinden,
     }

@@ -365,11 +365,12 @@ export function auswahl(daten, ars, klassen = []) {
     regeln: daten.regeln ?? null,
     aenderung: eintrag.aenderung ?? null,
   };
-  // Bundesportal: Seite der Gemeinde (mit allen Stellen und Kontakten), sonst die allgemeine.
-  // Kondominium-Flächen kennt das Portal nicht – dort die angrenzende Gemeinde.
+  // Bundesportal: Seite der Gemeinde mit allen Stellen und Kontakten – nur in Ländern, die die
+  // Leistung dort führen (`bundesportal_region`). Kondominium-Flächen kennt das Portal nicht –
+  // dort die angrenzende Gemeinde.
   const portal = daten.bundesportal_region
     ? daten.bundesportal_region.replace("{ars}", eintrag.nachbar ?? ars)
-    : daten.bundesportal ?? null;
+    : null;
   const hinweise = [];
   const liste = klassen.length ? klassen : ["unklar"];
   if (!klassen.length) hinweise.push(TEXTE.hinweis.keineStrasse);
@@ -387,7 +388,7 @@ export function auswahl(daten, ars, klassen = []) {
       hinweise,
       keinBrief: true,
       kontakt: null,
-      bundesportal: daten.bundesportal ?? null,
+      bundesportal: null,
     };
   }
   if (liste.includes("A")) hinweise.push(TEXTE.hinweis.autobahnDabei);
