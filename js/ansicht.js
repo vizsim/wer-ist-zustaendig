@@ -5,7 +5,7 @@
 // verdrahtet nur Karte und Seite.
 
 import { klasse, klassenName, RANG } from "./strassenklasse.js";
-import { TEXTE } from "./resolve.js";
+import { LANDESREGELN, SICHERHEIT, TEXTE } from "./resolve.js";
 
 // Farben nach den RAL-Verkehrsfarben: Verkehrsblau (Autobahn-Schilder), Verkehrsgelb
 // (Bundesstraßen-Schilder), Verkehrsschwarz für Schrift. Die Flächenfarben sind gedämpft,
@@ -302,4 +302,45 @@ export function antwortHtml(r, strassen, { landName, bundesportal, hinweis } = {
       ${portal && k ? `<p class="weiter"><a href="${esc(portal)}" target="_blank" rel="noopener">Alle Stellen im Bundesportal</a></p>` : ""}
     </details>
     <p class="rechtsrat">${esc(hinweis ?? "Kein Rechtsrat.")}</p>`;
+}
+
+/** „Bayern", „Bayern und Thüringen", „Bayern, Sachsen und Thüringen". */
+function aufzaehlung(namen) {
+  return namen.length < 2 ? namen.join("") : `${namen.slice(0, -1).join(", ")} und ${namen.at(-1)}`;
+}
+
+/** Die Sicherheit, die in einem Land für die meisten Gemeinden gilt (`index.json`). */
+function meistGilt(sicherheit) {
+  return Object.entries(sicherheit ?? {}).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+}
+
+/**
+ * HTML des Willkommensfensters: Testversion, was fertig ist (aus `index.json` und den
+ * Landesregeln, damit es nicht veraltet), kein Rechtsrat, Fehler melden.
+ * @param {object|null} index Inhalt von index.json; null, wenn er nicht geladen werden konnte
+ * @param {{melden?: string}} opts Link zum Meldeformular (nur https)
+ */
+export function willkommenHtml(index, { melden } = {}) {
+  const laender = index?.laender ?? [];
+  const mitRegel = laender.filter((l) => LANDESREGELN[l.lkz]);
+  const namen = (s) => aufzaehlung(mitRegel.filter((l) => meistGilt(l.sicherheit) === s).map((l) => l.name));
+  const geprueft = namen(SICHERHEIT.BELEGT);
+  const vermutlich = namen(SICHERHEIT.VERMUTLICH);
+  const mitKontakt = aufzaehlung(laender.filter((l) => l.kontakte > 0).map((l) => l.name));
+  const offen = laender.length - mitRegel.length;
+  const stand = [
+    geprueft && `<li><strong>Geprüft:</strong> ${esc(geprueft)} – die Regel ist an der Rechtsgrundlage geprüft.</li>`,
+    vermutlich && `<li><strong>Vermutlich:</strong> ${esc(vermutlich)} – die Regel stammt aus einer Sekundärquelle.</li>`,
+    offen > 0 && `<li><strong>Noch offen:</strong> ${offen === 1 ? "das übrige Land" : `die übrigen ${offen} Länder`}. ` +
+      "Dort nennt die Karte meist nur die Kreisebene, schraffiert.</li>",
+  ].filter(Boolean).join("");
+  const link = /^https:\/\//i.test(String(melden ?? "")) ? melden : null;
+  return `
+    <h2 id="willkommen-titel">Testversion</h2>
+    <p>Die Karte zeigt, welche Straßenverkehrsbehörde an einer Straße über Schilder und Tempolimits entscheidet – und wie du sie erreichst.</p>
+    ${stand ? `<ul class="willkommen-stand">${stand}</ul>` : "<p>Erst wenige Länder haben eine eigene Regel; sonst nennt die Karte die Kreisebene.</p>"}
+    ${mitKontakt ? `<p>Telefon, E-Mail und Webseite der Stelle gibt es bisher für ${esc(mitKontakt)}.</p>` : ""}
+    <p>Alle Angaben ohne Gewähr und kein Rechtsrat. Bitte prüfe vor dem Absenden, ob die Stelle wirklich zuständig ist.</p>
+    <p>Darstellung und Funktionen ändern sich noch.${link
+      ? ` Fehler gefunden? <a href="${esc(link)}" target="_blank" rel="noopener">Bitte melden</a>.` : ""}</p>`;
 }

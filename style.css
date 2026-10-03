@@ -71,6 +71,49 @@ a:hover { text-decoration-thickness: 2px; }
   box-shadow: 0 1px 2px rgb(38 40 43 / 0.12);
 }
 
+.titel { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+
+/* „Beta" als gelbes Baustellenschild: vorläufig, wie eine gelbe Markierung. */
+.beta {
+  flex: none;
+  margin-top: 4px;
+  padding: 3px 7px 4px;
+  font: 600 12px/1.1 var(--schrift);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tinte);
+  background: var(--gelb);
+  border: 1.5px solid var(--tinte);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.beta:hover { background: var(--tinte); color: var(--gelb); }
+
+#willkommen {
+  width: calc(100% - 2 * var(--rand));
+  max-width: 440px;
+  padding: 20px 22px 16px;
+  color: var(--tinte);
+  background: var(--papier);
+  border: 2.5px solid var(--tinte);
+  border-radius: 9px;
+}
+#willkommen::backdrop { background: rgb(38 40 43 / 0.35); }
+#willkommen h2 { margin: 0 0 8px; font: 600 25px/1.1 var(--schild); }
+#willkommen p { margin: 0 0 10px; }
+.willkommen-stand { margin: 0 0 10px; padding-left: 18px; }
+.willkommen-stand li { margin: 3px 0; }
+#willkommen form { display: flex; justify-content: flex-end; margin-top: 4px; }
+#willkommen form button {
+  padding: 8px 14px;
+  font: 500 14px/1 var(--schrift);
+  color: var(--papier);
+  background: var(--tinte);
+  border: 1.5px solid var(--tinte);
+  border-radius: 5px;
+  cursor: pointer;
+}
+
 #tafel h1 {
   margin: 0 0 6px;
   font: 600 31px/1.04 var(--schild);

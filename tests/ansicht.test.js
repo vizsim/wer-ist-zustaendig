@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import {
   antwortHtml, ARTEN, datenBasisAusParam, esc, farbAusdruck, flaechenDeckkraft, flaechenFarbe, klassenAusdruck,
   klassenListe, SICHERHEIT_STIL, stelleOhneBehoerde, strassenAmPunkt, strassenName, teileName, telHref, wegeHtml,
+  willkommenHtml,
 } from "../js/ansicht.js";
 import { TEXTE } from "../js/resolve.js";
 
@@ -246,4 +247,30 @@ test("antwortHtml: Autobahn und kreisfreie Stadt ohne doppelten Ortsnamen", () =
   }, [], { landName: "Bayern" });
   assert.ok(html.includes("Auf der Autobahn zuständig"));
   assert.ok(html.includes('<p class="ort">München, Bayern</p>'));
+});
+
+test("willkommenHtml: Stand aus index.json – geprüft, vermutlich, offen; Kontakte; Melden nur https", () => {
+  const index = {
+    laender: [
+      { lkz: "BY", name: "Bayern", sicherheit: { belegt: 2056, vermutlich: 165, "nur Ebene": 0 }, kontakte: 2221 },
+      { lkz: "NI", name: "Niedersachsen", sicherheit: { belegt: 0, vermutlich: 33, "nur Ebene": 931 } },
+      { lkz: "SH", name: "Schleswig-Holstein", sicherheit: { belegt: 1101, vermutlich: 5, "nur Ebene": 0 }, kontakte: 1106 },
+      { lkz: "TH", name: "Thüringen", sicherheit: { belegt: 0, vermutlich: 605, "nur Ebene": 0 }, kontakte: 605 },
+      { lkz: "BW", name: "Baden-Württemberg", sicherheit: { belegt: 0, vermutlich: 11, "nur Ebene": 1092 } },
+    ],
+  };
+  const html = willkommenHtml(index, { melden: "https://github.com/vizsim/wer-ist-zustaendig/issues/new" });
+  assert.ok(html.includes('<h2 id="willkommen-titel">Testversion</h2>'));
+  assert.ok(html.includes("<strong>Geprüft:</strong> Bayern und Schleswig-Holstein"));
+  assert.ok(html.includes("<strong>Vermutlich:</strong> Thüringen"));
+  assert.ok(html.includes("die übrigen 2 Länder"));
+  assert.ok(html.includes("gibt es bisher für Bayern, Schleswig-Holstein und Thüringen."));
+  assert.ok(html.includes("kein Rechtsrat"));
+  assert.ok(html.includes('href="https://github.com/vizsim/wer-ist-zustaendig/issues/new"'));
+
+  const ohne = willkommenHtml(null, { melden: "javascript:alert(1)" });
+  assert.ok(ohne.includes("Erst wenige Länder haben eine eigene Regel"));
+  assert.ok(!ohne.includes("href"), "Meldelink nur mit https");
+  const eins = willkommenHtml({ laender: [index.laender[0], index.laender[1]] });
+  assert.ok(eins.includes("das übrige Land"));
 });

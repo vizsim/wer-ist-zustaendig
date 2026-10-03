@@ -16,7 +16,10 @@
   <div id="karte" role="region" aria-label="Karte der Zuständigkeiten"></div>
 
   <header id="tafel">
-    <h1>Wer ist zuständig?</h1>
+    <div class="titel">
+      <h1>Wer ist zuständig?</h1>
+      <button type="button" id="beta" class="beta" aria-haspopup="dialog" title="Über diese Testversion">Beta</button>
+    </div>
     <p class="lede">Klick auf einen Ort oder eine Straße: Die Karte zeigt, welche Straßenverkehrsbehörde dort über Schilder und Tempolimits entscheidet – und wie du sie erreichst.</p>
 
     <form id="suche" role="search" autocomplete="off">
@@ -51,6 +54,11 @@
     </p>
     <p id="meldung" role="status" hidden></p>
   </header>
+
+  <dialog id="willkommen" aria-labelledby="willkommen-titel">
+    <div id="willkommen-inhalt"></div>
+    <form method="dialog"><button type="submit" autofocus>Verstanden</button></form>
+  </dialog>
 
   <aside id="antwort" aria-live="polite" hidden>
     <button type="button" id="antwort-zu" aria-label="Auskunft schließen">Schließen</button>

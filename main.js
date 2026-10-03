@@ -10,7 +10,7 @@ import { landAusArs, landAusKuerzel, landesdatei } from "./js/laender.js";
 import { auswahl, LANDESREGELN } from "./js/resolve.js";
 import {
   antwortHtml, ARTEN, datenBasisAusParam, esc, FARBE, farbAusdruck, flaechenDeckkraft, flaechenFarbe,
-  klassenAusdruck, klassenListe, SICHERHEIT_STIL, STRASSEN_LEGENDE, strassenAmPunkt,
+  klassenAusdruck, klassenListe, SICHERHEIT_STIL, STRASSEN_LEGENDE, strassenAmPunkt, willkommenHtml,
 } from "./js/ansicht.js";
 import { klassenName } from "./js/strassenklasse.js";
 
@@ -20,6 +20,10 @@ const LOKAL = "./pipeline/data/zustaendigkeit/";
 const ENTFERNT = "https://tiles.vizsim.de/file/unfallkarte-data-v2/zustaendigkeit/";
 const UNFALLKARTE = "https://tiles.vizsim.de/file/unfallkarte-data-v2/osm/";
 const PHOTON = "https://photon.komoot.io/api/";
+const MELDEN = "https://github.com/vizsim/wer-ist-zustaendig/issues/new?template=zustaendigkeit-falsch.yml";
+// Willkommensfenster: beim ersten Besuch, danach über „Beta" im Kopf. Gemerkt im Browser; eine
+// neue Version des Textes zeigt es wieder.
+const WILLKOMMEN = Object.freeze({ schluessel: "wer-ist-zustaendig.willkommen", version: "1" });
 const STIL = "https://tiles.openfreemap.org/styles/positron";
 const ARTEN_LEGENDE = ["kreis", "stadt", "gemeinde", "stadtstaat"]; // verband folgt mit RP, SH
 const STRASSEN_LAYER = ["strassen-neben", "strassen-haupt"];
@@ -79,6 +83,35 @@ function baueLegende() {
     `<span><strong>${esc(st.label)}</strong>: ${esc(st.text)}</span></li>`).join("");
   $("#legende-strassen").innerHTML = STRASSEN_LEGENDE.map(([k, farbe]) =>
     `<li><span class="probe linie klasse-${k}" style="--f:${farbe}"></span>${esc(klassenName(k))}</li>`).join("");
+}
+
+function willkommen(index, immer = false) {
+  const dlg = $("#willkommen");
+  if (typeof dlg?.showModal !== "function" || dlg.open) return;
+  if (!immer) {
+    try {
+      if (localStorage.getItem(WILLKOMMEN.schluessel) === WILLKOMMEN.version) return;
+    } catch {
+      // ohne Speicher (privates Fenster): eben wieder zeigen
+    }
+  }
+  $("#willkommen-inhalt").innerHTML = willkommenHtml(index, { melden: MELDEN });
+  dlg.showModal();
+}
+
+function verdrahteWillkommen(index) {
+  const dlg = $("#willkommen");
+  dlg.addEventListener("close", () => {
+    try {
+      localStorage.setItem(WILLKOMMEN.schluessel, WILLKOMMEN.version);
+    } catch {
+      // ohne Speicher nichts zu merken
+    }
+  });
+  // Klick neben das Fenster schließt es auch.
+  dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
+  $("#beta").addEventListener("click", () => willkommen(index, true));
+  willkommen(index);
 }
 
 function zeigeStand(index) {
@@ -279,6 +312,7 @@ baueLegende();
 if (matchMedia("(max-width: 760px)").matches) $("#legende").open = false;
 const { basis, index } = await datenBasis();
 zeigeStand(index);
+verdrahteWillkommen(index);
 if (!basis) {
   meldung("Die Zuständigkeitsdaten sind nicht erreichbar. Lokal: erst die Pipeline bauen (`uv run zust alles`), dann `npm run serve`.");
 }
