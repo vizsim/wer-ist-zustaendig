@@ -6,10 +6,10 @@
 //                                [--kontakte <datei>]
 //
 // Defaults: pipeline/data/interim/gemeinden_attr.json → pipeline/data/zustaendigkeit/,
-// Review-CSV nach pipeline/data/review/ (nicht deployen, nicht einchecken). Kontakte
-// (kontakte.json aus `zust kontakte`) nur, wenn angegeben.
+// Review-CSV nach pipeline/data/review/ (nicht deployen, nicht einchecken). Kontakte aus
+// pipeline/data/interim/kontakte.json (`zust kontakte`), wenn vorhanden – wie `zust laender`.
 
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
@@ -25,7 +25,8 @@ function arg(name, fallback) {
 const attrPfad = arg("attr", join(ROOT, "pipeline/data/interim/gemeinden_attr.json"));
 const ausOrdner = arg("aus", join(ROOT, "pipeline/data/zustaendigkeit"));
 const reviewPfad = arg("review", join(ROOT, "pipeline/data/review/zustaendigkeit-review.csv"));
-const kontaktePfad = arg("kontakte", null);
+const kontakteStandard = join(ROOT, "pipeline/data/interim/kontakte.json");
+const kontaktePfad = arg("kontakte", existsSync(kontakteStandard) ? kontakteStandard : null);
 
 const attr = JSON.parse(readFileSync(attrPfad, "utf8"));
 const kontakte = kontaktePfad ? JSON.parse(readFileSync(kontaktePfad, "utf8")) : null;
@@ -59,3 +60,4 @@ console.log(
   `(zusammen ${kb(summe.roh).trim()}, gzip ${kb(summe.gzip).trim()})`,
 );
 console.log(`Review-CSV (${review.length} Zeilen) → ${reviewPfad}`);
+if (!kontakte) console.log("Ohne Kontakte: pipeline/data/interim/kontakte.json fehlt (erst `zust kontakte`).");
