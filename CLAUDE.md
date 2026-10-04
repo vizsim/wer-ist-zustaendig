@@ -6,7 +6,9 @@ zeigt sie auf einer Karte und liefert Dateien an andere Anwendungen, zuerst die
 [Unfallkarte](https://github.com/vizsim/unfallkarte).
 
 Vor Änderungen lesen: [README.md](README.md), [docs/VERTRAG.md](docs/VERTRAG.md),
-[docs/TODO.md](docs/TODO.md), [pipeline/README.md](pipeline/README.md).
+[docs/TODO.md](docs/TODO.md), [pipeline/README.md](pipeline/README.md). Ein neues Land einbauen:
+Ablauf, Werkzeuge und Fallen in [docs/LAND-EINBAUEN.md](docs/LAND-EINBAUEN.md), dort auch die
+Ausgangslage für Niedersachsen.
 
 ## Aufbau
 

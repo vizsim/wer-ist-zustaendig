@@ -113,6 +113,7 @@ am besten mit Link zur Karte (der Punkt steht im Link) und einer Fundstelle.
 npm test                                  # reine Module, Build der Landesdateien, Kartenhelfer
 cd pipeline && uv run pytest && uvx ruff check   # Pipeline inkl. Ende-zu-Ende mit Testdaten
 uv run zust pruefen                       # echte Grenzschicht: feste Punkte und Stichprobe
+cd .. && node tools/check-kontakte.mjs    # Kontakt der zuständigen Stelle je Gemeinde und Klasse
 ```
 
 `zust pruefen` schlägt die neun festen Punkte aus [tests/golden-punkte.json](tests/golden-punkte.json)
