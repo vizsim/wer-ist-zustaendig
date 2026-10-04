@@ -8,8 +8,7 @@
 //     einer Auswahl (höchste Klasse gewinnt; Gemeindestraße ggf. als Alternative).
 //
 // Ohne Landesregel (Phase 1): Rückfall auf die Kreisebene mit amtlichem Namen; Stadtstaaten mit
-// eigener Regel. Phase 2: Landesregeln für Bayern, Thüringen, Schleswig-Holstein und
-// Niedersachsen (`LANDESREGELN`).
+// eigener Regel. Phase 2: Landesregeln je Land, eingetragen in `LANDESREGELN`.
 // Kein Rechtsrat: Jede Aussage trägt Sicherheit und Quelle.
 
 import { kreisBehoerde, mitZusatz, stadtName } from "./namen.js";
@@ -99,6 +98,14 @@ export const TEXTE = Object.freeze({
     niVereinbarung:
       "Burgdorf ist selbständige Gemeinde; die Aufgaben der Straßenverkehrsbehörde nimmt nach Angaben " +
       "der Region aber seit 2019 die Region Hannover wahr.",
+    nwKreis:
+      "In Nordrhein-Westfalen ist der Kreis Straßenverkehrsbehörde, außer in Mittleren und Großen " +
+      "kreisangehörigen Städten.",
+    nwAachen:
+      "Die Stadt Aachen hat in der Städteregion die Rechtsstellung einer kreisfreien Stadt und ordnet " +
+      "Verkehrszeichen auf ihrem Gebiet selbst an.",
+    nwGrosse: "In Nordrhein-Westfalen ordnen Große kreisangehörige Städte Verkehrszeichen auf ihrem Gebiet selbst an.",
+    nwMittlere: "In Nordrhein-Westfalen ordnen Mittlere kreisangehörige Städte Verkehrszeichen auf ihrem Gebiet selbst an.",
   }),
   bedingung: Object.freeze({
     gks: "Große Kreisstadt – sie kann selbst zuständig sein",
@@ -173,6 +180,21 @@ export const TEXTE = Object.freeze({
       "des Landkreises bzw. der Region [S]",
     niVereinbarung:
       "§ 17 und § 159 Abs. 3 Nr. 3 NKomVG; Wahrnehmung durch die Region laut hannover.de und Presse [S]",
+    nwKreis:
+      "§ 5 der Verordnung über Zuständigkeiten im Bereich Straßenverkehr und Güterbeförderung " +
+      "(Nordrhein-Westfalen) vom 05.07.2016, Fassung vom 07.11.2025; § 3 Abs. 1 OBG NRW",
+    nwAachen:
+      "§ 4 Abs. 1 des Gesetzes zur Bildung der Städteregion Aachen, Fassung vom 14.10.2015; Stadt als " +
+      "Straßenverkehrsbehörde laut ihrem Serviceportal (04.10.2026). Nicht geklärt: Anlage 2 Nr. 25 des " +
+      "Gesetzes überträgt die Trägerschaft der Straßenverkehrsbehörde auf die Städteregion",
+    nwGrosse:
+      "§ 10 der Verordnung über Zuständigkeiten im Bereich Straßenverkehr und Güterbeförderung " +
+      "(Nordrhein-Westfalen), Fassung vom 07.11.2025; § 1 der Verordnung zur Bestimmung der Großen und " +
+      "Mittleren kreisangehörigen Städte nach § 4 GO NRW, Fassung vom 01.01.2025",
+    nwMittlere:
+      "§ 10 der Verordnung über Zuständigkeiten im Bereich Straßenverkehr und Güterbeförderung " +
+      "(Nordrhein-Westfalen), Fassung vom 07.11.2025; § 2 der Verordnung zur Bestimmung der Großen und " +
+      "Mittleren kreisangehörigen Städte nach § 4 GO NRW, Fassung vom 01.01.2025",
   }),
   hinweis: Object.freeze({
     autobahnDabei: "Für die Autobahn selbst ist das Fernstraßen-Bundesamt zuständig.",
@@ -507,9 +529,108 @@ function regelNiedersachsen(g, klasse) {
   return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "niKreisGemeindestrasse", "niKreisGemeindestrasse", alternative);
 }
 
+/**
+ * Die Stadt Aachen: in der Städteregion Aachen, aber mit der Rechtsstellung einer kreisfreien Stadt
+ * (§ 4 Abs. 1 Aachen-Gesetz). Verkehrszeichen ordnet sie selbst an (Serviceportal der Stadt, § 45 StVO;
+ * die Städteregion nennt sich Straßenverkehrsbehörde nur für Monschau, Roetgen und Simmerath). Anlage 2
+ * Nr. 25 des Gesetzes überträgt aber die Trägerschaft der Straßenverkehrsbehörde auf die Städteregion –
+ * bis das geklärt ist, nur „vermutlich".
+ */
+const NW_AACHEN = "053340002002";
+
+/**
+ * Große kreisangehörige Städte in Nordrhein-Westfalen: § 1 der Verordnung zur Bestimmung der Großen
+ * kreisangehörigen Städte und der Mittleren kreisangehörigen Städte nach § 4 der Gemeindeordnung,
+ * Fassung vom 01.01.2025 (recht.nrw.de, gelesen 04.10.2026). Name wie in der Verordnung.
+ */
+export const NW_GROSSE_KREISANGEHOERIGE_STAEDTE = Object.freeze({
+  "051580028028": "Ratingen", "051580032032": "Velbert", "051620004004": "Dormagen",
+  "051620008008": "Grevenbroich", "051620024024": "Neuss", "051660032032": "Viersen",
+  "051700008008": "Dinslaken", "051700024024": "Moers", "051700048048": "Wesel",
+  "053580008008": "Düren", "053620008008": "Bergheim", "053620032032": "Kerpen",
+  "053780004004": "Bergisch Gladbach", "053820068068": "Troisdorf", "055540008008": "Bocholt",
+  "055620004004": "Castrop-Rauxel", "055620012012": "Dorsten", "055620014014": "Gladbeck",
+  "055620020020": "Herten", "055620024024": "Marl", "055620032032": "Recklinghausen",
+  "055660076076": "Rheine", "057540008008": "Gütersloh", "057580012012": "Herford",
+  "057660020020": "Detmold", "057700024024": "Minden", "057740032032": "Paderborn",
+  "059540036036": "Witten", "059580004004": "Arnsberg", "059620024024": "Iserlohn",
+  "059620032032": "Lüdenscheid", "059700040040": "Siegen", "059740028028": "Lippstadt",
+  "059780024024": "Lünen", "059780036036": "Unna",
+});
+
+/** Mittlere kreisangehörige Städte in Nordrhein-Westfalen: § 2 derselben Verordnung (wie oben). */
+export const NW_MITTLERE_KREISANGEHOERIGE_STAEDTE = Object.freeze({
+  "051540008008": "Emmerich", "051540012012": "Geldern", "051540016016": "Goch",
+  "051540032032": "Kevelaer", "051540036036": "Kleve", "051580004004": "Erkrath",
+  "051580008008": "Haan", "051580012012": "Heiligenhaus", "051580016016": "Hilden",
+  "051580020020": "Langenfeld (Rhld.)", "051580024024": "Mettmann", "051580026026": "Monheim",
+  "051580036036": "Wülfrath", "051620012012": "Jüchen", "051620016016": "Kaarst",
+  "051620020020": "Korschenbroich", "051620022022": "Meerbusch", "051660012012": "Kempen",
+  "051660016016": "Nettetal", "051660028028": "Tönisvorst", "051660036036": "Willich",
+  "051700012012": "Hamminkeln", "051700020020": "Kamp-Lintfort", "051700028028": "Neukirchen-Vluyn",
+  "051700032032": "Rheinberg", "051700044044": "Voerde (Niederrhein)", "051700052052": "Xanten",
+  "053340004004": "Alsdorf", "053340008008": "Baesweiler", "053340012012": "Eschweiler",
+  "053340016016": "Herzogenrath", "053340032032": "Stolberg (Rhld.)", "053340036036": "Würselen",
+  "053580024024": "Jülich", "053620004004": "Bedburg", "053620012012": "Brühl",
+  "053620016016": "Elsdorf", "053620020020": "Erftstadt", "053620024024": "Frechen",
+  "053620028028": "Hürth", "053620036036": "Pulheim", "053620040040": "Wesseling",
+  "053660016016": "Euskirchen", "053660028028": "Mechernich", "053700004004": "Erkelenz",
+  "053700012012": "Geilenkirchen", "053700016016": "Heinsberg", "053700020020": "Hückelhoven",
+  "053700028028": "Übach-Palenberg", "053700040040": "Wegberg", "053740012012": "Gummersbach",
+  "053740036036": "Radevormwald", "053740048048": "Wiehl", "053740052052": "Wipperfürth",
+  "053780016016": "Leichlingen (Rhld.)", "053780024024": "Overath", "053780028028": "Rösrath",
+  "053780032032": "Wermelskirchen", "053820008008": "Bad Honnef", "053820012012": "Bornheim",
+  "053820020020": "Hennef (Sieg)", "053820024024": "Königswinter", "053820028028": "Lohmar",
+  "053820032032": "Meckenheim", "053820044044": "Niederkassel", "053820048048": "Rheinbach",
+  "053820056056": "Sankt Augustin", "053820060060": "Siegburg", "055540004004": "Ahaus",
+  "055540012012": "Borken", "055540020020": "Gronau (Westf.)", "055580012012": "Coesfeld",
+  "055580016016": "Dülmen", "055620008008": "Datteln", "055620016016": "Haltern",
+  "055620028028": "Oer-Erkenschwick", "055620036036": "Waltrop", "055660008008": "Emsdetten",
+  "055660012012": "Greven", "055660028028": "Ibbenbüren", "055660084084": "Steinfurt",
+  "055700004004": "Ahlen", "055700008008": "Beckum", "055700028028": "Oelde",
+  "055700052052": "Warendorf", "057540016016": "Harsewinkel", "057540028028": "Rheda-Wiedenbrück",
+  "057540032032": "Rietberg", "057540036036": "Schloß Holte-Stukenbrock", "057540044044": "Verl",
+  "057580004004": "Bünde", "057580024024": "Löhne", "057620020020": "Höxter",
+  "057660008008": "Bad Salzuflen", "057660040040": "Lage", "057660044044": "Lemgo",
+  "057700004004": "Bad Oeynhausen", "057700008008": "Espelkamp", "057700020020": "Lübbecke",
+  "057700028028": "Petershagen", "057700032032": "Porta Westfalica", "057740020020": "Delbrück",
+  "057740036036": "Salzkotten", "059540008008": "Ennepetal", "059540012012": "Gevelsberg",
+  "059540016016": "Hattingen", "059540020020": "Herdecke", "059540024024": "Schwelm",
+  "059540028028": "Sprockhövel", "059540032032": "Wetter (Ruhr)", "059580012012": "Brilon",
+  "059580032032": "Meschede", "059580040040": "Schmallenberg", "059580044044": "Sundern (Sauerland)",
+  "059620004004": "Altena", "059620016016": "Hemer", "059620040040": "Menden (Sauerland)",
+  "059620052052": "Plettenberg", "059620060060": "Werdohl", "059660004004": "Attendorn",
+  "059660020020": "Lennestadt", "059660024024": "Olpe", "059700024024": "Kreuztal",
+  "059700032032": "Netphen", "059740040040": "Soest", "059740044044": "Warstein",
+  "059740052052": "Werl", "059780004004": "Bergkamen", "059780020020": "Kamen",
+  "059780028028": "Schwerte", "059780032032": "Selm", "059780040040": "Werne",
+});
+
+/**
+ * Nordrhein-Westfalen (belegt): Straßenverkehrsbehörden sind die Kreisordnungsbehörden, also die
+ * Kreise und kreisfreien Städte (§ 5 ZustVO Straßenverkehr, § 3 Abs. 1 OBG); die Stadt Aachen steht
+ * einer kreisfreien Stadt gleich (vermutlich, siehe NW_AACHEN). Maßnahmen nach § 45 StVO treffen in
+ * Mittleren und Großen kreisangehörigen Städten deren örtliche Ordnungsbehörden (§ 10 ZustVO) – für
+ * alle Straßen. Maßgeblich ist die Liste der Verordnung nach § 4 GO NRW, nicht die Einwohnerzahl.
+ */
+function regelNordrheinWestfalen(g) {
+  const kreis = kreisStelle(g);
+  if (g.kreis.kreisfrei) return ergebnis(kreis, SICHERHEIT.BELEGT, "kreisfrei", "nwKreis");
+  if (g.ars === NW_AACHEN) return ergebnis(gemeindeStelle(g, "stadt", "untere"), SICHERHEIT.VERMUTLICH, "nwAachen", "nwAachen");
+  if (g.gemeindefrei) return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "gemeindefrei", "nwKreis");
+  const selbst = gemeindeStelle(g, istStadt(g) ? "stadt" : "gemeinde", "oertliche");
+  if (NW_GROSSE_KREISANGEHOERIGE_STAEDTE[g.ars]) return ergebnis(selbst, SICHERHEIT.BELEGT, "nwGrosse", "nwGrosse");
+  if (NW_MITTLERE_KREISANGEHOERIGE_STAEDTE[g.ars]) return ergebnis(selbst, SICHERHEIT.BELEGT, "nwMittlere", "nwMittlere");
+  return ergebnis(kreis, SICHERHEIT.BELEGT, "nwKreis", "nwKreis");
+}
+
 /** Landesregeln: (Gemeinde, Klasse) → Ergebnis, oder null für den Rückfall auf Phase 1. */
 export const LANDESREGELN = Object.freeze({
-  BY: regelBayern, NI: regelNiedersachsen, SH: regelSchleswigHolstein, TH: regelThueringen,
+  BY: regelBayern,
+  NI: regelNiedersachsen,
+  NW: regelNordrheinWestfalen,
+  SH: regelSchleswigHolstein,
+  TH: regelThueringen,
 });
 
 /**

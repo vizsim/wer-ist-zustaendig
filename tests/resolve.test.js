@@ -3,7 +3,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   auswahl, BAU_KLASSEN, ergebnisId, FESTE_STELLEN, NI_GEMEINDESTRASSEN, NI_SELBSTAENDIG, NI_WIE_KREISFREI,
-  resolveGemeinde, schwaecher, SICHERHEIT, TEXTE, TH_STAEDTE_AUF_ANTRAG,
+  NW_GROSSE_KREISANGEHOERIGE_STAEDTE, NW_MITTLERE_KREISANGEHOERIGE_STAEDTE, resolveGemeinde, schwaecher, SICHERHEIT,
+  TEXTE, TH_STAEDTE_AUF_ANTRAG,
 } from "../js/resolve.js";
 
 const kreis = (ars, gen, bez, nbd, kreisfrei = false) => ({ ars, gen, bez, nbd, kreisfrei, name: gen });
@@ -166,6 +167,50 @@ const G = {
     ars: "034585401015", gen: "Winkelsett", name: "Gemeinde Winkelsett", land: "NI", tkz: [64], ew: 500,
     kreis: kreis("03458", "Oldenburg", "Landkreis", "ja"),
     verband: { ars: "034585401", gen: "Harpstedt", name: "Samtgemeinde Harpstedt" },
+  },
+  koeln: {
+    ars: "053150000000", gen: "Köln", land: "NW", tkz: [61],
+    kreis: kreis("05315", "Köln", "Kreisfreie Stadt", "nein", true),
+  },
+  aachen: {
+    ars: "053340002002", gen: "Aachen", land: "NW", tkz: [63],
+    kreis: kreis("05334", "Städteregion Aachen", "Kreis", "nein"),
+  },
+  simmerath: {
+    ars: "053340028028", gen: "Simmerath", name: "Gemeinde Simmerath", land: "NW", tkz: [64],
+    kreis: kreis("05334", "Städteregion Aachen", "Kreis", "nein"),
+  },
+  stolberg: {
+    ars: "053340032032", gen: "Stolberg (Rhld.)", land: "NW", tkz: [63],
+    kreis: kreis("05334", "Städteregion Aachen", "Kreis", "nein"),
+  },
+  neuss: {
+    ars: "051620024024", gen: "Neuss", land: "NW", tkz: [63],
+    kreis: kreis("05162", "Rhein-Kreis Neuss", "Kreis", "nein"),
+  },
+  monheim: {
+    ars: "051580026026", gen: "Monheim am Rhein", land: "NW", tkz: [63],
+    kreis: kreis("05158", "Mettmann", "Kreis", "ja"),
+  },
+  borken: {
+    ars: "055540012012", gen: "Borken", land: "NW", tkz: [63],
+    kreis: kreis("05554", "Borken", "Kreis", "ja"),
+  },
+  heiden: {
+    ars: "055540028028", gen: "Heiden", name: "Gemeinde Heiden", land: "NW", tkz: [64],
+    kreis: kreis("05554", "Borken", "Kreis", "ja"),
+  },
+  salzkotten: {
+    ars: "057740036036", gen: "Salzkotten", land: "NW", tkz: [63],
+    kreis: kreis("05774", "Paderborn", "Kreis", "ja"),
+  },
+  altena: {
+    ars: "059620004004", gen: "Altena", land: "NW", tkz: [63],
+    kreis: kreis("05962", "Märkischer Kreis", "Kreis", "nein"),
+  },
+  luedinghausen: {
+    ars: "055580024024", gen: "Lüdinghausen", land: "NW", tkz: [63],
+    kreis: kreis("05558", "Coesfeld", "Kreis", "ja"),
   },
   mainz_bingen: {
     ars: "073395001001", gen: "Musterdorf", land: "RP",
@@ -493,6 +538,84 @@ test("Niedersachsen: ohne bekannte Übertragung der Landkreis, Samtgemeinde oder
   assert.equal(harz.sicherheit, SICHERHEIT.VERMUTLICH);
   assert.equal(harz.grund, TEXTE.grund.gemeindefrei);
   assert.equal(harz.quelle, TEXTE.quelle.niGemeindefrei);
+});
+
+test("Nordrhein-Westfalen: kreisfreie Städte selbst (belegt), Aachen selbst (vermutlich), sonst der Kreis", () => {
+  const koeln = resolveGemeinde(G.koeln).zust;
+  for (const k of BAU_KLASSEN) assert.equal(koeln[k].stelle, "k05315", k);
+  assert.equal(koeln.B.sicherheit, SICHERHEIT.BELEGT);
+  assert.equal(koeln.B.grund, TEXTE.grund.kreisfrei);
+  assert.equal(koeln.B.quelle, TEXTE.quelle.nwKreis);
+
+  const aachen = resolveGemeinde(G.aachen);
+  for (const k of BAU_KLASSEN) assert.equal(aachen.zust[k].stelle, "g053340002002", k);
+  assert.equal(aachen.zust.B.sicherheit, SICHERHEIT.VERMUTLICH, "Anlage 2 Nr. 25 Aachen-Gesetz nicht geklärt");
+  assert.equal(aachen.zust.B.alternative, null);
+  assert.equal(aachen.zust.B.grund, TEXTE.grund.nwAachen);
+  assert.equal(aachen.zust.B.quelle, TEXTE.quelle.nwAachen);
+  assert.deepEqual(aachen.stellen.g053340002002, {
+    id: "g053340002002", name: "Stadt Aachen – Straßenverkehrsbehörde", ebene: "untere", art: "stadt",
+  });
+
+  const simmerath = resolveGemeinde(G.simmerath);
+  for (const k of BAU_KLASSEN) {
+    assert.equal(simmerath.zust[k].stelle, "k05334", k);
+    assert.equal(simmerath.zust[k].alternative, null);
+  }
+  assert.equal(simmerath.zust.G.sicherheit, SICHERHEIT.BELEGT);
+  assert.equal(simmerath.zust.G.grund, TEXTE.grund.nwKreis);
+  assert.equal(simmerath.zust.G.quelle, TEXTE.quelle.nwKreis);
+  assert.equal(simmerath.stellen.k05334.name, "Städteregion Aachen – Straßenverkehrsbehörde");
+  assert.equal(simmerath.stellen.k05334.art, "kreis");
+});
+
+test("Nordrhein-Westfalen: Große und Mittlere kreisangehörige Städte für alle Straßen (belegt)", () => {
+  const neuss = resolveGemeinde(G.neuss);
+  for (const k of BAU_KLASSEN) assert.equal(neuss.zust[k].stelle, "g051620024024", k);
+  assert.equal(neuss.zust.B.sicherheit, SICHERHEIT.BELEGT);
+  assert.equal(neuss.zust.B.grund, TEXTE.grund.nwGrosse);
+  assert.equal(neuss.zust.B.quelle, TEXTE.quelle.nwGrosse);
+  assert.equal(neuss.zust.B.alternative, null);
+  assert.deepEqual(neuss.stellen.g051620024024, {
+    id: "g051620024024", name: "Stadt Neuss – Straßenverkehrsbehörde", ebene: "oertliche", art: "stadt",
+  });
+
+  const stolberg = resolveGemeinde(G.stolberg).zust;
+  for (const k of BAU_KLASSEN) assert.equal(stolberg[k].stelle, "g053340032032", `${k}: in der Städteregion`);
+  assert.equal(stolberg.L.grund, TEXTE.grund.nwMittlere);
+  assert.equal(stolberg.L.quelle, TEXTE.quelle.nwMittlere);
+  assert.equal(resolveGemeinde(G.salzkotten).zust.K.stelle, "g057740036036", "seit 01.01.2025 Mittlere kreisangehörige Stadt");
+  assert.equal(resolveGemeinde(G.monheim).zust.G.stelle, "g051580026026", "in der Verordnung „Monheim“");
+  const borken = resolveGemeinde(G.borken).zust.G;
+  assert.equal(borken.stelle, "g055540012012", "die Stadt, nicht der gleichnamige Kreis");
+  // Es zählt die Liste der Verordnung nach § 4 GO NRW, nicht die Einwohnerzahl.
+  assert.equal(resolveGemeinde({ ...G.altena, ew: 16000 }).zust.G.stelle, "g059620004004");
+  assert.equal(resolveGemeinde({ ...G.luedinghausen, ew: 26000 }).zust.G.stelle, "k05558");
+});
+
+test("Nordrhein-Westfalen: übrige Gemeinden beim Kreis; die Landesregel geht dem Portal vor", () => {
+  const heiden = resolveGemeinde(G.heiden);
+  for (const k of BAU_KLASSEN) {
+    assert.equal(heiden.zust[k].stelle, "k05554", k);
+    assert.equal(heiden.zust[k].sicherheit, SICHERHEIT.BELEGT);
+    assert.equal(heiden.zust[k].alternative, null);
+  }
+  assert.equal(heiden.stellen.k05554.name, "Kreis Borken – Straßenverkehrsbehörde");
+  assert.deepEqual(resolveGemeinde({ ...G.heiden, bundesportal: "stvb" }).zust, heiden.zust);
+  assert.deepEqual(resolveGemeinde({ ...G.heiden, bundesportal: "passt" }).zust, heiden.zust);
+});
+
+test("Nordrhein-Westfalen: Listen nach § 4 GO NRW – 35 Große, 132 Mittlere, gültige Schlüssel", () => {
+  const grosse = Object.keys(NW_GROSSE_KREISANGEHOERIGE_STAEDTE);
+  const mittlere = Object.keys(NW_MITTLERE_KREISANGEHOERIGE_STAEDTE);
+  assert.equal(grosse.length, 35);
+  assert.equal(mittlere.length, 132);
+  for (const ars of [...grosse, ...mittlere]) {
+    // NRW kennt keine Gemeindeverbände: Kreis + „0" + Gemeinde + Gemeinde; kreisfreie Städte fehlen.
+    assert.match(ars, /^05\d{3}0(?!000)(\d{3})\1$/, ars);
+  }
+  assert.equal(new Set([...grosse, ...mittlere]).size, 167, "keine Stadt in beiden Listen");
+  assert.ok(!NW_GROSSE_KREISANGEHOERIGE_STAEDTE[G.aachen.ars] && !NW_MITTLERE_KREISANGEHOERIGE_STAEDTE[G.aachen.ars]);
 });
 
 test("resolveGemeinde: prüft die Eingabe", () => {
