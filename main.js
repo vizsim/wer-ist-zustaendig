@@ -9,7 +9,7 @@
 import { landAusArs, landAusKuerzel, landesdatei } from "./js/laender.js";
 import { auswahl, LANDESREGELN } from "./js/resolve.js";
 import {
-  antwortHtml, ARTEN, datenBasisAusParam, esc, FARBE, farbAusdruck, flaechenDeckkraft, flaechenFarbe,
+  antwortHtml, ARTEN, aufzaehlung, datenBasisAusParam, esc, FARBE, farbAusdruck, flaechenDeckkraft, flaechenFarbe,
   klassenAusdruck, klassenListe, SICHERHEIT_STIL, STRASSEN_LEGENDE, strassenAmPunkt, willkommenHtml,
 } from "./js/ansicht.js";
 import { klassenName } from "./js/strassenklasse.js";
@@ -117,10 +117,11 @@ function verdrahteWillkommen(index) {
 function zeigeStand(index) {
   if (!index) return;
   const d = index.daten ?? {};
+  const laender = Object.keys(LANDESREGELN).map((l) => landAusKuerzel(l)?.name ?? l)
+    .sort((a, b) => a.localeCompare(b, "de"));
   const teile = [
     d.gebiet && `Gebietsstand ${d.gebiet.replace(/^VG25 /, "")}`,
-    index.regeln && `Regeln ${index.regeln.version}: Landesregeln für ${
-      Object.keys(LANDESREGELN).map((l) => landAusKuerzel(l)?.name ?? l).join(" und ")}, sonst meist nur die Kreisebene`,
+    index.regeln && `Regeln ${index.regeln.version}: Landesregeln für ${aufzaehlung(laender)}, sonst meist nur die Kreisebene`,
   ].filter(Boolean);
   $("#stand").textContent = `${teile.join(". ")}.`;
 }

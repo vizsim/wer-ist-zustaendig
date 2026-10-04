@@ -2,9 +2,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  antwortHtml, ARTEN, datenBasisAusParam, esc, farbAusdruck, flaechenDeckkraft, flaechenFarbe, klassenAusdruck,
-  klassenListe, SICHERHEIT_STIL, stelleOhneBehoerde, strassenAmPunkt, strassenName, teileName, telHref, wegeHtml,
-  willkommenHtml,
+  antwortHtml, ARTEN, aufzaehlung, datenBasisAusParam, esc, farbAusdruck, flaechenDeckkraft, flaechenFarbe,
+  klassenAusdruck, klassenListe, SICHERHEIT_STIL, stelleOhneBehoerde, strassenAmPunkt, strassenName, teileName,
+  telHref, wegeHtml, willkommenHtml,
 } from "../js/ansicht.js";
 import { TEXTE } from "../js/resolve.js";
 
@@ -273,4 +273,11 @@ test("willkommenHtml: Stand aus index.json – geprüft, vermutlich, offen; Kont
   assert.ok(!ohne.includes("href"), "Meldelink nur mit https");
   const eins = willkommenHtml({ laender: [index.laender[0], index.laender[1]] });
   assert.ok(eins.includes("das übrige Land"));
+});
+
+test("aufzaehlung: Komma, vor dem letzten Namen „und“", () => {
+  assert.equal(aufzaehlung([]), "");
+  assert.equal(aufzaehlung(["Bayern"]), "Bayern");
+  assert.equal(aufzaehlung(["Bayern", "Thüringen"]), "Bayern und Thüringen");
+  assert.equal(aufzaehlung(["Bayern", "Brandenburg", "Thüringen"]), "Bayern, Brandenburg und Thüringen");
 });

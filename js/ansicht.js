@@ -305,7 +305,7 @@ export function antwortHtml(r, strassen, { landName, bundesportal, hinweis } = {
 }
 
 /** „Bayern", „Bayern und Thüringen", „Bayern, Sachsen und Thüringen". */
-function aufzaehlung(namen) {
+export function aufzaehlung(namen) {
   return namen.length < 2 ? namen.join("") : `${namen.slice(0, -1).join(", ")} und ${namen.at(-1)}`;
 }
 
