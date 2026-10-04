@@ -2,9 +2,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  auswahl, BAU_KLASSEN, ergebnisId, FESTE_STELLEN, NI_GEMEINDESTRASSEN, NI_SELBSTAENDIG, NI_WIE_KREISFREI,
-  NW_GROSSE_KREISANGEHOERIGE_STAEDTE, NW_MITTLERE_KREISANGEHOERIGE_STAEDTE, resolveGemeinde, schwaecher, SICHERHEIT,
-  TEXTE, TH_STAEDTE_AUF_ANTRAG,
+  auswahl, BAU_KLASSEN, BB_AUF_ANTRAG, BB_AUF_ANTRAG_TEILWEISE, BB_GROSSE_KREISANGEHOERIGE_STAEDTE, ergebnisId,
+  FESTE_STELLEN, NI_GEMEINDESTRASSEN, NI_SELBSTAENDIG, NI_WIE_KREISFREI, NW_GROSSE_KREISANGEHOERIGE_STAEDTE,
+  NW_MITTLERE_KREISANGEHOERIGE_STAEDTE, resolveGemeinde, schwaecher, SICHERHEIT, TEXTE, TH_STAEDTE_AUF_ANTRAG,
 } from "../js/resolve.js";
 
 const kreis = (ars, gen, bez, nbd, kreisfrei = false) => ({ ars, gen, bez, nbd, kreisfrei, name: gen });
@@ -211,6 +211,50 @@ const G = {
   luedinghausen: {
     ars: "055580024024", gen: "Lüdinghausen", land: "NW", tkz: [63],
     kreis: kreis("05558", "Coesfeld", "Kreis", "ja"),
+  },
+  potsdam: {
+    ars: "120540000000", gen: "Potsdam", land: "BB", tkz: [61],
+    kreis: kreis("12054", "Potsdam", "Kreisfreie Stadt", "nein", true),
+  },
+  eberswalde: {
+    ars: "120600052052", gen: "Eberswalde", land: "BB", tkz: [63],
+    kreis: kreis("12060", "Barnim", "Landkreis", "ja"),
+  },
+  bernau: {
+    ars: "120600020020", gen: "Bernau bei Berlin", land: "BB", tkz: [63],
+    kreis: kreis("12060", "Barnim", "Landkreis", "ja"),
+  },
+  schwedt: {
+    ars: "120735051532", gen: "Schwedt/Oder", land: "BB", tkz: [63],
+    kreis: kreis("12073", "Uckermark", "Landkreis", "ja"),
+    verband: { ars: "120735051" }, // Mitverwaltung: Schwedt/Oder verwaltet Pinnow mit
+  },
+  pinnow: {
+    ars: "120735051440", gen: "Pinnow", name: "Gemeinde Pinnow", land: "BB", tkz: [64],
+    kreis: kreis("12073", "Uckermark", "Landkreis", "ja"),
+    verband: { ars: "120735051" },
+  },
+  teltow: {
+    ars: "120690616616", gen: "Teltow", land: "BB", tkz: [63],
+    kreis: kreis("12069", "Potsdam-Mittelmark", "Landkreis", "ja"),
+  },
+  kleinmachnow: {
+    ars: "120690304304", gen: "Kleinmachnow", name: "Gemeinde Kleinmachnow", land: "BB", tkz: [64],
+    kreis: kreis("12069", "Potsdam-Mittelmark", "Landkreis", "ja"),
+  },
+  kyritz: {
+    ars: "120680264264", gen: "Kyritz", land: "BB", tkz: [63],
+    kreis: kreis("12068", "Ostprignitz-Ruppin", "Landkreis", "ja"),
+  },
+  lebusa: {
+    ars: "120625209289", gen: "Lebusa", name: "Gemeinde Lebusa", land: "BB", tkz: [64],
+    kreis: kreis("12062", "Elbe-Elster", "Landkreis", "ja"),
+    verband: { ars: "120625209", gen: "Schlieben", name: "Amt Schlieben" },
+  },
+  schlieben: {
+    ars: "120625209445", gen: "Schlieben", land: "BB", tkz: [63],
+    kreis: kreis("12062", "Elbe-Elster", "Landkreis", "ja"),
+    verband: { ars: "120625209", gen: "Schlieben", name: "Amt Schlieben" },
   },
   mainz_bingen: {
     ars: "073395001001", gen: "Musterdorf", land: "RP",
@@ -618,6 +662,88 @@ test("Nordrhein-Westfalen: Listen nach § 4 GO NRW – 35 Große, 132 Mittlere, 
   assert.ok(!NW_GROSSE_KREISANGEHOERIGE_STAEDTE[G.aachen.ars] && !NW_MITTLERE_KREISANGEHOERIGE_STAEDTE[G.aachen.ars]);
 });
 
+test("Brandenburg: Landkreis bzw. kreisfreie Stadt; Große kreisangehörige Städte selbst (belegt)", () => {
+  const potsdam = resolveGemeinde(G.potsdam).zust;
+  for (const k of BAU_KLASSEN) assert.equal(potsdam[k].stelle, "k12054", k);
+  assert.equal(potsdam.G.sicherheit, SICHERHEIT.BELEGT);
+  assert.equal(potsdam.G.quelle, TEXTE.quelle.bbKreis);
+
+  const eberswalde = resolveGemeinde(G.eberswalde);
+  for (const k of BAU_KLASSEN) assert.equal(eberswalde.zust[k].stelle, "g120600052052", k);
+  assert.equal(eberswalde.zust.B.grund, TEXTE.grund.bbGks);
+  assert.equal(eberswalde.zust.B.quelle, TEXTE.quelle.bbGks);
+  assert.equal(eberswalde.zust.B.sicherheit, SICHERHEIT.BELEGT);
+  assert.deepEqual(eberswalde.stellen.g120600052052, {
+    id: "g120600052052", name: "Stadt Eberswalde – Straßenverkehrsbehörde", ebene: "untere", art: "stadt",
+  });
+
+  // Schwedt/Oder verwaltet Pinnow mit: Die Stadt ist selbst zuständig, Pinnow bleibt beim Landkreis.
+  const schwedt = resolveGemeinde(G.schwedt).zust;
+  for (const k of BAU_KLASSEN) assert.equal(schwedt[k].stelle, "g120735051532", k);
+  const pinnow = resolveGemeinde(G.pinnow).zust;
+  for (const k of BAU_KLASSEN) {
+    assert.equal(pinnow[k].stelle, "k12073", k);
+    assert.equal(pinnow[k].alternative, null);
+  }
+  assert.equal(pinnow.G.grund, TEXTE.grund.bbKreis);
+
+  const bernau = resolveGemeinde(G.bernau);
+  assert.equal(bernau.zust.G.stelle, "k12060", "Große kreisangehörige Stadt, aber nicht in der StGÜZV");
+  assert.equal(bernau.zust.G.sicherheit, SICHERHEIT.BELEGT);
+  assert.equal(bernau.zust.G.alternative, null);
+  assert.equal(bernau.stellen.k12060.name, "Landkreis Barnim – Straßenverkehrsbehörde");
+});
+
+test("Brandenburg: Städte auf Antrag für alle Straßen (§ 4a Abs. 1)", () => {
+  const teltow = resolveGemeinde(G.teltow).zust;
+  for (const k of BAU_KLASSEN) assert.equal(teltow[k].stelle, "g120690616616", k);
+  assert.equal(teltow.B.grund, TEXTE.grund.bbAntrag);
+  assert.equal(teltow.B.quelle, TEXTE.quelle.bbAntrag);
+  assert.equal(teltow.B.sicherheit, SICHERHEIT.BELEGT);
+  assert.equal(teltow.B.alternative, null);
+});
+
+test("Brandenburg: auf Antrag nur Halten und Parken, Baustellen, Veranstaltungen (§ 4a Abs. 2) – als Alternative", () => {
+  const kyritz = resolveGemeinde(G.kyritz);
+  for (const k of BAU_KLASSEN) {
+    assert.equal(kyritz.zust[k].stelle, "k12068", k);
+    assert.equal(kyritz.zust[k].sicherheit, SICHERHEIT.BELEGT);
+    assert.equal(kyritz.zust[k].grund, TEXTE.grund.bbTeil);
+    assert.equal(kyritz.zust[k].quelle, TEXTE.quelle.bbTeil);
+    assert.equal(kyritz.zust[k].alternative.stelle, "g120680264264", k);
+  }
+  assert.equal(kyritz.zust.K.alternative.bedingung, TEXTE.bedingung.bbTeil);
+  assert.equal(kyritz.zust.G.alternative.bedingung, TEXTE.bedingung.bbTeilG, "Schutz der Gemeindestraße nur bei G");
+  assert.deepEqual(kyritz.stellen.g120680264264, {
+    id: "g120680264264", name: "Stadt Kyritz – Straßenverkehrsbehörde", ebene: "untere", art: "stadt",
+  });
+  const kleinmachnow = resolveGemeinde(G.kleinmachnow);
+  assert.equal(kleinmachnow.zust.L.stelle, "k12069");
+  assert.equal(kleinmachnow.zust.L.alternative.stelle, "g120690304304");
+  assert.equal(kleinmachnow.stellen.g120690304304.name, "Gemeinde Kleinmachnow – Straßenverkehrsbehörde");
+  assert.equal(kleinmachnow.stellen.g120690304304.art, "gemeinde");
+
+  // Amt Schlieben: Alternative ist das Amt – auch für die Stadt Schlieben selbst.
+  for (const g of [G.lebusa, G.schlieben]) {
+    const { zust, stellen } = resolveGemeinde(g);
+    assert.equal(zust.K.stelle, "k12062", g.gen);
+    assert.deepEqual(zust.K.alternative, { stelle: "v120625209", bedingung: TEXTE.bedingung.bbTeil }, g.gen);
+    assert.deepEqual(stellen.v120625209, {
+      id: "v120625209", name: "Amt Schlieben – Straßenverkehrsbehörde", ebene: "untere", art: "verband",
+    });
+  }
+});
+
+test("Brandenburg: die 13 Kommunen der StGÜZV", () => {
+  assert.deepEqual(Object.values(BB_GROSSE_KREISANGEHOERIGE_STAEDTE), ["Eberswalde", "Eisenhüttenstadt", "Schwedt"]);
+  assert.equal(Object.keys(BB_AUF_ANTRAG).length, 4);
+  assert.equal(Object.keys(BB_AUF_ANTRAG_TEILWEISE).length, 6);
+  const alle = [BB_GROSSE_KREISANGEHOERIGE_STAEDTE, BB_AUF_ANTRAG, BB_AUF_ANTRAG_TEILWEISE].flatMap(Object.keys);
+  assert.equal(new Set(alle).size, 13);
+  for (const ars of alle) assert.match(ars, /^120\d{2}(\d{4}(\d{3})?)$/, ars);
+  assert.deepEqual(alle.filter((a) => a.length === 9), ["120625209"], "nur das Amt Schlieben als Verband");
+});
+
 test("resolveGemeinde: prüft die Eingabe", () => {
   assert.throws(() => resolveGemeinde({ ...G.muenchen, ars: "09162000" }), /ungültiger ARS/);
   assert.throws(() => resolveGemeinde({ ...G.muenchen, kreis: null }), /ohne Kreis/);
@@ -727,4 +853,16 @@ test("auswahl: Kontakt genau der zuständigen Stelle, die Alternative mit eigene
   delete eintrag.kontakt_gemeinde;
   assert.equal(auswahl(d, G.essenbach.ars, ["G"]).kontakt, null, "nie der Kontakt einer anderen Stelle");
   assert.equal(auswahl(d, G.essenbach.ars, ["K", "G"]).alternative.kontakt, null);
+});
+
+test("auswahl: Brandenburg, Teilzuständigkeit der Stadt als Alternative mit Kontakt", () => {
+  const d = landesdatei("BB", [G.kyritz]);
+  d.kontakte = { c1: { name: "Landkreis Ostprignitz-Ruppin - Straßenverkehrsamt" }, c2: { name: "Stadt Kyritz - Ordnungsamt" } };
+  Object.assign(d.gemeinden[G.kyritz.ars], { kontakt: "c1", kontakt_gemeinde: "c2" });
+  const r = auswahl(d, G.kyritz.ars, ["G", "K"]);
+  assert.equal(r.zustaendig.id, "k12068");
+  assert.equal(r.kontakt.name, "Landkreis Ostprignitz-Ruppin - Straßenverkehrsamt");
+  assert.equal(r.alternative.stelle.id, "g120680264264");
+  assert.equal(r.alternative.bedingung, TEXTE.bedingung.bbTeil);
+  assert.equal(r.alternative.kontakt.name, "Stadt Kyritz - Ordnungsamt");
 });

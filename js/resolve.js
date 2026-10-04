@@ -106,6 +106,16 @@ export const TEXTE = Object.freeze({
       "Verkehrszeichen auf ihrem Gebiet selbst an.",
     nwGrosse: "In Nordrhein-Westfalen ordnen Große kreisangehörige Städte Verkehrszeichen auf ihrem Gebiet selbst an.",
     nwMittlere: "In Nordrhein-Westfalen ordnen Mittlere kreisangehörige Städte Verkehrszeichen auf ihrem Gebiet selbst an.",
+    bbKreis:
+      "In Brandenburg ist der Landkreis Straßenverkehrsbehörde; nur einzelne, in der Verordnung genannte " +
+      "Städte und Gemeinden sind es selbst.",
+    bbGks:
+      "In Brandenburg ist diese Große kreisangehörige Stadt selbst Straßenverkehrsbehörde – das gilt nur für " +
+      "Eberswalde, Eisenhüttenstadt und Schwedt/Oder.",
+    bbAntrag: "Diese Stadt ist in Brandenburg auf ihren Antrag selbst Straßenverkehrsbehörde – für alle Straßen außer Autobahnen.",
+    bbTeil:
+      "In Brandenburg ist der Landkreis Straßenverkehrsbehörde. Halten und Parken, Baustellen und " +
+      "Veranstaltungen ordnet hier auf eigenen Antrag die Stadt, die Gemeinde bzw. das Amt an.",
   }),
   bedingung: Object.freeze({
     gks: "Große Kreisstadt – sie kann selbst zuständig sein",
@@ -116,6 +126,10 @@ export const TEXTE = Object.freeze({
     thAntragMoeglich: "Gemeinde mit 10.000 bis 30.000 Einwohnern – sie kann auf Antrag selbst zuständig sein",
     shParken: "falls es nur um Halten und Parken, eine Baustelle oder eine Veranstaltung geht",
     niUebertragungMoeglich: "falls ihr die Aufgabe für Gemeindestraßen übertragen ist",
+    bbTeil: "falls es nur um Halten und Parken, eine Baustelle oder eine Veranstaltung geht",
+    bbTeilG:
+      "falls es nur um Halten und Parken, eine Baustelle, eine Veranstaltung oder den Schutz der " +
+      "Gemeindestraße vor außerordentlichen Schäden geht",
   }),
   quelle: Object.freeze({
     phase1: "Rückfall auf die Kreisebene – die Regel dieses Landes ist noch nicht eingearbeitet",
@@ -195,6 +209,10 @@ export const TEXTE = Object.freeze({
       "§ 10 der Verordnung über Zuständigkeiten im Bereich Straßenverkehr und Güterbeförderung " +
       "(Nordrhein-Westfalen), Fassung vom 07.11.2025; § 2 der Verordnung zur Bestimmung der Großen und " +
       "Mittleren kreisangehörigen Städte nach § 4 GO NRW, Fassung vom 01.01.2025",
+    bbKreis: "§ 4 Abs. 1 und Abs. 3 Nr. 2 StGÜZV (Brandenburg) vom 09.11.2018, zuletzt geändert 23.08.2024",
+    bbGks: "§ 4 Abs. 3 Nr. 2 und Abs. 4 StGÜZV (Brandenburg) vom 09.11.2018, zuletzt geändert 23.08.2024",
+    bbAntrag: "§ 4a Abs. 1 Nr. 2 StGÜZV (Brandenburg) vom 09.11.2018, zuletzt geändert 23.08.2024",
+    bbTeil: "§ 4 Abs. 1 und § 4a Abs. 2 Nr. 2 StGÜZV (Brandenburg) vom 09.11.2018, zuletzt geändert 23.08.2024",
   }),
   hinweis: Object.freeze({
     autobahnDabei: "Für die Autobahn selbst ist das Fernstraßen-Bundesamt zuständig.",
@@ -349,9 +367,9 @@ function regelThueringen(g, klasse) {
   return ergebnis(kreis, SICHERHEIT.VERMUTLICH, grund, "thLandkreis", alternative);
 }
 
-/** Ein Verband (in Schleswig-Holstein das Amt) als Stelle. */
-function verbandStelle(g) {
-  return { id: `v${g.verband.ars}`, name: mitZusatz(g.verband.name), ebene: "oertliche", art: "verband" };
+/** Ein Verband (in Schleswig-Holstein und Brandenburg das Amt) als Stelle. */
+function verbandStelle(g, ebene = "oertliche") {
+  return { id: `v${g.verband.ars}`, name: mitZusatz(g.verband.name), ebene, art: "verband" };
 }
 
 /**
@@ -624,8 +642,57 @@ function regelNordrheinWestfalen(g) {
   return ergebnis(kreis, SICHERHEIT.BELEGT, "nwKreis", "nwKreis");
 }
 
+// Brandenburg: Straßenverkehrsrechts- und Güterkraftverkehrs-Zuständigkeits-Verordnung (StGÜZV)
+// vom 09.11.2018, zuletzt geändert 23.08.2024 (bravors.brandenburg.de, gelesen 04.10.2026). Namen wie
+// in der Verordnung; ARS laut Wahlportal des Landes (wahlergebnisse.brandenburg.de, Bundestagswahl
+// 2025) – Schwedt/Oder verwaltet Pinnow mit und hat deshalb einen Verbandsschlüssel. Die 2011 zu
+// Großen kreisangehörigen Städten bestimmten Bernau bei Berlin, Falkensee und Oranienburg (BestGkSV)
+// nennt die StGÜZV nicht – dort bleibt der Landkreis zuständig.
+
+/** Große kreisangehörige Städte, die Straßenverkehrsbehörde sind wie ein Landkreis (§ 4 Abs. 4). */
+export const BB_GROSSE_KREISANGEHOERIGE_STAEDTE = Object.freeze({
+  "120600052052": "Eberswalde", "120670120120": "Eisenhüttenstadt", "120735051532": "Schwedt",
+});
+
+/** Städte, die auf ihren Antrag für alle Maßnahmen nach § 45 StVO zuständig sind (§ 4a Abs. 1). */
+export const BB_AUF_ANTRAG = Object.freeze({
+  "120690616616": "Teltow", "120690656656": "Werder", "120710160160": "Guben", "120730452452": "Prenzlau",
+});
+
+/**
+ * Kommunen, die auf ihren Antrag nur Halten und Parken, Veranstaltungen, Arbeiten im Straßenraum und
+ * den Schutz von Gemeindestraßen anordnen (§ 4a Abs. 2 Nr. 2): ARS der Gemeinde, beim Amt Schlieben
+ * der Verbandsschlüssel (9 Stellen) – es gilt für alle seine Gemeinden.
+ */
+export const BB_AUF_ANTRAG_TEILWEISE = Object.freeze({
+  "120610320320": "Luckau", "120620140140": "Finsterwalde", "120625209": "Amt Schlieben",
+  "120680264264": "Kyritz", "120690304304": "Kleinmachnow", "120700424424": "Wittenberge",
+});
+
+/**
+ * Brandenburg (belegt): Straßenverkehrsbehörden sind die Landkreise und kreisfreien Städte (§ 4 Abs. 1,
+ * Abs. 3 Nr. 2 StGÜZV), dazu die Großen kreisangehörigen Städte (§ 4 Abs. 4) und auf Antrag vier
+ * Städte (§ 4a Abs. 1) – jeweils für alle Straßen. Sechs weitere Kommunen ordnen auf Antrag nur
+ * Halten und Parken, Baustellen, Veranstaltungen und den Schutz von Gemeindestraßen an (§ 4a Abs. 2):
+ * dort bleibt der Landkreis zuständig, die Kommune steht als Alternative da.
+ */
+function regelBrandenburg(g, klasse) {
+  const kreis = kreisStelle(g);
+  if (g.kreis.kreisfrei) return ergebnis(kreis, SICHERHEIT.BELEGT, "kreisfrei", "bbKreis");
+  if (g.gemeindefrei) return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "gemeindefrei", "bbKreis");
+  const selbst = gemeindeStelle(g, istStadt(g) ? "stadt" : "gemeinde", "untere");
+  if (BB_GROSSE_KREISANGEHOERIGE_STAEDTE[g.ars]) return ergebnis(selbst, SICHERHEIT.BELEGT, "bbGks", "bbGks");
+  if (BB_AUF_ANTRAG[g.ars]) return ergebnis(selbst, SICHERHEIT.BELEGT, "bbAntrag", "bbAntrag");
+  const amt = g.verband && BB_AUF_ANTRAG_TEILWEISE[g.verband.ars] ? verbandStelle(g, "untere") : null;
+  const teil = BB_AUF_ANTRAG_TEILWEISE[g.ars] ? selbst : amt;
+  if (!teil) return ergebnis(kreis, SICHERHEIT.BELEGT, "bbKreis", "bbKreis");
+  const bedingung = klasse === "G" ? "bbTeilG" : "bbTeil";
+  return ergebnis(kreis, SICHERHEIT.BELEGT, "bbTeil", "bbTeil", { stelle: teil, bedingung });
+}
+
 /** Landesregeln: (Gemeinde, Klasse) → Ergebnis, oder null für den Rückfall auf Phase 1. */
 export const LANDESREGELN = Object.freeze({
+  BB: regelBrandenburg,
   BY: regelBayern,
   NI: regelNiedersachsen,
   NW: regelNordrheinWestfalen,
