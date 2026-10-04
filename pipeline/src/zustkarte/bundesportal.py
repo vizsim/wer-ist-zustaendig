@@ -46,8 +46,8 @@ GEMEINDEEBENE = re.compile(
     r"samtgemeinde|verbandsgemeinde|gro(ß|ss)e kreisstadt|gro(ß|ss)e kreisangeh(ö|oe)rige stadt)\b",
     re.I,
 )
-# E-Mail-Adressen nur als Funktionspostfach; Adressen mit Personennamen („k.gorski@",
-# „grassl@") bleiben weg, kurze Kürzel („vka@", „kfz@") gelten als Postfach.
+# E-Mail-Adressen nur als Funktionspostfach; Adressen mit Personennamen („k.mustermann@",
+# „mustermann@") bleiben weg, kurze Kürzel („vka@", „kfz@") gelten als Postfach.
 FUNKTIONSPOSTFACH = re.compile(
     r"post|info|verwaltung|verkehr|stra(ß|ss)e|ordnung|amt|b(ü|ue)rger|service|kontakt|stadt|"
     r"gemeinde|rathaus|lra|kreis|mail|office|zentrale|fachdienst|fachbereich|sekretariat|"

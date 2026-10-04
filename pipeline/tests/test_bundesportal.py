@@ -135,7 +135,7 @@ def test_waehle_fremde_und_abweichende_stellen() -> None:
         "Stadtverwaltung Suhl - Gewerbeangelegenheiten", ["03681 742971"], ["gewerbe@stadtsuhl.de"]
     )
     assert bp.waehle([gewerbe], _gemeinde("Suhl", kreisfrei=True)) == (None, "keine")
-    person = _stelle("Markt Essenbach - Bauverwaltung", [], ["grassl@essenbach.de"])
+    person = _stelle("Markt Essenbach - Bauverwaltung", [], ["mustermann@essenbach.de"])
     assert bp.waehle([person], weimarer_land) == (None, "keine"), "persönliche Adresse fällt weg"
 
     apolda = _stelle(
@@ -162,7 +162,11 @@ def test_funktionspostfach() -> None:
         "infrastruktur@eisenach.de",
     ):
         assert bp.funktionspostfach(m), m
-    for m in ("grassl@essenbach.de", "erika.mustermann@stadt-x.de", "k.gorski@blankenhain.de"):
+    for m in (
+        "mustermann@essenbach.de",
+        "erika.mustermann@stadt-x.de",
+        "k.mustermann@blankenhain.de",
+    ):
         assert not bp.funktionspostfach(m), m
 
 
