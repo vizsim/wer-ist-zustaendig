@@ -3,7 +3,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   auswahl, BAU_KLASSEN, BB_AUF_ANTRAG, BB_AUF_ANTRAG_TEILWEISE, BB_GROSSE_KREISANGEHOERIGE_STAEDTE, ergebnisId,
-  FESTE_STELLEN, NI_GEMEINDESTRASSEN, NI_SELBSTAENDIG, NI_WIE_KREISFREI, NW_GROSSE_KREISANGEHOERIGE_STAEDTE,
+  FESTE_STELLEN, MV_GROSSE_KREISANGEHOERIGE_STAEDTE, MV_STAEDTE_UEBERGANG, NI_GEMEINDESTRASSEN, NI_SELBSTAENDIG,
+  NI_WIE_KREISFREI, NW_GROSSE_KREISANGEHOERIGE_STAEDTE,
   NW_MITTLERE_KREISANGEHOERIGE_STAEDTE, resolveGemeinde, schwaecher, SICHERHEIT, TEXTE, TH_STAEDTE_AUF_ANTRAG,
 } from "../js/resolve.js";
 
@@ -255,6 +256,31 @@ const G = {
     ars: "120625209445", gen: "Schlieben", land: "BB", tkz: [63],
     kreis: kreis("12062", "Elbe-Elster", "Landkreis", "ja"),
     verband: { ars: "120625209", gen: "Schlieben", name: "Amt Schlieben" },
+  },
+  rostock: {
+    ars: "130030000000", gen: "Rostock", land: "MV", tkz: [61],
+    kreis: kreis("13003", "Rostock", "Kreisfreie Stadt", "nein", true),
+  },
+  greifswald: {
+    ars: "130750039039", gen: "Greifswald", land: "MV", tkz: [63],
+    kreis: kreis("13075", "Vorpommern-Greifswald", "Landkreis", "ja"),
+  },
+  guestrow: {
+    ars: "130720043043", gen: "Güstrow", land: "MV", tkz: [63],
+    kreis: kreis("13072", "Rostock", "Landkreis", "ja"),
+  },
+  waren: {
+    ars: "130710156156", gen: "Waren (Müritz)", land: "MV", tkz: [63],
+    kreis: kreis("13071", "Mecklenburgische Seenplatte", "Landkreis", "ja"),
+  },
+  parchim: {
+    ars: "130760108108", gen: "Parchim", land: "MV", tkz: [63],
+    kreis: kreis("13076", "Ludwigslust-Parchim", "Landkreis", "ja"),
+  },
+  ribnitz: {
+    ars: "130735361075", gen: "Ribnitz-Damgarten", land: "MV", tkz: [63],
+    kreis: kreis("13073", "Vorpommern-Rügen", "Landkreis", "ja"),
+    verband: { ars: "130735361", gen: "Ribnitz-Damgarten", name: "Amt Ribnitz-Damgarten" },
   },
   mainz_bingen: {
     ars: "073395001001", gen: "Musterdorf", land: "RP",
@@ -742,6 +768,78 @@ test("Brandenburg: die 13 Kommunen der StGÜZV", () => {
   assert.equal(new Set(alle).size, 13);
   for (const ars of alle) assert.match(ars, /^120\d{2}(\d{4}(\d{3})?)$/, ars);
   assert.deepEqual(alle.filter((a) => a.length === 9), ["120625209"], "nur das Amt Schlieben als Verband");
+});
+
+test("Mecklenburg-Vorpommern: kreisfreie und große kreisangehörige Städte selbst (belegt)", () => {
+  const rostock = resolveGemeinde(G.rostock).zust;
+  for (const k of BAU_KLASSEN) assert.equal(rostock[k].stelle, "k13003", k);
+  assert.equal(rostock.B.sicherheit, SICHERHEIT.BELEGT);
+  assert.equal(rostock.B.quelle, TEXTE.quelle.mvKreis);
+
+  const greifswald = resolveGemeinde(G.greifswald);
+  for (const k of BAU_KLASSEN) assert.equal(greifswald.zust[k].stelle, "g130750039039", k);
+  assert.equal(greifswald.zust.B.sicherheit, SICHERHEIT.BELEGT);
+  assert.equal(greifswald.zust.B.grund, TEXTE.grund.mvGks);
+  assert.equal(greifswald.zust.B.quelle, TEXTE.quelle.mvGks);
+  assert.deepEqual(greifswald.stellen.g130750039039, {
+    id: "g130750039039", name: "Stadt Greifswald – Straßenverkehrsbehörde", ebene: "untere", art: "stadt",
+  });
+  assert.equal(resolveGemeinde({ ...G.greifswald, ew: 1000 }).zust.G.stelle, "g130750039039", "Status, nicht Einwohner");
+});
+
+test("Mecklenburg-Vorpommern: Städte über 20.000 Einwohner ordnen selbst an, knapp darüber vermutlich", () => {
+  const guestrow = resolveGemeinde({ ...G.guestrow, ew: 28500 });
+  for (const k of BAU_KLASSEN) assert.equal(guestrow.zust[k].stelle, "g130720043043", k);
+  assert.equal(guestrow.zust.B.sicherheit, SICHERHEIT.BELEGT);
+  assert.equal(guestrow.zust.B.grund, TEXTE.grund.mvStadt);
+  assert.equal(guestrow.zust.B.quelle, TEXTE.quelle.mvStadt);
+  assert.equal(guestrow.zust.B.alternative, null);
+  assert.deepEqual(guestrow.stellen.g130720043043, {
+    id: "g130720043043", name: "Stadt Güstrow – Straßenverkehrsbehörde", ebene: "oertliche", art: "stadt",
+  });
+  const knapp = resolveGemeinde({ ...G.ribnitz, ew: 20500 }).zust.K;
+  assert.equal(knapp.stelle, "g130735361075", "Stadt in einem Amt – zählt trotzdem");
+  assert.equal(knapp.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(knapp.grund, TEXTE.grund.mvStadtKnapp);
+});
+
+test("Mecklenburg-Vorpommern: Übergangsregel – Liste belegt, andere Städte mit 17.000 bis 20.000 je nach Portal", () => {
+  const parchim = resolveGemeinde({ ...G.parchim, ew: 16900 }).zust;
+  for (const k of BAU_KLASSEN) assert.equal(parchim[k].stelle, "g130760108108", `${k}: Stichtag 2021, nicht heute`);
+  assert.equal(parchim.G.sicherheit, SICHERHEIT.BELEGT);
+  assert.equal(parchim.G.grund, TEXTE.grund.mvBestand);
+  assert.equal(parchim.G.quelle, TEXTE.quelle.mvBestand);
+  const waren = resolveGemeinde({ ...G.waren, ew: 19500 }).zust.B;
+  assert.equal(waren.stelle, "g130710156156", "Waren fällt unter 20.000 – bleibt nach Satz 2 zuständig");
+  assert.equal(waren.sicherheit, SICHERHEIT.BELEGT);
+  assert.deepEqual(Object.values(MV_STAEDTE_UEBERGANG).map((t) => t.split(" – ")[0]), ["Neustrelitz", "Waren (Müritz)", "Parchim"]);
+
+  const ohnePortal = resolveGemeinde({ ...G.ribnitz, ew: 18500 }).zust;
+  for (const k of BAU_KLASSEN) {
+    assert.equal(ohnePortal[k].stelle, "k13073", k);
+    assert.deepEqual(ohnePortal[k].alternative, { stelle: "g130735361075", bedingung: TEXTE.bedingung.mvBestandMoeglich });
+  }
+  assert.equal(ohnePortal.G.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(ohnePortal.G.grund, TEXTE.grund.mvKreisBestand);
+  const mitPortal = resolveGemeinde({ ...G.ribnitz, ew: 18500, bundesportal: "stvb" }).zust.L;
+  assert.equal(mitPortal.stelle, "g130735361075");
+  assert.equal(mitPortal.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(mitPortal.grund, TEXTE.grund.mvBestand);
+  assert.equal(mitPortal.quelle, TEXTE.quelle.mvBestandPortal);
+});
+
+test("Mecklenburg-Vorpommern: sonst der Landkreis (belegt)", () => {
+  const ribnitz = resolveGemeinde({ ...G.ribnitz, ew: 15200 });
+  for (const k of BAU_KLASSEN) {
+    assert.equal(ribnitz.zust[k].stelle, "k13073", k);
+    assert.equal(ribnitz.zust[k].sicherheit, SICHERHEIT.BELEGT);
+    assert.equal(ribnitz.zust[k].alternative, null);
+  }
+  assert.equal(ribnitz.zust.G.grund, TEXTE.grund.mvKreis);
+  assert.equal(ribnitz.stellen.k13073.name, "Landkreis Vorpommern-Rügen – Straßenverkehrsbehörde");
+  const gemeinde = resolveGemeinde({ ...G.ribnitz, tkz: [64], ew: 25000, bundesportal: "stvb" }).zust.G;
+  assert.equal(gemeinde.stelle, "k13073", "§ 4 Abs. 2 gilt nur für Städte");
+  assert.deepEqual(Object.values(MV_GROSSE_KREISANGEHOERIGE_STAEDTE), ["Neubrandenburg", "Stralsund", "Wismar", "Greifswald"]);
 });
 
 test("resolveGemeinde: prüft die Eingabe", () => {

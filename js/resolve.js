@@ -116,6 +116,22 @@ export const TEXTE = Object.freeze({
     bbTeil:
       "In Brandenburg ist der Landkreis Straßenverkehrsbehörde. Halten und Parken, Baustellen und " +
       "Veranstaltungen ordnet hier auf eigenen Antrag die Stadt, die Gemeinde bzw. das Amt an.",
+    mvKreis:
+      "In Mecklenburg-Vorpommern ist der Landkreis Straßenverkehrsbehörde; Städte mit mehr als 20.000 " +
+      "Einwohnern und die großen kreisangehörigen Städte ordnen Verkehrszeichen selbst an.",
+    mvGks:
+      "In Mecklenburg-Vorpommern sind die großen kreisangehörigen Städte Greifswald, Neubrandenburg, " +
+      "Stralsund und Wismar selbst Straßenverkehrsbehörde.",
+    mvStadt: "In Mecklenburg-Vorpommern ordnen Städte mit mehr als 20.000 Einwohnern Verkehrszeichen selbst an.",
+    mvStadtKnapp:
+      "In Mecklenburg-Vorpommern ordnen Städte mit mehr als 20.000 Einwohnern Verkehrszeichen selbst an. " +
+      "Diese liegt knapp darüber; die maßgebliche Zahl kann abweichen.",
+    mvBestand:
+      "In Mecklenburg-Vorpommern ordnen auch Städte Verkehrszeichen selbst an, die einmal mehr als 20.000 " +
+      "Einwohner hatten und 2021 noch mindestens 17.000 – so wie diese.",
+    mvKreisBestand:
+      "In Mecklenburg-Vorpommern ist der Landkreis Straßenverkehrsbehörde. Städte mit 17.000 bis 20.000 " +
+      "Einwohnern, die früher einmal mehr als 20.000 hatten, ordnen Verkehrszeichen selbst an.",
   }),
   bedingung: Object.freeze({
     gks: "Große Kreisstadt – sie kann selbst zuständig sein",
@@ -130,6 +146,7 @@ export const TEXTE = Object.freeze({
     bbTeilG:
       "falls es nur um Halten und Parken, eine Baustelle, eine Veranstaltung oder den Schutz der " +
       "Gemeindestraße vor außerordentlichen Schäden geht",
+    mvBestandMoeglich: "Stadt mit 17.000 bis 20.000 Einwohnern – sie kann nach der Übergangsregel selbst zuständig sein",
   }),
   quelle: Object.freeze({
     phase1: "Rückfall auf die Kreisebene – die Regel dieses Landes ist noch nicht eingearbeitet",
@@ -213,6 +230,17 @@ export const TEXTE = Object.freeze({
     bbGks: "§ 4 Abs. 3 Nr. 2 und Abs. 4 StGÜZV (Brandenburg) vom 09.11.2018, zuletzt geändert 23.08.2024",
     bbAntrag: "§ 4a Abs. 1 Nr. 2 StGÜZV (Brandenburg) vom 09.11.2018, zuletzt geändert 23.08.2024",
     bbTeil: "§ 4 Abs. 1 und § 4a Abs. 2 Nr. 2 StGÜZV (Brandenburg) vom 09.11.2018, zuletzt geändert 23.08.2024",
+    mvKreis:
+      "§ 3 Abs. 1 StVZustLVO M-V vom 12.08.2021 (GVOBl. M-V S. 1221); Städte über 20.000 Einwohner: § 4 " +
+      "Abs. 2; Einwohner laut GV-ISys 31.12.2025",
+    mvGks: "§ 3 Abs. 6 StVZustLVO M-V vom 12.08.2021 (GVOBl. M-V S. 1221); § 7 Abs. 2 KV M-V",
+    mvStadt: "§ 4 Abs. 2 Satz 1 StVZustLVO M-V vom 12.08.2021 (GVOBl. M-V S. 1221); Einwohner laut GV-ISys 31.12.2025",
+    mvBestand:
+      "§ 4 Abs. 2 Satz 2 StVZustLVO M-V vom 12.08.2021 (GVOBl. M-V S. 1221); Einwohner 2021 und früher " +
+      "laut Statistischem Amt M-V bzw. Stadt",
+    mvBestandPortal:
+      "§ 4 Abs. 2 Satz 2 StVZustLVO M-V vom 12.08.2021 (GVOBl. M-V S. 1221); Stadt als Straßenverkehrsbehörde " +
+      "laut Bundesportal; Einwohner laut GV-ISys 31.12.2025",
   }),
   hinweis: Object.freeze({
     autobahnDabei: "Für die Autobahn selbst ist das Fernstraßen-Bundesamt zuständig.",
@@ -690,10 +718,67 @@ function regelBrandenburg(g, klasse) {
   return ergebnis(kreis, SICHERHEIT.BELEGT, "bbTeil", "bbTeil", { stelle: teil, bedingung });
 }
 
+/**
+ * Große kreisangehörige Städte in Mecklenburg-Vorpommern (§ 7 Abs. 2 KV M-V in der Fassung des
+ * Kreisstrukturgesetzes vom 12.07.2010): Straßenverkehrsbehörde wie ein Landkreis (§ 3 Abs. 6
+ * StVZustLVO M-V, § 14 Landkreisneuordnungsgesetz).
+ */
+export const MV_GROSSE_KREISANGEHOERIGE_STAEDTE = Object.freeze({
+  "130710107107": "Neubrandenburg", "130730088088": "Stralsund", "130740087087": "Wismar",
+  "130750039039": "Greifswald",
+});
+
+/**
+ * Städte, die nach § 4 Abs. 2 Satz 2 StVZustLVO M-V Verkehrszeichen selbst anordnen, auch wenn sie heute
+ * 20.000 Einwohner nicht mehr erreichen: einmal mehr als 20.000, am 19.08.2021 (Inkrafttreten) noch
+ * mindestens 17.000. Einwohner 30.06.2021 laut Statistischem Amt M-V (Bericht A123), Parchim laut Stadt.
+ */
+export const MV_STAEDTE_UEBERGANG = Object.freeze({
+  "130710110110": "Neustrelitz – 30.06.2021: 20.108 Einwohner",
+  "130710156156": "Waren (Müritz) – 30.06.2021: 21.197 Einwohner",
+  "130760108108": "Parchim – 1991 rund 22.350, Ende 2019 18.128 Einwohner (Stadt Parchim, " +
+    "Bevölkerungsprognose bis 2030); Zensus 2022: 17.814",
+});
+
+/**
+ * Mecklenburg-Vorpommern (StVZustLVO M-V vom 12.08.2021, GVOBl. M-V S. 1221): Straßenverkehrsbehörden
+ * sind die Landräte und die Oberbürgermeister der kreisfreien Städte (§ 3 Abs. 1), ebenso die großen
+ * kreisangehörigen Städte (§ 3 Abs. 6). Städte mit mehr als 20.000 Einwohnern ordnen Verkehrszeichen
+ * selbst an (§ 4 Abs. 2 Satz 1) – nahe 20.000 nur „vermutlich“. Nach Satz 2 auch Städte, die einmal
+ * so groß waren und am 19.08.2021 noch mindestens 17.000 Einwohner hatten: belegt aus der Liste
+ * `MV_STAEDTE_UEBERGANG`, vermutlich aus dem Bundesportal (`stvb`), sonst als Alternative.
+ * Den Ämtern und amtsfreien Gemeinden gibt § 4 Abs. 1 Bewohnerparkausweise und den ruhenden Verkehr,
+ * keine Anordnung nach § 45 StVO (was § 68 Abs. 2 FKrG ihnen darüber hinaus überträgt, ist nicht
+ * geprüft).
+ */
+function regelMecklenburgVorpommern(g) {
+  const kreis = kreisStelle(g);
+  if (g.kreis.kreisfrei) return ergebnis(kreis, SICHERHEIT.BELEGT, "kreisfrei", "mvKreis");
+  if (g.gemeindefrei) return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "gemeindefrei", "mvKreis");
+  if (MV_GROSSE_KREISANGEHOERIGE_STAEDTE[g.ars]) {
+    return ergebnis(gemeindeStelle(g, "stadt", "untere"), SICHERHEIT.BELEGT, "mvGks", "mvGks");
+  }
+  if (!istStadt(g)) return ergebnis(kreis, SICHERHEIT.BELEGT, "mvKreis", "mvKreis");
+  const ew = g.ew ?? 0;
+  const stadt = gemeindeStelle(g, "stadt", "oertliche");
+  // Übergangsregel: Stichtag ist der 19.08.2021, nicht der Datenstand – die Liste gilt unabhängig von `ew`.
+  if (MV_STAEDTE_UEBERGANG[g.ars]) return ergebnis(stadt, SICHERHEIT.BELEGT, "mvBestand", "mvBestand");
+  if (ew > 21000) return ergebnis(stadt, SICHERHEIT.BELEGT, "mvStadt", "mvStadt");
+  if (ew > 20000) return ergebnis(stadt, SICHERHEIT.VERMUTLICH, "mvStadtKnapp", "mvStadt");
+  if (ew >= 17000 && g.bundesportal === "stvb") {
+    return ergebnis(stadt, SICHERHEIT.VERMUTLICH, "mvBestand", "mvBestandPortal");
+  }
+  if (ew >= 17000) {
+    return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "mvKreisBestand", "mvKreis", { stelle: stadt, bedingung: "mvBestandMoeglich" });
+  }
+  return ergebnis(kreis, SICHERHEIT.BELEGT, "mvKreis", "mvKreis");
+}
+
 /** Landesregeln: (Gemeinde, Klasse) → Ergebnis, oder null für den Rückfall auf Phase 1. */
 export const LANDESREGELN = Object.freeze({
   BB: regelBrandenburg,
   BY: regelBayern,
+  MV: regelMecklenburgVorpommern,
   NI: regelNiedersachsen,
   NW: regelNordrheinWestfalen,
   SH: regelSchleswigHolstein,
