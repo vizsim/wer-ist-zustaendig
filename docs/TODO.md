@@ -5,15 +5,10 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
 
 ## Veröffentlichung
 
-- [ ] **Push und Pages:** `feat/contacts` nach `main`, pushen, CI grün; GitHub Pages aus `main`
-  (`https://vizsim.de/wer-ist-zustaendig/`).
-- [ ] **Bucket:** Dateien unter `zustaendigkeit/` hochladen (Grenzschicht, `index.json`,
-  Landesdateien) – ohne `manifest.json`: In der Wurzel des Buckets liegt das Manifest der
-  Unfallkarte, das darf nicht überschrieben werden. CORS für `https://vizsim.de` prüfen – für die eigenen Dateien
-  und für die Straßenkacheln der Unfallkarte (`osm/maxspeed_major.pmtiles`,
-  `osm/maxspeed_minor.pmtiles`). Danach Tag `v0.7.1`.
-- [ ] **Rechtliches:** Nutzungsbedingungen des Bundesportals – übernommen sind die Kontakte fast
-  aller Gemeinden dreier Länder (Datenbankrecht?). Datenschutzhinweis: Die Karte fragt bei unpkg,
+- [ ] **Rechtliches** (die Karte ist seit 04.10.2026 online): Nutzungsbedingungen des
+  Bundesportals – übernommen sind die Kontakte fast aller Gemeinden dreier Länder
+  (Datenbankrecht?); eine Lizenz für die Daten ist nicht zu finden, also bei der FITKO anfragen.
+  Datenschutzhinweis: Die Karte fragt bei unpkg,
   OpenFreeMap, Photon (komoot) und dem Bucket an, setzt keine Cookies und merkt sich nur, dass
   das Willkommensfenster gelesen ist. Impressum – für diese Karte und die Unfallkarte gleich
   entscheiden. Juristische Durchsicht der Regeln vor dem aktiven Bewerben.

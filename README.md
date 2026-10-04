@@ -9,7 +9,8 @@ nennt, **wie sicher** sie ist und **woher** sie stammt.
 
 Es gibt zwei Wege zu den Daten:
 
-- eine **Karte** ([index.html](index.html)): Straße anklicken oder suchen, Auskunft lesen;
+- eine **Karte** unter [vizsim.de/wer-ist-zustaendig](https://vizsim.de/wer-ist-zustaendig/)
+  ([index.html](index.html)): Straße anklicken oder suchen, Auskunft lesen;
 - **Dateien** für andere Anwendungen, zuerst die [Unfallkarte](https://github.com/vizsim/unfallkarte):
   Grenzschicht als PMTiles und eine JSON-Datei je Land. Der Vertrag steht in
   [docs/VERTRAG.md](docs/VERTRAG.md).

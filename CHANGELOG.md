@@ -9,9 +9,10 @@ ein Git-Tag `v<version>` dazu.
 
 – noch nichts –
 
-## [0.7.1] – 2026-10-03
+## [0.7.1] – 2026-10-04
 
-Erste öffentliche Version, als Testversion (Beta). Regeln 0.7.1 · Schema 1 · Datenstand
+Erste öffentliche Version, als Testversion (Beta), unter
+[vizsim.de/wer-ist-zustaendig](https://vizsim.de/wer-ist-zustaendig/). Regeln 0.7.1 · Schema 1 · Datenstand
 31.12.2025 (BKG VG25, Destatis GV-ISys). Erster Lauf mit echten Daten.
 
 ### Hinzugefügt

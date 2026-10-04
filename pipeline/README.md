@@ -96,6 +96,20 @@ pipeline/
   tests/              pytest mit kleinen Testdaten (VG25-GeoPackage und GV100AD-Auszug)
 ```
 
+## Veröffentlichen
+
+Die Dateien aus `data/zustaendigkeit/` kommen unverändert in den Bucket der Unfallkarte, unter den
+Präfix `zustaendigkeit/` (`b2` muss angemeldet sein):
+
+```bash
+b2 sync --no-progress data/zustaendigkeit b2://unfallkarte-data-v2/zustaendigkeit
+```
+
+Nur diesen Ordner spiegeln: `data/manifest.json` bleibt lokal, denn in der Wurzel des Buckets liegt
+das Manifest der Unfallkarte. `b2 sync` lädt nur Geändertes und löscht nichts; mit `--dry-run`
+zeigt er vorher, was er täte. Danach den Git-Tag `v<regeln.version>` setzen (CHANGELOG). Die Karte
+selbst geht mit jedem grünen CI-Lauf auf `main` nach GitHub Pages.
+
 ## Quellen pflegen
 
 - **VG25** (BKG): Die URL zeigt auf `aktuell/` und liefert nach dem jährlichen Wechsel (2026 im
