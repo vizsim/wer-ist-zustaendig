@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { baueLaender, reviewCsv, serialisiere } from "../tools/lib/laender.mjs";
-import { auswahl } from "../js/resolve.js";
+import { auswahl, TEXTE } from "../js/resolve.js";
 
 const kreis = (ars, gen, bez, nbd, kreisfrei = false) => ({
   ars, gen, bez, nbd, kreisfrei, name: nbd === "ja" ? `${bez} ${gen}` : gen,
@@ -44,7 +44,7 @@ test("baueLaender: eine Datei je Land, Index mit Zählern", () => {
   assert.deepEqual(Object.keys(dateien).sort(), ["by.json", "rp.json"]);
   assert.deepEqual(index.laender.map((l) => [l.lkz, l.gemeinden]), [["BY", 3], ["RP", 1]]);
   assert.deepEqual(index.laender[0].sicherheit, { belegt: 3, vermutlich: 0, "nur Ebene": 0 }, "Landesregel Bayern");
-  assert.deepEqual(index.laender[1].sicherheit, { belegt: 0, vermutlich: 0, "nur Ebene": 1 });
+  assert.deepEqual(index.laender[1].sicherheit, { belegt: 0, vermutlich: 1, "nur Ebene": 0 }, "Landesregel Rheinland-Pfalz");
   const by = dateien["by.json"];
   assert.equal(by.land, "BY");
   assert.ok(by.stellen.fba, "Fernstraßen-Bundesamt ist in jeder Landesdatei");
@@ -143,20 +143,51 @@ test("baueLaender + auswahl: Kontakt der Stelle, die für die Klasse zuständig 
 });
 
 test("baueLaender: Kontakt der Gemeinde nur, wo sie zuständig sein kann", () => {
+  // Sachsen-Anhalt hat (noch) keine Landesregel: Rückfall auf die Kreisebene.
+  const a = attr();
+  a.gemeinden["150855001001"] = {
+    ars: "150855001001", gen: "Musterort", name: "Gemeinde Musterort", land: "ST",
+    kreis: kreis("15085", "Harz", "Landkreis", "ja"),
+    verband: { ars: "150855001", name: "Verbandsgemeinde Musterheide" },
+  };
   const k = kontakte();
-  k.meta.laender = { RP: { ...k.meta.laender.BY, herausgeber: "8958611" } };
-  k.gemeinden = { "073395001001": { ...k.gemeinden["092740128128"] } };
-  const rp = baueLaender(attr(), { kontakte: k }).dateien["rp.json"];
-  const eintrag = rp.gemeinden["073395001001"];
-  assert.equal(rp.kontakte[eintrag.kontakt].name, "Landratsamt Landshut - Verkehrswesen");
+  k.meta.laender = { ST: { ...k.meta.laender.BY, herausgeber: "8958612" } };
+  k.gemeinden = { "150855001001": { ...k.gemeinden["092740128128"] } };
+  const st = baueLaender(a, { kontakte: k }).dateien["st.json"];
+  const eintrag = st.gemeinden["150855001001"];
+  assert.equal(st.kontakte[eintrag.kontakt].name, "Landratsamt Landshut - Verkehrswesen");
   assert.equal(eintrag.kontakt_gemeinde, undefined, "Rückfall Phase 1: nur die Kreisebene");
 
-  k.gemeinden["073395001001"].wahl = "stvb";
-  const stvb = baueLaender(attr(), { kontakte: k }).dateien["rp.json"];
-  const r = auswahl(stvb, "073395001001", ["G"]);
+  k.gemeinden["150855001001"].wahl = "stvb";
+  const stvb = baueLaender(a, { kontakte: k }).dateien["st.json"];
+  const r = auswahl(stvb, "150855001001", ["G"]);
   assert.equal(r.kontakt.name, "Landratsamt Landshut - Verkehrswesen");
-  assert.equal(r.alternative.stelle.id, "g073395001001", "Portal nennt die Gemeinde");
+  assert.equal(r.alternative.stelle.id, "g150855001001", "Portal nennt die Gemeinde");
   assert.equal(r.alternative.kontakt.name, "Markt Essenbach");
+});
+
+test("baueLaender + auswahl: in Rheinland-Pfalz die Verbandsgemeinde, außerorts die Kreisverwaltung", () => {
+  const k = kontakte();
+  k.meta.laender = { RP: { ...k.meta.laender.BY, herausgeber: "8958611" } };
+  const st = (name) => ({ name, adresse: null, telefon: ["+49 6131 1"], email: [], web: [] });
+  k.gemeinden = {
+    "073395001001": {
+      wahl: "stvb", stellen: 2,
+      kreis: st("Kreisverwaltung Mainz-Bingen - Straßenverkehr"),
+      gemeinde: st("Verbandsgemeindeverwaltung Musterland - Ordnungsamt"),
+    },
+  };
+  const rp = baueLaender(attr(), { kontakte: k }).dateien["rp.json"];
+  const g = auswahl(rp, "073395001001", ["G"]);
+  assert.equal(g.zustaendig.name, "Verbandsgemeinde Musterland – Straßenverkehrsbehörde");
+  assert.equal(g.kontakt.name, "Verbandsgemeindeverwaltung Musterland - Ordnungsamt");
+  assert.equal(g.alternative, null);
+  const l = auswahl(rp, "073395001001", ["L"]);
+  assert.equal(l.zustaendig.id, "v073395001");
+  assert.equal(l.kontakt.name, "Verbandsgemeindeverwaltung Musterland - Ordnungsamt");
+  assert.equal(l.alternative.stelle.name, "Kreisverwaltung Mainz-Bingen – Straßenverkehrsbehörde");
+  assert.equal(l.alternative.bedingung, TEXTE.bedingung.rpAusserorts);
+  assert.equal(l.alternative.kontakt.name, "Kreisverwaltung Mainz-Bingen - Straßenverkehr");
 });
 
 test("baueLaender + auswahl: in Schleswig-Holstein das Amt mit dem Kontakt der Gemeinde-Rolle", () => {

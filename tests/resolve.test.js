@@ -4,8 +4,8 @@ import assert from "node:assert/strict";
 import {
   auswahl, BAU_KLASSEN, BB_AUF_ANTRAG, BB_AUF_ANTRAG_TEILWEISE, BB_GROSSE_KREISANGEHOERIGE_STAEDTE, ergebnisId,
   FESTE_STELLEN, MV_GROSSE_KREISANGEHOERIGE_STAEDTE, MV_STAEDTE_UEBERGANG, NI_GEMEINDESTRASSEN, NI_SELBSTAENDIG,
-  NI_WIE_KREISFREI, NW_GROSSE_KREISANGEHOERIGE_STAEDTE,
-  NW_MITTLERE_KREISANGEHOERIGE_STAEDTE, resolveGemeinde, schwaecher, SICHERHEIT, TEXTE, TH_STAEDTE_AUF_ANTRAG,
+  NI_WIE_KREISFREI, NW_GROSSE_KREISANGEHOERIGE_STAEDTE, NW_MITTLERE_KREISANGEHOERIGE_STAEDTE, resolveGemeinde,
+  RP_ANLAGE_1, RP_GROSSE_KREISANGEHOERIGE_STAEDTE, schwaecher, SICHERHEIT, TEXTE, TH_STAEDTE_AUF_ANTRAG,
 } from "../js/resolve.js";
 
 const kreis = (ars, gen, bez, nbd, kreisfrei = false) => ({ ars, gen, bez, nbd, kreisfrei, name: gen });
@@ -282,10 +282,26 @@ const G = {
     kreis: kreis("13073", "Vorpommern-Rügen", "Landkreis", "ja"),
     verband: { ars: "130735361", gen: "Ribnitz-Damgarten", name: "Amt Ribnitz-Damgarten" },
   },
-  mainz_bingen: {
-    ars: "073395001001", gen: "Musterdorf", land: "RP",
+  mainz: {
+    ars: "073150000000", gen: "Mainz", land: "RP", tkz: [61],
+    kreis: kreis("07315", "Mainz", "Kreisfreie Stadt", "nein", true),
+  },
+  neuwied: {
+    ars: "071380045045", gen: "Neuwied", land: "RP", tkz: [63],
+    kreis: kreis("07138", "Neuwied", "Landkreis", "ja"),
+  },
+  bodenheim: {
+    ars: "073395002006", gen: "Bodenheim", land: "RP", tkz: [64],
     kreis: kreis("07339", "Mainz-Bingen", "Landkreis", "ja"),
-    verband: { ars: "073395001", name: "Verbandsgemeinde Musterland" },
+    verband: { ars: "073395002", gen: "Bodenheim", name: "Verbandsgemeinde Bodenheim" },
+  },
+  hassloch: {
+    ars: "073320025025", gen: "Haßloch", name: "Gemeinde Haßloch", land: "RP", tkz: [64],
+    kreis: kreis("07332", "Bad Dürkheim", "Landkreis", "ja"),
+  },
+  bendorf: {
+    ars: "071370203203", gen: "Bendorf", land: "RP", tkz: [63],
+    kreis: kreis("07137", "Mayen-Koblenz", "Landkreis", "ja"),
   },
   kondominium: {
     ars: "079355003095", gen: "Deutsch-Luxemburgisches Hoheitsgebiet [Nittel]", land: "RP", tkz: [],
@@ -340,9 +356,8 @@ test("Phase 1: gemeindefreies Gebiet → Kreis", () => {
   assert.equal(stellen.k06633.name, "Landkreis Kassel – Straßenverkehrsbehörde");
 });
 
-test("Phase 1: RP-Kreisverwaltung, alle Klassen gleich", () => {
-  const { zust, stellen } = resolveGemeinde(G.mainz_bingen);
-  assert.equal(stellen.k07339.name, "Kreisverwaltung Mainz-Bingen – Straßenverkehrsbehörde");
+test("Phase 1: alle Klassen gleich", () => {
+  const { zust } = resolveGemeinde(G.aichwald);
   const ids = BAU_KLASSEN.map((k) => ergebnisId(zust[k]));
   assert.equal(new Set(ids).size, 1);
 });
@@ -842,6 +857,50 @@ test("Mecklenburg-Vorpommern: sonst der Landkreis (belegt)", () => {
   assert.deepEqual(Object.values(MV_GROSSE_KREISANGEHOERIGE_STAEDTE), ["Neubrandenburg", "Stralsund", "Wismar", "Greifswald"]);
 });
 
+test("Rheinland-Pfalz: Gemeindestraßen bei der Verbandsgemeinde, sonst innerorts – außerorts die Kreisverwaltung", () => {
+  const { zust, stellen } = resolveGemeinde(G.bodenheim);
+  assert.equal(zust.G.stelle, "v073395002");
+  assert.equal(zust.G.alternative, null, "Gemeindestraßen auch außerorts");
+  assert.equal(zust.G.sicherheit, SICHERHEIT.VERMUTLICH, "Wortlaut nur aus der Sekundärquelle");
+  assert.equal(zust.G.grund, TEXTE.grund.rpOrt);
+  assert.equal(zust.G.quelle, TEXTE.quelle.rpOrt);
+  for (const k of ["K", "L", "B"]) {
+    assert.equal(zust[k].stelle, "v073395002", k);
+    assert.deepEqual(zust[k].alternative, { stelle: "k07339", bedingung: TEXTE.bedingung.rpAusserorts }, k);
+  }
+  assert.deepEqual(stellen.v073395002, {
+    id: "v073395002", name: "Verbandsgemeinde Bodenheim – Straßenverkehrsbehörde", ebene: "oertliche", art: "verband",
+  });
+  assert.equal(stellen.k07339.name, "Kreisverwaltung Mainz-Bingen – Straßenverkehrsbehörde");
+
+  const hassloch = resolveGemeinde(G.hassloch);
+  assert.equal(hassloch.zust.G.stelle, "g073320025025");
+  assert.equal(hassloch.zust.L.alternative.stelle, "k07332");
+  assert.deepEqual(hassloch.stellen.g073320025025, {
+    id: "g073320025025", name: "Gemeinde Haßloch – Straßenverkehrsbehörde", ebene: "oertliche", art: "gemeinde",
+  });
+  assert.equal(resolveGemeinde(G.bendorf).stellen.g071370203203.name, "Stadt Bendorf – Straßenverkehrsbehörde");
+});
+
+test("Rheinland-Pfalz: kreisfreie und große kreisangehörige Städte für alle Straßen", () => {
+  const mainz = resolveGemeinde(G.mainz).zust;
+  for (const k of BAU_KLASSEN) assert.equal(mainz[k].stelle, "k07315", k);
+  assert.equal(mainz.B.quelle, TEXTE.quelle.rpKreis);
+  const neuwied = resolveGemeinde(G.neuwied);
+  for (const k of BAU_KLASSEN) {
+    assert.equal(neuwied.zust[k].stelle, "g071380045045", k);
+    assert.equal(neuwied.zust[k].alternative, null, k);
+  }
+  assert.equal(neuwied.zust.B.grund, TEXTE.grund.rpGks);
+  assert.equal(neuwied.zust.B.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.deepEqual(neuwied.stellen.g071380045045, {
+    id: "g071380045045", name: "Stadt Neuwied – Straßenverkehrsbehörde", ebene: "untere", art: "stadt",
+  });
+  assert.equal(Object.keys(RP_GROSSE_KREISANGEHOERIGE_STAEDTE).length, 8);
+  for (const ars of Object.keys(RP_GROSSE_KREISANGEHOERIGE_STAEDTE)) assert.match(ars, /^07\d{3}0(\d{3})\1$/, ars);
+  for (const ars of Object.keys(RP_ANLAGE_1)) assert.match(ars, /^07\d{7}(\d{3})?$/, ars);
+});
+
 test("resolveGemeinde: prüft die Eingabe", () => {
   assert.throws(() => resolveGemeinde({ ...G.muenchen, ars: "09162000" }), /ungültiger ARS/);
   assert.throws(() => resolveGemeinde({ ...G.muenchen, kreis: null }), /ohne Kreis/);
@@ -963,4 +1022,16 @@ test("auswahl: Brandenburg, Teilzuständigkeit der Stadt als Alternative mit Kon
   assert.equal(r.alternative.stelle.id, "g120680264264");
   assert.equal(r.alternative.bedingung, TEXTE.bedingung.bbTeil);
   assert.equal(r.alternative.kontakt.name, "Stadt Kyritz - Ordnungsamt");
+});
+
+test("auswahl: Rheinland-Pfalz, Klasse unklar – Verbandsgemeinde, außerorts die Kreisverwaltung", () => {
+  const d = landesdatei("RP", [G.bodenheim]);
+  const r = auswahl(d, G.bodenheim.ars, []);
+  assert.equal(r.zustaendig.id, "v073395002");
+  assert.equal(r.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(r.alternative.stelle.id, "k07339");
+  assert.equal(r.alternative.bedingung, TEXTE.bedingung.rpAusserorts);
+  const beide = auswahl(d, G.bodenheim.ars, ["G", "L"]);
+  assert.equal(beide.zustaendig.id, "v073395002");
+  assert.equal(beide.alternative.stelle.id, "k07339", "die Alternative der Landesstraße");
 });

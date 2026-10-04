@@ -58,7 +58,7 @@ def test_ende_zu_ende(fixture_daten, tmp_path) -> None:
     typen = grenzen.typen_aus_landesdateien(aus)
     assert typen["091780124124"] == ("stadt", "belegt")  # Große Kreisstadt in Bayern
     assert typen["091785101201"] == ("gemeinde", "belegt")  # Bayern: Gemeindestraßen
-    assert typen["073395001001"] == ("kreis", "nur Ebene")  # ohne Landesregel
+    assert typen["073395001001"] == ("verband", "vermutlich")  # Rheinland-Pfalz: Verbandsgemeinde
     assert typen["040110000000"] == ("stadtstaat", "belegt")
     gem_fgb, krs_fgb = tmp_path / "gemeinden.fgb", tmp_path / "kreise.fgb"
     grenzen.schreibe_fgb(fixture_daten.gpkg, gem_fgb, krs_fgb, typen)

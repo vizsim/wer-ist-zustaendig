@@ -132,6 +132,13 @@ export const TEXTE = Object.freeze({
     mvKreisBestand:
       "In Mecklenburg-Vorpommern ist der Landkreis Straßenverkehrsbehörde. Städte mit 17.000 bis 20.000 " +
       "Einwohnern, die früher einmal mehr als 20.000 hatten, ordnen Verkehrszeichen selbst an.",
+    rpOrt:
+      "In Rheinland-Pfalz ordnet die Verbandsgemeinde bzw. die verbandsfreie Gemeinde Verkehrszeichen an – " +
+      "auf Gemeindestraßen überall, auf Bundes-, Landes- und Kreisstraßen innerhalb geschlossener Ortschaften.",
+    rpAnlage1:
+      "In Rheinland-Pfalz ordnet die Verbandsgemeinde bzw. die verbandsfreie Gemeinde Verkehrszeichen an; " +
+      "diese auch auf Landes- und Kreisstraßen außerhalb geschlossener Ortschaften.",
+    rpGks: "In Rheinland-Pfalz ist die große kreisangehörige Stadt für alle Straßen selbst Straßenverkehrsbehörde.",
   }),
   bedingung: Object.freeze({
     gks: "Große Kreisstadt – sie kann selbst zuständig sein",
@@ -147,6 +154,7 @@ export const TEXTE = Object.freeze({
       "falls es nur um Halten und Parken, eine Baustelle, eine Veranstaltung oder den Schutz der " +
       "Gemeindestraße vor außerordentlichen Schäden geht",
     mvBestandMoeglich: "Stadt mit 17.000 bis 20.000 Einwohnern – sie kann nach der Übergangsregel selbst zuständig sein",
+    rpAusserorts: "falls die Strecke außerhalb geschlossener Ortschaften liegt",
   }),
   quelle: Object.freeze({
     phase1: "Rückfall auf die Kreisebene – die Regel dieses Landes ist noch nicht eingearbeitet",
@@ -241,6 +249,18 @@ export const TEXTE = Object.freeze({
     mvBestandPortal:
       "§ 4 Abs. 2 Satz 2 StVZustLVO M-V vom 12.08.2021 (GVOBl. M-V S. 1221); Stadt als Straßenverkehrsbehörde " +
       "laut Bundesportal; Einwohner laut GV-ISys 31.12.2025",
+    rpKreis:
+      "§ 3 Abs. 1 Nr. 1 der Landesverordnung über Zuständigkeiten auf dem Gebiet des Straßenverkehrsrechts " +
+      "(Rheinland-Pfalz) vom 12.03.1987 [S]",
+    rpGks:
+      "§ 3 Abs. 1 Nr. 1 und § 5 Abs. 1 der Landesverordnung über Zuständigkeiten auf dem Gebiet des " +
+      "Straßenverkehrsrechts (Rheinland-Pfalz) vom 12.03.1987 [S]; große kreisangehörige Städte nach § 6 GemO",
+    rpOrt:
+      "§ 5 Abs. 1 Satz 1 und 2 der Landesverordnung über Zuständigkeiten auf dem Gebiet des " +
+      "Straßenverkehrsrechts (Rheinland-Pfalz) vom 12.03.1987 [S]; außerhalb geschlossener Ortschaften § 3 Abs. 1 Nr. 1",
+    rpAnlage1:
+      "§ 5 Abs. 1 Satz 3 und Anlage 1 der Landesverordnung über Zuständigkeiten auf dem Gebiet des " +
+      "Straßenverkehrsrechts (Rheinland-Pfalz) vom 12.03.1987 [S]",
   }),
   hinweis: Object.freeze({
     autobahnDabei: "Für die Autobahn selbst ist das Fernstraßen-Bundesamt zuständig.",
@@ -774,6 +794,47 @@ function regelMecklenburgVorpommern(g) {
   return ergebnis(kreis, SICHERHEIT.BELEGT, "mvKreis", "mvKreis");
 }
 
+// Rheinland-Pfalz: Landesverordnung über Zuständigkeiten auf dem Gebiet des Straßenverkehrsrechts vom
+// 12.03.1987, zuletzt geändert 15.06.2026 (GVBl. 2026 Nr. 14, nur Anlage 3). Den Wortlaut von § 3 und
+// § 5 haben wir nur aus einer Sekundärquelle (lexsoft, Fassung vom 08.12.2020): landesrecht.rlp.de war
+// beim Einbau nicht erreichbar. Deshalb ist jede Auskunft nur „vermutlich“ (docs/TODO.md).
+
+/** Große kreisangehörige Städte (§ 6 GemO): Die Stadtverwaltung ist für alle Straßen zuständig. */
+export const RP_GROSSE_KREISANGEHOERIGE_STAEDTE = Object.freeze({
+  "071330006006": "Bad Kreuznach", "071340045045": "Idar-Oberstein", "071370003003": "Andernach",
+  "071370068068": "Mayen", "071380045045": "Neuwied", "071410075075": "Lahnstein",
+  "073390005005": "Bingen am Rhein", "073390030030": "Ingelheim am Rhein",
+});
+
+/**
+ * Anlage 1 zu § 5 Abs. 1 Satz 3: verbandsfreie Gemeinden (ARS, 12 Stellen) und Verbandsgemeinden
+ * (Verbandsschlüssel, 9 Stellen), die auf Landes- und Kreisstraßen auch außerhalb geschlossener
+ * Ortschaften zuständig sind. Noch leer – die Anlage ließ sich beim Einbau nicht lesen.
+ */
+export const RP_ANLAGE_1 = Object.freeze({});
+
+/**
+ * Rheinland-Pfalz (vermutlich): Straßenverkehrsbehörde ist die Kreisverwaltung, in kreisfreien und
+ * großen kreisangehörigen Städten die Stadtverwaltung (§ 3 Abs. 1 Nr. 1). Maßnahmen nach § 45 StVO
+ * trifft aber die Verbandsgemeinde bzw. die verbandsfreie Gemeinde (§ 5 Abs. 1 Satz 1) – auf Bundes-,
+ * Landes- und Kreisstraßen nur innerhalb geschlossener Ortschaften (Satz 2), auf Landes- und
+ * Kreisstraßen auch außerhalb, wenn sie in Anlage 1 steht (Satz 3). Ob eine Strecke innerorts liegt,
+ * wissen wir nicht: Dort steht die Kreisverwaltung als Alternative.
+ */
+function regelRheinlandPfalz(g, klasse) {
+  const kreis = kreisStelle(g);
+  const sicher = SICHERHEIT.VERMUTLICH; // bis der Wortlaut an der Primärquelle geprüft ist
+  if (g.kreis.kreisfrei) return ergebnis(kreis, sicher, "kreisfrei", "rpKreis");
+  if (g.gemeindefrei) return ergebnis(kreis, sicher, "gemeindefrei", "rpKreis");
+  if (RP_GROSSE_KREISANGEHOERIGE_STAEDTE[g.ars]) {
+    return ergebnis(gemeindeStelle(g, "stadt", "untere"), sicher, "rpGks", "rpGks");
+  }
+  const ort = g.verband ? verbandStelle(g) : gemeindeStelle(g, istStadt(g) ? "stadt" : "gemeinde", "oertliche");
+  if (klasse === "G") return ergebnis(ort, sicher, "rpOrt", "rpOrt");
+  if (klasse !== "B" && RP_ANLAGE_1[g.verband?.ars ?? g.ars]) return ergebnis(ort, sicher, "rpAnlage1", "rpAnlage1");
+  return ergebnis(ort, sicher, "rpOrt", "rpOrt", { stelle: kreis, bedingung: "rpAusserorts" });
+}
+
 /** Landesregeln: (Gemeinde, Klasse) → Ergebnis, oder null für den Rückfall auf Phase 1. */
 export const LANDESREGELN = Object.freeze({
   BB: regelBrandenburg,
@@ -781,6 +842,7 @@ export const LANDESREGELN = Object.freeze({
   MV: regelMecklenburgVorpommern,
   NI: regelNiedersachsen,
   NW: regelNordrheinWestfalen,
+  RP: regelRheinlandPfalz,
   SH: regelSchleswigHolstein,
   TH: regelThueringen,
 });
