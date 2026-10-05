@@ -6,8 +6,9 @@
 //                                [--kontakte <datei>]
 //
 // Defaults: pipeline/data/interim/gemeinden_attr.json → pipeline/data/zustaendigkeit/,
-// Review-CSV nach pipeline/data/review/ (nicht deployen, nicht einchecken). Kontakte aus
-// pipeline/data/interim/kontakte.json (`zust kontakte`), wenn vorhanden – wie `zust laender`.
+// Review-CSV nach pipeline/data/review/ (nicht deployen, nicht einchecken). Kontakte aus der
+// kontakte.json neben der Gemeindetabelle (`zust kontakte`), wenn vorhanden – wie `zust laender`;
+// eine andere Tabelle (Testdaten) bekommt so nie die echten Kontakte.
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -25,7 +26,7 @@ function arg(name, fallback) {
 const attrPfad = arg("attr", join(ROOT, "pipeline/data/interim/gemeinden_attr.json"));
 const ausOrdner = arg("aus", join(ROOT, "pipeline/data/zustaendigkeit"));
 const reviewPfad = arg("review", join(ROOT, "pipeline/data/review/zustaendigkeit-review.csv"));
-const kontakteStandard = join(ROOT, "pipeline/data/interim/kontakte.json");
+const kontakteStandard = join(dirname(attrPfad), "kontakte.json");
 const kontaktePfad = arg("kontakte", existsSync(kontakteStandard) ? kontakteStandard : null);
 
 const attr = JSON.parse(readFileSync(attrPfad, "utf8"));
