@@ -1185,10 +1185,11 @@ export const BW_SCHWELLEN = Object.freeze({ oertlich: 5000, vgUntere: 20000, ran
  * sind es ohnehin. Webseiten der Landratsämter bzw. Gemeinden, gelesen 05.10.2026 [S]: Esslingen, Ludwigsburg,
  * Rems-Murr-Kreis, Heilbronn, Rastatt (Bühl, Ottersweier laut Gemeinde), Rhein-Neckar-Kreis (Übersicht Stand
  * 04.07.2023), Breisgau-Hochschwarzwald (GVV Müllheim-Badenweiler, Pressemitteilung Müllheim 29.09.2026),
- * Ortenaukreis (Antrag Straßensperrung), Tuttlingen, Konstanz, Waldshut (Rechtsform nicht genannt), Tübingen
- * (Mössingen, Webseite der Stadt), Zollernalbkreis, Alb-Donau-Kreis (Verwaltungsverband Langenau: Ordnungsamt als
- * Straßenverkehrs- und Kreispolizeibehörde), Biberach (Laupheim; die Seite nennt die Mitglieder nicht, sie sind
- * ungeprüft), Bodenseekreis, Ravensburg (Stand Oktober 2025), Sigmaringen.
+ * Ortenaukreis (Antrag Straßensperrung), Tuttlingen (die Karte nennt auch Aixheim, einen Ortsteil von Aldingen;
+ * Dürbheim fehlt dort, gehört laut Gemeinde und Tabelle aber zur Gemeinschaft), Konstanz, Waldshut (Rechtsform
+ * nicht genannt), Tübingen (Mössingen, Webseite der Stadt), Zollernalbkreis, Alb-Donau-Kreis (Verwaltungsverband
+ * Langenau: Ordnungsamt als Straßenverkehrs- und Kreispolizeibehörde), Biberach (Laupheim; die Seite nennt die
+ * Mitglieder nicht, sie sind ungeprüft), Bodenseekreis, Ravensburg (Stand Oktober 2025), Sigmaringen.
  */
 export const BW_VG_UNTERE = Object.freeze({
   "08116": [["Dettingen unter Teck", "Kirchheim unter Teck", "Notzingen"]],
@@ -1206,8 +1207,7 @@ export const BW_VG_UNTERE = Object.freeze({
   "08315": [["Auggen", "Badenweiler", "Buggingen", "Müllheim im Markgräflerland", "Sulzburg"]],
   "08317": [["Kippenheim", "Lahr/Schwarzwald"], ["Lautenbach", "Oberkirch", "Renchen"]],
   "08327": [[
-    "Aixheim", "Aldingen", "Balgheim", "Böttingen", "Denkingen", "Frittlingen", "Hausen ob Verena", "Mahlstetten",
-    "Spaichingen",
+    "Aldingen", "Balgheim", "Böttingen", "Denkingen", "Frittlingen", "Hausen ob Verena", "Mahlstetten", "Spaichingen",
   ]],
   "08335": [["Bodman-Ludwigshafen", "Eigeltingen", "Hohenfels", "Mühlingen", "Orsingen-Nenzingen", "Stockach"]],
   "08337": [["Bad Säckingen", "Herrischried", "Murg", "Rickenbach"]],
@@ -1276,7 +1276,10 @@ export const BW_OERTLICH_VG = Object.freeze({
  * Große Kreisstädte und Verwaltungsgemeinschaften, `oertlich` für die örtlichen Straßenverkehrsbehörden (nur, wo
  * es sie nennt oder ausdrücklich für die übrigen Gemeinden alle Straßen übernimmt). Dort bekommen Gemeinden, die
  * es sein könnten, das Landratsamt ohne Alternative (Quellen wie oben). Reutlingen und Calw nennen nur ihre
- * Großen Kreisstädte, jeweils „für ihre Gemarkung“ bzw. „mit Ausnahme der Großen Kreisstädte“.
+ * Großen Kreisstädte, jeweils „für ihre Gemarkung“ bzw. „mit Ausnahme der Großen Kreisstädte“. Ravensburg:
+ * Wolfegg, Grünkraut, Schlier und Riedhausen stehen auf der Karte des Landratsamts, aber in keiner Liste; es nennt
+ * aber ihre Verbandspartner (laut Tabelle Verwaltungsgemeinschaft Vogt, Verwaltungsverbände Gullen und
+ * Altshausen), und eine Erklärung gälte für die ganze Gemeinschaft.
  */
 export const BW_VOLLSTAENDIG = Object.freeze({
   untere: Object.freeze([
@@ -1287,18 +1290,6 @@ export const BW_VOLLSTAENDIG = Object.freeze({
     "08115", "08116", "08125", "08215", "08216", "08226", "08237", "08317", "08325", "08327", "08337", "08417",
     "08435", "08436", "08437",
   ]),
-});
-
-/**
- * Baden-Württemberg: Gemeinden, die das Landratsamt in seiner sonst vollständigen Liste nicht nennt – für sie
- * gilt der Kreis nicht als vollständig. Wie die Listen gilt das je Gemeinschaft: Nennt das Landratsamt ein
- * anderes Mitglied, deckt es den Verband, und die Ausnahme greift nicht (der Build warnt dann). Ravensburg:
- * Wolfegg steht auf der Karte des Landratsamts, aber in keiner Liste; ebenso Grünkraut, Schlier und Riedhausen,
- * deren Verbandspartner es aber nennt (GVV Gullen bzw. Altshausen laut Wikipedia [S]). Dürbheim fehlt in der Karte
- * des Landratsamts Tuttlingen – laut Gemeinde gehört es zur Verwaltungsgemeinschaft Spaichingen, die dann gilt.
- */
-export const BW_NICHT_GENANNT = Object.freeze({
-  "08436": ["Wolfegg"],
 });
 
 const bwIn = (liste, g) => (liste[g.kreis.ars] ?? []).includes(g.gen);
@@ -1316,19 +1307,16 @@ function bwGemeinschaft(liste, g) {
 /**
  * Prüft die Listen nach Namen gegen die Gemeindetabelle (Einträge wie in gemeinden_attr.json) – für den Build
  * (tools/lib/laender.mjs): Namen, die es im Kreis nicht gibt; Gruppen, deren Gemeinden nicht genau einem Verband
- * angehören; Verbände in zwei Gruppen oder zwei Listen; örtliche Gemeinden, deren Verband eine Liste nennt;
- * Ausnahmen (`BW_NICHT_GENANNT`), die nicht greifen, weil der Verband weitere Mitglieder hat. Nur Kreise, die in
- * der Tabelle vorkommen. Sonst griffe ein Eintrag still nicht oder anders als gedacht.
+ * angehören; Verbände in zwei Gruppen oder zwei Listen; örtliche Gemeinden, deren Verband eine Liste nennt. Nur
+ * Kreise, die in der Tabelle vorkommen. Sonst griffe ein Eintrag still nicht oder anders als gedacht.
  * @returns {string[]} Warnungen, leer wenn alles passt
  */
 export function pruefeListen(gemeinden) {
   const je = new Map(); // Kreis-ARS → Map(GEN → Eintrag)
-  const mitglieder = new Map(); // Verbands-ARS → Namen
   for (const g of gemeinden) {
     if (g.land !== "BW" || g.kondominium) continue;
     if (!je.has(g.kreis.ars)) je.set(g.kreis.ars, new Map());
     je.get(g.kreis.ars).set(g.gen, g);
-    if (g.verband?.ars) mitglieder.set(g.verband.ars, [...(mitglieder.get(g.verband.ars) ?? []), g.gen]);
   }
   const warnungen = [];
   const verbandIn = new Map(); // Verbands-ARS → Liste
@@ -1355,20 +1343,10 @@ export function pruefeListen(gemeinden) {
   pruefe("BW_VG_UNTERE", BW_VG_UNTERE, true);
   pruefe("BW_OERTLICH_VG", BW_OERTLICH_VG, true);
   pruefe("BW_OERTLICH", BW_OERTLICH, false);
-  pruefe("BW_NICHT_GENANNT", BW_NICHT_GENANNT, false);
   for (const [kreis, namen] of Object.entries(BW_OERTLICH)) {
     for (const gen of namen) {
       const v = je.get(kreis)?.get(gen)?.verband?.ars;
       if (v && verbandIn.has(v)) warnungen.push(`BW_OERTLICH: ${gen} (${kreis}) – ihr Verband steht in ${verbandIn.get(v)}`);
-    }
-  }
-  for (const [kreis, namen] of Object.entries(BW_NICHT_GENANNT)) {
-    for (const gen of namen) {
-      const v = je.get(kreis)?.get(gen)?.verband?.ars;
-      const andere = v ? mitglieder.get(v).filter((m) => !namen.includes(m)) : [];
-      if (andere.length) {
-        warnungen.push(`BW_NICHT_GENANNT: ${gen} (${kreis}) greift nicht – ihr Verband hat weitere Mitglieder (${andere.join(", ")})`);
-      }
     }
   }
   return warnungen;
@@ -1383,9 +1361,9 @@ export function pruefeListen(gemeinden) {
  * auf Straßen höherer Verkehrsbedeutung wirken (§§ 2, 3 Abs. 2) – dafür das Landratsamt als Alternative. Ein
  * Verzeichnis der Erklärungen gibt es nicht: bekannte Fälle aus den Listen oben, sonst das Landratsamt mit der
  * möglichen Stelle als Alternative. Ist eine Gemeinschaft oder eines ihrer Mitglieder örtliche
- * Straßenverkehrsbehörde, ist die Gemeinschaft nicht zugleich untere Verwaltungsbehörde. Listen und Ausnahmen
- * gelten je Gemeinschaft: `g.verband.ew` (Einwohner der Gemeinschaft) und `g.verband.mitglieder` ergänzt der
- * Build. Fehlen Einwohner oder nennt eine Liste die Gemeinde ohne Verband in der Tabelle, ist nichts „belegt“.
+ * Straßenverkehrsbehörde, ist die Gemeinschaft nicht zugleich untere Verwaltungsbehörde. Die Listen gelten je
+ * Gemeinschaft: `g.verband.ew` (Einwohner der Gemeinschaft) und `g.verband.mitglieder` ergänzt der Build. Fehlen
+ * Einwohner oder nennt eine Liste die Gemeinde ohne Verband in der Tabelle, ist nichts „belegt“.
  */
 function regelBadenWuerttemberg(g, klasse) {
   const kreis = kreisStelle(g);
@@ -1407,9 +1385,8 @@ function regelBadenWuerttemberg(g, klasse) {
   const listeOhneVerband = !g.verband && (bwGenannt(BW_VG_UNTERE, g) || bwGenannt(BW_OERTLICH_VG, g));
   const sicher = ewFehlt || listeOhneVerband ? SICHERHEIT.VERMUTLICH : SICHERHEIT.BELEGT;
   const quelle = listeOhneVerband ? "bwListe" : "bwSchwelle";
-  // Die Liste des Landratsamts ist vollständig – außer für Gemeinden, deren ganze Gemeinschaft es nicht nennt.
-  const nichtGenannt = bwMitglieder(g).every((n) => kreisListe(BW_NICHT_GENANNT).includes(n));
-  const vollstaendig = (art) => BW_VOLLSTAENDIG[art].includes(g.kreis.ars) && !nichtGenannt;
+  // Nennt das Landratsamt alle, die außer ihm zuständig sind?
+  const vollstaendig = (art) => BW_VOLLSTAENDIG[art].includes(g.kreis.ars);
   // Könnte die Gemeinschaft untere Verwaltungsbehörde sein?
   const ewVg = g.verband?.ew ?? 0;
   const vgGross = Boolean(g.verband) && ewVg > BW_SCHWELLEN.vgUntere * BW_SCHWELLEN.rand;

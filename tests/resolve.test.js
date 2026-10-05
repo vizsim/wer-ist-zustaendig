@@ -2,8 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  auswahl, BAU_KLASSEN, BB_AUF_ANTRAG, BB_AUF_ANTRAG_TEILWEISE, BB_GROSSE_KREISANGEHOERIGE_STAEDTE, BW_NICHT_GENANNT,
-  BW_OERTLICH, BW_OERTLICH_VG, BW_SCHWELLEN, BW_VG_UNTERE, BW_VOLLSTAENDIG, ergebnisId,
+  auswahl, BAU_KLASSEN, BB_AUF_ANTRAG, BB_AUF_ANTRAG_TEILWEISE, BB_GROSSE_KREISANGEHOERIGE_STAEDTE, BW_OERTLICH, BW_OERTLICH_VG, BW_SCHWELLEN, BW_VG_UNTERE, BW_VOLLSTAENDIG, ergebnisId,
   FESTE_STELLEN, HE_SCHWELLEN, HE_SONDERSTATUS, kontaktRolle, MV_GROSSE_KREISANGEHOERIGE_STAEDTE, MV_STAEDTE_UEBERGANG,
   NI_GEMEINDESTRASSEN, NI_SELBSTAENDIG, NI_WIE_KREISFREI, NW_GROSSE_KREISANGEHOERIGE_STAEDTE,
   NW_MITTLERE_KREISANGEHOERIGE_STAEDTE, pruefeListen, resolveGemeinde, RP_ANLAGE_1, RP_GROSSE_KREISANGEHOERIGE_STAEDTE,
@@ -1551,19 +1550,17 @@ test("Baden-Württemberg: Gemeindestraßen – die Gemeinde oder ihr Verband als
   assert.equal(mitEw(4501).alternative.stelle, "g081350015015");
   const kleinerVerband = { ...G.doerzbach, verband: { ...G.doerzbach.verband, ew: 4500 } };
   assert.equal(resolveGemeinde(kleinerVerband).zust.G.sicherheit, SICHERHEIT.BELEGT);
-  // Ravensburg nennt alle – außer Wolfegg (`BW_NICHT_GENANNT`): Dort bleibt die Alternative, aber nur, wenn das
-  // Landratsamt kein Mitglied ihres Verbands nennt; sonst deckt es den Verband (Verbände erfunden).
+  // Ravensburg nennt alle, auch für Wolfegg: Es steht in keiner Liste, sein Verbandspartner Vogt schon, und eine
+  // Erklärung gälte für die ganze Gemeinschaft (Verbände erfunden).
   const ravensburg = (gen, mitglieder) => resolveGemeinde({
     ars: "084365000001", gen, name: `Gemeinde ${gen}`, land: "BW", tkz: [64], ew: 3800,
     kreis: kreis("08436", "Ravensburg", "Landkreis", "ja"),
     verband: { ars: "084365000", gen: "Muster", name: "Gemeindeverwaltungsverband Muster", ew: 9000, mitglieder },
   }).zust.G;
-  const wolfegg = ravensburg("Wolfegg", ["Wolfegg"]);
-  assert.deepEqual(wolfegg.alternative, { stelle: "v084365000", bedingung: TEXTE.bedingung.bwOertlichVg });
-  assert.equal(wolfegg.quelle, TEXTE.quelle.bwSchwelle);
-  assert.equal(ravensburg("Wolfegg", ["Vogt", "Wolfegg"]).alternative, null, "das Landratsamt nennt Vogt");
-  assert.equal(ravensburg("Baindt", ["Baindt"]).alternative, null, "vom Landratsamt genannt");
-  assert.equal(ravensburg("Baindt", ["Baindt"]).quelle, TEXTE.quelle.bwListe);
+  for (const [gen, mitglieder] of [["Wolfegg", ["Vogt", "Wolfegg"]], ["Baindt", ["Baindt"]]]) {
+    assert.equal(ravensburg(gen, mitglieder).alternative, null, gen);
+    assert.equal(ravensburg(gen, mitglieder).quelle, TEXTE.quelle.bwListe, gen);
+  }
 });
 
 test("Baden-Württemberg: Listen – Kreise als Schlüssel, Namen sortiert und eindeutig, keine Gemeinde doppelt", () => {
@@ -1571,7 +1568,7 @@ test("Baden-Württemberg: Listen – Kreise als Schlüssel, Namen sortiert und e
   const stadtkreise = new Set(["08111", "08121", "08211", "08212", "08221", "08222", "08231", "08311", "08421"]);
   const sortiert = (namen) => [...namen].sort((a, b) => a.localeCompare(b, "de"));
   const gesehen = new Map();
-  const listen = { BW_VG_UNTERE, BW_OERTLICH_VG, BW_OERTLICH, BW_NICHT_GENANNT };
+  const listen = { BW_VG_UNTERE, BW_OERTLICH_VG, BW_OERTLICH };
   for (const [name, liste] of Object.entries(listen)) {
     assert.ok(Object.isFrozen(liste), name);
     const kreise = Object.keys(liste);
@@ -1600,9 +1597,6 @@ test("Baden-Württemberg: Listen – Kreise als Schlüssel, Namen sortiert und e
   for (const [art, kreise] of Object.entries(BW_VOLLSTAENDIG)) {
     assert.deepEqual(kreise, [...new Set(kreise)].sort(), `BW_VOLLSTAENDIG.${art}: sortiert, eindeutig`);
     for (const k of kreise) assert.ok(/^08\d{3}$/.test(k) && !stadtkreise.has(k), `BW_VOLLSTAENDIG.${art}: ${k}`);
-  }
-  for (const k of Object.keys(BW_NICHT_GENANNT)) {
-    assert.ok(BW_VOLLSTAENDIG.untere.includes(k) && BW_VOLLSTAENDIG.oertlich.includes(k), `${k}: in beiden Listen`);
   }
 });
 
@@ -1634,16 +1628,11 @@ test("Baden-Württemberg: pruefeListen – Namen, Verbände und Widersprüche ge
   assert.ok(pruefeListen(beide).includes("Verband 082265001 steht in BW_VG_UNTERE und BW_OERTLICH_VG"));
   assert.deepEqual(pruefeListen([{ ...tabelle[0], land: "BY" }, { ...tabelle[0], kondominium: { nachbar: "x" } }]), [],
     "nur Baden-Württemberg, ohne Kondominium");
-  // Zwei Gruppen derselben Liste in einem Verband (Heilbronn); eine Ausnahme, deren Verband das Landratsamt nennt.
+  // Zwei Gruppen derselben Liste in einem Verband (Heilbronn).
   const hn = kreis("08125", "Heilbronn", "Landkreis", "ja");
   const zweiGruppen = [{ land: "BW", gen: "Bad Friedrichshall", kreis: hn, verband: { ars: "081255001" } },
     { land: "BW", gen: "Eppingen", kreis: hn, verband: { ars: "081255001" } }];
   assert.ok(pruefeListen(zweiGruppen).includes("Verband 081255001 steht in zwei Gruppen von BW_VG_UNTERE"));
-  const rv = kreis("08436", "Ravensburg", "Landkreis", "ja");
-  const gedeckt = [{ land: "BW", gen: "Wolfegg", kreis: rv, verband: { ars: "084365009" } },
-    { land: "BW", gen: "Vogt", kreis: rv, verband: { ars: "084365009" } }];
-  assert.ok(pruefeListen(gedeckt).includes(
-    "BW_NICHT_GENANNT: Wolfegg (08436) greift nicht – ihr Verband hat weitere Mitglieder (Vogt)"));
 });
 
 test("stelleEintragen: dieselbe Id nur mit demselben Inhalt", () => {
