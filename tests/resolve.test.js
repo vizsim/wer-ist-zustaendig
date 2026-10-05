@@ -3,7 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   auswahl, BAU_KLASSEN, BB_AUF_ANTRAG, BB_AUF_ANTRAG_TEILWEISE, BB_GROSSE_KREISANGEHOERIGE_STAEDTE, ergebnisId,
-  FESTE_STELLEN, HE_SCHWELLEN, HE_SONDERSTATUS, MV_GROSSE_KREISANGEHOERIGE_STAEDTE, MV_STAEDTE_UEBERGANG,
+  FESTE_STELLEN, HE_SCHWELLEN, HE_SONDERSTATUS, kontaktRolle, MV_GROSSE_KREISANGEHOERIGE_STAEDTE, MV_STAEDTE_UEBERGANG,
   NI_GEMEINDESTRASSEN, NI_SELBSTAENDIG, NI_WIE_KREISFREI, NW_GROSSE_KREISANGEHOERIGE_STAEDTE,
   NW_MITTLERE_KREISANGEHOERIGE_STAEDTE, resolveGemeinde, RP_ANLAGE_1, RP_GROSSE_KREISANGEHOERIGE_STAEDTE, schwaecher,
   SICHERHEIT, SN_GROSSE_KREISSTAEDTE, TEXTE, TH_STAEDTE_AUF_ANTRAG,
@@ -77,6 +77,15 @@ const G = {
     kreis: kreis("04012", "Bremerhaven", "Kreisfreie Stadt", "nein", true),
   },
   berlin: { ars: "110000000000", gen: "Berlin", land: "BE", kreis: kreis("11000", "Berlin", "Kreisfreie Stadt", "nein", true) },
+  // Berliner Bezirke: Einträge der Pipeline (pipeline/config/berlin.yaml), keine Gemeinden in VG25.
+  berlinMitte: {
+    ars: "110000000001", gen: "Mitte", name: "Bezirk Mitte", land: "BE", bezirk: { nr: "01", name: "Mitte" },
+    kreis: kreis("11000", "Berlin", "Kreisfreie Stadt", "nein", true),
+  },
+  berlinTreptowKoepenick: {
+    ars: "110000000009", gen: "Treptow-Köpenick", name: "Bezirk Treptow-Köpenick", land: "BE",
+    bezirk: { nr: "09", name: "Treptow-Köpenick" }, kreis: kreis("11000", "Berlin", "Kreisfreie Stadt", "nein", true),
+  },
   hamburg: { ars: "020000000000", gen: "Hamburg", land: "HH", kreis: kreis("02000", "Hamburg", "Kreisfreie Stadt", "nein", true) },
   muensingen: {
     ars: "084159971971", gen: "Gutsbezirk Münsingen", land: "BW", tkz: [66], ew: 0, gemeindefrei: true,
@@ -461,12 +470,10 @@ test("Phase 1: Bremen und Bremerhaven belegt", () => {
   assert.equal(resolveGemeinde(G.bremerhaven).zust.G.stelle, "hb-bhv");
 });
 
-test("Phase 1: Berlin mit Senatsverwaltung als Alternative, Hamburg Polizei", () => {
-  const be = resolveGemeinde(G.berlin);
-  assert.equal(be.zust.L.stelle, "be-bezirk");
-  assert.equal(be.zust.L.alternative.stelle, "be-senat");
-  assert.equal(be.stellen["be-senat"].art, "stadtstaat");
-  assert.equal(resolveGemeinde(G.hamburg).zust.G.stelle, "hh-pk");
+test("Phase 1: Hamburg – Polizei, nur Ebene", () => {
+  const hh = resolveGemeinde(G.hamburg);
+  assert.equal(hh.zust.G.stelle, "hh-pk");
+  assert.equal(hh.zust.B.sicherheit, SICHERHEIT.NUR_EBENE);
 });
 
 test("Phase 1: gemeindefreies Gebiet → Kreis", () => {
@@ -1243,6 +1250,41 @@ test("Saarland: Gemeindestraßen bei der Gemeinde, sonst Landkreis bzw. Regional
   for (const k of BAU_KLASSEN) assert.equal(nohfelden.zust[k].alternative, null, k);
 });
 
+test("Berlin: Gemeindestraßen beim Bezirksamt, sonst die Senatsverwaltung – je mit der anderen als Alternative", () => {
+  const { zust, stellen } = resolveGemeinde(G.berlinMitte);
+  assert.equal(zust.G.stelle, "g110000000001");
+  assert.equal(zust.G.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(zust.G.grund, TEXTE.grund.beBezirk);
+  assert.equal(zust.G.quelle, TEXTE.quelle.berlin);
+  assert.deepEqual(zust.G.alternative, { stelle: "be-senat", bedingung: TEXTE.bedingung.berlinNetz });
+  for (const k of ["K", "L", "B"]) {
+    assert.equal(zust[k].stelle, "be-senat", k);
+    assert.equal(zust[k].sicherheit, SICHERHEIT.VERMUTLICH, k);
+    assert.equal(zust[k].grund, TEXTE.grund.beSenat, k);
+    assert.deepEqual(zust[k].alternative, { stelle: "g110000000001", bedingung: TEXTE.bedingung.berlinNebenstrasse }, k);
+  }
+  assert.deepEqual(stellen.g110000000001, {
+    id: "g110000000001", name: "Bezirksamt Mitte – Straßenverkehrsbehörde", ebene: "untere", art: "stadtstaat",
+  });
+  assert.equal(stellen["be-senat"], FESTE_STELLEN["be-senat"], "der Senat behält seine Id");
+  const tk = resolveGemeinde(G.berlinTreptowKoepenick);
+  assert.equal(tk.stellen.g110000000009.name, "Bezirksamt Treptow-Köpenick – Straßenverkehrsbehörde");
+  assert.notEqual(ergebnisId(tk.zust.K), ergebnisId(zust.K), "jeder Bezirk mit sich selbst als Alternative");
+});
+
+test("Berlin gesamt (VG25, ohne Bezirk): Bezirksamt nur als Ebene, Senatsverwaltung vermutlich", () => {
+  const { zust, stellen } = resolveGemeinde(G.berlin);
+  assert.equal(zust.G.stelle, "be-bezirk");
+  assert.equal(zust.G.sicherheit, SICHERHEIT.NUR_EBENE);
+  assert.equal(zust.G.grund, TEXTE.grund.berlin);
+  assert.equal(zust.G.alternative.stelle, "be-senat");
+  assert.equal(zust.B.stelle, "be-senat");
+  assert.equal(zust.B.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.deepEqual(zust.B.alternative, { stelle: "be-bezirk", bedingung: TEXTE.bedingung.berlinNebenstrasse });
+  assert.equal(stellen["be-bezirk"].art, "stadtstaat");
+  assert.equal(stellen["be-senat"].art, "stadtstaat");
+});
+
 test("resolveGemeinde: prüft die Eingabe", () => {
   assert.throws(() => resolveGemeinde({ ...G.muenchen, ars: "09162000" }), /ungültiger ARS/);
   assert.throws(() => resolveGemeinde({ ...G.muenchen, kreis: null }), /ohne Kreis/);
@@ -1421,4 +1463,39 @@ test("auswahl: Hessen – Kreisstraße bei der Gemeinde, der Landkreis bei über
   assert.equal(lg.zustaendig.id, "k06632");
   assert.equal(lg.alternative.stelle.id, "g066320004004");
   assert.equal(lg.alternative.bedingung, TEXTE.bedingung.gemeindestrasse);
+});
+
+test("auswahl: Berlin – Nebenstraße beim Bezirk, unklare Straße beim Senat; je mit dem Kontakt ihrer Rolle", () => {
+  const d = landesdatei("BE", [G.berlin, G.berlinMitte]);
+  d.kontakte = { c1: { name: "Senatsverwaltung – Verkehrsmanagement" }, c2: { name: "Bezirksamt Mitte - Straßenverkehrsbehörde" } };
+  Object.assign(d.gemeinden[G.berlinMitte.ars], { kontakt: "c1", kontakt_gemeinde: "c2" });
+  Object.assign(d.gemeinden[G.berlin.ars], { kontakt: "c1" });
+
+  const g = auswahl(d, G.berlinMitte.ars, ["G"]);
+  assert.equal(g.zustaendig.name, "Bezirksamt Mitte – Straßenverkehrsbehörde");
+  assert.equal(g.kontakt.name, "Bezirksamt Mitte - Straßenverkehrsbehörde");
+  assert.equal(g.alternative.stelle.id, "be-senat");
+  assert.equal(g.alternative.kontakt.name, "Senatsverwaltung – Verkehrsmanagement");
+
+  const unklar = auswahl(d, G.berlinMitte.ars, ["unklar"]);
+  assert.equal(unklar.zustaendig.id, "be-senat");
+  assert.equal(unklar.kontakt.name, "Senatsverwaltung – Verkehrsmanagement");
+  assert.equal(unklar.alternative.stelle.id, "g110000000001");
+  assert.equal(unklar.alternative.bedingung, TEXTE.bedingung.berlinNebenstrasse, "die Bedingung der Regel, nicht „falls es eine Gemeindestraße ist“");
+  assert.equal(unklar.alternative.kontakt.name, "Bezirksamt Mitte - Straßenverkehrsbehörde");
+
+  const gesamt = auswahl(d, G.berlin.ars, ["G"]);
+  assert.equal(gesamt.zustaendig.id, "be-bezirk");
+  assert.equal(gesamt.kontakt, null, "welches Bezirksamt, ist ohne Bezirk unbekannt");
+  assert.equal(gesamt.alternative.kontakt.name, "Senatsverwaltung – Verkehrsmanagement");
+});
+
+test("kontaktRolle: Gemeinde bzw. Verband, Kreisebene, in Berlin Bezirk und Senat", () => {
+  assert.equal(kontaktRolle("g092740128128", "092740128128"), "gemeinde");
+  assert.equal(kontaktRolle("g092740128128", "091780124124"), null, "nie die Gemeinde eines anderen Eintrags");
+  assert.equal(kontaktRolle("v073395001", "073395001001"), "gemeinde");
+  assert.equal(kontaktRolle("k09274", "092740128128"), "kreis");
+  assert.equal(kontaktRolle("g110000000001", "110000000001"), "gemeinde");
+  assert.equal(kontaktRolle("be-senat", "110000000001"), "kreis");
+  for (const id of ["be-bezirk", "fba", "hb-asv", "hh-pk", null]) assert.equal(kontaktRolle(id, "110000000001"), null, String(id));
 });

@@ -184,12 +184,20 @@ export const TEXTE = Object.freeze({
       "Für Landstraßen und Bundesstraßen ist im Saarland der Landkreis bzw. der Regionalverband Saarbrücken " +
       "Straßenverkehrsbehörde.",
     slSaarbruecken: "Die Landeshauptstadt Saarbrücken ist für alle Straßen ihres Gebiets selbst Straßenverkehrsbehörde.",
+    beBezirk:
+      "In Berlin ordnet auf Nebenstraßen das Bezirksamt Verkehrszeichen an, auf den Hauptverkehrsstraßen des " +
+      "übergeordneten Straßennetzes die Senatsverwaltung als zentrale Straßenverkehrsbehörde.",
+    beSenat:
+      "Auf den Hauptverkehrsstraßen des übergeordneten Straßennetzes ordnet in Berlin die Senatsverwaltung als " +
+      "zentrale Straßenverkehrsbehörde Verkehrszeichen an, auf Nebenstraßen das Bezirksamt. Welche Straßen dazu " +
+      "gehören, zeigt die Karte des übergeordneten Straßennetzes im Geoportal Berlin.",
   }),
   bedingung: Object.freeze({
     gks: "Große Kreisstadt – sie kann selbst zuständig sein",
     gemeindestrasse: "falls nur die Gemeindestraße betroffen ist",
     unklar: "falls es eine Gemeindestraße ist",
     berlinNetz: "falls die Straße zum übergeordneten Straßennetz gehört",
+    berlinNebenstrasse: "falls die Straße nicht zum übergeordneten Straßennetz gehört oder es um Halten und Parken geht",
     portalStvb: "laut Bundesportal ist die Gemeinde selbst Straßenverkehrsbehörde",
     thAntragMoeglich: "Gemeinde mit 10.000 bis 30.000 Einwohnern – sie kann auf Antrag selbst zuständig sein",
     shParken: "falls es nur um Halten und Parken, eine Baustelle oder eine Veranstaltung geht",
@@ -215,7 +223,10 @@ export const TEXTE = Object.freeze({
     bremen:
       "Verordnung über die Zuständigkeiten nach der Straßenverkehrs-Ordnung (Bremen) vom " +
       "19.01.2016, zuletzt geändert 02.09.2025",
-    berlin: "ASOG Bln, Zuständigkeitskatalog Ordnungsaufgaben Nr. 11 Abs. 4, Nr. 22b Abs. 3 (Wortlaut nur sekundär geprüft)",
+    berlin:
+      "ASOG Bln, Zuständigkeitskatalog Ordnungsaufgaben Nr. 11 Abs. 4, Nr. 22b Abs. 3 (Wortlaut nicht an der " +
+      "Primärquelle geprüft); Aufteilung nach dem übergeordneten Straßennetz laut Service-Portal Berlin " +
+      "(Leistung 329908) und den Bezirksämtern Mitte und Neukölln (berlin.de, gelesen 05.10.2026)",
     hamburg: "Zuständigkeitsanordnung Hamburg (Titel und Fassung noch nicht geprüft)",
     autobahn: "§ 45 Abs. 11 StVO",
     kondominium:
@@ -434,11 +445,6 @@ function regelPhase1(g) {
   }
   if (ars.startsWith("04012")) {
     return ergebnis(FESTE_STELLEN["hb-bhv"], SICHERHEIT.BELEGT, "bremerhaven", "bremen");
-  }
-  if (ars.startsWith("11")) {
-    return ergebnis(FESTE_STELLEN["be-bezirk"], SICHERHEIT.NUR_EBENE, "berlin", "berlin", {
-      stelle: FESTE_STELLEN["be-senat"], bedingung: "berlinNetz",
-    });
   }
   if (ars.startsWith("02")) {
     return ergebnis(FESTE_STELLEN["hh-pk"], SICHERHEIT.NUR_EBENE, "hamburg", "hamburg");
@@ -1107,9 +1113,35 @@ function regelSaarland(g, klasse) {
   return ergebnis(gemeindeStelle(g, istStadt(g) ? "stadt" : "gemeinde", "oertliche"), SICHERHEIT.BELEGT, "slGemeinde", "slOertlich");
 }
 
+/**
+ * Berlin (vermutlich): Straßenverkehrsbehörden sind die zwölf Bezirksämter und die Senatsverwaltung
+ * mit ihrer Abteilung Verkehrsmanagement (früher Verkehrslenkung Berlin) als zentrale
+ * Straßenverkehrsbehörde. Laut Service-Portal und Bezirksämtern ordnet der Senat auf dem übergeordneten
+ * Straßennetz an (den Hauptverkehrsstraßen; für Arbeitsstellen genannt: Stufen 0–III), das Bezirksamt auf
+ * den Nebenstraßen – in Neukölln ausdrücklich auch Halten und Parken an Hauptstraßen. Welche Straße zum
+ * übergeordneten Netz gehört, wissen wir nicht; die Straßenklasse ist nur ein Anhalt: Gemeindestraßen beim
+ * Bezirk, klassifizierte und unklare Straßen beim Senat, jeweils mit der anderen Stelle als Alternative.
+ *
+ * Die Bezirke sind eigene Einträge (`1100000000` + Bezirksnummer, Feld `bezirk`, aus
+ * pipeline/config/berlin.yaml). Der Eintrag für ganz Berlin (`110000000000`, VG25) kennt den Bezirk
+ * nicht und nennt für Gemeindestraßen nur die Ebene (`be-bezirk`).
+ */
+function regelBerlin(g, klasse) {
+  const senat = FESTE_STELLEN["be-senat"];
+  const bezirk = g.bezirk
+    ? { id: `g${g.ars}`, name: mitZusatz(`Bezirksamt ${g.bezirk.name}`), ebene: "untere", art: "stadtstaat" }
+    : FESTE_STELLEN["be-bezirk"];
+  if (klasse === "G") {
+    const [sicher, grund] = g.bezirk ? [SICHERHEIT.VERMUTLICH, "beBezirk"] : [SICHERHEIT.NUR_EBENE, "berlin"];
+    return ergebnis(bezirk, sicher, grund, "berlin", { stelle: senat, bedingung: "berlinNetz" });
+  }
+  return ergebnis(senat, SICHERHEIT.VERMUTLICH, "beSenat", "berlin", { stelle: bezirk, bedingung: "berlinNebenstrasse" });
+}
+
 /** Landesregeln: (Gemeinde, Klasse) → Ergebnis, oder null für den Rückfall auf Phase 1. */
 export const LANDESREGELN = Object.freeze({
   BB: regelBrandenburg,
+  BE: regelBerlin,
   BY: regelBayern,
   HE: regelHessen,
   MV: regelMecklenburgVorpommern,
@@ -1192,6 +1224,22 @@ export function schwaecher(a, b) {
 }
 
 /**
+ * Welcher Kontakt eines Gemeindeeintrags gehört zu einer Stelle?
+ * - `gemeinde` (Feld `kontakt_gemeinde`): die Gemeinde selbst (`g` + ARS) oder ihr Verband (`v…`) – in
+ *   Berlin der Bezirk, dessen Eintrag die Gemeinde ist;
+ * - `kreis` (Feld `kontakt`): die Kreisebene bzw. kreisfreie Stadt (`k…`), in Berlin die Senatsverwaltung;
+ * - sonst `null` (Bund, Bremen, Hamburg, das Bezirksamt ohne bekannten Bezirk).
+ * @param {string} id Id der Stelle
+ * @param {string} ars ARS des Eintrags
+ */
+export function kontaktRolle(id, ars) {
+  const s = String(id ?? "");
+  if (s === `g${ars}` || s.startsWith("v")) return "gemeinde";
+  if (s.startsWith("k") || s === "be-senat") return "kreis";
+  return null;
+}
+
+/**
  * Laufzeit: zuständige Stelle für die Straßen einer Auswahl.
  * @param {object} daten Landesdatei (zustaendigkeit/<land>.json)
  * @param {string} ars 12-stelliger Regionalschlüssel der Gemeinde am Anker
@@ -1203,10 +1251,10 @@ export function auswahl(daten, ars, klassen = []) {
   if (!eintrag) return null;
   const stelle = (id) => daten.stellen[id] ?? FESTE_STELLEN[id] ?? null;
   // Kontakt einer Stelle: die Gemeinde selbst bzw. ihr Amt (`kontakt_gemeinde`) oder die
-  // Kreisebene bzw. die kreisfreie Stadt (`kontakt`); Bund und Stadtstaaten haben keinen.
+  // Kreisebene bzw. die kreisfreie Stadt (`kontakt`), siehe `kontaktRolle`.
   const kontaktZu = (id) => {
-    const s = String(id ?? "");
-    const ref = s === `g${ars}` || s.startsWith("v") ? eintrag.kontakt_gemeinde : s.startsWith("k") ? eintrag.kontakt : null;
+    const rolle = kontaktRolle(id, ars);
+    const ref = rolle === "gemeinde" ? eintrag.kontakt_gemeinde : rolle === "kreis" ? eintrag.kontakt : null;
     return (ref && daten.kontakte?.[ref]) ?? null;
   };
   const erg = (k) => {

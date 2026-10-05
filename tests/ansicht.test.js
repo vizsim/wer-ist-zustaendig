@@ -191,9 +191,10 @@ test("antwortHtml: ohne Kontakt ist der Bundesportal-Link der Weg", () => {
 
 test("antwortHtml: Land nicht im Bundesportal – Hinweis statt Link ins Leere", () => {
   const html = antwortHtml({
-    ...BASIS, land: "BE", zustaendig: { name: "Bezirksamt (Berlin) – Straßenverkehrsbehörde" }, kontakt: null,
-  }, [], { landName: "Berlin" });
-  assert.ok(html.includes('<p class="schild-hinweis">Kontaktdaten für Berlin haben wir noch nicht.</p>'));
+    ...BASIS, land: "HH", zustaendig: { name: "Polizei Hamburg, zuständiges Polizeikommissariat – Straßenverkehrsbehörde" },
+    kontakt: null,
+  }, [], { landName: "Hamburg" });
+  assert.ok(html.includes('<p class="schild-hinweis">Kontaktdaten für Hamburg haben wir noch nicht.</p>'));
   assert.ok(!html.includes("Bundesportal"));
   const saar = antwortHtml({ ...BASIS, land: "SL", zustaendig: { name: "Landkreis Saarlouis – Straßenverkehrsbehörde" }, kontakt: null }, [], { landName: "Saarland" });
   assert.ok(saar.includes("Kontaktdaten für das Saarland haben wir noch nicht."));
@@ -287,6 +288,10 @@ test("antwortHtml: Autobahn und kreisfreie Stadt ohne doppelten Ortsnamen", () =
   }, [], { landName: "Bayern" });
   assert.ok(html.includes("Auf der Autobahn zuständig"));
   assert.ok(html.includes('<p class="ort">München, Bayern</p>'));
+  const ort = (gemeinde, kreis, landName) => antwortHtml({ ...BASIS, gemeinde, kreis, zustaendig: { name: "X" } }, [], { landName })
+    .match(/<p class="ort">([^<]*)<\/p>/)[1];
+  assert.equal(ort("Hamburg", "Hamburg", "Hamburg"), "Hamburg", "Stadtstaat: Stadt, Kreis und Land gleich");
+  assert.equal(ort("Bezirk Mitte", "Berlin", "Berlin"), "Bezirk Mitte, Berlin");
 });
 
 test("willkommenHtml: Stand aus index.json – geprüft, vermutlich, offen; Kontakte; Melden nur https", () => {

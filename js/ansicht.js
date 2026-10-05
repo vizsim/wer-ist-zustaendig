@@ -308,8 +308,8 @@ export function antwortHtml(r, strassen, { landName, bundesportal, hinweis } = {
 
   const s = strassen?.[0];
   const strasse = s ? `${esc(strassenName(s, r.land))} (${esc(klassenName(s.klasse, r.land))}) · ` : "";
-  const ort = [r.gemeinde, r.verband, r.kreis && r.kreis !== r.gemeinde ? r.kreis : null, landName]
-    .filter(Boolean).map(esc).join(", ");
+  // Jeder Name nur einmal: „München, Bayern“, „Hamburg“, „Bezirk Mitte, Berlin“.
+  const ort = [...new Set([r.gemeinde, r.verband, r.kreis, landName].filter(Boolean))].map(esc).join(", ");
   // Bedienhinweise wie „Keine Straße erkannt" braucht die Karte nicht mehr: Sie antwortet auch ohne Straße.
   const hinweise = (r.hinweise ?? []).filter((h) => h !== TEXTE.hinweis.keineStrasse)
     .map((h) => `<li>${esc(h)}</li>`).join("");

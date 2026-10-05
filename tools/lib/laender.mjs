@@ -9,7 +9,7 @@
 
 import { LAENDER, landAusKuerzel, landesdatei } from "../../js/laender.js";
 import {
-  BAU_KLASSEN, BUNDESPORTAL, ergebnisId, FESTE_STELLEN, HINWEIS, REGELN, resolveGemeinde,
+  BAU_KLASSEN, BUNDESPORTAL, ergebnisId, FESTE_STELLEN, HINWEIS, kontaktRolle, REGELN, resolveGemeinde,
 } from "../../js/resolve.js";
 
 export const SCHEMA = 1;
@@ -112,15 +112,13 @@ export function baueLaender(attr, opts = {}) {
     if (Number.isFinite(g.ew)) eintrag.ew = g.ew;
     eintrag.z = z;
     // Kontakte der Stellen, die in den Ergebnissen dieser Gemeinde vorkommen: Kreisebene bzw.
-    // kreisfreie Stadt (`k…` → kontakt) und die Gemeinde selbst bzw. ihr Amt (`g…`, `v…` →
-    // kontakt_gemeinde).
+    // kreisfreie Stadt (→ kontakt) und die Gemeinde selbst bzw. ihr Amt (→ kontakt_gemeinde);
+    // welche Stelle welche Rolle hat, sagt `kontaktRolle` (in Berlin Senat und Bezirk).
     const ids = [...new Set(BAU_KLASSEN.flatMap((kl) => [zust[kl].stelle, zust[kl].alternative?.stelle]).filter(Boolean))];
-    for (const [rolle, feld, noetig] of [
-      ["kreis", "kontakt", ids.some((id) => id.startsWith("k"))],
-      ["gemeinde", "kontakt_gemeinde", ids.some((id) => id === `g${ars}` || id.startsWith("v"))],
-    ]) {
+    const rollen = new Set(ids.map((id) => kontaktRolle(id, ars)));
+    for (const [rolle, feld] of [["kreis", "kontakt"], ["gemeinde", "kontakt_gemeinde"]]) {
       const k = kontakte?.gemeinden?.[ars]?.[rolle];
-      if (k && noetig) {
+      if (k && rollen.has(rolle)) {
         const { id, kontakt } = kontaktEintrag(k);
         land.kontakte[id] = kontakt;
         eintrag[feld] = id;
