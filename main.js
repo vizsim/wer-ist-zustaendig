@@ -6,12 +6,12 @@
 // Kacheln der Unfallkarte (Layer highways/highways_minor mit highway, ref, name).
 // Die Logik steckt in js/*.js (rein, getestet); hier nur Karte, Seite und Netz.
 
-import { landAusArs, landAusKuerzel, landesdatei } from "./js/laender.js";
+import { landAusArs, landesdatei } from "./js/laender.js";
 import { eintragsSchluessel } from "./js/lookup.js";
-import { auswahl, LANDESREGELN } from "./js/resolve.js";
+import { auswahl } from "./js/resolve.js";
 import {
   antwortHtml, ARTEN, aufzaehlung, datenBasisAusParam, esc, FARBE, farbAusdruck, flaechenDeckkraft, flaechenFarbe,
-  imSatz, klassenAusdruck, klassenListe, KONTAKT_STIL, kontaktDeckkraft, kontaktFarbe, SICHERHEIT_STIL,
+  klassenAusdruck, klassenListe, KONTAKT_STIL, kontaktDeckkraft, kontaktFarbe, offeneLaender, SICHERHEIT_STIL,
   STRASSEN_LEGENDE, strassenAmPunkt, willkommenHtml,
 } from "./js/ansicht.js";
 import { klassenName } from "./js/strassenklasse.js";
@@ -130,11 +130,10 @@ function verdrahteWillkommen(index) {
 function zeigeStand(index) {
   if (!index) return;
   const d = index.daten ?? {};
-  const laender = Object.keys(LANDESREGELN).map((l) => landAusKuerzel(l)?.name ?? l)
-    .sort((a, b) => a.localeCompare(b, "de"));
+  const offen = offeneLaender(index);
   const teile = [
     d.gebiet && `Gebietsstand ${d.gebiet.replace(/^VG25 /, "")}`,
-    index.regeln && `Regeln ${index.regeln.version}: Landesregeln für ${aufzaehlung(laender.map(imSatz))}, sonst meist nur die Kreisebene`,
+    index.regeln && `Regeln ${index.regeln.version}${offen.length ? `, noch offen: ${aufzaehlung(offen)}` : ""}`,
   ].filter(Boolean);
   $("#stand").textContent = `${teile.join(". ")}.`;
 }

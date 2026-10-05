@@ -3,7 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   ALLGEMEIN_HINWEIS, antwortHtml, ARTEN, aufzaehlung, datenBasisAusParam, esc, farbAusdruck, flaechenDeckkraft, flaechenFarbe, imSatz,
-  klassenAusdruck, klassenListe, KONTAKT_STIL, kontaktDeckkraft, kontaktFarbe, SICHERHEIT_STIL, stelleOhneBehoerde,
+  klassenAusdruck, klassenListe, KONTAKT_STIL, kontaktDeckkraft, kontaktFarbe, offeneLaender, SICHERHEIT_STIL, stelleOhneBehoerde,
   strassenAmPunkt, strassenName, teileName, telHref, wegeHtml, willkommenHtml,
 } from "../js/ansicht.js";
 import { TEXTE } from "../js/resolve.js";
@@ -312,18 +312,22 @@ test("willkommenHtml: Stand aus index.json – geprüft, vermutlich, offen; Kont
   };
   const html = willkommenHtml(index, { melden: "https://github.com/vizsim/wer-ist-zustaendig/issues/new" });
   assert.ok(html.includes('<h2 id="willkommen-titel">Testversion</h2>'));
-  assert.ok(html.includes("<strong>Geprüft:</strong> Bayern und Schleswig-Holstein"));
+  // Bremen ohne Landesregel, aber fest zugeordnet und belegt: geprüft, nicht offen.
+  assert.ok(html.includes("<strong>Geprüft:</strong> Bayern, Bremen und Schleswig-Holstein"));
   assert.ok(html.includes("<strong>Vermutlich:</strong> Thüringen – die Regel ist nicht für jede Gemeinde gesichert."));
-  assert.ok(html.includes("die übrigen 2 Länder"));
+  assert.ok(html.includes("<strong>Noch offen:</strong> Hamburg. Dort nennt die Karte nur die Ebene, schraffiert."));
+  assert.deepEqual(offeneLaender(index), ["Hamburg"]);
+  assert.deepEqual(offeneLaender(null), []);
   assert.ok(html.includes("gibt es bisher für Bayern, Schleswig-Holstein und Thüringen."));
   assert.ok(html.includes("kein Rechtsrat"));
   assert.ok(html.includes('href="https://github.com/vizsim/wer-ist-zustaendig/issues/new"'));
 
   const ohne = willkommenHtml(null, { melden: "javascript:alert(1)" });
-  assert.ok(ohne.includes("Erst wenige Länder haben eine eigene Regel"));
+  assert.ok(ohne.includes("Den Stand je Land konnte die Karte nicht laden."));
+  assert.ok(!ohne.includes("Noch offen"));
   assert.ok(!ohne.includes("href"), "Meldelink nur mit https");
-  const eins = willkommenHtml({ laender: [index.laender[0], index.laender[1]] });
-  assert.ok(eins.includes("das übrige Land"));
+  const alle = willkommenHtml({ laender: [index.laender[0], index.laender[4]] });
+  assert.ok(!alle.includes("Noch offen"), "nichts offen");
   const bb = { lkz: "BB", name: "Brandenburg", sicherheit: { belegt: 413, vermutlich: 0, "nur Ebene": 0 }, kontakte: 19 };
   const sortiert = willkommenHtml({ laender: [bb, index.laender[0]] });
   assert.ok(sortiert.includes("<strong>Geprüft:</strong> Bayern und Brandenburg"), "nach Namen, nicht nach Kürzel");

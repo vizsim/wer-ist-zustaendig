@@ -5,7 +5,7 @@
 // verdrahtet nur Karte und Seite.
 
 import { klasse, klassenName, RANG } from "./strassenklasse.js";
-import { LANDESREGELN, SICHERHEIT, TEXTE } from "./resolve.js";
+import { SICHERHEIT, TEXTE } from "./resolve.js";
 
 // Farben nach den RAL-Verkehrsfarben: Verkehrsblau (Autobahn-Schilder), Verkehrsgelb
 // (Bundesstraßen-Schilder), Verkehrsschwarz für Schrift. Die Flächenfarben sind gedämpft,
@@ -362,6 +362,18 @@ function meistGilt(sicherheit) {
   return Object.entries(sicherheit ?? {}).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
 }
 
+const nachName = (a, b) => a.localeCompare(b, "de");
+
+/**
+ * Länder, in denen die Karte für die meisten Gemeinden nur die Ebene nennt (`index.json`), nach Namen. Bremen
+ * zählt nicht dazu: Es hat keine Landesregel, aber eine feste Zuordnung.
+ */
+export function offeneLaender(index) {
+  const geregelt = [SICHERHEIT.BELEGT, SICHERHEIT.VERMUTLICH];
+  return (index?.laender ?? []).filter((l) => !geregelt.includes(meistGilt(l.sicherheit)))
+    .map((l) => l.name).sort(nachName);
+}
+
 /**
  * HTML des Willkommensfensters: Testversion, was fertig ist (aus `index.json` und den
  * Landesregeln, damit es nicht veraltet), kein Rechtsrat, Fehler melden.
@@ -370,9 +382,7 @@ function meistGilt(sicherheit) {
  */
 export function willkommenHtml(index, { melden } = {}) {
   const laender = index?.laender ?? [];
-  const mitRegel = laender.filter((l) => LANDESREGELN[l.lkz]);
-  const nachName = (a, b) => a.localeCompare(b, "de");
-  const namen = (s) => aufzaehlung(mitRegel.filter((l) => meistGilt(l.sicherheit) === s).map((l) => l.name).sort(nachName));
+  const namen = (s) => aufzaehlung(laender.filter((l) => meistGilt(l.sicherheit) === s).map((l) => l.name).sort(nachName));
   const geprueft = namen(SICHERHEIT.BELEGT);
   const vermutlich = namen(SICHERHEIT.VERMUTLICH);
   // Kontakte der Stelle selbst; Länder, für die es nur die allgemeine Anschrift der Verwaltung gibt
@@ -384,18 +394,17 @@ export function willkommenHtml(index, { melden } = {}) {
     ? `Telefon, E-Mail und Webseite der Stelle gibt es bisher für ${esc(mitKontakt)}` +
       `${nurAllgemein ? `, für ${esc(nurAllgemein)} die allgemeine Anschrift der Verwaltung` : ""}.`
     : nurAllgemein && `Für ${esc(nurAllgemein)} gibt es bisher die allgemeine Anschrift der Verwaltung.`;
-  const offen = laender.length - mitRegel.length;
+  const offen = aufzaehlung(offeneLaender(index));
   const stand = [
     geprueft && `<li><strong>Geprüft:</strong> ${esc(geprueft)} – die Regel ist an der Rechtsgrundlage geprüft.</li>`,
     vermutlich && `<li><strong>Vermutlich:</strong> ${esc(vermutlich)} – die Regel ist nicht für jede Gemeinde gesichert.</li>`,
-    offen > 0 && `<li><strong>Noch offen:</strong> ${offen === 1 ? "das übrige Land" : `die übrigen ${offen} Länder`}. ` +
-      "Dort nennt die Karte meist nur die Kreisebene, schraffiert.</li>",
+    offen && `<li><strong>Noch offen:</strong> ${esc(offen)}. Dort nennt die Karte nur die Ebene, schraffiert.</li>`,
   ].filter(Boolean).join("");
   const link = /^https:\/\//i.test(String(melden ?? "")) ? melden : null;
   return `
     <h2 id="willkommen-titel">Testversion</h2>
     <p>Die Karte zeigt, welche Straßenverkehrsbehörde an einer Straße über Schilder und Tempolimits entscheidet – und wie du sie erreichst.</p>
-    ${stand ? `<ul class="willkommen-stand">${stand}</ul>` : "<p>Erst wenige Länder haben eine eigene Regel; sonst nennt die Karte die Kreisebene.</p>"}
+    ${stand ? `<ul class="willkommen-stand">${stand}</ul>` : "<p>Den Stand je Land konnte die Karte nicht laden.</p>"}
     ${kontakte ? `<p>${kontakte}</p>` : ""}
     <p>Alle Angaben ohne Gewähr und kein Rechtsrat. Bitte prüfe vor dem Absenden, ob die Stelle wirklich zuständig ist.</p>
     <p>Darstellung und Funktionen ändern sich noch.${link
