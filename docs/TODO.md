@@ -63,8 +63,27 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
 - [ ] **Sachsen, erfüllende Gemeinde:** Dass in 13 Verwaltungsgemeinschaften die Große Kreisstadt
   erfüllende Gemeinde ist, folgt aus `verband.sitz` (SDV_ARS) und dem Namen der Gemeinschaft; am
   Gemeindeverzeichnis des Statistischen Landesamts (Tabelle 4) bestätigen.
-- [ ] **Weitere belegte Länder:** BW (Landratsamt, GKS, Stadtkreise, Verwaltungsgemeinschaften;
-  Offenes als Alternative). 5–10 Golden-Tests mit echten ARS; Review-CSV durchsehen.
+- [ ] **Baden-Württemberg, Listen vervollständigen** (Regel seit 0.12.0): Ein Verzeichnis, wer
+  außer dem Landratsamt zuständig ist, gibt es nicht; die Listen in `js/resolve.js` stammen von den
+  Webseiten der Landratsämter und Gemeinden [S]. Untere Verwaltungsbehörden nennen 12 Landratsämter
+  nicht vollständig (Göppingen, Hohenlohekreis, Schwäbisch Hall, Main-Tauber-Kreis, Heidenheim,
+  Neckar-Odenwald-Kreis, Enzkreis, Freudenstadt, Emmendingen, Lörrach, Tübingen, Alb-Donau-Kreis),
+  örtliche Straßenverkehrsbehörden 20 (dieselben ohne Freudenstadt, dazu Ludwigsburg,
+  Rems-Murr-Kreis, Ostalbkreis, Calw, Breisgau-Hochschwarzwald, Schwarzwald-Baar-Kreis, Konstanz,
+  Reutlingen, Biberach) – dort steht die mögliche Stelle als Alternative. Weg: dieselbe Frage an die
+  Landratsämter wie in Karlsruhe, Rastatt und im Rhein-Neckar-Kreis (FragDenStaat) oder an die
+  Regierungspräsidien; das RP Karlsruhe nennt 24 örtliche Straßenverkehrsbehörden, in den Listen
+  stehen 22 (Buchen nur nach dem GBl. 1991). Verwaltungsgemeinschaften als untere
+  Verwaltungsbehörde: laut Innenministerium 38, bekannt 27.
+- [ ] **Baden-Württemberg, Belege prüfen:** Rottweil – das Landratsamt nennt sich auch in den
+  Großen Kreisstädten Rottweil und Schramberg für die klassifizierten Straßen zuständig (Seite von
+  2022, gegen § 19 LVG); die Regel bleibt bei der Stadt. Achern – die eigene Seite nennt das
+  Landratsamt, das Formular des Ortenaukreises die Stadt. Schwach belegt: Laupheim (Mitglieder
+  nicht genannt), Herbrechtingen (nur „Straßenverkehrsbehörde" im Organigramm), Buchen (GBl.
+  1991), Bad Säckingen (Rechtsform nicht genannt), Mössingen (nur „Ansprechpartner" für die
+  Partner), Langenau (ohne ausdrückliche Erklärung), Fronreute und Wolpertswende (der Verband oder
+  jede Gemeinde?), Oppenau (unter 5.000 Einwohnern). Annahme: Erklärungen aus der Zeit vor 2025
+  gelten weiter, auch wenn die Einwohnerzahl gesunken ist (deshalb ab 90 % der Schwelle).
 - [ ] **Deutsch-luxemburgisches Kondominium** (abgestimmt 2026-10-02): Die 25 Flächen auf Mosel,
   Sauer und Our nennen heute die Stelle der angrenzenden Gemeinde, „nur Ebene". Zuständigkeit
   nach dem Grenzvertrag prüfen.
@@ -152,18 +171,24 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
   Kontaktweg oder nur mit persönlicher Adresse); Landkreis Wesermarsch (Tiefbau der Gemeinde
   Berne); Landkreis Gifhorn (nur die Zulassungsstelle). Danach die Einträge in
   `config/kontakte_ergaenzt.yaml` löschen.
-- [ ] **Länder ohne Bundesportal-Eintrag** (BW, HB, HH): Kontakte der Stellen der Kreisebene und
+- [ ] **Länder ohne Bundesportal-Eintrag** (HB, HH): Kontakte der Stellen der Kreisebene und
   der Stadtstaaten anders beschaffen (Landesportale oder von Hand).
 - [ ] **Verkehrsstellen statt allgemeiner Anschrift** (Sachsen seit 0.9.0, Hessen und Saarland
-  seit 0.10.0, `allgemein`): Die Straßenverkehrsämter der Kreisebene – in Sachsen 10 Landratsämter
-  und 3 Kreisfreie Städte, in Hessen 21 Landkreise und 5 kreisfreie Städte, im Saarland 5 Landkreise
-  und der Regionalverband – von deren Webseiten in `config/kontakte_ergaenzt.yaml` (Kreis-ARS)
+  seit 0.10.0, Baden-Württemberg seit 0.12.0, `allgemein`): Die Straßenverkehrsämter der
+  Kreisebene – in Sachsen 10 Landratsämter und 3 Kreisfreie Städte, in Hessen 21 Landkreise und 5
+  kreisfreie Städte, im Saarland 5 Landkreise und der Regionalverband, in Baden-Württemberg 35
+  Landratsämter und 9 Stadtkreise – von deren Webseiten in `config/kontakte_ergaenzt.yaml` (Kreis-ARS)
   eintragen; sie gehen dann vor. Sachsen: Für das Landratsamt Sächsische Schweiz-Osterzgebirge nennt
   das Verzeichnis als E-Mail nur `landrat@`, der Kontakt hat deshalb keine; Verwaltungsverbände stehen
   nicht im Verzeichnis – heute die Gemeinde am Sitz, beim Verwaltungsverband Eilenburg-West (Sitz in
   Eilenburg) die Gemeinde selbst. Hessen und Saarland: Das Anschriftenverzeichnis hat kein Telefon
   und keine Webseite; für Wiesbaden, Langen, Heusenstamm, Zwingenberg und Kirtorf nennt es nur
   `presse@`, `webmaster@` bzw. die Marketinggesellschaft, dort steht nur die Anschrift.
+  Baden-Württemberg: Für 207 der 270 Gemeinden am Sitz einer Verwaltungsgemeinschaft hat das
+  Verzeichnis nur die Zeile der Gemeinschaft, ohne E-Mail; für 8 weitere nennt es nur ein
+  persönliches Postfach oder die Pressestelle (etwa Ravensburg). Für Gemeindestraßen hat deshalb bei
+  163 Gemeinden die zuständige Stelle nur eine Anschrift (meist die Gemeinde am Sitz oder die
+  Gemeinschaft).
 
 ## Karte und Daten
 
@@ -190,5 +215,6 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
 
 ## Anfragen
 
-- [ ] PVOG-Zugang (FITKO/Dataport), örtliche StVB in BW (Regierungspräsidien), Lizenz der
+- [ ] PVOG-Zugang (FITKO/Dataport), örtliche StVB in BW (Regierungspräsidien),
+  Verwaltungsgemeinschaften als untere Verwaltungsbehörde (Innenministerium BW), Lizenz der
   FIM-Texte und des Anschriftenverzeichnisses.

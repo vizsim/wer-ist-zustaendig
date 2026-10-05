@@ -3,7 +3,7 @@
 Dieses Dokument ist die Schnittstelle zwischen „Wer ist zuständig?" und allen, die die Dateien
 nutzen – zuerst die Karte in diesem Repo, dann die Unfallkarte.
 
-Stand: **Schema 1** · Regeln 0.11.0 (Phase 2: Landesregeln für Bayern, Berlin, Brandenburg, Hessen, Mecklenburg-Vorpommern, Niedersachsen, Nordrhein-Westfalen, Rheinland-Pfalz, Saarland, Sachsen, Sachsen-Anhalt, Schleswig-Holstein und Thüringen) · Datenstand 31.12.2025
+Stand: **Schema 1** · Regeln 0.12.0 (Phase 2: Landesregeln für Baden-Württemberg, Bayern, Berlin, Brandenburg, Hessen, Mecklenburg-Vorpommern, Niedersachsen, Nordrhein-Westfalen, Rheinland-Pfalz, Saarland, Sachsen, Sachsen-Anhalt, Schleswig-Holstein und Thüringen) · Datenstand 31.12.2025
 
 ## Regeln für alle Dateien
 
@@ -142,7 +142,8 @@ aus dem Gemeindeverzeichnis der Landesdirektion (`daten.kontakte`: „Landesdire
 05.10.2026", Quelle `lds_sachsen`, Datenlizenz Deutschland – Namensnennung 2.0), in Hessen, im
 Saarland und in Baden-Württemberg aus dem Anschriftenverzeichnis der Statistischen Ämter
 („Anschriftenverzeichnis der Statistischen Ämter 31.01.2026", Quelle `anschriften`) – dort nur
-Anschrift und E-Mail.
+Anschrift und E-Mail. In Baden-Württemberg fehlt die E-Mail für die meisten Gemeinden am Sitz einer
+Verwaltungsgemeinschaft (207 von 270); deren Kontakt ist dann nur die Anschrift.
 
 Berlin führt die Leistung auch nicht im Bundesportal. Seine Kontakte sind von Hand abgeschrieben
 (`daten.kontakte`: „Webseiten der Behörden 05.10.2026", Quelle `von_hand`): je Bezirk das
@@ -207,7 +208,7 @@ die übrigen Klassen das Landratsamt. Die Kontaktangaben sind hier ausgelassen.
 | Feld | Inhalt |
 |---|---|
 | `stelle` | Id in `stellen` |
-| `sicherheit` | `belegt` (Primärquelle, getestete Regel; heute BB, BY, HB, HE, MV, NI, NW, SH, SL und SN) · `vermutlich` (Regel aus Sekundärquelle wie in TH, RP, ST und BE, Eingabe unsicher – oder das Land nennt im Bundesportal dieselbe Stelle) · `nur Ebene` (Land noch offen) |
+| `sicherheit` | `belegt` (Primärquelle, getestete Regel; heute BB, BY, HB, HE, MV, NI, NW, SH, SL, SN, in BW Stadtkreise, Große Kreisstädte und das Landratsamt, wo niemand anders zuständig sein kann) · `vermutlich` (Regel aus Sekundärquelle wie in TH, RP, ST und BE, in BW die Listen der Landratsämter; Eingabe unsicher – oder das Land nennt im Bundesportal dieselbe Stelle) · `nur Ebene` (Land noch offen) |
 | `grund` | ein Satz für Popup und Report |
 | `quelle` | Fundstelle mit Fassung; beim Rückfall auf die Kreisebene der Hinweis darauf |
 | `alternative` | `null` oder `{ stelle, bedingung }`; `bedingung` ist ein Satzteil („falls nur die Gemeindestraße betroffen ist") |

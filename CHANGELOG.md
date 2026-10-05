@@ -7,6 +7,28 @@ ein Git-Tag `v<version>` dazu.
 
 ## [Unveröffentlicht]
 
+### Hinzugefügt
+
+- Landesregel Baden-Württemberg (StVO-Zuständigkeitsgesetz vom 29.04.2025): Stadtkreise und Große
+  Kreisstädte sind für alle Straßen zuständig (**belegt**), sonst das Landratsamt – **belegt**, wo nach
+  den Einwohnern niemand anders zuständig sein kann. Verwaltungsgemeinschaften, die untere
+  Verwaltungsbehörde sind, sind für alle Straßen ihrer Gemeinden zuständig; Gemeinden und
+  Gemeinschaften, die örtliche Straßenverkehrsbehörde sind, für ihre Gemeindestraßen
+  (**vermutlich**, nach den Webseiten der Landratsämter und Gemeinden). Wo eine Gemeinde oder
+  Gemeinschaft es nach ihren Einwohnern sein könnte, steht sie als Alternative da.
+- Kontakte in Baden-Württemberg für jede Gemeinde: die allgemeine Anschrift von Rathaus bzw.
+  Landratsamt aus dem Anschriftenverzeichnis der Statistischen Ämter. Ist die Verwaltungsgemeinschaft
+  zuständig, nennt die Auskunft das Rathaus an ihrem Sitz, sonst das der Gemeinde. Für die meisten
+  Gemeinden am Sitz einer Gemeinschaft hat das Verzeichnis keine E-Mail; dort steht nur die Anschrift.
+
+### Geändert
+
+- Willkommensfenster und Standzeile: Bremen zählt als geregelt (feste Zuordnung, belegt), offen ist
+  nur noch Hamburg. Die Standzeile nennt statt aller Länder mit Regel nur noch die offenen.
+- `js/resolve.js` erwartet in Baden-Württemberg je Verband `verband.ew` und `verband.mitglieder`; der
+  Build ergänzt sie. Wer `resolveGemeinde` selbst aufruft statt die Landesdateien zu lesen, ergänzt
+  sie ebenso ([docs/VERTRAG.md](docs/VERTRAG.md)).
+
 ## [0.11.0] – 2026-10-05
 
 Landesregel für Berlin je Bezirk, zusammen dreizehn Länder; Kontakte für alle zwölf Bezirksämter und

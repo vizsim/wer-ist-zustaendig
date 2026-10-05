@@ -29,6 +29,7 @@ mit den Konsumenten in [VERTRAG.md](VERTRAG.md).
 | HE | StVRZustV § 10 Abs. 1 Nr. 2, § 10a; § 9 Abs. 2 (Hessen Mobil) – [Bürgerservice Hessenrecht](https://www.rv.hessenrecht.hessen.de) | kreisfreie Städte und Sonderstatus-Städte (`HE_SONDERSTATUS`): alles; sonst G und K die Gemeinde (Landkreis als Alternative bei überörtlicher Wirkung), L die Gemeinde mit mehr als 7.500 Einwohnern (Landkreis als Alternative für Ampeln und Fußgängerüberwege), sonst und B der Landkreis; 6.750–7.500 Einwohner (§ 10a) mit der Gemeinde als Alternative | belegt |
 | SL | StVZustG §§ 7, 12 – [Bürgerservice Saarland](https://recht.saarland.de) | G: die Gemeinde; sonst der Landkreis bzw. der Regionalverband Saarbrücken; die Landeshauptstadt Saarbrücken alles | belegt |
 | BE | ASOG Bln, Zuständigkeitskatalog Ordnungsaufgaben Nr. 11 Abs. 4, Nr. 22b Abs. 3 – nicht an der Primärquelle gelesen; Aufteilung laut Service-Portal Berlin und Bezirksämtern | G: das Bezirksamt des Bezirks (Layer `bezirke`, Einträge `1100000000` + Nummer), Senat als Alternative; K, L, B: die Senatsverwaltung, Bezirksamt als Alternative; ganz Berlin: Bezirksamt nur als Ebene | vermutlich |
+| BW | StVO-Zuständigkeitsgesetz vom 29.04.2025 §§ 1–3 (GBl. 2025 Nr. 36, PDF beim Landtag); LVG §§ 15, 17, 19 | Stadtkreise und Große Kreisstädte: alles; Verwaltungsgemeinschaften als untere Verwaltungsbehörde (`BW_VG_UNTERE`, Gruppen je Gemeinschaft): alles für ihre Gemeinden; örtliche Straßenverkehrsbehörden (`BW_OERTLICH`, `BW_OERTLICH_VG`): Gemeindestraßen, das Landratsamt als Alternative; sonst das Landratsamt, die Gemeinde bzw. Gemeinschaft als Alternative ab 90 % der Schwellen (5.000 bzw. 20.000), außer in Kreisen mit vollständiger Liste (`BW_VOLLSTAENDIG`) | belegt: Stadtkreise, Große Kreisstädte, Landratsamt ohne mögliche andere Stelle; vermutlich: Listen [S] und Alternativen |
 
 ## 1. Rechtsgrundlage finden und lesen
 
@@ -82,7 +83,9 @@ function regelXy(g, klasse) {
   (bei Schwellen dazu „Einwohner laut GV-ISys 31.12.2025"), `bedingung` ein Satzteil („falls es
   nur um Halten und Parken … geht"). Schlüssel mit Länderkürzel davor (`shKreis`).
 - **Listen** einzelner Gemeinden (auf Antrag, Anlage) als exportierte Konstante mit Beleg im
-  Kommentar: `TH_STAEDTE_AUF_ANTRAG`, `SH_AUF_ANTRAG`.
+  Kommentar: `TH_STAEDTE_AUF_ANTRAG`, `SH_AUF_ANTRAG`. Ohne Gemeindetabelle zur Hand auch nach
+  Kreis und Namen, für Verbände als Gruppen je Gemeinschaft (BW). Der Build prüft sie mit
+  `pruefeListen` und warnt.
 - **`REGELN.version`** um eine Minor-Stelle erhöhen (neues Land).
 - **Größe:** Steht eine Gemeinde (`g…`) oder ein Verband (`v…`) im Ergebnis, bekommt jede
   Gemeinde ein eigenes Ergebnis – `by.json` hat deshalb 1,9 MB (gzip 190 KB).
@@ -90,8 +93,9 @@ function regelXy(g, klasse) {
 **Golden-Tests** in `tests/resolve.test.js` mit echten Gemeinden, je Zweig mindestens eine:
 kreisfreie Stadt, gemeindefreies Gebiet, Gemeinde über und unter jeder Schwelle, knapp an der
 Schwelle, Listen-Gemeinde, Verbandsgemeinde, jede Alternative, die Klassen, in denen sich
-etwas ändert. Die Tests für den Rückfall („Phase 1") nehmen Länder ohne Regel – wenn das neue
-Land darunter ist, auf ein anderes umstellen. Echte Schlüssel und Zahlen holen:
+etwas ändert. Die Tests für den Rückfall („Phase 1") nehmen Gemeinden unter dem erfundenen
+Kürzel „XX" (`ohneRegel`); seit BW hat jedes Flächenland eine Regel. Echte Schlüssel und Zahlen
+holen:
 
 ```bash
 cd pipeline && uv run python -c "
@@ -140,7 +144,9 @@ Der Lauf schreibt am Ende `kontakte.json` mit dem Code, der beim Start geladen w
   des Kreises, dann der Kontakt des Verbands, den das Portal für die übrigen Mitglieder nennt.
 - Der Build (`tools/lib/laender.mjs`) übernimmt einen Kontakt nur, wenn seine Stelle in den
   Ergebnissen der Gemeinde vorkommt. Welcher Kontakt zu welcher Stelle gehört, sagt `kontaktRolle`
-  in `js/resolve.js`: `k…` und in Berlin `be-senat` → `kontakt`, `g…` und `v…` → `kontakt_gemeinde`.
+  in `js/resolve.js`: `k…` und in Berlin `be-senat` → `kontakt`, `g…` und `v…` → `kontakt_gemeinde`;
+  aus den Anschriftenverzeichnissen für einen Verband, der allein vorkommt, das Rathaus am Sitz
+  (Rolle `verband`).
 
 ## 4. Durchsehen und Lücken schließen
 
@@ -189,7 +195,8 @@ Stadt selbst zuständig ist). Solche Muster in der Auswahl beheben, wenn sie ver
 
 **Von Hand:** `pipeline/config/kontakte_ergaenzt.yaml`. Schlüssel ist ein Kreis-ARS (5 Stellen,
 Kontakt der Kreisebene für den ganzen Kreis) oder eine Gemeinde-ARS (12 Stellen) mit `rolle:
-kreis` oder `rolle: gemeinde`. Nur von der Webseite der Behörde selbst, mit `stand` (Datum) und
+kreis`, `rolle: gemeinde` oder `rolle: verband` (nur der Verband, wenn die Gemeinde selbst einen
+anderen Kontakt hat). Nur von der Webseite der Behörde selbst, mit `stand` (Datum) und
 einem Kommentar, warum. Nur Funktionspostfächer und Zentralnummern – keine Namen, keine
 persönlichen Durchwahlen; nennt eine Seite nur Personen, dann die Zentrale. Die Recherche lässt
 sich gut an einen Agenten geben, mit genau diesen Regeln im Auftrag und der Bitte, zu jedem
