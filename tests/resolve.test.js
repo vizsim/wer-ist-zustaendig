@@ -3,10 +3,10 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   auswahl, BAU_KLASSEN, BB_AUF_ANTRAG, BB_AUF_ANTRAG_TEILWEISE, BB_GROSSE_KREISANGEHOERIGE_STAEDTE, ergebnisId,
-  FESTE_STELLEN, MV_GROSSE_KREISANGEHOERIGE_STAEDTE, MV_STAEDTE_UEBERGANG, NI_GEMEINDESTRASSEN, NI_SELBSTAENDIG,
-  NI_WIE_KREISFREI, NW_GROSSE_KREISANGEHOERIGE_STAEDTE, NW_MITTLERE_KREISANGEHOERIGE_STAEDTE, resolveGemeinde,
-  RP_ANLAGE_1, RP_GROSSE_KREISANGEHOERIGE_STAEDTE, schwaecher, SICHERHEIT, SN_GROSSE_KREISSTAEDTE, TEXTE,
-  TH_STAEDTE_AUF_ANTRAG,
+  FESTE_STELLEN, HE_SCHWELLEN, MV_GROSSE_KREISANGEHOERIGE_STAEDTE, MV_STAEDTE_UEBERGANG, NI_GEMEINDESTRASSEN,
+  NI_SELBSTAENDIG, NI_WIE_KREISFREI, NW_GROSSE_KREISANGEHOERIGE_STAEDTE, NW_MITTLERE_KREISANGEHOERIGE_STAEDTE,
+  resolveGemeinde, RP_ANLAGE_1, RP_GROSSE_KREISANGEHOERIGE_STAEDTE, schwaecher, SICHERHEIT, SN_GROSSE_KREISSTAEDTE,
+  TEXTE, TH_STAEDTE_AUF_ANTRAG,
 } from "../js/resolve.js";
 
 const kreis = (ars, gen, bez, nbd, kreisfrei = false) => ({ ars, gen, bez, nbd, kreisfrei, name: gen });
@@ -78,6 +78,10 @@ const G = {
   },
   berlin: { ars: "110000000000", gen: "Berlin", land: "BE", kreis: kreis("11000", "Berlin", "Kreisfreie Stadt", "nein", true) },
   hamburg: { ars: "020000000000", gen: "Hamburg", land: "HH", kreis: kreis("02000", "Hamburg", "Kreisfreie Stadt", "nein", true) },
+  muensingen: {
+    ars: "084159971971", gen: "Gutsbezirk Münsingen", land: "BW", tkz: [66], ew: 0, gemeindefrei: true,
+    kreis: kreis("08415", "Reutlingen", "Landkreis", "ja"),
+  },
   reinhardswald: {
     ars: "066339200200", gen: "Gutsbezirk Reinhardswald", land: "HE", tkz: [66], ew: 0, gemeindefrei: true,
     kreis: kreis("06633", "Kassel", "Landkreis", "ja"),
@@ -377,6 +381,23 @@ const G = {
     kreis: kreis("15085", "Harz", "Landkreis", "ja"),
     verband: { ars: "150855051", gen: "Vorharz", bez: "Verbandsgemeinde", name: "Verbandsgemeinde Vorharz" },
   },
+  // Hessen: Einwohner gerundet, bis die Werte aus GV-ISys nachgetragen sind (pruefe_laender.py zeigt sie).
+  frankfurt: {
+    ars: "064120000000", gen: "Frankfurt am Main", land: "HE", tkz: [61], ew: 775000,
+    kreis: kreis("06412", "Frankfurt am Main", "Kreisfreie Stadt", "ja", true),
+  },
+  hanau: {
+    ars: "064350014014", gen: "Hanau", land: "HE", tkz: [63], ew: 101000,
+    kreis: kreis("06435", "Main-Kinzig-Kreis", "Landkreis", "nein"),
+  },
+  badVilbel: {
+    ars: "064400003003", gen: "Bad Vilbel", land: "HE", tkz: [63], ew: 34000,
+    kreis: kreis("06440", "Wetteraukreis", "Landkreis", "nein"),
+  },
+  breitenbach: {
+    ars: "066320004004", gen: "Breitenbach am Herzberg", name: "Gemeinde Breitenbach am Herzberg", land: "HE",
+    tkz: [64], ew: 1900, kreis: kreis("06632", "Hersfeld-Rotenburg", "Landkreis", "ja"),
+  },
   kondominium: {
     ars: "079355003095", gen: "Deutsch-Luxemburgisches Hoheitsgebiet [Nittel]", land: "RP", tkz: [],
     kreis: kreis("07235", "Trier-Saarburg", "Landkreis", "ja"),
@@ -424,10 +445,11 @@ test("Phase 1: Berlin mit Senatsverwaltung als Alternative, Hamburg Polizei", ()
 });
 
 test("Phase 1: gemeindefreies Gebiet → Kreis", () => {
-  const { zust, stellen } = resolveGemeinde(G.reinhardswald);
-  assert.equal(zust.G.stelle, "k06633");
+  const { zust, stellen } = resolveGemeinde(G.muensingen);
+  assert.equal(zust.G.stelle, "k08415");
   assert.equal(zust.G.grund, TEXTE.grund.gemeindefrei);
-  assert.equal(stellen.k06633.name, "Landkreis Kassel – Straßenverkehrsbehörde");
+  assert.equal(zust.G.quelle, TEXTE.quelle.phase1);
+  assert.equal(stellen.k08415.name, "Landratsamt Reutlingen – Straßenverkehrsbehörde");
 });
 
 test("Phase 1: alle Klassen gleich", () => {
@@ -1091,6 +1113,64 @@ test("Sachsen-Anhalt: Landkreis bzw. kreisfreie Stadt; Gemeindestraßen innerort
   }
 });
 
+test("Hessen: kreisfreie Städte für alle Straßen, gemeindefreie Gebiete beim Landkreis (vermutlich)", () => {
+  const frankfurt = resolveGemeinde(G.frankfurt).zust;
+  for (const k of BAU_KLASSEN) {
+    assert.equal(frankfurt[k].stelle, "k06412", k);
+    assert.equal(frankfurt[k].sicherheit, SICHERHEIT.VERMUTLICH, k);
+    assert.equal(frankfurt[k].alternative, null, k);
+  }
+  assert.equal(frankfurt.B.quelle, TEXTE.quelle.heRegel);
+  const wald = resolveGemeinde(G.reinhardswald);
+  for (const k of BAU_KLASSEN) assert.equal(wald.zust[k].stelle, "k06633", k);
+  assert.equal(wald.zust.G.grund, TEXTE.grund.gemeindefrei);
+  assert.equal(wald.stellen.k06633.name, "Landkreis Kassel – Straßenverkehrsbehörde");
+});
+
+test("Hessen: Gemeindestraßen bei der Gemeinde, Kreisstraßen innerorts ebenso – außerorts der Landkreis", () => {
+  const { zust, stellen } = resolveGemeinde(G.breitenbach);
+  assert.equal(zust.G.stelle, "g066320004004");
+  assert.equal(zust.G.grund, TEXTE.grund.heGemeindestrasse);
+  assert.equal(zust.G.alternative, null);
+  assert.equal(zust.K.stelle, "g066320004004");
+  assert.equal(zust.K.grund, TEXTE.grund.heKreisstrasse);
+  assert.deepEqual(zust.K.alternative, { stelle: "k06632", bedingung: TEXTE.bedingung.heAusserorts });
+  for (const k of ["L", "B"]) {
+    assert.equal(zust[k].stelle, "k06632", `${k}: 7.500 Einwohner oder weniger`);
+    assert.equal(zust[k].alternative, null, k);
+  }
+  assert.equal(zust.L.grund, TEXTE.grund.heLandesstrasse);
+  assert.deepEqual(stellen.g066320004004, {
+    id: "g066320004004", name: "Gemeinde Breitenbach am Herzberg – Straßenverkehrsbehörde", ebene: "oertliche",
+    art: "gemeinde",
+  });
+  assert.equal(stellen.k06632.name, "Landkreis Hersfeld-Rotenburg – Straßenverkehrsbehörde");
+});
+
+test("Hessen: Landesstraßen ab mehr als 7.500, Bundesstraßen ab mehr als 50.000 Einwohnern bei der Stadt", () => {
+  assert.deepEqual({ ...HE_SCHWELLEN }, { L: 7500, B: 50000 });
+  const vilbel = resolveGemeinde(G.badVilbel);
+  assert.equal(vilbel.zust.L.stelle, "g064400003003");
+  assert.equal(vilbel.zust.B.stelle, "k06440");
+  assert.equal(vilbel.zust.B.grund, TEXTE.grund.heBundesstrasse);
+  assert.equal(vilbel.stellen.g064400003003.ebene, "oertliche");
+  const hanau = resolveGemeinde(G.hanau);
+  for (const k of BAU_KLASSEN) assert.equal(hanau.zust[k].stelle, "g064350014014", k);
+  assert.equal(hanau.zust.B.alternative, null);
+  assert.deepEqual(hanau.stellen.g064350014014, {
+    id: "g064350014014", name: "Stadt Hanau – Straßenverkehrsbehörde", ebene: "untere", art: "stadt",
+  });
+  // Nahe an der Schwelle (± 5 %): die andere Stelle als Alternative.
+  const knapp = (g, ew, k) => resolveGemeinde({ ...g, ew }).zust[k];
+  assert.deepEqual(knapp(G.breitenbach, 7600, "L").alternative, { stelle: "k06632", bedingung: TEXTE.bedingung.heSchwelle });
+  assert.equal(knapp(G.breitenbach, 7600, "L").stelle, "g066320004004");
+  assert.equal(knapp(G.breitenbach, 7400, "L").stelle, "k06632");
+  assert.equal(knapp(G.breitenbach, 7400, "L").alternative.stelle, "g066320004004");
+  assert.equal(knapp(G.breitenbach, 8000, "L").alternative, null, "mehr als 5 % darüber");
+  assert.equal(knapp(G.hanau, 49000, "B").stelle, "k06435");
+  assert.equal(knapp(G.hanau, 49000, "B").alternative.stelle, "g064350014014");
+});
+
 test("resolveGemeinde: prüft die Eingabe", () => {
   assert.throws(() => resolveGemeinde({ ...G.muenchen, ars: "09162000" }), /ungültiger ARS/);
   assert.throws(() => resolveGemeinde({ ...G.muenchen, kreis: null }), /ohne Kreis/);
@@ -1248,4 +1328,16 @@ test("auswahl: Sachsen-Anhalt, Gemeindestraße – die Verbandsgemeinde, außero
   assert.equal(unklar.zustaendig.id, "k15085");
   assert.equal(unklar.alternative.stelle.id, "v150855051");
   assert.equal(unklar.alternative.bedingung, TEXTE.bedingung.unklar);
+});
+
+test("auswahl: Hessen – Kreisstraße bei der Gemeinde, außerorts der Landkreis; Landesstraße beim Landkreis", () => {
+  const d = landesdatei("HE", [G.breitenbach]);
+  const k = auswahl(d, G.breitenbach.ars, ["K"]);
+  assert.equal(k.zustaendig.id, "g066320004004");
+  assert.equal(k.alternative.stelle.id, "k06632");
+  assert.equal(k.alternative.bedingung, TEXTE.bedingung.heAusserorts);
+  const lg = auswahl(d, G.breitenbach.ars, ["L", "G"]);
+  assert.equal(lg.zustaendig.id, "k06632");
+  assert.equal(lg.alternative.stelle.id, "g066320004004");
+  assert.equal(lg.alternative.bedingung, TEXTE.bedingung.gemeindestrasse);
 });

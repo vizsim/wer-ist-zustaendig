@@ -158,6 +158,16 @@ export const TEXTE = Object.freeze({
       "In Sachsen-Anhalt ordnet auf Gemeindestraßen innerhalb geschlossener Ortschaften die Verbandsgemeinde " +
       "für ihre Mitgliedsgemeinden Verkehrszeichen an.",
     stLandkreis: "Für Kreis-, Landes- und Bundesstraßen ist in Sachsen-Anhalt der Landkreis Straßenverkehrsbehörde.",
+    heGemeindestrasse: "Auf Gemeindestraßen ordnet in Hessen die Stadt bzw. Gemeinde Verkehrszeichen an.",
+    heKreisstrasse:
+      "Auf Kreisstraßen ordnet in Hessen innerorts die Stadt bzw. Gemeinde Verkehrszeichen an, außerorts der " +
+      "Landkreis. Auf Straßen von besonderer Verkehrsbedeutung ordnet Hessen Mobil an.",
+    heLandesstrasse:
+      "Auf Landesstraßen ordnet in Hessen die Stadt bzw. Gemeinde Verkehrszeichen an, wenn sie mehr als 7.500 " +
+      "Einwohner hat, sonst der Landkreis. Auf Straßen von besonderer Verkehrsbedeutung ordnet Hessen Mobil an.",
+    heBundesstrasse:
+      "Auf Bundesstraßen ordnet in Hessen die Stadt Verkehrszeichen an, wenn sie mehr als 50.000 Einwohner hat, " +
+      "sonst der Landkreis. Auf Straßen von besonderer Verkehrsbedeutung ordnet Hessen Mobil an.",
   }),
   bedingung: Object.freeze({
     gks: "Große Kreisstadt – sie kann selbst zuständig sein",
@@ -175,6 +185,8 @@ export const TEXTE = Object.freeze({
     mvBestandMoeglich: "Stadt mit 17.000 bis 20.000 Einwohnern – sie kann nach der Übergangsregel selbst zuständig sein",
     rpAusserorts: "falls die Strecke außerhalb geschlossener Ortschaften liegt",
     stAusserorts: "falls die Gemeindestraße außerhalb geschlossener Ortschaften liegt",
+    heAusserorts: "falls die Kreisstraße außerhalb geschlossener Ortschaften liegt",
+    heSchwelle: "Einwohnerzahl nahe der Schwelle – falls die maßgebliche Zahl auf der anderen Seite liegt",
   }),
   quelle: Object.freeze({
     phase1: "Rückfall auf die Kreisebene – die Regel dieses Landes ist noch nicht eingearbeitet",
@@ -308,6 +320,11 @@ export const TEXTE = Object.freeze({
       "Art. 3 § 1 Nr. 5 des Gesetzes zur Fortentwicklung der Verwaltungsgemeinschaften (Sachsen-Anhalt) – Inhalt " +
       "nur aus BVerwG 3 B 91.10, Wortlaut nicht geprüft; innerorts laut Saalekreis; § 6 Abs. 1 Nr. 2 und § 90 Abs. 2 " +
       "KVG LSA [S]",
+    heRegel:
+      "Verordnung zur Bestimmung verkehrsrechtlicher Zuständigkeiten (StVRZustV, Hessen) – Wortlaut nicht geprüft; " +
+      "Regel laut Hessischem Ministerium für Wirtschaft, Energie, Verkehr, Wohnen und ländlichen Raum " +
+      "(wirtschaft.hessen.de, gelesen 05.10.2026) und Hessen Mobil; Straßen von besonderer Verkehrsbedeutung " +
+      "abschließend in § 9 Abs. 2 StVRZustV; Einwohner laut GV-ISys 31.12.2025",
   }),
   hinweis: Object.freeze({
     autobahnDabei: "Für die Autobahn selbst ist das Fernstraßen-Bundesamt zuständig.",
@@ -978,10 +995,40 @@ function regelSachsenAnhalt(g, klasse) {
   return ergebnis(ort, sicher, "stGemeinde", "stOertlich", ausserorts);
 }
 
+/** Hessen: Einwohnerschwellen für Landes- und Bundesstraßen (Städte und Gemeinden mit mehr Einwohnern). */
+export const HE_SCHWELLEN = Object.freeze({ L: 7500, B: 50000 });
+
+/**
+ * Hessen (vermutlich): Straßenverkehrsbehörden sind die Landräte, die Oberbürgermeister und die
+ * Bürgermeister; wer zuständig ist, hängt an Straßenklasse und Einwohnerzahl (Verordnung zur Bestimmung
+ * verkehrsrechtlicher Zuständigkeiten). Laut Verkehrsministerium: Gemeindestraßen die Stadt bzw.
+ * Gemeinde, Kreisstraßen innerorts ebenso und außerorts der Landkreis, Landesstraßen die Gemeinde ab
+ * mehr als 7.500 Einwohnern, Bundesstraßen ab mehr als 50.000, sonst der Landkreis; Straßen von
+ * besonderer Verkehrsbedeutung (abschließend in § 9 Abs. 2 StVRZustV) Hessen Mobil – nicht abgebildet,
+ * nur im Text. Nahe an einer Schwelle (± 5 %) steht die andere Stelle als Alternative. Den Wortlaut
+ * haben wir nicht gelesen (das Rechtsportal war nicht erreichbar) – daher überall „vermutlich“.
+ */
+function regelHessen(g, klasse) {
+  const kreis = kreisStelle(g);
+  const sicher = SICHERHEIT.VERMUTLICH; // bis der Wortlaut an der Primärquelle geprüft ist
+  if (g.kreis.kreisfrei) return ergebnis(kreis, sicher, "kreisfrei", "heRegel");
+  if (g.gemeindefrei) return ergebnis(kreis, sicher, "gemeindefrei", "heRegel");
+  const ew = g.ew ?? 0;
+  const ort = gemeindeStelle(g, istStadt(g) ? "stadt" : "gemeinde", ew > HE_SCHWELLEN.B ? "untere" : "oertliche");
+  if (klasse === "G") return ergebnis(ort, sicher, "heGemeindestrasse", "heRegel");
+  if (klasse === "K") return ergebnis(ort, sicher, "heKreisstrasse", "heRegel", { stelle: kreis, bedingung: "heAusserorts" });
+  const schwelle = HE_SCHWELLEN[klasse];
+  const [stelle, andere] = ew > schwelle ? [ort, kreis] : [kreis, ort];
+  const knapp = Math.abs(ew - schwelle) <= schwelle * 0.05;
+  const grund = klasse === "L" ? "heLandesstrasse" : "heBundesstrasse";
+  return ergebnis(stelle, sicher, grund, "heRegel", knapp ? { stelle: andere, bedingung: "heSchwelle" } : null);
+}
+
 /** Landesregeln: (Gemeinde, Klasse) → Ergebnis, oder null für den Rückfall auf Phase 1. */
 export const LANDESREGELN = Object.freeze({
   BB: regelBrandenburg,
   BY: regelBayern,
+  HE: regelHessen,
   MV: regelMecklenburgVorpommern,
   NI: regelNiedersachsen,
   NW: regelNordrheinWestfalen,
