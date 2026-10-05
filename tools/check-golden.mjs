@@ -5,7 +5,8 @@
 //   node tools/check-golden.mjs [--archiv <pmtiles>] [--punkte <json>]
 //
 // Defaults: pipeline/data/zustaendigkeit/gemeinden.pmtiles, tests/golden-punkte.json.
-// Ausgabe je Punkt; Exit-Code 1, sobald ein ARS nicht stimmt.
+// Ausgabe je Punkt; Exit-Code 1, sobald ein ARS nicht stimmt – oder in Berlin der Bezirk: Hat ein
+// Punkt das Feld `bezirk`, muss dort im Layer `bezirke` genau dieser Bezirk liegen (`null`: keiner).
 
 import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -26,10 +27,13 @@ const t0 = performance.now();
 try {
   for (const p of punkte) {
     const props = await flaecheAmPunkt(archiv, p.lon, p.lat);
-    const ist = props?.ars ?? "–";
-    const ok = ist === p.ars;
+    const mitBezirk = "bezirk" in p;
+    const bezirk = mitBezirk ? await flaecheAmPunkt(archiv, p.lon, p.lat, "bezirke") : null;
+    const soll = mitBezirk ? `${p.ars} ${p.bezirk ?? "–"}` : p.ars;
+    const ist = mitBezirk ? `${props?.ars ?? "–"} ${bezirk?.bezirk ?? "–"}` : props?.ars ?? "–";
+    const ok = ist === soll;
     if (!ok) fehler += 1;
-    console.log(`${ok ? "✓" : "✗"} ${p.name.padEnd(26)} ${p.ars}  ${ok ? "" : `gefunden: ${ist}`}`);
+    console.log(`${ok ? "✓" : "✗"} ${p.name.padEnd(26)} ${soll}  ${ok ? "" : `gefunden: ${ist}`}`);
   }
 } finally {
   await schliessen();

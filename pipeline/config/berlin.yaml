@@ -1,0 +1,23 @@
+# Berlin: die zwölf Bezirke als eigene Einträge neben der Stadt (zustkarte.berlin).
+#
+# Berlin ist eine Gemeinde (ARS 110000000000). Straßenverkehrsbehörde sind die Bezirksämter, für
+# das übergeordnete Straßennetz die Senatsverwaltung. Jeder Bezirk bekommt deshalb einen eigenen
+# Schlüssel – `1100000000` + Nummer, also 110000000001 (Mitte) bis 110000000012 (Reinickendorf) –
+# und eine eigene Fläche im Layer `bezirke` aus dem Geoportal Berlin (Quelle `berlin_bezirke` in
+# sources.yaml), zugeordnet über den Namen: Die Namen hier müssen zu denen im WFS passen.
+# Amtliche Gemeindeschlüssel sind das nicht. Die Nummern sind die Bezirksnummern der Berliner
+# Verwaltung; die Ids `g` + Schlüssel stehen in den Landesdateien, also nicht ändern.
+
+bezirke:
+  "01": Mitte
+  "02": Friedrichshain-Kreuzberg
+  "03": Pankow
+  "04": Charlottenburg-Wilmersdorf
+  "05": Spandau
+  "06": Steglitz-Zehlendorf
+  "07": Tempelhof-Schöneberg
+  "08": Neukölln
+  "09": Treptow-Köpenick
+  "10": Marzahn-Hellersdorf
+  "11": Lichtenberg
+  "12": Reinickendorf

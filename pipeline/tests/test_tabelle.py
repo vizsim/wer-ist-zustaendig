@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 
 import pytest
-from conftest import PRUEFUNGEN, QUELLEN_META
+from conftest import BEZIRKE, PRUEFUNGEN, QUELLEN_META
 
 from zustkarte import gv100ad, tabelle, vg25
 
@@ -63,6 +63,22 @@ def test_tabelle_felder(fixture_daten) -> None:
     assert attr["meta"]["stand"]["gebiet"] == "VG25 31.12.2025"
     assert bericht.gks_je_land == {"BY": 1}
     assert bericht.gemeinden_je_land["BY"] == 3
+    assert all(e["bezirk"] is None for e in g.values()), "ohne Bezirke: Berlin als Ganzes"
+
+
+def test_tabelle_berliner_bezirke(fixture_daten) -> None:
+    attr, bericht = _baue(fixture_daten, bezirke=BEZIRKE)
+    g = attr["gemeinden"]
+    be = sorted(a for a in g if a.startswith("11"))
+    assert be == ["110000000000"] + [f"1100000000{nr}" for nr in BEZIRKE]
+    assert list(g) == sorted(g)
+    mitte = g["110000000001"]
+    assert mitte["bezirk"] == {"nr": "01", "name": "Mitte"}
+    assert (mitte["name"], mitte["ags"], mitte["land"]) == ("Bezirk Mitte", "11000001", "BE")
+    assert mitte["kreis"] == g["110000000000"]["kreis"] and mitte["kreis"]["kreisfrei"]
+    assert g["110000000000"]["bezirk"] is None and g["110000000000"]["tkz"] == [61]
+    assert bericht.gemeinden_je_land["BE"] == 13
+    assert not any("110000000001" in w for w in bericht.warnungen), "keine Warnung zu Bezirken"
 
 
 def test_tabelle_kondominium_und_unbewohnte_gebiete(fixture_daten) -> None:

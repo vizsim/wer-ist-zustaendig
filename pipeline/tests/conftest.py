@@ -5,6 +5,11 @@ Flächen sind Rechtecke um bekannte Punkte (in EPSG:25832 abgelegt wie VG25). F�
 Stadt, Große Kreisstadt mit Loch, darin die Exklave einer Gemeinde einer Verwaltungsgemeinschaft,
 Stadtstaaten, gemeindefreies Gebiet, Region Hannover (NBD ja), Verbandsgemeinde in RP und daneben
 ein Stück des deutsch-luxemburgischen Kondominiums (nur VG25; im GV-ISys nur als Ganzes).
+
+Dazu die Berliner Bezirke als GeoJSON wie aus dem WFS des Geoportals (EPSG:25833): ein Raster
+4 × 3 über der Testfläche Berlin, nach Westen etwa 70 m über Berlin hinaus, im Osten ein Saum von
+etwa 34 m ohne Bezirk – die Bezirke aus ALKIS und das generalisierte VG25 weichen an der
+Stadtgrenze um einige Meter voneinander ab.
 """
 
 from __future__ import annotations
@@ -24,6 +29,50 @@ class Fixture:
     gpkg: Path
     gv100ad: Path
     punkte: list[dict]
+    bezirke: Path
+
+
+BERLIN_BOX = (13.30, 52.45, 13.45, 52.57)
+BEZIRKE = {
+    "01": "Mitte",
+    "02": "Friedrichshain-Kreuzberg",
+    "03": "Pankow",
+    "04": "Charlottenburg-Wilmersdorf",
+    "05": "Spandau",
+    "06": "Steglitz-Zehlendorf",
+    "07": "Tempelhof-Schöneberg",
+    "08": "Neukölln",
+    "09": "Treptow-Köpenick",
+    "10": "Marzahn-Hellersdorf",
+    "11": "Lichtenberg",
+    "12": "Reinickendorf",
+}
+
+
+def _berlin(nr: str | None) -> dict[str, str | None]:
+    """Erwartung an einem Punkt in Berlin: ARS der Stadt und Schlüssel des Bezirks (None: keiner
+    – dort gilt der Eintrag für ganz Berlin)."""
+    return {"ars": "110000000000", "bezirk": f"1100000000{nr}" if nr else None}
+
+
+def schreibe_bezirke(pfad: Path, *, ohne: tuple[str, ...] = ()) -> Path:
+    """Die Bezirke als GeoJSON in EPSG:25833: ein Raster 4 × 3 (Spalten von West nach Ost, Zeilen
+    von Nord nach Süd, Nummer = Zeile · 4 + Spalte + 1), Nachbarn mit gemeinsamer Grenze. Die
+    Attributnamen sind erfunden – zugeordnet wird über den Wert. `ohne`: fehlende Bezirke."""
+    import geopandas as gpd
+
+    lon = [13.299, 13.3375, 13.375, 13.4125, 13.4495]  # West über Berlin hinaus, Ost ein Saum
+    lat = [52.57, 52.53, 52.49, 52.45]
+    zeilen = []
+    for z in range(3):
+        for sp in range(4):
+            nr = f"{z * 4 + sp + 1:02d}"
+            if nr not in ohne:
+                attr = {"bezirk": BEZIRKE[nr], "land": "Berlin", "schluessel": f"110000{nr}"}
+                zeilen.append((attr, _box(lon[sp], lat[z + 1], lon[sp + 1], lat[z])))
+    gdf = gpd.GeoDataFrame([a for a, _ in zeilen], geometry=[g for _, g in zeilen], crs=4326)
+    gdf.to_crs(25833).to_file(pfad, driver="GeoJSON", engine="pyogrio")
+    return pfad
 
 
 def _box(lon0: float, lat0: float, lon1: float, lat1: float):
@@ -95,7 +144,7 @@ def baue_fixture(ordner: Path) -> Fixture:
         ),
         (
             _attrs(6, "110000000000", "Berlin", "Kreisfreie Stadt", 60, "nein"),
-            _box(13.30, 52.45, 13.45, 52.57),
+            _box(*BERLIN_BOX),
         ),
         (
             _attrs(6, "010539105105", "Sachsenwald", "gemeindefreies Gebiet", 65, "nein"),
@@ -146,7 +195,7 @@ def baue_fixture(ordner: Path) -> Fixture:
         ),
         (
             _attrs(4, "11000", "Berlin", "Kreisfreie Stadt", 40, "nein"),
-            _box(13.30, 52.45, 13.45, 52.57),
+            _box(*BERLIN_BOX),
         ),
         (
             _attrs(4, "01053", "Herzogtum Lauenburg", "Kreis", 42, "ja"),
@@ -251,13 +300,15 @@ def baue_fixture(ordner: Path) -> Fixture:
         {"name": "Musterdorf (BY)", "lat": 48.40, "lon": 11.82, "ars": "091785101201"},
         {"name": "Bremen", "lat": 53.0758, "lon": 8.8072, "ars": "040110000000"},
         {"name": "Bremerhaven", "lat": 53.55, "lon": 8.58, "ars": "040120000000"},
-        {"name": "Berlin", "lat": 52.5163, "lon": 13.3777, "ars": "110000000000"},
+        {"name": "Berlin (Bezirk 07)", "lat": 52.5163, "lon": 13.3777, **_berlin("07")},
+        {"name": "Berlin, Saum ohne Bezirk", "lat": 52.55, "lon": 13.4498, **_berlin(None)},
         {"name": "Sachsenwald", "lat": 53.53, "lon": 10.38, "ars": "010539105105"},
         {"name": "Hannover", "lat": 52.3745, "lon": 9.7385, "ars": "032410001001"},
         {"name": "Musterdorf (RP)", "lat": 49.90, "lon": 8.00, "ars": "073395001001"},
         {"name": "Kondominium", "lat": 49.90, "lon": 8.06, "ars": "079395001001"},
     ]
-    return Fixture(gpkg=gpkg, gv100ad=gv, punkte=punkte)
+    bezirke = schreibe_bezirke(ordner / "berlin_bezirke.geojson")
+    return Fixture(gpkg=gpkg, gv100ad=gv, punkte=punkte, bezirke=bezirke)
 
 
 PRUEFUNGEN = {

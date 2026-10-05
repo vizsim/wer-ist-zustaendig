@@ -7,5 +7,8 @@
   { "name": "Kröpcke Hannover", "lat": 52.3745, "lon": 9.7385, "ars": "032410001001" },
   { "name": "Marktplatz Bremen", "lat": 53.0758, "lon": 8.8072, "ars": "040110000000" },
   { "name": "Rathausmarkt Hamburg", "lat": 53.5503, "lon": 9.993, "ars": "020000000000" },
-  { "name": "Brandenburger Tor", "lat": 52.5163, "lon": 13.3777, "ars": "110000000000" }
+  { "name": "Brandenburger Tor", "lat": 52.5163, "lon": 13.3777, "ars": "110000000000", "bezirk": "110000000001" },
+  { "name": "Rathaus Spandau", "lat": 52.5354, "lon": 13.2009, "ars": "110000000000", "bezirk": "110000000005" },
+  { "name": "Rathaus Neukölln", "lat": 52.4815, "lon": 13.4352, "ars": "110000000000", "bezirk": "110000000008" },
+  { "name": "Rathaus Köpenick", "lat": 52.4446, "lon": 13.5755, "ars": "110000000000", "bezirk": "110000000009" }
 ]

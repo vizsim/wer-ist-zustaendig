@@ -13,6 +13,7 @@ import json
 import zipfile
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 from urllib.parse import unquote, urlparse
 
 from zustkarte.config import get_paths, quellen
@@ -69,7 +70,7 @@ def uebernimm(qid: str, pfad: Path) -> Path:
     q = quellen()[qid]
     ordner = get_paths().raw_quelle(qid)
     ordner.mkdir(parents=True, exist_ok=True)
-    ziel = ordner / (dateiname(q["url"]) if q.get("url") else q["datei"])
+    ziel = ordner / (q.get("datei") or dateiname(q["url"]))
     inhalt = pfad.read_bytes()
     ziel.write_bytes(inhalt)
     abgerufen = datetime.fromtimestamp(pfad.stat().st_mtime, UTC).isoformat(timespec="seconds")
@@ -88,7 +89,9 @@ def uebernimm(qid: str, pfad: Path) -> Path:
 
 
 def fetch(qid: str, *, force: bool = False, timeout: int = 300) -> Path:
-    """Lädt die Quelle `qid` aus sources.yaml (falls nicht vorhanden) und entpackt ZIPs."""
+    """Lädt die Quelle `qid` aus sources.yaml (falls nicht vorhanden) und entpackt ZIPs. Der
+    Dateiname kommt aus `datei`, sonst aus der URL – `datei` braucht es, wo die URL keinen trägt.
+    Mit `wfs: true` ist die URL ein WFS: Geladen werden alle Objekte als GeoJSON."""
     import requests
 
     q = quellen()[qid]
@@ -102,7 +105,7 @@ def fetch(qid: str, *, force: bool = False, timeout: int = 300) -> Path:
             f"{qid}: ohne Download-Link – Datei auf {q.get('seite')} laden, dann "
             f"`zust fetch {qid} --datei <pfad>`"
         )
-    ziel = ordner / dateiname(q["url"])
+    ziel = ordner / (q.get("datei") or dateiname(q["url"]))
     if ziel.exists() and not force:
         if ziel.suffix.lower() == ".zip":
             entpacke(ziel)
@@ -111,8 +114,13 @@ def fetch(qid: str, *, force: bool = False, timeout: int = 300) -> Path:
     tmp = ziel.with_name(ziel.name + ".part")
     sha = hashlib.sha256()
     n = 0
+    params = _wfs_abfrage(q, timeout) if q.get("wfs") else None
     with requests.get(
-        q["url"], stream=True, timeout=timeout, headers={"User-Agent": USER_AGENT}
+        q["url"],
+        params=params,
+        stream=True,
+        timeout=timeout,
+        headers={"User-Agent": USER_AGENT},
     ) as r:
         r.raise_for_status()
         ctype = r.headers.get("Content-Type", "")
@@ -122,21 +130,90 @@ def fetch(qid: str, *, force: bool = False, timeout: int = 300) -> Path:
                 sha.update(chunk)
                 n += len(chunk)
         kopf = {k: r.headers.get(k) for k in ("Last-Modified", "ETag", "Content-Type")}
-    # Destatis liefert bei veralteter Versionsnummer (v=N) eine HTML-Seite statt der Datei.
-    if ctype.startswith("text/html") or (
-        ziel.suffix.lower() == ".zip" and not zipfile.is_zipfile(tmp)
+    # Destatis liefert bei veralteter Versionsnummer (v=N) eine HTML-Seite statt der Datei, ein
+    # WFS bei falscher Abfrage eine Fehlermeldung (XML) statt GeoJSON.
+    endung = ziel.suffix.lower()
+    if (
+        ctype.startswith("text/html")
+        or (endung == ".zip" and not zipfile.is_zipfile(tmp))
+        or (endung == ".geojson" and not _ist_geojson(tmp))
     ):
         tmp.unlink(missing_ok=True)
         raise RuntimeError(
-            f"{qid}: Antwort ist keine Datei ({ctype or 'unbekannt'}). Link in sources.yaml "
-            f"veraltet? Seite prüfen: {q.get('seite', q['url'])}"
+            f"{qid}: Antwort ist nicht die erwartete Datei ({ctype or 'unbekannt'}). Link in "
+            f"sources.yaml veraltet? Seite prüfen: {q.get('seite', q['url'])}"
         )
     tmp.replace(ziel)
     abgerufen = datetime.now(UTC).isoformat(timespec="seconds")
-    _meta(qid, ziel, n, sha.hexdigest(), abgerufen, header=kopf)
+    mehr = {"objektart": params["TYPENAMES"]} if params else {}
+    _meta(qid, ziel, n, sha.hexdigest(), abgerufen, header=kopf, **mehr)
     if ziel.suffix.lower() == ".zip":
         entpacke(ziel)
     return ziel
+
+
+def _wfs_abfrage(q: dict[str, Any], timeout: int) -> dict[str, str]:
+    """Parameter für GetFeature: alle Objekte als GeoJSON in ETRS89/UTM 33N (`crs`, metrisch, ohne
+    Streit um die Achsenfolge). Die Objektart steht unter `objektart` – oder der Dienst bietet
+    genau eine an, dann kommt sie aus GetCapabilities."""
+    return {
+        "SERVICE": "WFS",
+        "VERSION": "2.0.0",
+        "REQUEST": "GetFeature",
+        "TYPENAMES": q.get("objektart") or _wfs_objektart(q["url"], timeout),
+        "OUTPUTFORMAT": "application/json",
+        "SRSNAME": q.get("crs") or "EPSG:25833",
+    }
+
+
+def _wfs_objektart(url: str, timeout: int) -> str:
+    """Name der einzigen Objektart eines WFS laut GetCapabilities (`FeatureType/Name`)."""
+    import xml.etree.ElementTree as ET
+
+    import requests
+
+    r = requests.get(
+        url,
+        params={"SERVICE": "WFS", "REQUEST": "GetCapabilities"},
+        timeout=timeout,
+        headers={"User-Agent": USER_AGENT},
+    )
+    r.raise_for_status()
+    try:
+        wurzel = ET.fromstring(r.content)
+    except ET.ParseError as e:
+        raise RuntimeError(f"{url}: GetCapabilities liefert kein XML") from e
+
+    def lokal(tag: str) -> str:
+        return tag.rsplit("}", 1)[-1]
+
+    namen = [
+        name.text.strip()
+        for art in wurzel.iter()
+        if lokal(art.tag) == "FeatureType"
+        for name in art
+        if lokal(name.tag) == "Name" and name.text and name.text.strip()
+    ]
+    if len(namen) != 1:
+        raise RuntimeError(
+            f"{url}: {len(namen)} Objektarten im Dienst ({', '.join(namen) or '–'}) – die "
+            "richtige unter `objektart` in sources.yaml eintragen"
+        )
+    return namen[0]
+
+
+def _ist_geojson(pfad: Path) -> bool:
+    """Eine FeatureCollection mit mindestens einem Objekt? Ein WFS antwortet auf eine falsche
+    Abfrage mit einer Fehlermeldung (XML) oder einer leeren Sammlung."""
+    try:
+        daten = json.loads(pfad.read_text(encoding="utf-8-sig"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return False
+    return (
+        isinstance(daten, dict)
+        and daten.get("type") == "FeatureCollection"
+        and bool(daten.get("features"))
+    )
 
 
 def finde(qid: str, endung: str, praefix: str = "") -> Path:

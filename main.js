@@ -7,6 +7,7 @@
 // Die Logik steckt in js/*.js (rein, getestet); hier nur Karte, Seite und Netz.
 
 import { landAusArs, landAusKuerzel, landesdatei } from "./js/laender.js";
+import { eintragsSchluessel } from "./js/lookup.js";
 import { auswahl, LANDESREGELN } from "./js/resolve.js";
 import {
   antwortHtml, ARTEN, aufzaehlung, datenBasisAusParam, esc, FARBE, farbAusdruck, flaechenDeckkraft, flaechenFarbe,
@@ -151,6 +152,7 @@ function schliesseAntwort(map, marker) {
   document.body.classList.remove("mit-antwort");
   marker.remove();
   if (map.getLayer("gemeinde-auswahl")) map.setFilter("gemeinde-auswahl", ["==", ["get", "ars"], ""]);
+  if (map.getLayer("bezirk-auswahl")) map.setFilter("bezirk-auswahl", ["==", ["get", "bezirk"], ""]);
   setzePunkt(null);
 }
 
@@ -235,7 +237,7 @@ function baueLayer(map, basis, kontakt) {
   map.addSource("zust", {
     type: "vector",
     url: `pmtiles://${new URL(`${basis}gemeinden.pmtiles`, location.href)}`,
-    attribution: "© BKG (2026) CC BY 4.0 · Statistisches Bundesamt (Destatis), GV-ISys",
+    attribution: "© BKG (2026) CC BY 4.0 · Statistisches Bundesamt (Destatis), GV-ISys · Bezirke Berlin: Geoportal Berlin",
   });
   map.addSource("strassen-haupt", {
     type: "vector", url: `pmtiles://${UNFALLKARTE}maxspeed_major.pmtiles`,
@@ -274,6 +276,11 @@ function baueLayer(map, basis, kontakt) {
           12, ["match", klassenAusdruck(), ["A", "B"], 2.8, 1.6], 17, ["match", klassenAusdruck(), ["A", "B"], 8, 6]] } },
     { id: "gemeinde-auswahl", type: "line", source: "zust", "source-layer": "gemeinden",
       filter: ["==", ["get", "ars"], ""], paint: { "line-color": FARBE.tinte, "line-width": 2.5 } },
+    // Berliner Bezirke: unsichtbar zum Nachschlagen, Umriss nur für den gewählten Bezirk.
+    { id: "bezirke-flaeche", type: "fill", source: "zust", "source-layer": "bezirke", minzoom: 7,
+      paint: { "fill-color": FARBE.tinte, "fill-opacity": 0 } },
+    { id: "bezirk-auswahl", type: "line", source: "zust", "source-layer": "bezirke",
+      filter: ["==", ["get", "bezirk"], ""], paint: { "line-color": FARBE.tinte, "line-width": 2.5 } },
   ];
   for (const l of layers) map.addLayer(l, vor);
 }
@@ -297,13 +304,21 @@ async function bestimme(map, basis, marker, lngLat) {
       : "Hier liegt keine Gemeinde – außerhalb Deutschlands oder auf dem Wasser."}</p>`);
     return;
   }
-  const ars = String(gem.properties.ars);
-  const land = landAusArs(ars);
+  const gemArs = String(gem.properties.ars);
+  const land = landAusArs(gemArs);
   const box = [[punkt.x - 8, punkt.y - 8], [punkt.x + 8, punkt.y + 8]];
   const strassen = strassenAmPunkt(map.queryRenderedFeatures(box, { layers: STRASSEN_LAYER }), land?.lkz);
-  map.setFilter("gemeinde-auswahl", ["==", ["get", "ars"], ars]);
+  map.setFilter("gemeinde-auswahl", ["==", ["get", "ars"], gemArs]);
+  map.setFilter("bezirk-auswahl", ["==", ["get", "bezirk"], ""]);
+  const bezirk = map.queryRenderedFeatures(punkt, { layers: ["bezirke-flaeche"] })[0];
   try {
     const daten = await ladeLand(basis, land.lkz);
+    // In Berlin der Bezirk aus dem Layer `bezirke` – so steht er in der Landesdatei.
+    const ars = eintragsSchluessel(gem.properties, bezirk?.properties, daten.gemeinden);
+    if (ars !== gemArs) {
+      map.setFilter("gemeinde-auswahl", ["==", ["get", "ars"], ""]);
+      map.setFilter("bezirk-auswahl", ["==", ["get", "bezirk"], ars]);
+    }
     const r = auswahl(daten, ars, klassenListe(strassen));
     if (!r) throw new Error(`Gemeinde ${ars} fehlt in ${landesdatei(land.lkz)}`);
     zeigeAntwort(antwortHtml(r, strassen, {

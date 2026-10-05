@@ -9,11 +9,12 @@ import json
 import subprocess
 from shutil import which
 
+import pyogrio
 import pytest
-from conftest import PRUEFUNGEN, QUELLEN_META
+from conftest import BEZIRKE, PRUEFUNGEN, QUELLEN_META
 
-from zustkarte import grenzen, gv100ad, tabelle, tiles
-from zustkarte.config import repo_root
+from zustkarte import grenzen, gv100ad, tabelle
+from zustkarte.config import Paths, repo_root
 
 ROOT = repo_root()
 BRAUCHT = (
@@ -25,7 +26,9 @@ BRAUCHT = (
 
 
 @pytest.mark.skipif(not BRAUCHT, reason="tippecanoe/node/npm-Abhängigkeiten fehlen")
-def test_ende_zu_ende(fixture_daten, tmp_path) -> None:
+def test_ende_zu_ende(fixture_daten, tmp_path, monkeypatch) -> None:
+    paths = Paths(root=tmp_path)
+    monkeypatch.setattr(grenzen, "get_paths", lambda: paths)
     attr, bericht = tabelle.baue(
         fixture_daten.gpkg,
         gv100ad.lese(fixture_daten.gv100ad),
@@ -33,11 +36,12 @@ def test_ende_zu_ende(fixture_daten, tmp_path) -> None:
         quellen_meta=QUELLEN_META,
         pruefungen=PRUEFUNGEN,
         erzeugt="2026-10-01",
+        bezirke=BEZIRKE,
     )
-    attr_pfad = tmp_path / "interim" / "gemeinden_attr.json"
-    tabelle.schreibe(attr, bericht, attr_pfad, tmp_path / "review" / "bericht.json")
+    attr_pfad = paths.attr_json
+    tabelle.schreibe(attr, bericht, attr_pfad, paths.review / "bericht.json")
 
-    aus = tmp_path / "zustaendigkeit"
+    aus = paths.out
     subprocess.run(
         [
             "node",
@@ -47,7 +51,7 @@ def test_ende_zu_ende(fixture_daten, tmp_path) -> None:
             "--aus",
             str(aus),
             "--review",
-            str(tmp_path / "review" / "review.csv"),
+            str(paths.review / "review.csv"),
         ],
         check=True,
         cwd=ROOT,
@@ -60,15 +64,14 @@ def test_ende_zu_ende(fixture_daten, tmp_path) -> None:
     assert typen["091785101201"] == ("gemeinde", "belegt")  # Bayern: Gemeindestraßen
     assert typen["073395001001"] == ("verband", "vermutlich")  # Rheinland-Pfalz: Verbandsgemeinde
     assert typen["040110000000"] == ("stadtstaat", "belegt")
+    assert typen["110000000007"] == ("stadtstaat", "vermutlich")  # Berliner Bezirk
+    assert typen["110000000000"] == ("stadtstaat", "nur Ebene")  # Berlin gesamt
     kontakte = grenzen.kontakte_aus_landesdateien(aus)
     assert set(kontakte.values()) == {"n"}, "ohne kontakte.json weder Kontakt noch Link ins Portal"
-    gem_fgb, krs_fgb = tmp_path / "gemeinden.fgb", tmp_path / "kreise.fgb"
-    grenzen.schreibe_fgb(fixture_daten.gpkg, gem_fgb, krs_fgb, typen, kontakte)
-    teile = [
-        tiles.tippecanoe("gemeinden", gem_fgb, tmp_path / "g.pmtiles"),
-        tiles.tippecanoe("kreise", krs_fgb, tmp_path / "k.pmtiles"),
-    ]
-    archiv = tiles.tile_join(aus / "gemeinden.pmtiles", teile)
+    archiv = grenzen.baue(fixture_daten.gpkg, bezirke=fixture_daten.bezirke)
+    assert archiv == aus / "gemeinden.pmtiles"
+    gem = pyogrio.read_dataframe(paths.interim / "gemeinden.fgb").set_index("ars")
+    assert gem.loc["110000000000", "sg"] == "vermutlich", "Berlin wie die meisten Bezirke"
 
     punkte = tmp_path / "punkte.json"
     punkte.write_text(json.dumps(fixture_daten.punkte, ensure_ascii=False), encoding="utf-8")
@@ -125,3 +128,29 @@ def test_ende_zu_ende(fixture_daten, tmp_path) -> None:
     )
     assert "Klasse K: Landratsamt Freising – Straßenverkehrsbehörde" in r.stdout
     assert "Alternative: Musterdorf – Straßenverkehrsbehörde" in r.stdout
+
+    r = subprocess.run(
+        ["node", "tools/lookup.mjs", "52.5163", "13.3777", "G", "--daten", str(aus)],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert "Bezirk Tempelhof-Schöneberg (110000000007)" in r.stdout
+    assert "Klasse G: Bezirksamt Tempelhof-Schöneberg – Straßenverkehrsbehörde" in r.stdout
+
+    # Am Stadtrand ohne Bezirk (ALKIS und VG25 weichen ab): der Eintrag für ganz Berlin.
+    r = subprocess.run(
+        ["node", "tools/lookup.mjs", "52.55", "13.4498", "G", "--daten", str(aus)],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert "Berlin (110000000000)" in r.stdout
+    assert "Klasse G: Bezirksamt (Berlin) – Straßenverkehrsbehörde" in r.stdout
+
+    # Ohne die Bezirke: Berlin wie sein eigener Eintrag (Bezirksamt nur als Ebene).
+    grenzen.baue(fixture_daten.gpkg, dry_run=True)
+    gem = pyogrio.read_dataframe(paths.interim / "gemeinden.fgb").set_index("ars")
+    assert gem.loc["110000000000", "sg"] == "nur Ebene"

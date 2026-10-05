@@ -109,6 +109,7 @@ export function baueLaender(attr, opts = {}) {
     land.kreise[g.kreis.ars] = g.kreis.name ?? g.kreis.gen;
     const eintrag = { name: g.name ?? g.gen, kreis: g.kreis.ars };
     if (g.verband?.name) eintrag.verband = g.verband.name;
+    if (g.bezirk?.nr) eintrag.bezirk = g.bezirk.nr; // Berliner Bezirk, Schlüssel nicht amtlich
     if (Number.isFinite(g.ew)) eintrag.ew = g.ew;
     eintrag.z = z;
     // Kontakte der Stellen, die in den Ergebnissen dieser Gemeinde vorkommen: Kreisebene bzw.

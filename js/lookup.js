@@ -53,3 +53,20 @@ export function featureAmPunkt(layer, fx, fy) {
   }
   return null;
 }
+
+/**
+ * Schlüssel des Eintrags in der Landesdatei am Punkt: der ARS aus dem Layer `gemeinden` – in Berlin
+ * der Bezirk aus dem Layer `bezirke` (`bezirk`, z. B. „110000000001"), wenn er dort einen gibt, er
+ * zur Gemeinde passt (gleiche ersten zehn Stellen) und, falls angegeben, in der Landesdatei steht
+ * (ältere Dateien kennen die Bezirke nicht). Sonst gilt der Eintrag für ganz Berlin.
+ * @param {object|null|undefined} gemeinde Eigenschaften des Features im Layer `gemeinden`
+ * @param {object|null|undefined} [bezirk] Eigenschaften des Features im Layer `bezirke` am selben Punkt
+ * @param {object|null|undefined} [gemeinden] Tabelle `gemeinden` der Landesdatei
+ * @returns {string|null}
+ */
+export function eintragsSchluessel(gemeinde, bezirk = null, gemeinden = null) {
+  const ars = gemeinde?.ars ? String(gemeinde.ars) : null;
+  const b = bezirk?.bezirk ? String(bezirk.bezirk) : null;
+  const passt = ars && b && b.slice(0, 10) === ars.slice(0, 10) && (!gemeinden || Object.hasOwn(gemeinden, b));
+  return passt ? b : ars;
+}

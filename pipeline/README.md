@@ -11,7 +11,7 @@ Browser laufen. Was herauskommt, beschreibt [docs/VERTRAG.md](../docs/VERTRAG.md
 - `tippecanoe` und `tile-join` (getestet mit 2.49); ohne sie gibt `zust grenzen` die Kommandos
   nur aus
 - Node ≥ 20 und `npm install` im Repo-Root
-- Netz zu `daten.gdz.bkg.bund.de` und `www.destatis.de` (nur für `zust fetch`)
+- Netz zu `daten.gdz.bkg.bund.de`, `www.destatis.de` und `gdi.berlin.de` (nur für `zust fetch`)
 
 ```bash
 cd pipeline
@@ -25,10 +25,10 @@ uv run zust alles         # alles in einem Lauf
 | Befehl | Was | Ergebnis |
 |---|---|---|
 | `zust fetch [id] [--force]` | Quellen aus `config/sources.yaml` laden, ZIPs entpacken; daneben `<datei>.meta.json` mit URL, Größe, SHA-256 und Abrufdatum. Mit `--datei <pfad>` eine von Hand geladene Datei übernehmen (Abrufdatum: Änderungszeit der Datei) | `data/raw/<id>/` |
-| `zust tabelle` | VG25 + GV-ISys verknüpfen und prüfen | `data/interim/gemeinden_attr.json`, `data/review/tabelle-bericht.json` |
+| `zust tabelle` | VG25 + GV-ISys verknüpfen und prüfen, dazu die Berliner Bezirke | `data/interim/gemeinden_attr.json`, `data/review/tabelle-bericht.json` |
 | `zust kontakte [--land TH] [--nur-cache]` | optional: Kontakt der zuständigen Stelle je Gemeinde aus dem Bundesportal (eine Anfrage je Gemeinde, gedrosselt, mit Cache); für Sachsen, Hessen und das Saarland die allgemeinen Anschriften aus `lds_sachsen` und `anschriften` | `data/interim/kontakte.json`, `data/review/kontakte-review.csv` |
 | `zust laender` | Regeln über alle Gemeinden (Node), mit Kontakten, falls vorhanden; Größen je Datei | `data/zustaendigkeit/<lkz>.json`, `index.json`, `data/review/zustaendigkeit-review.csv` |
-| `zust grenzen [--dry-run]` | VG25-Flächen → FlatGeobuf → tippecanoe → tile-join; meldet die Größe, warnt über 100 MB | `data/zustaendigkeit/gemeinden.pmtiles` |
+| `zust grenzen [--dry-run]` | VG25-Flächen und Berliner Bezirke → FlatGeobuf → tippecanoe → tile-join; meldet die Größe, warnt über 100 MB | `data/zustaendigkeit/gemeinden.pmtiles` |
 | `zust manifest` | Manifest mit Label, Quellenvermerk, Datenstand und Größe | `data/manifest.json` |
 | `zust pruefen [--n 200] [--grenze 20]` | feste Punkte und Stichprobe gegen die Grenzschicht | Ausgabe, `data/review/grenzpunkte.csv` |
 | `zust alles [--force]` | alle Schritte nacheinander | |
@@ -107,21 +107,45 @@ oder mit dem Namen der Gemeinde („koenigswalde@", „gv-jonsdorf@"), nicht `pr
 Landratsamt durch seine Verkehrsstelle ersetzen. Datum (Abruf bzw. Stand des Verzeichnisses) und
 Quellenvermerk gehen in die Landesdatei.
 
+### Berlin: die zwölf Bezirke
+
+Berlin ist eine Gemeinde, Straßenverkehrsbehörde sind aber die Bezirksämter (für das
+übergeordnete Straßennetz die Senatsverwaltung). Deshalb bekommt jeder Bezirk einen eigenen
+Eintrag und eine eigene Fläche (`zustkarte.berlin`):
+
+- Schlüssel `1100000000` + Bezirksnummer, also `110000000001` (Mitte) bis `110000000012`
+  (Reinickendorf), Nummern und Namen in `config/berlin.yaml`. Amtliche Gemeindeschlüssel sind das
+  nicht. Die Einträge übernehmen Land und Kreis von Berlin, haben aber kein Textkennzeichen und
+  keine Einwohner; das Feld `bezirk` trägt Nummer und Namen. Der Eintrag für ganz Berlin
+  (`110000000000`) bleibt.
+- Die Flächen kommen amtlich aus dem Geoportal Berlin (Quelle `berlin_bezirke`: WFS „ALKIS
+  Berlin Bezirke", Datenlizenz Deutschland – Zero 2.0) in einen eigenen Layer `bezirke`. Der
+  Layer `gemeinden` bleibt, wie er ist: Berlin ist dort eine Fläche, eingefärbt wie die meisten
+  Bezirke. In Berlin schlägt die Karte im Layer `bezirke` nach; wo dort nichts liegt (ein paar
+  Meter am Stadtrand, wo die Bezirke aus ALKIS und das generalisierte VG25 voneinander
+  abweichen), gilt der Eintrag für ganz Berlin.
+- Zugeordnet wird über den Namen. `zust grenzen` liest die Bezirke vor allem anderen und bricht
+  ab, wenn ein Bezirk fehlt, ein Objekt zu mehreren Bezirken passt oder die Flächen nicht um
+  Berlin liegen (Koordinatensystem?). Fehlt die Datei, entstehen die Kacheln ohne Layer
+  `bezirke`, Berlin bleibt eingefärbt wie sein eigener Eintrag, und die festen Punkte in Berlin
+  schlagen fehl.
+
 ## Ordner
 
 ```text
 pipeline/
   config/
     sources.yaml      Quellen (URL, Stand, Lizenz, Quellenvermerk) und veröffentlichte Dateien
-    tiles.yaml        tippecanoe-Profile der Layer gemeinden und kreise
+    tiles.yaml        tippecanoe-Profile der Layer gemeinden, kreise und bezirke
     pruefungen.yaml   Erwartungen für die Prüfungen (Große Kreisstädte je Land)
+    berlin.yaml       die zwölf Berliner Bezirke (Nummer, Name)
   data/               nicht im Git
     raw/<id>/         Downloads; raw/bundesportal/<LAND>/ Antworten je Gemeinde
     interim/          gemeinden_attr.json, kontakte.json, FlatGeobuf
     zustaendigkeit/   veröffentlichte Dateien (Bucket-Präfix zustaendigkeit/)
     review/           Berichte, Review-CSV, Grenzpunkte (nicht veröffentlichen)
-  src/zustkarte/      cli, fetch, vg25, gv100ad, tabelle, bundesportal, anschriften, grenzen, tiles,
-                      manifest, config
+  src/zustkarte/      cli, fetch, vg25, gv100ad, tabelle, berlin, bundesportal, anschriften, grenzen,
+                      tiles, manifest, config
   tests/              pytest mit kleinen Testdaten (VG25-GeoPackage und GV100AD-Auszug)
 ```
 
@@ -154,9 +178,15 @@ selbst geht mit jedem grünen CI-Lauf auf `main` nach GitHub Pages.
   (siehe „Kontakte aus Verzeichnissen"). Einmal im Jahr neu laden, mit den übrigen Quellen.
 - **Anschriftenverzeichnis** (`anschriften`, optional): erscheint jährlich zum Stichtag 31.01.,
   die URL ändert sich mit jeder Ausgabe. Dann `url` und `stand` in `sources.yaml` anpassen.
-- Sind BKG oder Destatis nicht erreichbar, `zust fetch` auf einem anderen Rechner laufen lassen
-  oder die Dateien von Hand übernehmen (`zust fetch <id> --datei <pfad>`); die übrigen Schritte
-  lesen nur von `data/raw/<id>/`.
+- **Berliner Bezirke** (`berlin_bezirke`, optional): WFS des Geoportals Berlin (`wfs: true`).
+  `zust fetch` liest die Objektart aus GetCapabilities – bietet der Dienst mehrere an, steht die
+  richtige unter `objektart` – und lädt alle Objekte als GeoJSON in ETRS89/UTM 33N; der
+  Dateiname steht unter `datei`. Antwortet der Dienst mit einer Fehlermeldung statt GeoJSON,
+  meldet `zust fetch` das und überspringt die Quelle. Die Bezirksgrenzen ändern sich selten; mit
+  den übrigen Quellen einmal im Jahr neu laden (`--force`).
+- Sind BKG, Destatis oder das Geoportal Berlin nicht erreichbar, `zust fetch` auf einem anderen
+  Rechner laufen lassen oder die Dateien von Hand übernehmen (`zust fetch <id> --datei <pfad>`);
+  die übrigen Schritte lesen nur von `data/raw/<id>/`.
 
 ## Prüfungen
 
@@ -169,13 +199,15 @@ selbst geht mit jedem grünen CI-Lauf auf `main` nach GitHub Pages.
   die Flächen des deutsch-luxemburgischen Kondominiums (nur VG25, `BEZ = Kondominium`; sie
   übernehmen die angrenzende Gemeinde aus `SDV_ARS`) und unbewohnte gemeindefreie Gebiete ohne
   Fläche (nur GV-ISys, Textkennzeichen 66; nur Warnung);
-- kreisfreie Städte in beiden Quellen gleich, je kreisfreiem Kreis genau eine Gemeinde;
+- kreisfreie Städte in beiden Quellen gleich, je kreisfreiem Kreis genau eine Gemeinde (die
+  Berliner Bezirke zählen nicht mit);
 - Große Kreisstädte (Textkennzeichen 67) je Land in der Toleranz aus `pruefungen.yaml`, in
   anderen Ländern keine. Sachsen führt sie im GV-ISys nicht als 67 (siehe dort).
 
-`zust grenzen` bricht ab, wenn Gemeinden in den Landesdateien fehlen. `zust pruefen` endet mit
-Fehler, wenn ein fester Punkt den falschen ARS ergibt, ein Punkt in mehr als einer Fläche liegt
-oder an einer Grenze eine Überlappung auftaucht.
+`zust grenzen` bricht ab, wenn Gemeinden oder Berliner Bezirke in den Landesdateien fehlen oder
+die Bezirksflächen nicht passen (siehe oben). `zust pruefen` endet mit Fehler, wenn ein fester
+Punkt den falschen ARS oder in Berlin den falschen Bezirk ergibt, ein Punkt in mehr als einer
+Fläche liegt oder an einer Grenze eine Überlappung auftaucht.
 
 ## Tests
 
@@ -187,4 +219,5 @@ uvx ruff check && uvx ruff format --check
 Die Testdaten in `tests/conftest.py` folgen dem Aufbau der VG25-Dokumentation: kreisfreie Stadt,
 Große Kreisstadt mit Loch und darin die Exklave einer Nachbargemeinde, Stadtstaaten,
 gemeindefreies Gebiet, Region Hannover, Verbandsgemeinde in RP mit angrenzendem Kondominium,
-ein Datensatz mit `GF = 8`.
+ein Datensatz mit `GF = 8`. Dazu die Berliner Bezirke als GeoJSON in EPSG:25833: ein Raster,
+das nach Westen über Berlin hinausragt und im Osten einen Saum lässt.

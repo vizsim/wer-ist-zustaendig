@@ -79,8 +79,8 @@ def fetch(
 @app.command()
 def tabelle() -> None:
     """VG25 + GV-ISys → data/interim/gemeinden_attr.json (mit Prüfungen)."""
+    from zustkarte import berlin, gv100ad
     from zustkarte import fetch as fetch_mod
-    from zustkarte import gv100ad
     from zustkarte import tabelle as tabelle_mod
 
     q = quellen()
@@ -108,6 +108,7 @@ def tabelle() -> None:
         quellen_meta=quellen_meta,
         pruefungen=load_yaml("pruefungen.yaml"),
         gv_aktuell=gv_aktuell,
+        bezirke=berlin.bezirke(),
     )
     tabelle_mod.schreibe(attr, bericht, paths.attr_json, paths.review / "tabelle-bericht.json")
     typer.secho(f"{len(attr['gemeinden'])} Gemeinden → {paths.attr_json}", fg="green")
@@ -185,12 +186,22 @@ def laender() -> None:
 
 @app.command()
 def grenzen(dry_run: bool = typer.Option(False, "--dry-run")) -> None:
-    """VG25-Flächen → data/zustaendigkeit/gemeinden.pmtiles (Layer gemeinden + kreise)."""
+    """VG25-Flächen und Berliner Bezirke → data/zustaendigkeit/gemeinden.pmtiles (Layer gemeinden,
+    kreise, bezirke)."""
     from zustkarte import fetch as fetch_mod
     from zustkarte import grenzen as grenzen_mod
 
     get_paths().ensure()
-    ziel = grenzen_mod.baue(fetch_mod.finde("vg25", ".gpkg"), dry_run=dry_run)
+    try:
+        bezirke = fetch_mod.finde("berlin_bezirke", ".geojson")
+    except FileNotFoundError as e:
+        typer.secho(
+            f"{e}\nOhne die Berliner Bezirke fehlt der Layer `bezirke` – die Karte nennt in "
+            "Berlin dann Senat und Bezirksamt ohne Namen.",
+            fg="yellow",
+        )
+        bezirke = None
+    ziel = grenzen_mod.baue(fetch_mod.finde("vg25", ".gpkg"), bezirke=bezirke, dry_run=dry_run)
     if ziel.exists():
         mb = ziel.stat().st_size / 1e6
         typer.secho(f"{ziel} ({mb:.1f} MB)", fg="green")

@@ -63,6 +63,24 @@ quellen:
     lizenz: "© Statistisches Bundesamt (Destatis), 2026, im Auftrag der Statistischen Ämter des Bundes und der Länder; Vervielfältigung und Verbreitung, auch auszugsweise, mit Quellenangabe gestattet"
     vermerk: "Statistische Ämter des Bundes und der Länder, Anschriften der Gemeinde- und Stadtverwaltungen in Deutschland, Stand 31.01.2026; Auszug"
 
+  # Berliner Bezirke (zustkarte.berlin): Flächen für den Layer `bezirke`, amtlich aus dem
+  # Geoportal Berlin (WFS „ALKIS Berlin Bezirke", Datensatz auf daten.berlin.de). `wfs: true`:
+  # `zust fetch` liest die Objektart aus GetCapabilities (oder aus `objektart`, falls der Dienst
+  # mehrere anbietet) und lädt alle Objekte als GeoJSON in ETRS89/UTM 33N. Zugeordnet wird über
+  # den Namen (config/berlin.yaml). Geht der Abruf nicht, eine GeoJSON-Datei der Bezirke von Hand
+  # übernehmen: `zust fetch berlin_bezirke --datei <pfad>`. Fehlt die Datei, fehlt der Layer
+  # `bezirke`; die Karte nennt in Berlin dann Senat und Bezirksamt ohne Namen.
+  berlin_bezirke:
+    label: "ALKIS Berlin Bezirke (Geoportal Berlin, WFS)"
+    url: "https://gdi.berlin.de/services/wfs/alkis_bezirke"
+    wfs: true
+    seite: "https://daten.berlin.de/datensaetze/alkis-berlin-bezirke-wfs-ced31d7d"
+    datei: "berlin_bezirke.geojson"
+    stand: "laufend (Stand beim Abruf)"
+    optional: true
+    lizenz: "Datenlizenz Deutschland – Zero – Version 2.0"
+    vermerk: "Geoportal Berlin / ALKIS Berlin Bezirke, Datenlizenz Deutschland – Zero – Version 2.0"
+
 # Dienste, die je Gemeinde abgefragt werden – nicht per `zust fetch`, sondern mit eigenem Schritt.
 # Bundesportal: Die Länder pflegen dort je Leistung und Gemeinde die zuständigen Stellen mit
 # Anschrift, Telefon und E-Mail. Die API ist nicht dokumentiert (abgelesen am Frontend des
@@ -85,8 +103,8 @@ dienste:
 datasets:
   zust_gemeinden:
     file: "zustaendigkeit/gemeinden.pmtiles"
-    label: "Gemeinden und Kreise (Grenzen, ARS, Ebene der Stelle für Gemeindestraßen)"
-    attribution: "© BKG (2026) CC BY 4.0, Datenquellen: https://sgx.geodatenzentrum.de/web_public/gdz/datenquellen/datenquellen_vg25.pdf"
+    label: "Gemeinden, Kreise und Berliner Bezirke (Grenzen, ARS, Ebene der Stelle für Gemeindestraßen)"
+    attribution: "© BKG (2026) CC BY 4.0, Datenquellen: https://sgx.geodatenzentrum.de/web_public/gdz/datenquellen/datenquellen_vg25.pdf; Bezirke Berlin: Geoportal Berlin / ALKIS Berlin Bezirke (dl-de/zero-2.0)"
   zust_index:
     file: "zustaendigkeit/index.json"
     label: "Zuständige Straßenverkehrsbehörden: Übersicht und Landesdateien"

@@ -19,8 +19,9 @@ def test_version_und_pfade() -> None:
 
 def test_quellen_vollstaendig() -> None:
     for qid, q in quellen().items():
-        # Download mit festem Datenstand – oder von Hand geladen (`datei`): dann gilt der Abruf.
-        eigen = ("datei", "kurz") if "datei" in q else ("url", "stand")
+        # Download mit festem Datenstand – oder ohne Download-Link von Hand geladen (`datei` statt
+        # `url`): dann gilt der Abruf. `datei` neben `url` benennt nur die geladene Datei.
+        eigen = ("url", "stand") if "url" in q else ("datei", "kurz")
         for key in ("label", "seite", "lizenz", "vermerk", *eigen):
             assert q.get(key), f"{qid}: `{key}` fehlt in sources.yaml"
     datasets = load_yaml("sources.yaml")["datasets"]

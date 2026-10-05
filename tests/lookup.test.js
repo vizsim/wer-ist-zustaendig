@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { featureAmPunkt, kachelFuerPunkt, punktInRingen } from "../js/lookup.js";
+import { eintragsSchluessel, featureAmPunkt, kachelFuerPunkt, punktInRingen } from "../js/lookup.js";
 
 test("kachelFuerPunkt: bekannte Kacheln", () => {
   // Marienplatz München in z12: Kachel 2179/1421 (Web-Mercator, von Hand nachgerechnet).
@@ -41,4 +41,20 @@ test("featureAmPunkt: erstes Polygon, das den Punkt enthält", () => {
   assert.equal(featureAmPunkt(layer, 0.25, 0.5).properties.ars, "000000000001");
   assert.equal(featureAmPunkt(layer, 0.75, 0.5).properties.ars, "000000000002");
   assert.equal(featureAmPunkt(null, 0.5, 0.5), null);
+});
+
+test("eintragsSchluessel: in Berlin der Bezirk, sonst der ARS", () => {
+  const berlin = { ars: "110000000000", gen: "Berlin" };
+  assert.equal(eintragsSchluessel(berlin, { bezirk: "110000000007" }), "110000000007");
+  assert.equal(eintragsSchluessel(berlin), "110000000000", "ohne Bezirk: ganz Berlin");
+  assert.equal(eintragsSchluessel(berlin, { bezirk: "" }), "110000000000");
+  assert.equal(eintragsSchluessel({ ars: "120630000001" }, { bezirk: "110000000005" }), "120630000001",
+    "Bezirksfläche ragt über die Stadtgrenze: zählt nicht");
+  assert.equal(eintragsSchluessel({ ars: "091620000000" }), "091620000000");
+  assert.equal(eintragsSchluessel({}, { bezirk: "110000000001" }), null);
+  assert.equal(eintragsSchluessel(null), null);
+  const mit = { "110000000000": {}, "110000000007": {} };
+  assert.equal(eintragsSchluessel(berlin, { bezirk: "110000000007" }, mit), "110000000007");
+  assert.equal(eintragsSchluessel(berlin, { bezirk: "110000000007" }, { "110000000000": {} }), "110000000000",
+    "ältere Landesdatei ohne Bezirke: ganz Berlin");
 });

@@ -12,6 +12,7 @@ import { readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { landAusArs, landesdatei } from "../js/laender.js";
+import { eintragsSchluessel } from "../js/lookup.js";
 import { auswahl } from "../js/resolve.js";
 import { flaecheAmPunkt, oeffneArchiv } from "./lib/pmtiles-node.mjs";
 
@@ -43,8 +44,11 @@ try {
   }
   const land = landAusArs(props.ars);
   const daten = await lies(landesdatei(land.lkz));
-  const r = auswahl(daten, props.ars, klassen);
-  console.log(`${r.gemeinde} (${props.ars}), ${r.kreis}, ${land.name}`);
+  // In Berlin der Bezirk aus dem Layer `bezirke`, sonst der ARS.
+  const bezirk = await flaecheAmPunkt(archiv, Number(lon), Number(lat), "bezirke");
+  const schluessel = eintragsSchluessel(props, bezirk, daten.gemeinden);
+  const r = auswahl(daten, schluessel, klassen);
+  console.log(`${r.gemeinde} (${schluessel}), ${r.kreis}, ${land.name}`);
   console.log(`Klasse ${r.klasse}: ${r.zustaendig.name}`);
   if (r.kontakt) console.log(`Kontakt: ${kontakt(r.kontakt)}`);
   console.log(`Sicherheit: ${r.sicherheit} – ${r.grund}`);

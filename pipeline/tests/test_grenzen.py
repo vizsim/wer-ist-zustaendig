@@ -3,8 +3,10 @@ from __future__ import annotations
 import json
 
 import pyogrio
+import pytest
+from conftest import BEZIRKE
 
-from zustkarte import grenzen, tiles
+from zustkarte import berlin, grenzen, tiles
 
 
 def test_profil_args_gemeinden() -> None:
@@ -22,6 +24,9 @@ def test_profil_args_gemeinden() -> None:
         assert flag in args
     assert "--full-detail" not in " ".join(args), "z12 (Nachschlagen) bleibt voll aufgelöst"
     assert "-l" in tiles.profil_args(tiles.profile()["kreise"])
+    bezirke = tiles.profil_args(tiles.profile()["bezirke"])
+    assert bezirke[:3] == ["--force", "-l", "bezirke"], "Layer `bezirke` (Vertrag)"
+    assert "--maximum-zoom=12" in bezirke and "--detect-shared-borders" in bezirke
 
 
 def test_typen_aus_landesdateien(tmp_path) -> None:
@@ -149,9 +154,23 @@ def test_schreibe_fgb(fixture_daten, tmp_path) -> None:
     assert ohne == 10 and "ko" not in pyogrio.read_dataframe(gem).columns, "ohne Kontakte kein Feld"
 
 
-def test_schreibe_fgb_verlangt_vollstaendige_landesdateien(fixture_daten, tmp_path) -> None:
-    import pytest
+def test_schreibe_bezirke(fixture_daten, tmp_path) -> None:
+    flaechen = berlin.flaechen(fixture_daten.bezirke, BEZIRKE, melde=lambda _: None)
+    typen = {berlin.bezirk_ars(nr): ("stadtstaat", "vermutlich") for nr in BEZIRKE}
+    ziel = tmp_path / "bezirke.fgb"
+    assert grenzen.schreibe_bezirke(flaechen, ziel, typen) == 12
+    df = pyogrio.read_dataframe(ziel)
+    assert df.crs.to_epsg() == 4326
+    assert set(df.columns) == {"bezirk", "name", "geometry"}, "Vertrag: Layer `bezirke`"
+    assert sorted(df["bezirk"]) == [f"1100000000{nr}" for nr in BEZIRKE]
+    assert df.loc[df["bezirk"] == "110000000007", "name"].item() == "Tempelhof-Schöneberg"
+    del typen["110000000012"]
+    with pytest.raises(RuntimeError, match="ohne Eintrag in den Landesdateien: 110000000012"):
+        grenzen.schreibe_bezirke(flaechen, ziel, typen)
+    assert grenzen.schreibe_bezirke(flaechen, ziel) == 12, "ohne Landesdateien keine Prüfung"
 
+
+def test_schreibe_fgb_verlangt_vollstaendige_landesdateien(fixture_daten, tmp_path) -> None:
     with pytest.raises(RuntimeError, match="ohne Eintrag in den Landesdateien"):
         grenzen.schreibe_fgb(
             fixture_daten.gpkg,

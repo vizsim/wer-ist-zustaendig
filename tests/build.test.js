@@ -317,6 +317,25 @@ test("baueLaender: Kondominium verweist auf die angrenzende Gemeinde", () => {
   assert.equal(auswahl(mitRegion, "079395001001", ["G"]).bundesportal, "https://x.example/region/073395001001");
 });
 
+test("baueLaender: Berliner Bezirke als eigene Einträge mit ihrer Nummer", () => {
+  const berlin = kreis("11000", "Berlin", "Kreisfreie Stadt", "nein", true);
+  const a = attr();
+  a.gemeinden["110000000000"] = {
+    ars: "110000000000", gen: "Berlin", name: "Berlin", land: "BE", tkz: [61], ew: 3685265, kreis: berlin, bezirk: null,
+  };
+  a.gemeinden["110000000007"] = {
+    ars: "110000000007", gen: "Tempelhof-Schöneberg", name: "Bezirk Tempelhof-Schöneberg", land: "BE", tkz: [],
+    ew: null, kreis: berlin, bezirk: { nr: "07", name: "Tempelhof-Schöneberg" },
+  };
+  const { dateien, index } = baueLaender(a);
+  const be = dateien["be.json"];
+  assert.equal(be.gemeinden["110000000007"].bezirk, "07");
+  assert.equal(be.gemeinden["110000000000"].bezirk, undefined, "ganz Berlin ist kein Bezirk");
+  assert.equal(dateien["by.json"].gemeinden["091620000000"].bezirk, undefined);
+  assert.deepEqual(index.laender.find((l) => l.lkz === "BE").sicherheit, { belegt: 0, vermutlich: 1, "nur Ebene": 1 });
+  assert.equal(auswahl(be, "110000000007", ["G"]).zustaendig.name, "Bezirksamt Tempelhof-Schöneberg – Straßenverkehrsbehörde");
+});
+
 test("baueLaender: prüft Schema, Schlüssel und Land", () => {
   assert.throws(() => baueLaender({ ...attr(), schema: 2 }), /schema/);
   const a = attr();

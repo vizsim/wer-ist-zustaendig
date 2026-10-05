@@ -6,9 +6,11 @@ Layer (Vertrag, docs/VERTRAG.md):
   n nichts)
 - `kreise` (z4–z10): ars, name, art (kreis | stadt | stadtstaat), eg, sg, ko (was für die meisten
   Gemeinden des Kreises gilt – für die Übersicht unter Zoom 7, wo es keine Gemeinden gibt)
+- `bezirke` (z7–z12): die zwölf Berliner Bezirke aus dem Geoportal Berlin (zustkarte.berlin):
+  bezirk (Schlüssel des Eintrags in der Landesdatei), name
 `eg`/`sg`/`ko` kommen aus den Landesdateien (tools/build-laender.mjs), damit die Karte nach der
 Zuständigkeit oder dem Kontakt färben kann, ohne alle Landesdateien zu laden. Fehlen sie, bleiben
-die Felder weg.
+die Felder weg. Berlin ist im Layer `gemeinden` eine Fläche, gefärbt wie die meisten Bezirke.
 """
 
 from __future__ import annotations
@@ -18,7 +20,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
-from zustkarte import tiles, vg25
+from zustkarte import berlin, tiles, vg25
 from zustkarte.config import get_paths, load_yaml
 
 STADTSTAATEN = {"02", "04", "11"}
@@ -143,7 +145,32 @@ def schreibe_fgb(
     return len(out)
 
 
-def baue(gpkg: Path, *, dry_run: bool = False) -> Path:
+def schreibe_bezirke(flaechen, ziel: Path, typen: dict[str, Any] | None = None) -> int:
+    """Berliner Bezirke (`berlin.flaechen`) → FlatGeobuf für den Layer `bezirke`: `bezirk`
+    (Schlüssel des Eintrags in der Landesdatei) und `name`. Ohne Überlappung
+    (`berlin.bereinigt`), nicht zugeschnitten. Mit `typen` (aus den Landesdateien) muss dort
+    jeder Bezirk stehen – sonst fände die Karte zum Bezirk keinen Eintrag."""
+    import geopandas as gpd
+
+    b = berlin.bereinigt(flaechen).to_crs(4326)
+    schluessel = [berlin.bezirk_ars(nr) for nr in b["nr"]]
+    fehlend = sorted(set(schluessel) - set(typen)) if typen else []
+    if fehlend:
+        raise RuntimeError(
+            f"Bezirke ohne Eintrag in den Landesdateien: {', '.join(fehlend)} – erst "
+            "`zust tabelle` und `zust laender` neu bauen."
+        )
+    ziel.parent.mkdir(parents=True, exist_ok=True)
+    gpd.GeoDataFrame(
+        {"bezirk": schluessel, "name": list(b["name"])}, geometry=b.geometry.values, crs=4326
+    ).to_file(ziel, driver="FlatGeobuf", engine="pyogrio")
+    return len(b)
+
+
+def baue(gpkg: Path, *, bezirke: Path | None = None, dry_run: bool = False) -> Path:
+    """Grenzschicht bauen. `bezirke`: Datei mit den Berliner Bezirken (Quelle `berlin_bezirke`).
+    Mit ihr ist Berlin im Layer `gemeinden` eingefärbt wie die meisten Bezirke; ohne sie fehlt der
+    Layer `bezirke`, und die Karte nennt in Berlin Senat und Bezirksamt ohne Namen."""
     paths = get_paths()
     typen = typen_aus_landesdateien(paths.out)
     if not typen:
@@ -151,17 +178,27 @@ def baue(gpkg: Path, *, dry_run: bool = False) -> Path:
             "  Hinweis: keine Landesdateien gefunden – Kacheln ohne eg/sg/ko (erst `zust laender`)."
         )
     kontakte = kontakte_aus_landesdateien(paths.out)
+    # Die Bezirke zuerst: Passt die Datei nicht, bricht es ab, bevor tippecanoe läuft.
+    flaechen = berlin.flaechen(bezirke, berlin.bezirke()) if bezirke else None
+    if flaechen is not None:
+        typen, kontakte = berlin.stadt_wie_bezirke(typen), berlin.stadt_wie_bezirke(kontakte)
     gem_fgb = paths.interim / "gemeinden.fgb"
     krs_fgb = paths.interim / "kreise.fgb"
+    bez_fgb = paths.interim / "bezirke.fgb"
     n = schreibe_fgb(gpkg, gem_fgb, krs_fgb, typen, kontakte)
     print(f"  {n} Gemeindeflächen → {gem_fgb.name}, Kreise → {krs_fgb.name}")
+    eingaben = [("gemeinden", gem_fgb), ("kreise", krs_fgb)]
+    if flaechen is not None:
+        nb = schreibe_bezirke(flaechen, bez_fgb, typen)
+        print(f"  {nb} Berliner Bezirke → {bez_fgb.name}")
+        eingaben.append(("bezirke", bez_fgb))
+    teile = [
+        tiles.tippecanoe(layer, fgb, paths.interim / f"{layer}_tmp.pmtiles", dry_run=dry_run)
+        for layer, fgb in eingaben
+    ]
     ziel = paths.data / load_yaml("tiles.yaml")["ausgabe"]
-    teil_gem = paths.interim / "gemeinden_tmp.pmtiles"
-    teil_krs = paths.interim / "kreise_tmp.pmtiles"
-    tiles.tippecanoe("gemeinden", gem_fgb, teil_gem, dry_run=dry_run)
-    tiles.tippecanoe("kreise", krs_fgb, teil_krs, dry_run=dry_run)
-    tiles.tile_join(ziel, [teil_gem, teil_krs], dry_run=dry_run)
+    tiles.tile_join(ziel, teile, dry_run=dry_run)
     if not dry_run:
-        for p in (teil_gem, teil_krs):
+        for p in teile:
             p.unlink(missing_ok=True)
     return ziel

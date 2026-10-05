@@ -28,5 +28,17 @@ profiles:
     no_tile_size_limit: true
     low_detail: 10
 
+  # Die zwölf Berliner Bezirke: Nachschlagen in Berlin (z12) und Hervorheben des gewählten
+  # Bezirks; dieselben Zoomstufen wie die Gemeinden.
+  bezirke:
+    layer: bezirke
+    minzoom: 7
+    maxzoom: 12
+    detect_shared_borders: true
+    no_tiny_polygon_reduction: true
+    no_feature_limit: true
+    no_tile_size_limit: true
+    low_detail: 10
+
 # Ziel nach tile-join (relativ zu data/), siehe datasets.zust_gemeinden in sources.yaml.
 ausgabe: "zustaendigkeit/gemeinden.pmtiles"

@@ -11,6 +11,9 @@ Zwei bekannte Ausnahmen bei der Gemeindemenge (echte Daten 31.12.2025):
   Eintrag übernimmt deren Kreis, Verband und Regierungsbezirk (`kondominium.nachbar`).
 - Unbewohnte gemeindefreie Gebiete ohne Fläche in VG25 (Küstengewässer M-V, das Kondominium
   als Ganzes): nur im GV-ISys, Textkennzeichen 66 ohne Einwohner – Warnung statt Fehler.
+
+Dazu kommen die zwölf Berliner Bezirke als eigene Einträge (`bezirk`, zustkarte.berlin): Berlin
+ist eine Gemeinde, Straßenverkehrsbehörde sind aber die Bezirksämter.
 """
 
 from __future__ import annotations
@@ -25,7 +28,7 @@ from typing import Any
 
 import pandas as pd
 
-from zustkarte import vg25
+from zustkarte import berlin, vg25
 from zustkarte.gv100ad import Gemeindeverzeichnis
 
 SCHEMA = 1
@@ -100,8 +103,12 @@ def baue(
     pruefungen: dict[str, Any],
     gv_aktuell: Gemeindeverzeichnis | None = None,
     erzeugt: str | None = None,
+    bezirke: dict[str, str] | None = None,
 ) -> tuple[dict[str, Any], Bericht]:
-    """Liest VG25 und GV-ISys, verknüpft, prüft. Gibt (attr, bericht) zurück."""
+    """Liest VG25 und GV-ISys, verknüpft, prüft. Gibt (attr, bericht) zurück.
+
+    `bezirke`: Nummer → Name der Berliner Bezirke (config/berlin.yaml); je Bezirk ein Eintrag
+    neben Berlin."""
     fehler: list[str] = []
     bericht = Bericht()
 
@@ -195,6 +202,7 @@ def baue(
             "ew": gvg.ew,
             "gebietsaenderung": None,
             "kondominium": None,
+            "bezirk": None,
         }
         if gv_aktuell is not None:
             neu = gv_aktuell.gemeinden.get(ars)
@@ -233,7 +241,14 @@ def baue(
             "ew": None,
             "gebietsaenderung": None,
             "kondominium": {"nachbar": nachbar},
+            "bezirk": None,
         }
+
+    if bezirke:
+        if berlin.BERLIN in gemeinden:
+            gemeinden.update(berlin.eintraege(gemeinden[berlin.BERLIN], bezirke))
+        else:
+            fehler.append(f"Berlin ({berlin.BERLIN}) fehlt – ohne die Stadt keine Bezirke")
 
     vg_ars = set(gem["ARS"].astype(str))
     for ars in sorted(set(gv.gemeinden) - vg_ars):
@@ -275,7 +290,7 @@ def baue(
 
 
 def _pruefe_kreisfrei(gemeinden: dict[str, dict], fehler: list[str], bericht: Bericht) -> None:
-    echte = {ars: g for ars, g in gemeinden.items() if not g["kondominium"]}
+    echte = {ars: g for ars, g in gemeinden.items() if not g["kondominium"] and not g["bezirk"]}
     je_kreis = Counter(g["kreis"]["ars"] for g in echte.values())
     for ars, g in echte.items():
         tkz_frei = bool(set(g["tkz"]) & TKZ_KREISFREI)
