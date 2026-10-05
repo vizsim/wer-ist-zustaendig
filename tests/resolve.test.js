@@ -171,7 +171,7 @@ const G = {
   },
   koeln: {
     ars: "053150000000", gen: "Köln", land: "NW", tkz: [61],
-    kreis: kreis("05315", "Köln", "Kreisfreie Stadt", "nein", true),
+    kreis: kreis("05315", "Köln", "Kreisfreie Stadt", "ja", true),
   },
   aachen: {
     ars: "053340002002", gen: "Aachen", land: "NW", tkz: [63],
@@ -215,7 +215,7 @@ const G = {
   },
   potsdam: {
     ars: "120540000000", gen: "Potsdam", land: "BB", tkz: [61],
-    kreis: kreis("12054", "Potsdam", "Kreisfreie Stadt", "nein", true),
+    kreis: kreis("12054", "Potsdam", "Kreisfreie Stadt", "ja", true),
   },
   eberswalde: {
     ars: "120600052052", gen: "Eberswalde", land: "BB", tkz: [63],
@@ -259,7 +259,7 @@ const G = {
   },
   rostock: {
     ars: "130030000000", gen: "Rostock", land: "MV", tkz: [61],
-    kreis: kreis("13003", "Rostock", "Kreisfreie Stadt", "nein", true),
+    kreis: kreis("13003", "Rostock", "Kreisfreie Stadt", "ja", true),
   },
   greifswald: {
     ars: "130750039039", gen: "Greifswald", land: "MV", tkz: [63],
@@ -284,7 +284,7 @@ const G = {
   },
   mainz: {
     ars: "073150000000", gen: "Mainz", land: "RP", tkz: [61],
-    kreis: kreis("07315", "Mainz", "Kreisfreie Stadt", "nein", true),
+    kreis: kreis("07315", "Mainz", "Kreisfreie Stadt", "ja", true),
   },
   neuwied: {
     ars: "071380045045", gen: "Neuwied", land: "RP", tkz: [63],
