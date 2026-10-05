@@ -151,6 +151,10 @@ Bezirksamt (`kontakt_gemeinde`) und für alle Einträge die Senatsverwaltung (`k
 nur als allgemeine Anschrift (`allgemein`), weil ihre Abteilung Verkehrsmanagement nur ein
 Postfach für Arbeitsstellen nennt.
 
+Bremen ebenso (seit Regeln 0.13.0): für die Stadt Bremen das Amt für Straßen und Verkehr, für
+Bremerhaven der Magistrat (`kontakt`). Die Polizei Bremen, die in der Stadt Bremen als Alternative
+steht, hat keinen Kontakt; Hamburg hat keine Kontakte.
+
 Beispiel: eine bayerische Gemeinde, gekürzt. Für Gemeindestraßen ist sie selbst zuständig, für
 die übrigen Klassen das Landratsamt. Die Kontaktangaben sind hier ausgelassen.
 
@@ -199,16 +203,18 @@ die übrigen Klassen das Landratsamt. Die Kontaktangaben sind hier ausgelassen.
 | `k` + Kreis-ARS (5) | Kreisebene bzw. kreisfreie Stadt, z. B. `k09178`, `k09162` |
 | `g` + ARS (12) | eine Gemeinde: Große Kreisstadt, Stadt mit eigener Straßenverkehrsbehörde (in Nordrhein-Westfalen die Mittleren und Großen kreisangehörigen Städte, in Niedersachsen die selbständigen Städte und Gemeinden), in Bayern jede kreisangehörige Gemeinde für ihre Gemeindestraßen, in Niedersachsen Gemeinden, denen die Gemeindestraßen übertragen sind, in Rheinland-Pfalz die verbandsfreie Gemeinde, in Sachsen und Sachsen-Anhalt die Gemeinde für ihre Gemeindestraßen, in Hessen die Sonderstatus-Städte für alle Straßen und die übrigen Gemeinden für Gemeinde- und Kreisstraßen, ab mehr als 7.500 Einwohnern auch für Landesstraßen, im Saarland die Landeshauptstadt Saarbrücken für alle Straßen und jede Gemeinde für ihre Gemeindestraßen, in Baden-Württemberg die Großen Kreisstädte für alle Straßen (`untere`) und die Gemeinden, die örtliche Straßenverkehrsbehörde sind, für ihre Gemeindestraßen (`oertliche`; als Alternative auch, wo eine Gemeinde es nach ihren Einwohnern sein könnte, ab 90 % der Schwelle von mehr als 5.000); in Berlin das Bezirksamt eines Bezirks (`g110000000001` …, `untere`, Art `stadtstaat`) |
 | `v` + Verbands-ARS (9) | ein Verband: in Schleswig-Holstein das Amt (Halten und Parken, Baustellen, Veranstaltungen); in Brandenburg das Amt Schlieben (§ 4a Abs. 2 StGÜZV, `untere`); in Niedersachsen die Samtgemeinde – als `untere`, wenn sie selbständige Gemeinde ist, sonst als `oertliche` für Gemeindestraßen; in Rheinland-Pfalz und Sachsen-Anhalt die Verbandsgemeinde (`oertliche`); in Sachsen die Verwaltungsgemeinschaft bzw. der Verwaltungsverband für Gemeindestraßen (`oertliche`), als `untere` für alle Straßen, wenn eine Große Kreisstadt erfüllende Gemeinde ist; in Baden-Württemberg die Verwaltungsgemeinschaft bzw. der Gemeindeverwaltungsverband – als `untere` für alle Straßen, wenn sie untere Verwaltungsbehörde ist, als `oertliche` für die Gemeindestraßen, wenn sie örtliche Straßenverkehrsbehörde ist; beides auch als Alternative, wo sie es nach ihren Einwohnern sein könnte |
-| `hb-asv`, `hb-bhv` | Bremen: Amt für Straßen und Verkehr; Magistrat Bremerhaven |
+| `hb-asv`, `hb-bhv` | Bremen: Amt für Straßen und Verkehr (Stadt Bremen); Magistrat Bremerhaven – ihr Kontakt ist der der Kreisebene (`kontakt`) |
+| `hb-pol` | Bremen: Polizei Bremen, in der Stadt Bremen als Alternative für Baustellen, Veranstaltungen und Haltverbote für Wohnungsumzüge (seit Regeln 0.13.0); ohne Kontakt |
 | `be-bezirk`, `be-senat` | Berlin: Bezirksamt, wo der Bezirk nicht bekannt ist (Eintrag `110000000000`); Senatsverwaltung, zuständig für das übergeordnete Straßennetz – ihr Kontakt ist der der Kreisebene (`kontakt`) |
-| `hh-pk` | Hamburg: Polizei, zuständiges Polizeikommissariat |
+| `hh-pk` | Hamburg: Polizei, zuständiges Polizeikommissariat – welches, ist nicht bekannt, deshalb ohne Kontakt |
+| `hh-vd` | Hamburg: Polizei, Verkehrsdirektion als zentrale Straßenverkehrsbehörde, Alternative etwa für Ampeln, Kraftfahrstraßen, Ortstafeln, Wegweiser, technisch gesicherte Bahnübergänge, den Neu- und Umbau von Hauptverkehrsstraßen, mehr als 50 km/h innerorts und Vorhaben für ganz Hamburg (seit Regeln 0.13.0) – ihr Kontakt wäre der der Kreisebene (`kontakt`), heute gibt es keinen |
 
 ### `ergebnisse`
 
 | Feld | Inhalt |
 |---|---|
 | `stelle` | Id in `stellen` |
-| `sicherheit` | `belegt` (Primärquelle, getestete Regel; heute BB, BY, HB, HE, MV, NI, NW, SH, SL, SN, in BW Stadtkreise, Große Kreisstädte und das Landratsamt, wo niemand anders zuständig sein kann) · `vermutlich` (Regel aus Sekundärquelle wie in TH, RP, ST und BE, in BW die Listen der Landratsämter; Eingabe unsicher – oder das Land nennt im Bundesportal dieselbe Stelle) · `nur Ebene` (Land noch offen) |
+| `sicherheit` | `belegt` (Primärquelle, getestete Regel; heute BB, BY, HB, HE, MV, NI, NW, SH, SL, SN, in BW Stadtkreise, Große Kreisstädte und das Landratsamt, wo niemand anders zuständig sein kann) · `vermutlich` (Regel aus Sekundärquelle wie in TH, RP, ST und BE, in BW die Listen der Landratsämter; Eingabe unsicher – oder das Land nennt im Bundesportal dieselbe Stelle) · `nur Ebene` (welche Stelle genau zuständig ist, ist offen: in Hamburg ist nur „das zuständige Polizeikommissariat" bekannt, für ganz Berlin nur „das Bezirksamt"; auf den Kondominium-Flächen steht die Stelle der Nachbargemeinde, ungeprüft; bis Regeln 0.11.0 auch die Kreisebene in Ländern ohne Regel) |
 | `grund` | ein Satz für Popup und Report |
 | `quelle` | Fundstelle mit Fassung; beim Rückfall auf die Kreisebene der Hinweis darauf |
 | `alternative` | `null` oder `{ stelle, bedingung }`; `bedingung` ist ein Satzteil („falls nur die Gemeindestraße betroffen ist") |
@@ -227,7 +233,7 @@ Konsumenten lesen sie nur als Verweis.
 | `bezirk` | optional: Nummer des Berliner Bezirks (`01` … `12`), nur bei den Bezirken |
 | `ew` | optional: Bevölkerung laut GV-ISys |
 | `z` | Ergebnis-Id je Straßenklasse `G`, `K`, `L`, `B`. Autobahnen (`A`) sind überall gleich und stehen nicht in der Tabelle |
-| `kontakt` | optional: Id in `kontakte` – Kontakt der Kreisebene (Landratsamt) bzw. der kreisfreien Stadt, in Berlin der Senatsverwaltung; nur, wenn diese Stelle (`k…`, `be-senat`) in den Ergebnissen der Gemeinde vorkommt (Auswahl siehe `pipeline/README.md`) |
+| `kontakt` | optional: Id in `kontakte` – Kontakt der Kreisebene (Landratsamt) bzw. der kreisfreien Stadt, in Berlin der Senatsverwaltung, in Bremen des Amts für Straßen und Verkehr bzw. des Magistrats Bremerhaven, in Hamburg der Verkehrsdirektion; nur, wenn diese Stelle (`k…`, `be-senat`, `hb-asv`, `hb-bhv`, `hh-vd`) in den Ergebnissen der Gemeinde vorkommt (Auswahl siehe `pipeline/README.md`) |
 | `kontakt_gemeinde` | optional: Id in `kontakte` – Kontakt der Gemeinde selbst (Rathaus; in Bayern oft die Verwaltungsgemeinschaft, in Schleswig-Holstein das Amt, in Berlin das Bezirksamt); nur, wenn die Gemeinde (`g` + ARS) oder ihr Verband (`v` + ARS) in den Ergebnissen vorkommt, als Stelle oder Alternative. Kommt nur der Verband vor, ist es in den Ländern mit Kontakten aus Verzeichnissen das Rathaus am Sitz seiner Verwaltung (keiner, wenn das Verzeichnis den Sitz nicht kennt); ist die Gemeinde selbst der Sitz oder gehört der Sitz nicht zum Verband, ihr eigenes Rathaus |
 | `nachbar` | optional: ARS der angrenzenden Gemeinde, nur bei Kondominium-Flächen |
 | `aenderung` | optional: `{ art, stand, name_neu? }`, wenn die Gemeinde nach dem Datenstand aufgelöst, umgeschlüsselt oder umbenannt wurde |
@@ -264,10 +270,14 @@ sicherheit, grund, quelle, alternative, hinweise, keinBrief, kontakt, bundesport
 
 - `zustaendig` ist ein Stellen-Objekt, `alternative` `null` oder `{ stelle, bedingung, kontakt }`.
 - `kontakt` ist der Kontakt genau der zuständigen Stelle: `kontakt_gemeinde` für die Gemeinde
-  (`g` + ARS) und ihren Verband (`v` + ARS), `kontakt` für die Kreisebene (`k…`) und in Berlin
-  für die Senatsverwaltung (`be-senat`) – `kontaktRolle` in `js/resolve.js`. Für den Bund, Bremen,
-  Hamburg und das Bezirksamt ohne bekannten Bezirk (`be-bezirk`) und ohne Daten ist er `null`,
-  bei `keinBrief` immer. Den Kontakt einer anderen Stelle gibt `auswahl` nie aus.
+  (`g` + ARS) und ihren Verband (`v` + ARS), `kontakt` für die Kreisebene (`k…`), in Berlin für
+  die Senatsverwaltung (`be-senat`), in Bremen für das Amt für Straßen und Verkehr und den
+  Magistrat Bremerhaven (`hb-asv`, `hb-bhv`) und in Hamburg für die Verkehrsdirektion (`hh-vd`) –
+  `kontaktRolle` in `js/resolve.js`. Für den Bund, die Polizei Bremen (`hb-pol`), das
+  Polizeikommissariat in Hamburg (`hh-pk`), das Bezirksamt ohne bekannten Bezirk (`be-bezirk`) und
+  ohne Daten ist er `null`, bei `keinBrief` immer. Den Kontakt einer anderen Stelle gibt `auswahl`
+  nie aus. Wer `js/resolve.js` als Kopie nutzt, braucht für die Stadtstaaten den Stand ab Regeln
+  0.13.0.
 - `alternative.kontakt` gilt ebenso für die Stelle der Alternative.
 - `bundesportal` ist der Link auf die Seite der Gemeinde im Bundesportal, wenn das Land die
   Leistung dort führt (`bundesportal_region`); sonst `null`, ebenso bei `keinBrief`. Der
