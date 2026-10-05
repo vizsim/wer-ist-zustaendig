@@ -2,24 +2,26 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  auswahl, BAU_KLASSEN, BB_AUF_ANTRAG, BB_AUF_ANTRAG_TEILWEISE, BB_GROSSE_KREISANGEHOERIGE_STAEDTE, ergebnisId,
+  auswahl, BAU_KLASSEN, BB_AUF_ANTRAG, BB_AUF_ANTRAG_TEILWEISE, BB_GROSSE_KREISANGEHOERIGE_STAEDTE, BW_NICHT_GENANNT,
+  BW_OERTLICH, BW_OERTLICH_VG, BW_SCHWELLEN, BW_VG_UNTERE, BW_VOLLSTAENDIG, ergebnisId,
   FESTE_STELLEN, HE_SCHWELLEN, HE_SONDERSTATUS, kontaktRolle, MV_GROSSE_KREISANGEHOERIGE_STAEDTE, MV_STAEDTE_UEBERGANG,
   NI_GEMEINDESTRASSEN, NI_SELBSTAENDIG, NI_WIE_KREISFREI, NW_GROSSE_KREISANGEHOERIGE_STAEDTE,
-  NW_MITTLERE_KREISANGEHOERIGE_STAEDTE, resolveGemeinde, RP_ANLAGE_1, RP_GROSSE_KREISANGEHOERIGE_STAEDTE, schwaecher,
+  NW_MITTLERE_KREISANGEHOERIGE_STAEDTE, pruefeListen, resolveGemeinde, RP_ANLAGE_1, RP_GROSSE_KREISANGEHOERIGE_STAEDTE,
+  schwaecher, stelleEintragen,
   SICHERHEIT, SN_GROSSE_KREISSTAEDTE, TEXTE, TH_STAEDTE_AUF_ANTRAG,
 } from "../js/resolve.js";
 
 const kreis = (ars, gen, bez, nbd, kreisfrei = false) => ({ ars, gen, bez, nbd, kreisfrei, name: gen });
 
-// Echte Gemeinden (VG25, GV-ISys 31.12.2025). Baden-Württemberg steht für die Länder ohne
-// Landesregel (Rückfall Phase 1), Bayern und Thüringen haben eine.
+// Echte Gemeinden (VG25, GV-ISys 31.12.2025). Die Gemeinden aus Baden-Württemberg dienen unter einem
+// erfundenen Länderkürzel auch für den Rückfall auf Phase 1 (`ohneRegel`).
 const G = {
   stuttgart: {
     ars: "081110000000", gen: "Stuttgart", land: "BW", tkz: [62],
     kreis: kreis("08111", "Stuttgart", "Stadtkreis", "ja", true),
   },
   aichwald: {
-    ars: "081160076076", gen: "Aichwald", land: "BW", tkz: [64],
+    ars: "081160076076", gen: "Aichwald", land: "BW", tkz: [64], ew: 7600,
     kreis: kreis("08116", "Esslingen", "Landkreis", "ja"),
   },
   esslingen: {
@@ -90,6 +92,68 @@ const G = {
   muensingen: {
     ars: "084159971971", gen: "Gutsbezirk Münsingen", land: "BW", tkz: [66], ew: 0, gemeindefrei: true,
     kreis: kreis("08415", "Reutlingen", "Landkreis", "ja"),
+  },
+  // Baden-Württemberg: ARS aus dem Gemeindeverzeichnis des Statistischen Landesamts. Einwohner gerundet – sie
+  // entscheiden nur, ob eine Schwelle erreicht ist, und liegen weit genug davon weg; `verband.ew` ist die Summe
+  // der Mitglieder, wie sie der Build bildet.
+  dettingenTeck: {
+    ars: "081165001016", gen: "Dettingen unter Teck", name: "Gemeinde Dettingen unter Teck", land: "BW", tkz: [64],
+    ew: 6000, kreis: kreis("08116", "Esslingen", "Landkreis", "ja"),
+    verband: {
+      ars: "081165001", gen: "Kirchheim unter Teck", name: "Vereinbarte Verwaltungsgemeinschaft Kirchheim unter Teck",
+      ew: 51000,
+    },
+  },
+  badFriedrichshall: {
+    ars: "081255001005", gen: "Bad Friedrichshall", name: "Stadt Bad Friedrichshall", land: "BW", tkz: [63], ew: 20500,
+    kreis: kreis("08125", "Heilbronn", "Landkreis", "ja"),
+    verband: {
+      ars: "081255001", gen: "Bad Friedrichshall", name: "Vereinbarte Verwaltungsgemeinschaft Bad Friedrichshall",
+      ew: 30000,
+    },
+  },
+  lichtenwald: {
+    ars: "081165007037", gen: "Lichtenwald", name: "Gemeinde Lichtenwald", land: "BW", tkz: [64], ew: 2600,
+    kreis: kreis("08116", "Esslingen", "Landkreis", "ja"),
+    verband: {
+      ars: "081165007", gen: "Reichenbach an der Fils", name: "Gemeindeverwaltungsverband Reichenbach an der Fils",
+      ew: 21000,
+    },
+  },
+  hermaringen: {
+    ars: "081355001021", gen: "Hermaringen", name: "Gemeinde Hermaringen", land: "BW", tkz: [64], ew: 2300,
+    kreis: kreis("08135", "Heidenheim", "Landkreis", "ja"),
+    verband: {
+      ars: "081355001", gen: "Giengen an der Brenz", name: "Vereinbarte Verwaltungsgemeinschaft Giengen an der Brenz",
+      ew: 22000,
+    },
+  },
+  aichtal: {
+    ars: "081160081081", gen: "Aichtal", name: "Stadt Aichtal", land: "BW", tkz: [63], ew: 10000,
+    kreis: kreis("08116", "Esslingen", "Landkreis", "ja"),
+  },
+  altdorfBB: {
+    ars: "081155004002", gen: "Altdorf", name: "Gemeinde Altdorf", land: "BW", tkz: [64], ew: 4700,
+    kreis: kreis("08115", "Böblingen", "Landkreis", "ja"),
+    verband: { ars: "081155004", gen: "Holzgerlingen", name: "Gemeindeverwaltungsverband Holzgerlingen", ew: 21500 },
+  },
+  gerstetten: {
+    ars: "081350015015", gen: "Gerstetten", name: "Gemeinde Gerstetten", land: "BW", tkz: [64], ew: 11500,
+    kreis: kreis("08135", "Heidenheim", "Landkreis", "ja"),
+  },
+  // Künzelsau: Mitglieder der Gemeinschaft angenommen (nur Ingelfingen dazu), Einwohner gerundet.
+  kuenzelsau: {
+    ars: "081265003046", gen: "Künzelsau", name: "Stadt Künzelsau", land: "BW", tkz: [63], ew: 16000,
+    kreis: kreis("08126", "Hohenlohekreis", "Landkreis", "nein"),
+    verband: {
+      ars: "081265003", gen: "Künzelsau", name: "Vereinbarte Verwaltungsgemeinschaft Künzelsau", ew: 22000,
+      mitglieder: ["Ingelfingen", "Künzelsau"],
+    },
+  },
+  doerzbach: {
+    ars: "081265002020", gen: "Dörzbach", name: "Gemeinde Dörzbach", land: "BW", tkz: [64], ew: 2500,
+    kreis: kreis("08126", "Hohenlohekreis", "Landkreis", "nein"),
+    verband: { ars: "081265002", gen: "Krautheim", name: "Gemeindeverwaltungsverband Krautheim", ew: 11000 },
   },
   reinhardswald: {
     ars: "066339200200", gen: "Gutsbezirk Reinhardswald", land: "HE", tkz: [66], ew: 0, gemeindefrei: true,
@@ -439,8 +503,13 @@ const G = {
   },
 };
 
+// Seit Baden-Württemberg hat jedes Flächenland eine Regel; Bremen und Hamburg stehen als Sonderfälle in
+// Phase 1. Den allgemeinen Rückfall prüfen die Tests deshalb mit Gemeinden unter einem erfundenen
+// Länderkürzel ohne Regel – sonst dieselben Daten.
+const ohneRegel = (g) => ({ ...g, land: "XX" });
+
 test("Phase 1: kreisfreie Stadt → die Stadt, vermutlich", () => {
-  const { zust, stellen } = resolveGemeinde(G.stuttgart);
+  const { zust, stellen } = resolveGemeinde(ohneRegel(G.stuttgart));
   assert.equal(zust.G.stelle, "k08111");
   assert.equal(zust.G.sicherheit, SICHERHEIT.VERMUTLICH);
   assert.equal(zust.G.grund, TEXTE.grund.kreisfrei);
@@ -448,17 +517,17 @@ test("Phase 1: kreisfreie Stadt → die Stadt, vermutlich", () => {
   assert.equal(stellen.k08111.art, "stadt");
 });
 
-test("Phase 1: kreisangehörige Gemeinde → Landratsamt, nur Ebene", () => {
-  const { zust, stellen } = resolveGemeinde(G.aichwald);
+test("Phase 1: kreisangehörige Gemeinde → Kreis, nur Ebene", () => {
+  const { zust, stellen } = resolveGemeinde(ohneRegel(G.aichwald));
   assert.equal(zust.K.stelle, "k08116");
   assert.equal(zust.K.sicherheit, SICHERHEIT.NUR_EBENE);
   assert.equal(zust.K.alternative, null);
-  assert.equal(stellen.k08116.name, "Landratsamt Esslingen – Straßenverkehrsbehörde");
+  assert.equal(stellen.k08116.name, "Landkreis Esslingen – Straßenverkehrsbehörde", "ohne Land: voller Name des Kreises");
   assert.equal(stellen.k08116.art, "kreis");
 });
 
 test("Phase 1: Große Kreisstadt (Tkz 67) als Alternative", () => {
-  const { zust, stellen } = resolveGemeinde(G.esslingen);
+  const { zust, stellen } = resolveGemeinde(ohneRegel(G.esslingen));
   assert.equal(zust.G.stelle, "k08116");
   assert.deepEqual(zust.G.alternative, { stelle: "g081160019019", bedingung: TEXTE.bedingung.gks });
   assert.equal(stellen.g081160019019.name, "Stadt Esslingen am Neckar – Straßenverkehrsbehörde");
@@ -477,15 +546,14 @@ test("Phase 1: Hamburg – Polizei, nur Ebene", () => {
 });
 
 test("Phase 1: gemeindefreies Gebiet → Kreis", () => {
-  const { zust, stellen } = resolveGemeinde(G.muensingen);
+  const { zust } = resolveGemeinde(ohneRegel(G.muensingen));
   assert.equal(zust.G.stelle, "k08415");
   assert.equal(zust.G.grund, TEXTE.grund.gemeindefrei);
   assert.equal(zust.G.quelle, TEXTE.quelle.phase1);
-  assert.equal(stellen.k08415.name, "Landratsamt Reutlingen – Straßenverkehrsbehörde");
 });
 
 test("Phase 1: alle Klassen gleich", () => {
-  const { zust } = resolveGemeinde(G.aichwald);
+  const { zust } = resolveGemeinde(ohneRegel(G.aichwald));
   const ids = BAU_KLASSEN.map((k) => ergebnisId(zust[k]));
   assert.equal(new Set(ids).size, 1);
 });
@@ -504,22 +572,22 @@ test("Kondominium: Stelle der angrenzenden Gemeinde, nie sicherer als nur Ebene"
 });
 
 test("Bundesportal: dieselbe Stelle → vermutlich, andere Stelle oder Kondominium → nur Ebene", () => {
-  const bestaetigt = resolveGemeinde({ ...G.aichwald, bundesportal: "passt" }).zust;
+  const bestaetigt = resolveGemeinde({ ...ohneRegel(G.aichwald), bundesportal: "passt" }).zust;
   assert.equal(bestaetigt.G.stelle, "k08116");
   assert.equal(bestaetigt.G.sicherheit, SICHERHEIT.VERMUTLICH);
   assert.equal(bestaetigt.K.sicherheit, SICHERHEIT.VERMUTLICH);
   assert.equal(bestaetigt.G.grund, TEXTE.grund.bundesportal);
   assert.equal(bestaetigt.G.quelle, TEXTE.quelle.bundesportal);
-  const gks = resolveGemeinde({ ...G.esslingen, bundesportal: "passt" }).zust.G;
+  const gks = resolveGemeinde({ ...ohneRegel(G.esslingen), bundesportal: "passt" }).zust.G;
   assert.equal(gks.alternative.stelle, "g081160019019", "Alternative bleibt");
-  const stvb = resolveGemeinde({ ...G.aichwald, bundesportal: "stvb" });
+  const stvb = resolveGemeinde({ ...ohneRegel(G.aichwald), bundesportal: "stvb" });
   assert.equal(stvb.zust.G.sicherheit, SICHERHEIT.NUR_EBENE);
   assert.deepEqual(stvb.zust.G.alternative, { stelle: "g081160076076", bedingung: TEXTE.bedingung.portalStvb });
   assert.equal(stvb.stellen.g081160076076.name, "Aichwald – Straßenverkehrsbehörde", "ohne Stadtrecht kein „Stadt\"");
   assert.equal(resolveGemeinde({ ...G.kondominium, bundesportal: "passt" }).zust.G.sicherheit, SICHERHEIT.NUR_EBENE);
-  const frei = resolveGemeinde({ ...G.stuttgart, bundesportal: "passt" }).zust.G;
+  const frei = resolveGemeinde({ ...ohneRegel(G.stuttgart), bundesportal: "passt" }).zust.G;
   assert.equal(frei.grund, TEXTE.grund.kreisfrei, "schon vermutlich: Regel bleibt maßgeblich");
-  assert.equal(resolveGemeinde(G.aichwald).zust.G.sicherheit, SICHERHEIT.NUR_EBENE, "ohne Portal");
+  assert.equal(resolveGemeinde(ohneRegel(G.aichwald)).zust.G.sicherheit, SICHERHEIT.NUR_EBENE, "ohne Portal");
 });
 
 test("Bayern: Gemeindestraße → die Gemeinde, sonst das Landratsamt (belegt)", () => {
@@ -1285,6 +1353,309 @@ test("Berlin gesamt (VG25, ohne Bezirk): Bezirksamt nur als Ebene, Senatsverwalt
   assert.equal(stellen["be-senat"].art, "stadtstaat");
 });
 
+test("Baden-Württemberg: Stadtkreise und Große Kreisstädte für alle Straßen (belegt), gemeindefreie Gebiete beim Landratsamt", () => {
+  const stuttgart = resolveGemeinde(G.stuttgart);
+  for (const k of BAU_KLASSEN) {
+    assert.equal(stuttgart.zust[k].stelle, "k08111", k);
+    assert.equal(stuttgart.zust[k].sicherheit, SICHERHEIT.BELEGT, k);
+    assert.equal(stuttgart.zust[k].alternative, null, k);
+  }
+  assert.equal(stuttgart.zust.G.grund, TEXTE.grund.bwStadtkreis);
+  assert.equal(stuttgart.zust.G.quelle, TEXTE.quelle.bwUnter);
+  assert.equal(stuttgart.stellen.k08111.name, "Stadt Stuttgart – Straßenverkehrsbehörde");
+  const esslingen = resolveGemeinde(G.esslingen);
+  for (const k of BAU_KLASSEN) {
+    assert.equal(esslingen.zust[k].stelle, "g081160019019", k);
+    assert.equal(esslingen.zust[k].sicherheit, SICHERHEIT.BELEGT, k);
+    assert.equal(esslingen.zust[k].grund, TEXTE.grund.bwGks, k);
+    assert.equal(esslingen.zust[k].alternative, null, k);
+  }
+  assert.deepEqual(esslingen.stellen.g081160019019, {
+    id: "g081160019019", name: "Stadt Esslingen am Neckar – Straßenverkehrsbehörde", ebene: "untere", art: "stadt",
+  });
+  const gutsbezirk = resolveGemeinde(G.muensingen);
+  for (const k of BAU_KLASSEN) assert.equal(gutsbezirk.zust[k].stelle, "k08415", k);
+  assert.equal(gutsbezirk.zust.G.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(gutsbezirk.zust.G.grund, TEXTE.grund.gemeindefrei);
+  assert.equal(gutsbezirk.zust.G.quelle, TEXTE.quelle.bwUnter);
+  assert.equal(gutsbezirk.stellen.k08415.name, "Landratsamt Reutlingen – Straßenverkehrsbehörde");
+});
+
+test("Baden-Württemberg: Verwaltungsgemeinschaft als untere Verwaltungsbehörde für alle Straßen ihrer Gemeinden (vermutlich)", () => {
+  const dettingen = resolveGemeinde(G.dettingenTeck);
+  for (const k of BAU_KLASSEN) {
+    assert.equal(dettingen.zust[k].stelle, "v081165001", k);
+    assert.equal(dettingen.zust[k].sicherheit, SICHERHEIT.VERMUTLICH, k);
+    assert.equal(dettingen.zust[k].grund, TEXTE.grund.bwVgUntere, k);
+    assert.equal(dettingen.zust[k].quelle, TEXTE.quelle.bwListe, k);
+    assert.equal(dettingen.zust[k].alternative, null, k);
+  }
+  assert.deepEqual(dettingen.stellen.v081165001, {
+    id: "v081165001", name: "Vereinbarte Verwaltungsgemeinschaft Kirchheim unter Teck – Straßenverkehrsbehörde",
+    ebene: "untere", art: "verband",
+  });
+  const notzingen = { ...G.dettingenTeck, ars: "081165001048", gen: "Notzingen", name: "Gemeinde Notzingen", ew: 3700 };
+  assert.equal(resolveGemeinde(notzingen).zust.B.stelle, "v081165001", "dieselbe Gemeinschaft");
+  const bfh = resolveGemeinde(G.badFriedrichshall);
+  for (const k of BAU_KLASSEN) assert.equal(bfh.zust[k].stelle, "v081255001", `${k}: Sitz ohne Große Kreisstadt`);
+  // Die Erklärung gilt für die ganze Gemeinschaft: Ein Mitglied, das die Quelle nicht nennt (erfunden), gehört
+  // dazu – erkannt an den Mitgliedern, die der Build ergänzt.
+  const mitglieder = ["Dettingen unter Teck", "Kirchheim unter Teck", "Musterdorf", "Notzingen"];
+  const musterdorf = { ...G.dettingenTeck, gen: "Musterdorf", verband: { ...G.dettingenTeck.verband, mitglieder } };
+  assert.equal(resolveGemeinde(musterdorf).zust.K.stelle, "v081165001");
+  const ohneMitglieder = resolveGemeinde({ ...G.dettingenTeck, gen: "Musterdorf" }).zust.K;
+  assert.equal(ohneMitglieder.stelle, "k08116", "ohne Mitglieder nur der eigene Name");
+  assert.equal(ohneMitglieder.quelle, TEXTE.quelle.bwListe, "das Landratsamt nennt im Landkreis Esslingen alle");
+  assert.equal(ohneMitglieder.alternative, null);
+  // Nennt die Liste die Gemeinde, kennt die Tabelle aber keinen Verband: das Landratsamt, nie belegt.
+  const ohneVerband = resolveGemeinde({ ...G.dettingenTeck, verband: null }).zust.K;
+  assert.equal(ohneVerband.stelle, "k08116");
+  assert.equal(ohneVerband.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(ohneVerband.quelle, TEXTE.quelle.bwListe, "die Liste ist der Grund");
+});
+
+test("Baden-Württemberg: Kreis-, Landes- und Bundesstraßen beim Landratsamt – mit der Verwaltungsgemeinschaft als Alternative, wo sie es sein könnte", () => {
+  const gerstetten = resolveGemeinde(G.gerstetten);
+  for (const k of ["K", "L", "B"]) {
+    assert.equal(gerstetten.zust[k].stelle, "k08135", k);
+    assert.equal(gerstetten.zust[k].sicherheit, SICHERHEIT.BELEGT, `${k}: ohne Verband`);
+    assert.equal(gerstetten.zust[k].grund, TEXTE.grund.bwLandratsamt, k);
+    assert.equal(gerstetten.zust[k].quelle, TEXTE.quelle.bwSchwelle, k);
+    assert.equal(gerstetten.zust[k].alternative, null, k);
+  }
+  assert.equal(gerstetten.stellen.k08135.name, "Landratsamt Heidenheim – Straßenverkehrsbehörde");
+  // Mehr als 18.000 Einwohner in der Gemeinschaft, das Landratsamt nennt nicht, wer außer ihm zuständig ist.
+  const hermaringen = resolveGemeinde(G.hermaringen);
+  for (const k of BAU_KLASSEN) {
+    assert.equal(hermaringen.zust[k].stelle, "k08135", k);
+    assert.equal(hermaringen.zust[k].sicherheit, SICHERHEIT.VERMUTLICH, k);
+    assert.equal(hermaringen.zust[k].quelle, TEXTE.quelle.bwSchwelle, k);
+    assert.deepEqual(hermaringen.zust[k].alternative, { stelle: "v081355001", bedingung: TEXTE.bedingung.bwVgUntere }, k);
+  }
+  assert.equal(hermaringen.zust.K.grund, TEXTE.grund.bwLandratsamt);
+  assert.equal(hermaringen.zust.G.grund, TEXTE.grund.bwLandratsamtG);
+  assert.equal(hermaringen.stellen.v081355001.ebene, "untere");
+  // Im Landkreis Esslingen nennt das Landratsamt alle: dort das Landratsamt ohne Alternative, aber nur vermutlich.
+  const lichtenwald = resolveGemeinde(G.lichtenwald).zust;
+  for (const k of BAU_KLASSEN) {
+    assert.equal(lichtenwald[k].stelle, "k08116", k);
+    assert.equal(lichtenwald[k].sicherheit, SICHERHEIT.VERMUTLICH, k);
+    assert.equal(lichtenwald[k].quelle, TEXTE.quelle.bwListe, k);
+    assert.equal(lichtenwald[k].alternative, null, k);
+  }
+  // Schwelle: mehr als 20.000 Einwohner, ab 90 % davon möglich.
+  const mitVerband = (ew) => resolveGemeinde({ ...G.hermaringen, verband: { ...G.hermaringen.verband, ew } }).zust;
+  assert.equal(mitVerband(18000).K.sicherheit, SICHERHEIT.BELEGT);
+  assert.equal(mitVerband(18000).K.alternative, null);
+  assert.equal(mitVerband(18001).K.alternative.stelle, "v081355001");
+  // Fehlen die Einwohner der Gemeinschaft oder der Gemeinde, ist nichts belegt.
+  const ohneEw = resolveGemeinde({ ...G.hermaringen, verband: { ...G.hermaringen.verband, ew: null } }).zust.K;
+  assert.equal(ohneEw.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(ohneEw.alternative, null);
+  const ohneEwGemeinde = resolveGemeinde({ ...G.gerstetten, ew: null }).zust;
+  assert.equal(ohneEwGemeinde.K.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(ohneEwGemeinde.G.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(ohneEwGemeinde.G.alternative, null);
+});
+
+test("Baden-Württemberg: Gemeindestraßen bei der örtlichen Straßenverkehrsbehörde, wenn sie nicht auf höhere Straßen wirken", () => {
+  const aichtal = resolveGemeinde(G.aichtal);
+  assert.equal(aichtal.zust.G.stelle, "g081160081081");
+  assert.equal(aichtal.zust.G.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(aichtal.zust.G.grund, TEXTE.grund.bwOertlich);
+  assert.equal(aichtal.zust.G.quelle, TEXTE.quelle.bwOertlich);
+  assert.deepEqual(aichtal.zust.G.alternative, { stelle: "k08116", bedingung: TEXTE.bedingung.bwHoehereStrasse });
+  assert.deepEqual(aichtal.stellen.g081160081081, {
+    id: "g081160081081", name: "Stadt Aichtal – Straßenverkehrsbehörde", ebene: "oertliche", art: "stadt",
+  });
+  for (const k of ["K", "L", "B"]) {
+    assert.equal(aichtal.zust[k].stelle, "k08116", k);
+    assert.equal(aichtal.zust[k].sicherheit, SICHERHEIT.BELEGT, k);
+  }
+  const altdorf = resolveGemeinde(G.altdorfBB);
+  assert.equal(altdorf.zust.G.stelle, "v081155004");
+  assert.equal(altdorf.zust.G.grund, TEXTE.grund.bwOertlichVg);
+  assert.equal(altdorf.zust.G.quelle, TEXTE.quelle.bwOertlich);
+  assert.deepEqual(altdorf.zust.G.alternative, { stelle: "k08115", bedingung: TEXTE.bedingung.bwHoehereStrasse });
+  assert.deepEqual(altdorf.stellen.v081155004, {
+    id: "v081155004", name: "Gemeindeverwaltungsverband Holzgerlingen – Straßenverkehrsbehörde", ebene: "oertliche",
+    art: "verband",
+  });
+  assert.equal(altdorf.zust.K.stelle, "k08115");
+  assert.equal(altdorf.zust.K.sicherheit, SICHERHEIT.VERMUTLICH, "Verband über 18.000, Liste des Landratsamts vollständig");
+  assert.equal(altdorf.zust.K.quelle, TEXTE.quelle.bwListe);
+  assert.equal(altdorf.zust.K.alternative, null);
+  // Lörrach nennt das Landratsamt nicht vollständig, die Gemeinschaft Schopfheim hat mehr als 18.000 Einwohner:
+  // Als örtliche Straßenverkehrsbehörde ist sie nicht zugleich untere Verwaltungsbehörde – keine Alternative, und
+  // die Stelle bleibt in allen Klassen dieselbe (Schlüssel erfunden).
+  // Ein Mitglied ist örtliche Straßenverkehrsbehörde: Dann ist die Gemeinschaft für keines ihrer Mitglieder
+  // als untere Verwaltungsbehörde möglich (Hohenlohekreis, Liste unvollständig; Ingelfingen mit erfundenem Schlüssel).
+  const kuenzelsau = resolveGemeinde(G.kuenzelsau);
+  assert.equal(kuenzelsau.zust.G.stelle, "g081265003046");
+  assert.deepEqual(kuenzelsau.zust.G.alternative, { stelle: "k08126", bedingung: TEXTE.bedingung.bwHoehereStrasse });
+  const ingelfingen = resolveGemeinde({ ...G.kuenzelsau, ars: "081265003099", gen: "Ingelfingen", ew: 5600 }).zust;
+  for (const z of [kuenzelsau.zust, ingelfingen]) {
+    for (const k of ["K", "L", "B"]) {
+      assert.equal(z[k].stelle, "k08126", k);
+      assert.equal(z[k].alternative, null, k);
+      assert.equal(z[k].quelle, TEXTE.quelle.bwListe, k);
+    }
+  }
+  assert.deepEqual(ingelfingen.G.alternative, { stelle: "g081265003099", bedingung: TEXTE.bedingung.bwOertlich });
+  const ohneOertliche = { ...G.kuenzelsau.verband, mitglieder: ["Ingelfingen", "Muster"] };
+  const anders = resolveGemeinde({ ...G.kuenzelsau, ars: "081265003099", gen: "Ingelfingen", verband: ohneOertliche });
+  assert.equal(anders.zust.K.alternative.stelle, "v081265003", "ohne örtliches Mitglied: die Gemeinschaft möglich");
+  const maulburg = resolveGemeinde({
+    ars: "083365000003", gen: "Maulburg", name: "Gemeinde Maulburg", land: "BW", tkz: [64], ew: 4200,
+    kreis: kreis("08336", "Lörrach", "Landkreis", "ja"),
+    verband: {
+      ars: "083365000", gen: "Schopfheim", name: "Vereinbarte Verwaltungsgemeinschaft Schopfheim", ew: 27700,
+      mitglieder: ["Hasel", "Hausen im Wiesental", "Maulburg", "Schopfheim"],
+    },
+  });
+  assert.equal(maulburg.zust.G.stelle, "v083365000");
+  assert.equal(maulburg.stellen.v083365000.ebene, "oertliche");
+  for (const k of ["K", "L", "B"]) {
+    assert.equal(maulburg.zust[k].stelle, "k08336", k);
+    assert.equal(maulburg.zust[k].alternative, null, k);
+    assert.equal(maulburg.zust[k].quelle, TEXTE.quelle.bwListe, k);
+  }
+});
+
+test("Baden-Württemberg: Gemeindestraßen – die Gemeinde oder ihr Verband als Alternative, wo sie es sein könnte", () => {
+  const gerstetten = resolveGemeinde(G.gerstetten);
+  assert.equal(gerstetten.zust.G.stelle, "k08135");
+  assert.equal(gerstetten.zust.G.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(gerstetten.zust.G.grund, TEXTE.grund.bwLandratsamtG);
+  assert.equal(gerstetten.zust.G.quelle, TEXTE.quelle.bwSchwelle);
+  assert.deepEqual(gerstetten.zust.G.alternative, { stelle: "g081350015015", bedingung: TEXTE.bedingung.bwOertlich });
+  assert.deepEqual(gerstetten.stellen.g081350015015, {
+    id: "g081350015015", name: "Gemeinde Gerstetten – Straßenverkehrsbehörde", ebene: "oertliche", art: "gemeinde",
+  });
+  const doerzbach = resolveGemeinde(G.doerzbach);
+  assert.deepEqual(doerzbach.zust.G.alternative, { stelle: "v081265002", bedingung: TEXTE.bedingung.bwOertlichVg });
+  assert.equal(doerzbach.stellen.v081265002.ebene, "oertliche");
+  assert.equal(doerzbach.stellen.k08126.name, "Landratsamt Hohenlohekreis – Straßenverkehrsbehörde");
+  assert.equal(doerzbach.zust.K.sicherheit, SICHERHEIT.BELEGT, "Verband unter 18.000");
+  // Im Landkreis Esslingen nennt das Landratsamt alle örtlichen Straßenverkehrsbehörden.
+  const aichwald = resolveGemeinde(G.aichwald).zust.G;
+  assert.equal(aichwald.stelle, "k08116");
+  assert.equal(aichwald.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(aichwald.quelle, TEXTE.quelle.bwListe);
+  assert.equal(aichwald.alternative, null);
+  // Schwelle: mehr als 5.000 Einwohner, ab 90 % davon möglich – darunter belegt.
+  const mitEw = (ew) => resolveGemeinde({ ...G.gerstetten, ew }).zust.G;
+  assert.equal(mitEw(4500).sicherheit, SICHERHEIT.BELEGT);
+  assert.equal(mitEw(4500).quelle, TEXTE.quelle.bwSchwelle);
+  assert.equal(mitEw(4500).alternative, null);
+  assert.equal(mitEw(4501).alternative.stelle, "g081350015015");
+  const kleinerVerband = { ...G.doerzbach, verband: { ...G.doerzbach.verband, ew: 4500 } };
+  assert.equal(resolveGemeinde(kleinerVerband).zust.G.sicherheit, SICHERHEIT.BELEGT);
+  // Ravensburg nennt alle – außer Wolfegg (`BW_NICHT_GENANNT`): Dort bleibt die Alternative, aber nur, wenn das
+  // Landratsamt kein Mitglied ihres Verbands nennt; sonst deckt es den Verband (Verbände erfunden).
+  const ravensburg = (gen, mitglieder) => resolveGemeinde({
+    ars: "084365000001", gen, name: `Gemeinde ${gen}`, land: "BW", tkz: [64], ew: 3800,
+    kreis: kreis("08436", "Ravensburg", "Landkreis", "ja"),
+    verband: { ars: "084365000", gen: "Muster", name: "Gemeindeverwaltungsverband Muster", ew: 9000, mitglieder },
+  }).zust.G;
+  const wolfegg = ravensburg("Wolfegg", ["Wolfegg"]);
+  assert.deepEqual(wolfegg.alternative, { stelle: "v084365000", bedingung: TEXTE.bedingung.bwOertlichVg });
+  assert.equal(wolfegg.quelle, TEXTE.quelle.bwSchwelle);
+  assert.equal(ravensburg("Wolfegg", ["Vogt", "Wolfegg"]).alternative, null, "das Landratsamt nennt Vogt");
+  assert.equal(ravensburg("Baindt", ["Baindt"]).alternative, null, "vom Landratsamt genannt");
+  assert.equal(ravensburg("Baindt", ["Baindt"]).quelle, TEXTE.quelle.bwListe);
+});
+
+test("Baden-Württemberg: Listen – Kreise als Schlüssel, Namen sortiert und eindeutig, keine Gemeinde doppelt", () => {
+  assert.deepEqual({ ...BW_SCHWELLEN }, { oertlich: 5000, vgUntere: 20000, rand: 0.9 });
+  const stadtkreise = new Set(["08111", "08121", "08211", "08212", "08221", "08222", "08231", "08311", "08421"]);
+  const sortiert = (namen) => [...namen].sort((a, b) => a.localeCompare(b, "de"));
+  const gesehen = new Map();
+  const listen = { BW_VG_UNTERE, BW_OERTLICH_VG, BW_OERTLICH, BW_NICHT_GENANNT };
+  for (const [name, liste] of Object.entries(listen)) {
+    assert.ok(Object.isFrozen(liste), name);
+    const kreise = Object.keys(liste);
+    assert.deepEqual(kreise, [...kreise].sort(), `${name}: Kreise sortiert`);
+    const gruppenweise = name === "BW_VG_UNTERE" || name === "BW_OERTLICH_VG";
+    for (const [k, eintraege] of Object.entries(liste)) {
+      assert.match(k, /^08\d{3}$/, `${name}: ${k}`);
+      assert.ok(!stadtkreise.has(k), `${name}: ${k} ist ein Stadtkreis`);
+      assert.ok(eintraege.length > 0, `${name}: ${k} leer`);
+      const gruppen = gruppenweise ? eintraege : [eintraege];
+      if (gruppenweise) {
+        const erste = gruppen.map((gruppe) => gruppe[0]);
+        assert.deepEqual(erste, sortiert(erste), `${name}: ${k} Gemeinschaften sortiert`);
+      }
+      for (const gruppe of gruppen) {
+        assert.ok(gruppe.length > 0 && gruppe.every((gen) => typeof gen === "string"), `${name}: ${k}`);
+        assert.deepEqual(gruppe, sortiert(gruppe), `${name}: ${k} sortiert`);
+        for (const gen of gruppe) {
+          const schluessel = `${k} ${gen}`;
+          assert.ok(!gesehen.has(schluessel), `${gen} (${k}) in ${name} und ${gesehen.get(schluessel)}`);
+          gesehen.set(schluessel, name);
+        }
+      }
+    }
+  }
+  for (const [art, kreise] of Object.entries(BW_VOLLSTAENDIG)) {
+    assert.deepEqual(kreise, [...new Set(kreise)].sort(), `BW_VOLLSTAENDIG.${art}: sortiert, eindeutig`);
+    for (const k of kreise) assert.ok(/^08\d{3}$/.test(k) && !stadtkreise.has(k), `BW_VOLLSTAENDIG.${art}: ${k}`);
+  }
+  for (const k of Object.keys(BW_NICHT_GENANNT)) {
+    assert.ok(BW_VOLLSTAENDIG.untere.includes(k) && BW_VOLLSTAENDIG.oertlich.includes(k), `${k}: in beiden Listen`);
+  }
+});
+
+test("Baden-Württemberg: pruefeListen – Namen, Verbände und Widersprüche gegen die Gemeindetabelle", () => {
+  const esslingen = kreis("08116", "Esslingen", "Landkreis", "ja");
+  // Gemeinden des Landkreises Esslingen, Schlüssel der Verbände erfunden.
+  const g = (gen, verband = null) => ({ land: "BW", gen, kreis: esslingen, verband: verband && { ars: verband } });
+  const tabelle = [
+    g("Dettingen unter Teck", "081165001"), g("Kirchheim unter Teck", "081165001"), g("Notzingen", "081165001"),
+    g("Aichtal"), g("Neuhausen auf den Fildern"), g("Plochingen", "081165006"), g("Wendlingen am Neckar"),
+    g("Wernau (Neckar)"),
+  ];
+  assert.deepEqual(pruefeListen(tabelle), [], "passt");
+  const zwei = tabelle.map((x) => (x.gen === "Notzingen" ? g("Notzingen", "081165002") : x));
+  assert.deepEqual(pruefeListen(zwei), [
+    "BW_VG_UNTERE: Dettingen unter Teck, Kirchheim unter Teck, Notzingen (08116) in 2 Verbänden",
+  ]);
+  const ohne = tabelle.filter((x) => x.gen !== "Plochingen").map((x) => (x.gen === "Notzingen" ? g("Notzingen") : x));
+  assert.deepEqual(pruefeListen(ohne), [
+    "BW_VG_UNTERE: Notzingen (08116) ohne Verband in der Tabelle",
+    "BW_OERTLICH: Plochingen (08116) gibt es im Kreis nicht",
+  ]);
+  const imVerband = tabelle.map((x) => (x.gen === "Aichtal" ? g("Aichtal", "081165001") : x));
+  assert.deepEqual(pruefeListen(imVerband), ["BW_OERTLICH: Aichtal (08116) – ihr Verband steht in BW_VG_UNTERE"]);
+  // Ein Verband in zwei Listen (Rhein-Neckar-Kreis); fehlende Namen dort hier nicht betrachtet.
+  const rnk = kreis("08226", "Rhein-Neckar-Kreis", "Landkreis", "nein");
+  const beide = [{ land: "BW", gen: "Hockenheim", kreis: rnk, verband: { ars: "082265001" } },
+    { land: "BW", gen: "Eberbach", kreis: rnk, verband: { ars: "082265001" } }];
+  assert.ok(pruefeListen(beide).includes("Verband 082265001 steht in BW_VG_UNTERE und BW_OERTLICH_VG"));
+  assert.deepEqual(pruefeListen([{ ...tabelle[0], land: "BY" }, { ...tabelle[0], kondominium: { nachbar: "x" } }]), [],
+    "nur Baden-Württemberg, ohne Kondominium");
+  // Zwei Gruppen derselben Liste in einem Verband (Heilbronn); eine Ausnahme, deren Verband das Landratsamt nennt.
+  const hn = kreis("08125", "Heilbronn", "Landkreis", "ja");
+  const zweiGruppen = [{ land: "BW", gen: "Bad Friedrichshall", kreis: hn, verband: { ars: "081255001" } },
+    { land: "BW", gen: "Eppingen", kreis: hn, verband: { ars: "081255001" } }];
+  assert.ok(pruefeListen(zweiGruppen).includes("Verband 081255001 steht in zwei Gruppen von BW_VG_UNTERE"));
+  const rv = kreis("08436", "Ravensburg", "Landkreis", "ja");
+  const gedeckt = [{ land: "BW", gen: "Wolfegg", kreis: rv, verband: { ars: "084365009" } },
+    { land: "BW", gen: "Vogt", kreis: rv, verband: { ars: "084365009" } }];
+  assert.ok(pruefeListen(gedeckt).includes(
+    "BW_NICHT_GENANNT: Wolfegg (08436) greift nicht – ihr Verband hat weitere Mitglieder (Vogt)"));
+});
+
+test("stelleEintragen: dieselbe Id nur mit demselben Inhalt", () => {
+  const stellen = {};
+  const vg = { id: "v081265003", name: "Gemeinschaft – Straßenverkehrsbehörde", ebene: "oertliche", art: "verband" };
+  stelleEintragen(stellen, vg, "081265003046");
+  stelleEintragen(stellen, { ...vg }, "081265003099");
+  assert.deepEqual(Object.keys(stellen), ["v081265003"]);
+  assert.throws(() => stelleEintragen(stellen, { ...vg, ebene: "untere" }, "081265003099"),
+    /Stelle v081265003 mit zwei Inhalten \(081265003099\)/);
+});
+
 test("resolveGemeinde: prüft die Eingabe", () => {
   assert.throws(() => resolveGemeinde({ ...G.muenchen, ars: "09162000" }), /ungültiger ARS/);
   assert.throws(() => resolveGemeinde({ ...G.muenchen, kreis: null }), /ohne Kreis/);
@@ -1349,7 +1720,7 @@ test("auswahl: keine Straße → Hinweis, schwächere Sicherheit", () => {
 });
 
 test("auswahl: Alternative aus dem Ergebnis (Große Kreisstadt)", () => {
-  const d = landesdatei("BW", [G.esslingen]);
+  const d = landesdatei("XX", [ohneRegel(G.esslingen)]);
   const r = auswahl(d, G.esslingen.ars, ["B"]);
   assert.equal(r.zustaendig.id, "k08116");
   assert.equal(r.alternative.stelle.id, "g081160019019");

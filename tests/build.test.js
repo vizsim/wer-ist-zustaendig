@@ -142,29 +142,112 @@ test("baueLaender + auswahl: Kontakt der Stelle, die für die Klasse zuständig 
   assert.equal(Object.keys(by.kontakte).length, 4);
 });
 
-test("baueLaender: Kontakt der Gemeinde nur, wo sie zuständig sein kann", () => {
-  // Baden-Württemberg hat (noch) keine Landesregel: Rückfall auf die Kreisebene. Im Bundesportal
-  // führt es die Leistung nicht – die Portaldaten sind hier erfunden, um den Rückfall zu prüfen.
+/** Baden-Württemberg, Landkreis Göppingen (erfundene Gemeinden): ein Verband und eine Gemeinde ohne Verband. */
+function attrBw() {
   const a = attr();
-  a.gemeinden["081155001001"] = {
-    ars: "081155001001", gen: "Musterort", name: "Gemeinde Musterort", land: "BW",
-    kreis: kreis("08115", "Böblingen", "Landkreis", "ja"),
-    verband: { ars: "081155001", name: "Gemeindeverwaltungsverband Musterheide" },
+  const goeppingen = kreis("08117", "Göppingen", "Landkreis", "ja");
+  const verband = { ars: "081175001", gen: "Musterheide", name: "Gemeindeverwaltungsverband Musterheide", sitz: "081175001002" };
+  const g = (ars, gen, ew, mitVerband = true) => ({
+    ars, gen, name: `Gemeinde ${gen}`, land: "BW", tkz: [64], ew, kreis: goeppingen, ...(mitVerband ? { verband } : {}),
+  });
+  a.gemeinden["081175001001"] = g("081175001001", "Musterort", 3000);
+  a.gemeinden["081175001002"] = g("081175001002", "Mustersitz", 2000);
+  a.gemeinden["081175001003"] = g("081175001003", "Mustertal", 6000);
+  a.gemeinden["081170099099"] = g("081170099099", "Kleinweiler", 1200, false);
+  return a;
+}
+
+/** Kontakte wie aus dem Anschriftenverzeichnis: Landratsamt und Rathaus. */
+function kontakteBw(a) {
+  const k = kontakte();
+  const quelle = { id: "anschriften", label: "Anschriftenverzeichnis", lizenz: "–", vermerk: "Statistische Ämter" };
+  k.meta.laender.BW = { abgerufen: "2026-10-05", stand: "2026-01-31", kurz: "Anschriftenverzeichnis", quelle };
+  const allgemein = (name) => ({ name, adresse: `Rathausplatz 1, 73000 ${name}`, telefon: [], email: [], web: [], allgemein: true });
+  for (const [ars, g] of Object.entries(a.gemeinden)) {
+    if (g.land !== "BW") continue;
+    k.gemeinden[ars] = {
+      wahl: null, stellen: 0, kreis: allgemein("Landkreis Göppingen"), gemeinde: allgemein(g.name),
+    };
+  }
+  return k;
+}
+
+test("baueLaender: Kontakt der Gemeinde nur, wo sie zuständig sein kann – mit den Einwohnern ihres Verbands", () => {
+  const a = attrBw();
+  const bw = baueLaender(a, { kontakte: kontakteBw(a) }).dateien["bw.json"];
+  const klein = bw.gemeinden["081170099099"];
+  assert.equal(bw.kontakte[klein.kontakt].name, "Landkreis Göppingen");
+  assert.equal(klein.kontakt_gemeinde, undefined, "zu klein, ohne Verband: nur das Landratsamt");
+
+  // 3.000 Einwohner, im Verband 11.000: Der Verband könnte örtliche Straßenverkehrsbehörde sein.
+  const ort = auswahl(bw, "081175001001", ["G"]);
+  assert.equal(ort.zustaendig.id, "k08117");
+  assert.equal(ort.alternative.stelle.id, "v081175001");
+  assert.ok(ort.alternative.kontakt, "Kontakt der Gemeinde-Rolle");
+  assert.equal(bw.gemeinden["081175001001"].ew, 3000, "Einwohner der Gemeinde selbst");
+
+  // Ohne die übrigen Mitglieder hat der Verband nur 3.000 Einwohner: keine Alternative, kein Kontakt der Gemeinde.
+  const allein = attrBw();
+  delete allein.gemeinden["081175001002"];
+  delete allein.gemeinden["081175001003"];
+  const nurOrt = baueLaender(allein, { kontakte: kontakteBw(allein) }).dateien["bw.json"];
+  assert.equal(auswahl(nurOrt, "081175001001", ["G"]).alternative, null);
+  assert.equal(nurOrt.gemeinden["081175001001"].kontakt_gemeinde, undefined);
+
+  // Fehlt einem Mitglied die Einwohnerzahl, ist die des Verbands unbekannt: nichts belegt.
+  const luecke = attrBw();
+  luecke.gemeinden["081175001003"] = { ...luecke.gemeinden["081175001003"], ew: null };
+  const mitLuecke = baueLaender(luecke).dateien["bw.json"];
+  assert.equal(auswahl(mitLuecke, "081175001001", ["K"]).sicherheit, "vermutlich");
+  assert.equal(auswahl(baueLaender(attrBw()).dateien["bw.json"], "081175001001", ["K"]).sicherheit, "belegt");
+});
+
+test("baueLaender: Gemeinschaften aus den Listen – ein genanntes Mitglied genügt; Warnungen zu den Listen", () => {
+  // Esslingen: Die Verwaltungsgemeinschaft Kirchheim unter Teck nennt das Landratsamt mit Dettingen und Notzingen.
+  // Ein Mitglied, das die Liste nicht nennt (erfunden), gehört trotzdem dazu.
+  const a = attr();
+  const esslingen = kreis("08116", "Esslingen", "Landkreis", "ja");
+  const verband = {
+    ars: "081165001", gen: "Kirchheim unter Teck", name: "Vereinbarte Verwaltungsgemeinschaft Kirchheim unter Teck",
+    sitz: "081165001033",
+  };
+  const g = (ars, gen, ew) => ({ ars, gen, name: `Gemeinde ${gen}`, land: "BW", tkz: [64], ew, kreis: esslingen, verband });
+  a.gemeinden["081165001016"] = g("081165001016", "Dettingen unter Teck", 6000);
+  a.gemeinden["081165001099"] = g("081165001099", "Musterdorf", 1000);
+  const { dateien, warnungen } = baueLaender(a);
+  const bw = dateien["bw.json"];
+  assert.equal(auswahl(bw, "081165001099", ["B"]).zustaendig.id, "v081165001");
+  assert.equal(bw.stellen.v081165001.ebene, "untere");
+  assert.ok(warnungen.includes("BW_VG_UNTERE: Kirchheim unter Teck (08116) gibt es im Kreis nicht"));
+  assert.ok(warnungen.includes("BW_OERTLICH: Aichtal (08116) gibt es im Kreis nicht"));
+  assert.ok(!warnungen.some((w) => w.includes("Dettingen unter Teck")));
+  assert.ok(!warnungen.some((w) => w.includes("(08115)")), "nur Kreise aus der Tabelle");
+  assert.deepEqual(baueLaender(attrBw()).warnungen, [], "Göppingen steht in keiner Liste");
+});
+
+test("baueLaender: eine Stelle hat in allen Gemeinden denselben Inhalt", () => {
+  const a = attrBw();
+  const sitz = a.gemeinden["081175001002"];
+  sitz.verband = { ...sitz.verband, name: "Gemeindeverwaltungsverband Anders" };
+  assert.throws(() => baueLaender(a), /Stelle v081175001 mit zwei Inhalten/);
+});
+
+test("baueLaender: das Urteil des Bundesportals geht in die Regel ein (Thüringen, Stadt auf Antrag)", () => {
+  const a = attr();
+  a.gemeinden["160705001001"] = {
+    ars: "160705001001", gen: "Musterstadt", name: "Stadt Musterstadt", land: "TH", tkz: [63], ew: 15000,
+    kreis: kreis("16070", "Ilm-Kreis", "Landkreis", "nein"),
   };
   const k = kontakte();
-  k.meta.laender = { BW: { ...k.meta.laender.BY, herausgeber: "8958612" } };
-  k.gemeinden = { "081155001001": { ...k.gemeinden["092740128128"] } };
-  const bw = baueLaender(a, { kontakte: k }).dateien["bw.json"];
-  const eintrag = bw.gemeinden["081155001001"];
-  assert.equal(bw.kontakte[eintrag.kontakt].name, "Landratsamt Landshut - Verkehrswesen");
-  assert.equal(eintrag.kontakt_gemeinde, undefined, "Rückfall Phase 1: nur die Kreisebene");
-
-  k.gemeinden["081155001001"].wahl = "stvb";
-  const stvb = baueLaender(a, { kontakte: k }).dateien["bw.json"];
-  const r = auswahl(stvb, "081155001001", ["G"]);
-  assert.equal(r.kontakt.name, "Landratsamt Landshut - Verkehrswesen");
-  assert.equal(r.alternative.stelle.id, "g081155001001", "Portal nennt die Gemeinde");
-  assert.equal(r.alternative.kontakt.name, "Markt Essenbach");
+  k.meta.laender.TH = { herausgeber: "8958614", abgerufen: "2026-10-02", region_url: "https://…/region/{ars}" };
+  const st = (name) => ({ name, adresse: null, telefon: ["03628 0000-0"], email: [], web: [] });
+  k.gemeinden["160705001001"] = {
+    wahl: "stvb", stellen: 2, kreis: st("Landratsamt Ilm-Kreis"), gemeinde: st("Stadt Musterstadt - Ordnungsamt"),
+  };
+  const mit = baueLaender(a, { kontakte: k }).dateien["th.json"];
+  assert.equal(auswahl(mit, "160705001001", ["G"]).zustaendig.id, "g160705001001", "das Portal nennt die Stadt");
+  const ohne = baueLaender(a).dateien["th.json"];
+  assert.equal(auswahl(ohne, "160705001001", ["G"]).zustaendig.id, "k16070", "ohne Portal: der Landkreis");
 });
 
 test("baueLaender + auswahl: in Rheinland-Pfalz die Verbandsgemeinde, außerorts die Kreisverwaltung", () => {

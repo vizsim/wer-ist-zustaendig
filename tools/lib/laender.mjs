@@ -9,7 +9,8 @@
 
 import { LAENDER, landAusKuerzel, landesdatei } from "../../js/laender.js";
 import {
-  BAU_KLASSEN, BUNDESPORTAL, ergebnisId, FESTE_STELLEN, HINWEIS, kontaktRolle, REGELN, resolveGemeinde,
+  BAU_KLASSEN, BUNDESPORTAL, ergebnisId, FESTE_STELLEN, HINWEIS, kontaktRolle, pruefeListen, REGELN, resolveGemeinde,
+  stelleEintragen,
 } from "../../js/resolve.js";
 
 export const SCHEMA = 1;
@@ -70,7 +71,8 @@ function pruefeAttr(attr) {
  * @param {object} attr Inhalt von gemeinden_attr.json
  * @param {{erzeugt?: string, kontakte?: object|null}} opts erzeugt = Datum für die Kopfzeilen
  *   (Default: meta.erzeugt); kontakte = Inhalt von kontakte.json (optional)
- * @returns {{dateien: Record<string, object>, index: object, review: string[][]}}
+ * @returns {{dateien: Record<string, object>, index: object, review: string[][], warnungen: string[]}}
+ *   warnungen: Listen der Regeln, die nicht zur Gemeindetabelle passen (`pruefeListen` in js/resolve.js)
  */
 export function baueLaender(attr, opts = {}) {
   pruefeAttr(attr);
@@ -79,17 +81,31 @@ export function baueLaender(attr, opts = {}) {
   const kontakte = opts.kontakte ?? null;
   const proLand = new Map();
   const review = [];
+  // Je Verband die Einwohner (Summe; null, wenn einem Mitglied die Zahl fehlt) und die Namen der Mitglieder – für
+  // die Verwaltungsgemeinschaften in Baden-Württemberg (Schwellen, Listen je Gemeinschaft). Kondominium-Flächen
+  // tragen den Verband ihrer Nachbargemeinde, gehören aber nicht dazu.
+  const verbaende = new Map();
+  for (const g of Object.values(attr.gemeinden)) {
+    if (!g.verband?.ars || g.kondominium) continue;
+    const v = verbaende.get(g.verband.ars) ?? { ew: 0, mitglieder: [] };
+    v.ew = v.ew !== null && Number.isFinite(g.ew) ? v.ew + g.ew : null;
+    v.mitglieder.push(g.gen);
+    verbaende.set(g.verband.ars, v);
+  }
+  for (const v of verbaende.values()) v.mitglieder.sort();
 
   for (const ars of Object.keys(attr.gemeinden).sort()) {
     const g = attr.gemeinden[ars];
     const portal = kontakte?.gemeinden?.[ars]?.wahl;
-    const { zust, stellen } = resolveGemeinde(portal ? { ...g, bundesportal: portal } : g);
+    const v = verbaende.get(g.verband?.ars);
+    const eingabe = v ? { ...g, verband: { ...g.verband, ew: v.ew, mitglieder: v.mitglieder } } : g;
+    const { zust, stellen } = resolveGemeinde(portal ? { ...eingabe, bundesportal: portal } : eingabe);
     let land = proLand.get(g.land);
     if (!land) {
       land = { stellen: { fba: FESTE_STELLEN.fba }, ergebnisse: {}, kontakte: {}, kreise: {}, gemeinden: {} };
       proLand.set(g.land, land);
     }
-    Object.assign(land.stellen, stellen);
+    for (const s of Object.values(stellen)) stelleEintragen(land.stellen, s, ars);
     const z = {};
     for (const k of BAU_KLASSEN) {
       const e = zust[k];
@@ -191,7 +207,7 @@ export function baueLaender(attr, opts = {}) {
     quellen: [...(meta.quellen ?? []), ...kontaktQuellen],
     laender,
   };
-  return { dateien, index, review };
+  return { dateien, index, review, warnungen: pruefeListen(Object.values(attr.gemeinden)) };
 }
 
 export const REVIEW_KOPF = [

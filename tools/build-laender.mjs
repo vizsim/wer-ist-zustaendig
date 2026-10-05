@@ -31,7 +31,7 @@ const kontaktePfad = arg("kontakte", existsSync(kontakteStandard) ? kontakteStan
 
 const attr = JSON.parse(readFileSync(attrPfad, "utf8"));
 const kontakte = kontaktePfad ? JSON.parse(readFileSync(kontaktePfad, "utf8")) : null;
-const { dateien, index, review } = baueLaender(attr, { kontakte });
+const { dateien, index, review, warnungen } = baueLaender(attr, { kontakte });
 
 mkdirSync(ausOrdner, { recursive: true });
 const groesse = {};
@@ -61,4 +61,8 @@ console.log(
   `(zusammen ${kb(summe.roh).trim()}, gzip ${kb(summe.gzip).trim()})`,
 );
 console.log(`Review-CSV (${review.length} Zeilen) → ${reviewPfad}`);
+if (warnungen.length) {
+  console.warn(`${warnungen.length} Warnungen zu den Listen in js/resolve.js – diese Einträge greifen nicht wie gedacht:`);
+  for (const w of warnungen) console.warn(`  ${w}`);
+}
 if (!kontakte) console.log("Ohne Kontakte: pipeline/data/interim/kontakte.json fehlt (erst `zust kontakte`).");

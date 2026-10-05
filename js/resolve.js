@@ -191,6 +191,26 @@ export const TEXTE = Object.freeze({
       "Auf den Hauptverkehrsstraßen des übergeordneten Straßennetzes ordnet in Berlin die Senatsverwaltung als " +
       "zentrale Straßenverkehrsbehörde Verkehrszeichen an, auf Nebenstraßen das Bezirksamt. Welche Straßen dazu " +
       "gehören, zeigt die Karte des übergeordneten Straßennetzes im Geoportal Berlin.",
+    bwStadtkreis: "Stadtkreise sind in Baden-Württemberg für alle Straßen ihres Gebiets untere Straßenverkehrsbehörde.",
+    bwGks:
+      "Große Kreisstädte sind in Baden-Württemberg als untere Verwaltungsbehörde für alle Straßen ihres Gebiets " +
+      "Straßenverkehrsbehörde.",
+    bwVgUntere:
+      "Die Verwaltungsgemeinschaft ist untere Verwaltungsbehörde und damit für alle Straßen ihrer Gemeinden " +
+      "Straßenverkehrsbehörde.",
+    bwLandratsamt:
+      "Für Kreis-, Landes- und Bundesstraßen ist in Baden-Württemberg das Landratsamt Straßenverkehrsbehörde – außer " +
+      "in Großen Kreisstädten und in Verwaltungsgemeinschaften, die untere Verwaltungsbehörde sind.",
+    bwLandratsamtG:
+      "Für Gemeindestraßen ist in Baden-Württemberg das Landratsamt Straßenverkehrsbehörde, wenn weder die Gemeinde " +
+      "noch ihre Verwaltungsgemeinschaft örtliche Straßenverkehrsbehörde ist (auf Antrag ab mehr als 5.000 " +
+      "Einwohnern) und die Gemeinschaft nicht untere Verwaltungsbehörde.",
+    bwOertlich:
+      "Die Gemeinde ist örtliche Straßenverkehrsbehörde und ordnet auf ihren Gemeindestraßen selbst an; für Kreis-, " +
+      "Landes- und Bundesstraßen ist das Landratsamt zuständig.",
+    bwOertlichVg:
+      "Die Verwaltungsgemeinschaft ist örtliche Straßenverkehrsbehörde und ordnet auf den Gemeindestraßen ihrer " +
+      "Gemeinden an; für Kreis-, Landes- und Bundesstraßen ist das Landratsamt zuständig.",
   }),
   bedingung: Object.freeze({
     gks: "Große Kreisstadt – sie kann selbst zuständig sein",
@@ -217,6 +237,13 @@ export const TEXTE = Object.freeze({
       "falls es um eine Ampel oder einen Fußgängerüberweg außerhalb der Ortsdurchfahrt geht oder die Anordnung " +
       "über das Gemeindegebiet hinaus wirkt",
     heBestand: "falls die Gemeinde bis vor Kurzem mehr als 7.500 Einwohner hatte – sie bleibt dann bis zu drei Jahre zuständig",
+    bwVgUntere: "falls die Verwaltungsgemeinschaft zur unteren Verwaltungsbehörde erklärt ist (ab mehr als 20.000 Einwohnern möglich)",
+    bwOertlich: "falls die Gemeinde örtliche Straßenverkehrsbehörde ist (auf Antrag, ab mehr als 5.000 Einwohnern)",
+    bwOertlichVg:
+      "falls die Verwaltungsgemeinschaft örtliche Straßenverkehrsbehörde ist (auf Antrag, ab mehr als 5.000 Einwohnern)",
+    bwHoehereStrasse:
+      "falls sich die Maßnahme unmittelbar auf den Verkehr auf Straßen höherer Verkehrsbedeutung auswirkt, etwa auf " +
+      "Kreis-, Landes- oder Bundesstraßen",
   }),
   quelle: Object.freeze({
     phase1: "Rückfall auf die Kreisebene – die Regel dieses Landes ist noch nicht eingearbeitet",
@@ -375,6 +402,21 @@ export const TEXTE = Object.freeze({
       "§ 12 Abs. 1 StVZustG (Saarland) vom 13.06.2001 (Amtsbl. S. 1430), zuletzt geändert 11.11.2020 " +
       "(Amtsbl. I S. 1262); Gemeindestraßen und sonstige öffentliche Straßen nach § 3 Abs. 1 Nr. 3 und 4 " +
       "Saarländisches Straßengesetz",
+    bwUnter:
+      "§ 1 Abs. 1 Nr. 3 und § 3 Abs. 1 StVO-Zuständigkeitsgesetz (Baden-Württemberg) vom 29.04.2025 (GBl. 2025 Nr. 36); " +
+      "untere Verwaltungsbehörden nach §§ 15 und 19 Landesverwaltungsgesetz, zuletzt geändert 17.12.2024",
+    bwSchwelle:
+      "§ 1 Abs. 1 Nr. 3, § 2 Abs. 1 und § 3 StVO-Zuständigkeitsgesetz (Baden-Württemberg) vom 29.04.2025 (GBl. 2025 " +
+      "Nr. 36); untere Verwaltungsbehörden nach §§ 15, 17 und 19 Landesverwaltungsgesetz, zuletzt geändert " +
+      "17.12.2024 (Verwaltungsgemeinschaften ab mehr als 20.000 Einwohnern); Einwohner laut GV-ISys 31.12.2025",
+    bwListe:
+      "§ 1 Abs. 1 Nr. 3 und §§ 2, 3 StVO-Zuständigkeitsgesetz (Baden-Württemberg) vom 29.04.2025 (GBl. 2025 Nr. 36), " +
+      "§ 17 Landesverwaltungsgesetz; welche Gemeinden und Verwaltungsgemeinschaften selbst zuständig sind, laut " +
+      "Webseite des Landratsamts bzw. der Gemeinde (gelesen 05.10.2026) [S]",
+    bwOertlich:
+      "§ 2 und § 3 Abs. 2 StVO-Zuständigkeitsgesetz (Baden-Württemberg) vom 29.04.2025 (GBl. 2025 Nr. 36); dass die " +
+      "Gemeinde bzw. die Verwaltungsgemeinschaft örtliche Straßenverkehrsbehörde ist, laut Webseite des Landratsamts " +
+      "bzw. der Gemeinde (gelesen 05.10.2026) [S]",
   }),
   hinweis: Object.freeze({
     autobahnDabei: "Für die Autobahn selbst ist das Fernstraßen-Bundesamt zuständig.",
@@ -406,6 +448,19 @@ export const FESTE_STELLEN = Object.freeze({
 });
 
 const ARS_RE = /^\d{12}$/;
+
+/**
+ * Trägt eine Stelle in `stellen` (Id → Stelle) ein. Dieselbe Id mit anderem Inhalt widerspräche sich in den
+ * Ergebnissen – ein Fehler der Regel oder der Daten (resolveGemeinde, tools/lib/laender.mjs).
+ * @param {string} wo Gemeinde (ARS) für die Meldung
+ */
+export function stelleEintragen(stellen, stelle, wo) {
+  const da = stellen[stelle.id];
+  if (da && da !== stelle && JSON.stringify(da) !== JSON.stringify(stelle)) {
+    throw new Error(`Stelle ${stelle.id} mit zwei Inhalten (${wo})`);
+  }
+  stellen[stelle.id] = stelle;
+}
 
 function pruefeGemeinde(g) {
   if (!g || !ARS_RE.test(String(g.ars ?? ""))) throw new Error(`resolve: ungültiger ARS ${g?.ars}`);
@@ -1114,6 +1169,280 @@ function regelSaarland(g, klasse) {
 }
 
 /**
+ * Baden-Württemberg, Schwellen (StVO-Zuständigkeitsgesetz § 2 Abs. 1, § 17 LVG): örtliche
+ * Straßenverkehrsbehörde auf Antrag ab mehr als 5.000 Einwohnern (Gemeinde oder Verwaltungsgemeinschaft),
+ * untere Verwaltungsbehörde auf Antrag ab mehr als 20.000 (Verwaltungsgemeinschaft). Wir nehmen an, dass eine
+ * Erklärung bestehen bleibt, wenn die Einwohnerzahl später sinkt (das Gesetz von 2025 hat dazu keine
+ * Übergangsregel); deshalb gilt ab 90 % der Schwelle die Gemeinde bzw. Gemeinschaft als möglich.
+ */
+export const BW_SCHWELLEN = Object.freeze({ oertlich: 5000, vgUntere: 20000, rand: 0.9 });
+
+/**
+ * Baden-Württemberg: Verwaltungsgemeinschaften, die untere Verwaltungsbehörde und damit für alle Straßen ihrer
+ * Gemeinden Straßenverkehrsbehörde sind (§ 17 LVG; laut Innenministerium 38 im Land) – je Kreis-ARS eine Gruppe
+ * je Gemeinschaft mit den Namen (VG25 `GEN`), die die Quelle nennt. Die Erklärung gilt für die ganze
+ * Gemeinschaft: Ein genanntes Mitglied genügt (`g.verband.mitglieder`, vom Build). Große Kreisstädte darunter
+ * sind es ohnehin. Webseiten der Landratsämter bzw. Gemeinden, gelesen 05.10.2026 [S]: Esslingen, Ludwigsburg,
+ * Rems-Murr-Kreis, Heilbronn, Rastatt (Bühl, Ottersweier laut Gemeinde), Rhein-Neckar-Kreis (Übersicht Stand
+ * 04.07.2023), Breisgau-Hochschwarzwald (GVV Müllheim-Badenweiler, Pressemitteilung Müllheim 29.09.2026),
+ * Ortenaukreis (Antrag Straßensperrung), Tuttlingen, Konstanz, Waldshut (Rechtsform nicht genannt), Tübingen
+ * (Mössingen, Webseite der Stadt), Zollernalbkreis, Alb-Donau-Kreis (Verwaltungsverband Langenau: Ordnungsamt als
+ * Straßenverkehrs- und Kreispolizeibehörde), Biberach (Laupheim; die Seite nennt die Mitglieder nicht, sie sind
+ * ungeprüft), Bodenseekreis, Ravensburg (Stand Oktober 2025), Sigmaringen.
+ */
+export const BW_VG_UNTERE = Object.freeze({
+  "08116": [["Dettingen unter Teck", "Kirchheim unter Teck", "Notzingen"]],
+  "08118": [["Bietigheim-Bissingen", "Ingersheim", "Tamm"], ["Eberdingen", "Oberriexingen", "Sersheim", "Vaihingen an der Enz"]],
+  "08119": [[
+    "Allmersbach im Tal", "Althütte", "Aspach", "Auenwald", "Backnang", "Burgstetten", "Kirchberg an der Murr",
+    "Oppenweiler", "Weissach im Tal",
+  ]],
+  "08125": [
+    ["Bad Friedrichshall", "Oedheim", "Offenau"], ["Bad Rappenau", "Kirchardt", "Siegelsbach"],
+    ["Eppingen", "Gemmingen", "Ittlingen"],
+  ],
+  "08216": [["Bühl", "Ottersweier"]],
+  "08226": [["Altlußheim", "Hockenheim", "Neulußheim", "Reilingen"], ["Angelbachtal", "Sinsheim", "Zuzenhausen"]],
+  "08315": [["Auggen", "Badenweiler", "Buggingen", "Müllheim im Markgräflerland", "Sulzburg"]],
+  "08317": [["Kippenheim", "Lahr/Schwarzwald"], ["Lautenbach", "Oberkirch", "Renchen"]],
+  "08327": [[
+    "Aixheim", "Aldingen", "Balgheim", "Böttingen", "Denkingen", "Frittlingen", "Hausen ob Verena", "Mahlstetten",
+    "Spaichingen",
+  ]],
+  "08335": [["Bodman-Ludwigshafen", "Eigeltingen", "Hohenfels", "Mühlingen", "Orsingen-Nenzingen", "Stockach"]],
+  "08337": [["Bad Säckingen", "Herrischried", "Murg", "Rickenbach"]],
+  "08416": [["Bodelshausen", "Mössingen", "Ofterdingen"]],
+  "08417": [["Albstadt", "Bitz"], ["Hechingen", "Jungingen", "Rangendingen"]],
+  "08425": [[
+    "Altheim (Alb)", "Asselfingen", "Ballendorf", "Bernstadt", "Börslingen", "Breitingen", "Holzkirch", "Langenau",
+    "Neenstetten", "Nerenstetten", "Öllingen", "Rammingen", "Setzingen", "Weidenstetten",
+  ]],
+  "08426": [["Achstetten", "Burgrieden", "Laupheim", "Mietingen"]],
+  "08435": [["Friedrichshafen", "Immenstaad am Bodensee"], ["Owingen", "Sipplingen", "Überlingen"]],
+  "08436": [["Aichstetten", "Aitrach", "Leutkirch im Allgäu"], ["Bad Waldsee", "Bergatreute"]],
+  "08437": [["Bad Saulgau", "Herbertingen"], ["Herdwangen-Schönach", "Illmensee", "Pfullendorf", "Wald"]],
+});
+
+/**
+ * Baden-Württemberg: örtliche Straßenverkehrsbehörden (§ 2 StVO-Zuständigkeitsgesetz) – Gemeinden, die es
+ * selbst sind, je Kreis-ARS mit Namen (VG25 `GEN`). Sie ordnen nur auf Gemeindestraßen an (§ 3 Abs. 2).
+ * Quellen wie bei `BW_VG_UNTERE` [S]: Böblingen, Esslingen, Hohenlohekreis (Künzelsau, Wegweiser der Stadt),
+ * Heidenheim (Herbrechtingen: die Stadt nennt eine Straßenverkehrsbehörde, ohne Straßen), Landkreis Karlsruhe
+ * (Antwort vom 28.11.2024), Neckar-Odenwald-Kreis (Buchen, Bekanntmachung GBl. 1991 Nr. 8 S. 190), Rhein-Neckar-
+ * Kreis (Übersicht Stand 04.07.2023), Freudenstadt (Karte Stand 17.10.2024), Ortenaukreis, Rottweil,
+ * Tuttlingen, Zollernalbkreis, Ravensburg.
+ */
+export const BW_OERTLICH = Object.freeze({
+  "08115": [
+    "Ehningen", "Gärtringen", "Magstadt", "Renningen", "Rutesheim", "Schönaich", "Weil der Stadt", "Weil im Schönbuch",
+    "Weissach",
+  ],
+  "08116": ["Aichtal", "Neuhausen auf den Fildern", "Plochingen", "Wendlingen am Neckar", "Wernau (Neckar)"],
+  "08126": ["Künzelsau"],
+  "08135": ["Herbrechtingen"],
+  "08215": ["Bad Schönborn", "Forst", "Malsch", "Östringen", "Waldbronn", "Weingarten (Baden)"],
+  "08225": ["Buchen (Odenwald)"],
+  "08226": [
+    "Brühl", "Dielheim", "Eppelheim", "Hemsbach", "Ketsch", "Mühlhausen", "Nußloch", "Oftersheim", "Plankstadt",
+    "St. Leon-Rot", "Walldorf",
+  ],
+  "08237": ["Alpirsbach", "Baiersbronn", "Loßburg"],
+  "08317": ["Kappelrodeck", "Oppenau", "Willstätt", "Wolfach"],
+  "08325": ["Oberndorf am Neckar"],
+  "08327": ["Trossingen"],
+  "08417": ["Burladingen"],
+  "08436": ["Isny im Allgäu"],
+});
+
+/**
+ * Baden-Württemberg: Verwaltungsgemeinschaften, die örtliche Straßenverkehrsbehörde sind – Gruppen wie bei
+ * `BW_VG_UNTERE`: Böblingen (GVV Holzgerlingen), Rhein-Neckar-Kreis (Eberbach-Schönbrunn), Ortenaukreis
+ * (Haslach: laut Landratsamt dort ohne Gemeindestraßen zuständig), Tuttlingen (GVV Heuberg), Lörrach
+ * (Schopfheim: Webseite der Stadt und Vereinbarung der Gemeinschaft, Fassung 13.10.2022), Ravensburg („Fronhofen“
+ * und Wolpertswende, je „Verkehrsbehörde für Gemeindestraßen“: beide Mitglieder ihres Gemeindeverwaltungsverbands,
+ * Wolpertswende für sich unter 5.000 Einwohnern – also wohl der Verband) [S].
+ */
+export const BW_OERTLICH_VG = Object.freeze({
+  "08115": [["Altdorf", "Hildrizhausen", "Holzgerlingen"]],
+  "08226": [["Eberbach", "Schönbrunn"]],
+  "08317": [["Fischerbach", "Haslach im Kinzigtal", "Hofstetten", "Mühlenbach", "Steinach"]],
+  "08327": [["Bubsheim", "Deilingen", "Egesheim", "Gosheim", "Königsheim", "Reichenbach am Heuberg", "Wehingen"]],
+  "08336": [["Hasel", "Hausen im Wiesental", "Maulburg", "Schopfheim"]],
+  "08436": [["Fronreute", "Wolpertswende"]],
+});
+
+/**
+ * Baden-Württemberg: Kreise, deren Landratsamt vollständig sagt, wer außer ihm zuständig ist – `untere` für
+ * Große Kreisstädte und Verwaltungsgemeinschaften, `oertlich` für die örtlichen Straßenverkehrsbehörden (nur, wo
+ * es sie nennt oder ausdrücklich für die übrigen Gemeinden alle Straßen übernimmt). Dort bekommen Gemeinden, die
+ * es sein könnten, das Landratsamt ohne Alternative (Quellen wie oben). Reutlingen und Calw nennen nur ihre
+ * Großen Kreisstädte, jeweils „für ihre Gemarkung“ bzw. „mit Ausnahme der Großen Kreisstädte“.
+ */
+export const BW_VOLLSTAENDIG = Object.freeze({
+  untere: Object.freeze([
+    "08115", "08116", "08118", "08119", "08125", "08136", "08215", "08216", "08226", "08235", "08315", "08317",
+    "08325", "08326", "08327", "08335", "08337", "08415", "08417", "08426", "08435", "08436", "08437",
+  ]),
+  oertlich: Object.freeze([
+    "08115", "08116", "08125", "08215", "08216", "08226", "08237", "08317", "08325", "08327", "08337", "08417",
+    "08435", "08436", "08437",
+  ]),
+});
+
+/**
+ * Baden-Württemberg: Gemeinden, die das Landratsamt in seiner sonst vollständigen Liste nicht nennt – für sie
+ * gilt der Kreis nicht als vollständig. Wie die Listen gilt das je Gemeinschaft: Nennt das Landratsamt ein
+ * anderes Mitglied, deckt es den Verband, und die Ausnahme greift nicht (der Build warnt dann). Ravensburg:
+ * Wolfegg steht auf der Karte des Landratsamts, aber in keiner Liste; ebenso Grünkraut, Schlier und Riedhausen,
+ * deren Verbandspartner es aber nennt (GVV Gullen bzw. Altshausen laut Wikipedia [S]). Dürbheim fehlt in der Karte
+ * des Landratsamts Tuttlingen – laut Gemeinde gehört es zur Verwaltungsgemeinschaft Spaichingen, die dann gilt.
+ */
+export const BW_NICHT_GENANNT = Object.freeze({
+  "08436": ["Wolfegg"],
+});
+
+const bwIn = (liste, g) => (liste[g.kreis.ars] ?? []).includes(g.gen);
+const bwGenannt = (liste, g) => (liste[g.kreis.ars] ?? []).some((gruppe) => gruppe.includes(g.gen));
+/** Die Gemeinde und – vom Build – die übrigen Mitglieder ihres Verbands. */
+const bwMitglieder = (g) => [...new Set([g.gen, ...(g.verband?.mitglieder ?? [])])];
+
+/** Gehört g zu einer Gemeinschaft, die eine Gruppen-Liste nennt? Ein genanntes Mitglied genügt. */
+function bwGemeinschaft(liste, g) {
+  if (!g.verband) return false;
+  const mitglieder = new Set([g.gen, ...(g.verband.mitglieder ?? [])]);
+  return (liste[g.kreis.ars] ?? []).some((gruppe) => gruppe.some((name) => mitglieder.has(name)));
+}
+
+/**
+ * Prüft die Listen nach Namen gegen die Gemeindetabelle (Einträge wie in gemeinden_attr.json) – für den Build
+ * (tools/lib/laender.mjs): Namen, die es im Kreis nicht gibt; Gruppen, deren Gemeinden nicht genau einem Verband
+ * angehören; Verbände in zwei Gruppen oder zwei Listen; örtliche Gemeinden, deren Verband eine Liste nennt;
+ * Ausnahmen (`BW_NICHT_GENANNT`), die nicht greifen, weil der Verband weitere Mitglieder hat. Nur Kreise, die in
+ * der Tabelle vorkommen. Sonst griffe ein Eintrag still nicht oder anders als gedacht.
+ * @returns {string[]} Warnungen, leer wenn alles passt
+ */
+export function pruefeListen(gemeinden) {
+  const je = new Map(); // Kreis-ARS → Map(GEN → Eintrag)
+  const mitglieder = new Map(); // Verbands-ARS → Namen
+  for (const g of gemeinden) {
+    if (g.land !== "BW" || g.kondominium) continue;
+    if (!je.has(g.kreis.ars)) je.set(g.kreis.ars, new Map());
+    je.get(g.kreis.ars).set(g.gen, g);
+    if (g.verband?.ars) mitglieder.set(g.verband.ars, [...(mitglieder.get(g.verband.ars) ?? []), g.gen]);
+  }
+  const warnungen = [];
+  const verbandIn = new Map(); // Verbands-ARS → Liste
+  const pruefe = (name, liste, gruppen) => {
+    for (const [kreis, eintraege] of Object.entries(liste)) {
+      const da = je.get(kreis);
+      if (!da) continue;
+      for (const namen of gruppen ? eintraege : eintraege.map((n) => [n])) {
+        for (const gen of namen) if (!da.has(gen)) warnungen.push(`${name}: ${gen} (${kreis}) gibt es im Kreis nicht`);
+        const gefunden = namen.filter((gen) => da.has(gen)).map((gen) => da.get(gen));
+        if (!gruppen) continue;
+        const ohne = gefunden.filter((g) => !g.verband?.ars).map((g) => g.gen);
+        if (ohne.length) warnungen.push(`${name}: ${ohne.join(", ")} (${kreis}) ohne Verband in der Tabelle`);
+        const verbaende = [...new Set(gefunden.map((g) => g.verband?.ars).filter(Boolean))];
+        if (verbaende.length > 1) warnungen.push(`${name}: ${namen.join(", ")} (${kreis}) in ${verbaende.length} Verbänden`);
+        for (const v of verbaende) {
+          if (verbandIn.get(v) === name) warnungen.push(`Verband ${v} steht in zwei Gruppen von ${name}`);
+          else if (verbandIn.has(v)) warnungen.push(`Verband ${v} steht in ${verbandIn.get(v)} und ${name}`);
+          verbandIn.set(v, name);
+        }
+      }
+    }
+  };
+  pruefe("BW_VG_UNTERE", BW_VG_UNTERE, true);
+  pruefe("BW_OERTLICH_VG", BW_OERTLICH_VG, true);
+  pruefe("BW_OERTLICH", BW_OERTLICH, false);
+  pruefe("BW_NICHT_GENANNT", BW_NICHT_GENANNT, false);
+  for (const [kreis, namen] of Object.entries(BW_OERTLICH)) {
+    for (const gen of namen) {
+      const v = je.get(kreis)?.get(gen)?.verband?.ars;
+      if (v && verbandIn.has(v)) warnungen.push(`BW_OERTLICH: ${gen} (${kreis}) – ihr Verband steht in ${verbandIn.get(v)}`);
+    }
+  }
+  for (const [kreis, namen] of Object.entries(BW_NICHT_GENANNT)) {
+    for (const gen of namen) {
+      const v = je.get(kreis)?.get(gen)?.verband?.ars;
+      const andere = v ? mitglieder.get(v).filter((m) => !namen.includes(m)) : [];
+      if (andere.length) {
+        warnungen.push(`BW_NICHT_GENANNT: ${gen} (${kreis}) greift nicht – ihr Verband hat weitere Mitglieder (${andere.join(", ")})`);
+      }
+    }
+  }
+  return warnungen;
+}
+
+/**
+ * Baden-Württemberg (StVO-Zuständigkeitsgesetz vom 29.04.2025, LVG): Straßenverkehrsbehörden sind die unteren
+ * Verwaltungsbehörden – Landratsämter, Stadtkreise, Große Kreisstädte (für ihr Gebiet) und
+ * Verwaltungsgemeinschaften, die nach § 17 LVG zur unteren Verwaltungsbehörde erklärt sind (für ihre
+ * Gemeinden). Gemeinden und Verwaltungsgemeinschaften mit mehr als 5.000 Einwohnern können auf Antrag
+ * örtliche Straßenverkehrsbehörde werden, dann nur für Gemeindestraßen und nicht für Maßnahmen, die unmittelbar
+ * auf Straßen höherer Verkehrsbedeutung wirken (§§ 2, 3 Abs. 2) – dafür das Landratsamt als Alternative. Ein
+ * Verzeichnis der Erklärungen gibt es nicht: bekannte Fälle aus den Listen oben, sonst das Landratsamt mit der
+ * möglichen Stelle als Alternative. Ist eine Gemeinschaft oder eines ihrer Mitglieder örtliche
+ * Straßenverkehrsbehörde, ist die Gemeinschaft nicht zugleich untere Verwaltungsbehörde. Listen und Ausnahmen
+ * gelten je Gemeinschaft: `g.verband.ew` (Einwohner der Gemeinschaft) und `g.verband.mitglieder` ergänzt der
+ * Build. Fehlen Einwohner oder nennt eine Liste die Gemeinde ohne Verband in der Tabelle, ist nichts „belegt“.
+ */
+function regelBadenWuerttemberg(g, klasse) {
+  const kreis = kreisStelle(g);
+  if (g.kreis.kreisfrei) return ergebnis(kreis, SICHERHEIT.BELEGT, "bwStadtkreis", "bwUnter");
+  if (g.gemeindefrei) return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "gemeindefrei", "bwUnter");
+  // Das Landratsamt Rottweil nennt sich auch in seinen Großen Kreisstädten für die klassifizierten Straßen
+  // zuständig – gegen § 19 LVG; offen.
+  if (istGks(g)) return ergebnis(gemeindeStelle(g, "stadt", "untere"), SICHERHEIT.BELEGT, "bwGks", "bwUnter");
+  if (bwGemeinschaft(BW_VG_UNTERE, g)) {
+    return ergebnis(verbandStelle(g, "untere"), SICHERHEIT.VERMUTLICH, "bwVgUntere", "bwListe");
+  }
+  const kreisListe = (liste) => liste[g.kreis.ars] ?? [];
+  const oertlichSelbst = bwIn(BW_OERTLICH, g);
+  const oertlichVg = bwGemeinschaft(BW_OERTLICH_VG, g);
+  // Ist ein Mitglied örtliche Straßenverkehrsbehörde, ist die Gemeinschaft nicht untere Verwaltungsbehörde.
+  const oertlichImVerband = oertlichVg || bwMitglieder(g).some((n) => kreisListe(BW_OERTLICH).includes(n));
+  // Was die Daten nicht tragen: fehlende Einwohner; eine Liste nennt die Gemeinde, die Tabelle kennt keinen Verband.
+  const ewFehlt = !Number.isFinite(g.ew) || (Boolean(g.verband) && !Number.isFinite(g.verband.ew));
+  const listeOhneVerband = !g.verband && (bwGenannt(BW_VG_UNTERE, g) || bwGenannt(BW_OERTLICH_VG, g));
+  const sicher = ewFehlt || listeOhneVerband ? SICHERHEIT.VERMUTLICH : SICHERHEIT.BELEGT;
+  const quelle = listeOhneVerband ? "bwListe" : "bwSchwelle";
+  // Die Liste des Landratsamts ist vollständig – außer für Gemeinden, deren ganze Gemeinschaft es nicht nennt.
+  const nichtGenannt = bwMitglieder(g).every((n) => kreisListe(BW_NICHT_GENANNT).includes(n));
+  const vollstaendig = (art) => BW_VOLLSTAENDIG[art].includes(g.kreis.ars) && !nichtGenannt;
+  // Könnte die Gemeinschaft untere Verwaltungsbehörde sein?
+  const ewVg = g.verband?.ew ?? 0;
+  const vgGross = Boolean(g.verband) && ewVg > BW_SCHWELLEN.vgUntere * BW_SCHWELLEN.rand;
+  const vgAlternative = vgGross && !oertlichImVerband && !vollstaendig("untere")
+    ? { stelle: verbandStelle(g, "untere"), bedingung: "bwVgUntere" }
+    : null;
+  if (klasse !== "G") {
+    if (vgAlternative) return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "bwLandratsamt", "bwSchwelle", vgAlternative);
+    if (vgGross) return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "bwLandratsamt", "bwListe");
+    return ergebnis(kreis, sicher, "bwLandratsamt", quelle);
+  }
+  const art = istStadt(g) ? "stadt" : "gemeinde";
+  const hoehere = { stelle: kreis, bedingung: "bwHoehereStrasse" };
+  if (oertlichSelbst) {
+    return ergebnis(gemeindeStelle(g, art, "oertliche"), SICHERHEIT.VERMUTLICH, "bwOertlich", "bwOertlich", hoehere);
+  }
+  if (oertlichVg) return ergebnis(verbandStelle(g), SICHERHEIT.VERMUTLICH, "bwOertlichVg", "bwOertlich", hoehere);
+  if (vgAlternative) return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "bwLandratsamtG", "bwSchwelle", vgAlternative);
+  // Könnte die Gemeinde bzw. ihre Gemeinschaft örtliche Straßenverkehrsbehörde sein?
+  const ab = BW_SCHWELLEN.oertlich * BW_SCHWELLEN.rand;
+  const moeglich = (g.ew ?? 0) > ab
+    ? { stelle: gemeindeStelle(g, art, "oertliche"), bedingung: "bwOertlich" }
+    : g.verband && ewVg > ab
+      ? { stelle: verbandStelle(g), bedingung: "bwOertlichVg" }
+      : null;
+  if (moeglich && !vollstaendig("oertlich")) {
+    return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "bwLandratsamtG", "bwSchwelle", moeglich);
+  }
+  if (moeglich) return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "bwLandratsamtG", "bwListe");
+  return ergebnis(kreis, sicher, "bwLandratsamtG", quelle);
+}
+
+/**
  * Berlin (vermutlich): Straßenverkehrsbehörden sind die zwölf Bezirksämter und die Senatsverwaltung
  * mit ihrer Abteilung Verkehrsmanagement (früher Verkehrslenkung Berlin) als zentrale
  * Straßenverkehrsbehörde. Laut Service-Portal und Bezirksämtern ordnet der Senat auf dem übergeordneten
@@ -1142,6 +1471,7 @@ function regelBerlin(g, klasse) {
 export const LANDESREGELN = Object.freeze({
   BB: regelBrandenburg,
   BE: regelBerlin,
+  BW: regelBadenWuerttemberg,
   BY: regelBayern,
   HE: regelHessen,
   MV: regelMecklenburgVorpommern,
@@ -1194,8 +1524,9 @@ export function resolveGemeinde(g) {
   const zust = {};
   for (const klasse of BAU_KLASSEN) {
     const e = regel(g, klasse);
-    stellen[e.stelle.id] = e.stelle;
-    if (e.alternative) stellen[e.alternative.stelle.id] = e.alternative.stelle;
+    // Eine Stelle (Id) hat in allen Klassen denselben Inhalt – sonst widerspricht sich die Regel.
+    stelleEintragen(stellen, e.stelle, g.ars);
+    if (e.alternative) stelleEintragen(stellen, e.alternative.stelle, g.ars);
     zust[klasse] = {
       stelle: e.stelle.id,
       sicherheit: e.sicherheit,

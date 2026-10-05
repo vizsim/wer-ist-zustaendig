@@ -307,7 +307,7 @@ test("willkommenHtml: Stand aus index.json – geprüft, vermutlich, offen; Kont
       { lkz: "HH", name: "Hamburg", sicherheit: { belegt: 0, vermutlich: 0, "nur Ebene": 1 } },
       { lkz: "SH", name: "Schleswig-Holstein", sicherheit: { belegt: 1101, vermutlich: 5, "nur Ebene": 0 }, kontakte: 1106 },
       { lkz: "TH", name: "Thüringen", sicherheit: { belegt: 0, vermutlich: 605, "nur Ebene": 0 }, kontakte: 605 },
-      { lkz: "BW", name: "Baden-Württemberg", sicherheit: { belegt: 0, vermutlich: 11, "nur Ebene": 1092 } },
+      { lkz: "HB", name: "Bremen", sicherheit: { belegt: 2, vermutlich: 0, "nur Ebene": 0 } },
     ],
   };
   const html = willkommenHtml(index, { melden: "https://github.com/vizsim/wer-ist-zustaendig/issues/new" });
