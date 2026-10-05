@@ -29,7 +29,7 @@ oder im Bucket, auf `localhost` beliebig.
 
 | Datei | Inhalt | Größe |
 |---|---|---|
-| `gemeinden.pmtiles` | Grenzschicht: Layer `gemeinden` und `kreise` | 30 MB; über 100 MB erst abstimmen |
+| `gemeinden.pmtiles` | Grenzschicht: Layer `gemeinden`, `kreise` und `bezirke` (Berlin) | 30 MB; über 100 MB erst abstimmen |
 | `index.json` | Übersicht: Regel- und Datenstand, Quellen, Liste der Länder | wenige KB |
 | `<lkz>.json` (16, z. B. `by.json`) | Zuständigkeit je Gemeinde und Straßenklasse | 2–1 858 KB je Land, gzip höchstens 188 KB |
 | `../manifest.json` | Manifest der Pipeline (Muster Unfallkarte/SVZ); nur lokal – im Bucket liegt an dieser Stelle das Manifest der Unfallkarte, dorthin kommen die Einträge beim Einbau | wenige KB |
@@ -47,24 +47,38 @@ kleine Flächen bleiben erhalten. Unter der höchsten Zoomstufe eines Layers sin
 gröber aufgelöst (1024 statt 4096 Einheiten, `low_detail` in `pipeline/config/tiles.yaml`) –
 für die Darstellung genügt das; nachgeschlagen wird in z12 mit voller Auflösung.
 
+Der Layer `bezirke` enthält die zwölf Berliner Bezirke, amtlich aus dem Geoportal Berlin (WFS
+„ALKIS Berlin Bezirke", Datenlizenz Deutschland – Zero 2.0), nach EPSG:4326.
+
 | Layer | Zoom | Feld | Typ | Inhalt |
 |---|---|---|---|---|
 | `gemeinden` | 7–12 | `ars` | String (12) | Amtlicher Regionalschlüssel |
 | | | `gen` | String | Gemeindename (VG25 `GEN`) |
 | | | `eg` | String | Art der Stelle für Gemeindestraßen: `kreis`, `stadt` (kreisfrei oder selbst zuständig), `gemeinde`, `verband` (Rheinland-Pfalz, selbständige Samtgemeinden in Niedersachsen), `stadtstaat` |
 | | | `sg` | String | Sicherheit dieser Stelle: `belegt`, `vermutlich`, `nur Ebene` |
-| | | `ko` | String | Kontakt der zuständigen Stelle: `k` für alle Straßenklassen (G, K, L, B), `t` für einen Teil, `a` für keine, aber die allgemeine Anschrift der Verwaltung (Kontakte mit `allgemein`, heute Hessen, Saarland und Sachsen), `p` nichts davon, aber Link ins Bundesportal, `n` nichts; seit Regeln 0.9.0 |
+| | | `ko` | String | Kontakt der zuständigen Stelle: `k` für alle Straßenklassen (G, K, L, B), `t` für einen Teil, `a` für keine, aber die allgemeine Anschrift der Verwaltung (Kontakte mit `allgemein`, heute Hessen, Saarland, Sachsen und der Berliner Senat), `p` nichts davon, aber Link ins Bundesportal, `n` nichts; seit Regeln 0.9.0 |
 | `kreise` | 4–10 | `ars` | String (5) | Kreis (ARS-Präfix) |
 | | | `name` | String | voller Name nach `NBD` („Landkreis Freising", „Region Hannover") |
 | | | `art` | String | `kreis`, `stadt` (kreisfrei), `stadtstaat` |
 | | | `eg`, `sg`, `ko` | String | was für die meisten Gemeinden des Kreises gilt (Werte wie im Layer `gemeinden`); für die Übersicht unter Zoom 7, wo es keine Gemeinden gibt |
+| `bezirke` | 7–12 | `bezirk` | String (12) | Schlüssel des Berliner Bezirks in der Landesdatei: `1100000000` + Bezirksnummer (`110000000001` Mitte … `110000000012` Reinickendorf); kein amtlicher Schlüssel |
+| | | `name` | String | Name des Bezirks („Tempelhof-Schöneberg") |
 
 `eg`, `sg` und `ko` dienen nur der Einfärbung; die Auskunft kommt immer aus der Landesdatei.
+Berlin ist im Layer `gemeinden` eine Fläche (`110000000000`) mit den Werten der meisten Bezirke.
 
 **Nachschlagen am Punkt:** Kachel in `maxZoom` (12) bestimmen, Layer `gemeinden` dekodieren,
 Punkt in Polygon nach der Gerade-Ungerade-Regel über alle Ringe eines Features
 (`js/lookup.js`: `kachelFuerPunkt`, `featureAmPunkt`). Auflösung in z12 etwa 1–2 m. In einer
 MapLibre-Karte genügt `queryRenderedFeatures` auf dem Flächenlayer.
+
+**In Berlin** danach im Layer `bezirke` nachsehen: Liegt dort eine Fläche, deren `bezirk` mit
+denselben zehn Stellen beginnt wie der ARS und in der Landesdatei steht, ist `bezirk` der
+Schlüssel in der Landesdatei, sonst der ARS (`js/lookup.js`: `eintragsSchluessel`). Die
+Bezirksflächen sind nicht auf VG25 zugeschnitten: Am Stadtrand ragen sie einige Meter über Berlin
+hinaus – dort zählen sie nicht, der ARS am Punkt ist der einer Nachbargemeinde – oder lassen
+einen schmalen Saum frei; dort gilt der Eintrag für ganz Berlin, ebenso mit einer älteren
+Landesdatei ohne die Bezirke.
 
 **Grenzfälle:** VG25 schneidet Gemeinden an Nord-, Ostsee und Bodensee nicht an der Küste ab;
 ein Punkt auf dem Wasser kann also einer Gemeinde zugeordnet sein. Außerhalb Deutschlands gibt
@@ -100,6 +114,8 @@ eigene Kreise); die Landesdatei nennt dort die Stelle der angrenzenden Gemeinde,
 - `laender[].sicherheit` zählt Gemeinden nach der Sicherheit für Gemeindestraßen.
 - `laender[].kontakte` (optional): Zahl der Gemeinden mit Kontakt; nur bei Ländern, für die
   Kontakte abgerufen wurden (`zust kontakte`).
+- Für Berlin zählen `gemeinden`, `sicherheit` und `kontakte` 13 Einträge: ganz Berlin und die
+  zwölf Bezirke.
 - `laender[].allgemein` (optional, seit Regeln 0.9.0): Zahl der Gemeinden, deren Kontakte alle nur
   die allgemeine Anschrift der Verwaltung sind (`allgemein`); fehlt, wenn es keine gibt.
 - `quellen[].vermerk` ist der Quellenvermerk, den Konsumenten anzeigen müssen.
@@ -126,6 +142,12 @@ Gemeindeverzeichnis der Landesdirektion (`daten.kontakte`: „Landesdirektion Sa
 Quelle `lds_sachsen`, Datenlizenz Deutschland – Namensnennung 2.0), in Hessen und im Saarland aus
 dem Anschriftenverzeichnis der Statistischen Ämter („Anschriftenverzeichnis der Statistischen Ämter
 31.01.2026", Quelle `anschriften`) – dort nur Anschrift und E-Mail.
+
+Berlin führt die Leistung auch nicht im Bundesportal. Seine Kontakte sind von Hand abgeschrieben
+(`daten.kontakte`: „Webseiten der Behörden 05.10.2026", Quelle `von_hand`): je Bezirk das
+Bezirksamt (`kontakt_gemeinde`) und für alle Einträge die Senatsverwaltung (`kontakt`) – diese
+nur als allgemeine Anschrift (`allgemein`), weil ihre Abteilung Verkehrsmanagement nur ein
+Postfach für Arbeitsstellen nennt.
 
 Beispiel: eine bayerische Gemeinde, gekürzt. Für Gemeindestraßen ist sie selbst zuständig, für
 die übrigen Klassen das Landratsamt. Die Kontaktangaben sind hier ausgelassen.
@@ -173,10 +195,10 @@ die übrigen Klassen das Landratsamt. Die Kontaktangaben sind hier ausgelassen.
 |---|---|
 | `fba` | Fernstraßen-Bundesamt (Autobahnen); in jeder Landesdatei |
 | `k` + Kreis-ARS (5) | Kreisebene bzw. kreisfreie Stadt, z. B. `k09178`, `k09162` |
-| `g` + ARS (12) | eine Gemeinde: Große Kreisstadt, Stadt mit eigener Straßenverkehrsbehörde (in Nordrhein-Westfalen die Mittleren und Großen kreisangehörigen Städte, in Niedersachsen die selbständigen Städte und Gemeinden), in Bayern jede kreisangehörige Gemeinde für ihre Gemeindestraßen, in Niedersachsen Gemeinden, denen die Gemeindestraßen übertragen sind, in Rheinland-Pfalz die verbandsfreie Gemeinde, in Sachsen und Sachsen-Anhalt die Gemeinde für ihre Gemeindestraßen, in Hessen die Sonderstatus-Städte für alle Straßen und die übrigen Gemeinden für Gemeinde- und Kreisstraßen, ab mehr als 7.500 Einwohnern auch für Landesstraßen, im Saarland die Landeshauptstadt Saarbrücken für alle Straßen und jede Gemeinde für ihre Gemeindestraßen |
+| `g` + ARS (12) | eine Gemeinde: Große Kreisstadt, Stadt mit eigener Straßenverkehrsbehörde (in Nordrhein-Westfalen die Mittleren und Großen kreisangehörigen Städte, in Niedersachsen die selbständigen Städte und Gemeinden), in Bayern jede kreisangehörige Gemeinde für ihre Gemeindestraßen, in Niedersachsen Gemeinden, denen die Gemeindestraßen übertragen sind, in Rheinland-Pfalz die verbandsfreie Gemeinde, in Sachsen und Sachsen-Anhalt die Gemeinde für ihre Gemeindestraßen, in Hessen die Sonderstatus-Städte für alle Straßen und die übrigen Gemeinden für Gemeinde- und Kreisstraßen, ab mehr als 7.500 Einwohnern auch für Landesstraßen, im Saarland die Landeshauptstadt Saarbrücken für alle Straßen und jede Gemeinde für ihre Gemeindestraßen; in Berlin das Bezirksamt eines Bezirks (`g110000000001` …, `untere`, Art `stadtstaat`) |
 | `v` + Verbands-ARS (9) | ein Verband: in Schleswig-Holstein das Amt (Halten und Parken, Baustellen, Veranstaltungen); in Brandenburg das Amt Schlieben (§ 4a Abs. 2 StGÜZV, `untere`); in Niedersachsen die Samtgemeinde – als `untere`, wenn sie selbständige Gemeinde ist, sonst als `oertliche` für Gemeindestraßen; in Rheinland-Pfalz und Sachsen-Anhalt die Verbandsgemeinde (`oertliche`); in Sachsen die Verwaltungsgemeinschaft bzw. der Verwaltungsverband für Gemeindestraßen (`oertliche`), als `untere` für alle Straßen, wenn eine Große Kreisstadt erfüllende Gemeinde ist |
 | `hb-asv`, `hb-bhv` | Bremen: Amt für Straßen und Verkehr; Magistrat Bremerhaven |
-| `be-bezirk`, `be-senat` | Berlin: Bezirksamt; Senatsverwaltung (übergeordnetes Netz) |
+| `be-bezirk`, `be-senat` | Berlin: Bezirksamt, wo der Bezirk nicht bekannt ist (Eintrag `110000000000`); Senatsverwaltung, zuständig für das übergeordnete Straßennetz – ihr Kontakt ist der der Kreisebene (`kontakt`) |
 | `hh-pk` | Hamburg: Polizei, zuständiges Polizeikommissariat |
 
 ### `ergebnisse`
@@ -196,14 +218,15 @@ Konsumenten lesen sie nur als Verweis.
 
 | Feld | Inhalt |
 |---|---|
-| Schlüssel | ARS (12) |
-| `name` | voller Name nach `NBD` |
+| Schlüssel | ARS (12); in Berlin dazu die zwölf Bezirke `1100000000` + Bezirksnummer (`01` Mitte … `12` Reinickendorf) – kein amtlicher Schlüssel, gebildet wie ein ARS. `110000000000` steht weiter für ganz Berlin, ohne Bezirk |
+| `name` | voller Name nach `NBD`; bei den Berliner Bezirken „Bezirk Mitte" usw. |
 | `kreis` | Kreis-ARS (5), Name in `kreise` |
 | `verband` | optional: voller Name des Verbands (nur bei 6. ARS-Stelle `5`) |
+| `bezirk` | optional: Nummer des Berliner Bezirks (`01` … `12`), nur bei den Bezirken |
 | `ew` | optional: Bevölkerung laut GV-ISys |
 | `z` | Ergebnis-Id je Straßenklasse `G`, `K`, `L`, `B`. Autobahnen (`A`) sind überall gleich und stehen nicht in der Tabelle |
-| `kontakt` | optional: Id in `kontakte` – Kontakt der Kreisebene (Landratsamt) bzw. der kreisfreien Stadt; nur, wenn diese Stelle (`k…`) in den Ergebnissen der Gemeinde vorkommt (Auswahl siehe `pipeline/README.md`) |
-| `kontakt_gemeinde` | optional: Id in `kontakte` – Kontakt der Gemeinde selbst (Rathaus; in Bayern oft die Verwaltungsgemeinschaft, in Schleswig-Holstein das Amt); nur, wenn die Gemeinde (`g` + ARS) oder ihr Verband (`v` + ARS) in den Ergebnissen vorkommt, als Stelle oder Alternative |
+| `kontakt` | optional: Id in `kontakte` – Kontakt der Kreisebene (Landratsamt) bzw. der kreisfreien Stadt, in Berlin der Senatsverwaltung; nur, wenn diese Stelle (`k…`, `be-senat`) in den Ergebnissen der Gemeinde vorkommt (Auswahl siehe `pipeline/README.md`) |
+| `kontakt_gemeinde` | optional: Id in `kontakte` – Kontakt der Gemeinde selbst (Rathaus; in Bayern oft die Verwaltungsgemeinschaft, in Schleswig-Holstein das Amt, in Berlin das Bezirksamt); nur, wenn die Gemeinde (`g` + ARS) oder ihr Verband (`v` + ARS) in den Ergebnissen vorkommt, als Stelle oder Alternative |
 | `nachbar` | optional: ARS der angrenzenden Gemeinde, nur bei Kondominium-Flächen |
 | `aenderung` | optional: `{ art, stand, name_neu? }`, wenn die Gemeinde nach dem Datenstand aufgelöst, umgeschlüsselt oder umbenannt wurde |
 
@@ -239,9 +262,10 @@ sicherheit, grund, quelle, alternative, hinweise, keinBrief, kontakt, bundesport
 
 - `zustaendig` ist ein Stellen-Objekt, `alternative` `null` oder `{ stelle, bedingung, kontakt }`.
 - `kontakt` ist der Kontakt genau der zuständigen Stelle: `kontakt_gemeinde` für die Gemeinde
-  (`g` + ARS) und ihren Verband (`v` + ARS), `kontakt` für die Kreisebene (`k…`). Für Bund und
-  Stadtstaaten und ohne Daten ist er `null`, bei `keinBrief` immer. Den Kontakt einer anderen
-  Stelle gibt `auswahl` nie aus.
+  (`g` + ARS) und ihren Verband (`v` + ARS), `kontakt` für die Kreisebene (`k…`) und in Berlin
+  für die Senatsverwaltung (`be-senat`) – `kontaktRolle` in `js/resolve.js`. Für den Bund, Bremen,
+  Hamburg und das Bezirksamt ohne bekannten Bezirk (`be-bezirk`) und ohne Daten ist er `null`,
+  bei `keinBrief` immer. Den Kontakt einer anderen Stelle gibt `auswahl` nie aus.
 - `alternative.kontakt` gilt ebenso für die Stelle der Alternative.
 - `bundesportal` ist der Link auf die Seite der Gemeinde im Bundesportal, wenn das Land die
   Leistung dort führt (`bundesportal_region`); sonst `null`, ebenso bei `keinBrief`. Der
@@ -286,6 +310,10 @@ dort erfunden.
 - `kondominium`: `null` oder `{ nachbar }` für die Flächen des deutsch-luxemburgischen
   Kondominiums (VG25 `BEZ = Kondominium`). `nachbar` ist der ARS der angrenzenden Gemeinde
   (`SDV_ARS`); `kreis`, `verband` und `rb` sind ihre, `tkz` ist leer, `ew` `null`.
+- `bezirk`: `null` oder `{ nr, name }` für die zwölf Berliner Bezirke (`pipeline/config/berlin.yaml`).
+  Schlüssel `1100000000` + `nr`, `ags` `110000` + `nr`, `gen` der Name des Bezirks, `name`
+  „Bezirk …", `bez` „Bezirk", `ibz` `null`; Land, Kreis und Regierungsbezirk wie Berlin, `tkz`
+  leer, `ew` `null`. Der Eintrag `110000000000` (ganz Berlin) bleibt daneben.
 
 ## `manifest.json`
 
@@ -314,3 +342,8 @@ dort erfunden.
   `lookup.js`.
 - Quellenvermerke aus `index.json` → `quellen` anzeigen; den Hinweis „kein Rechtsrat" mit jeder
   Auskunft.
+- Berlin: Wer am Punkt nachschlägt, nimmt den Schlüssel aus dem Layer `bezirke` (siehe
+  „Nachschlagen am Punkt", `eintragsSchluessel` in `lookup.js`) und bekommt so das Bezirksamt. Wer
+  nur den ARS kennt, etwa aus eigenen VG25-Flächen, findet `110000000000` – dort steht für
+  Gemeindestraßen nur die Ebene („Bezirksamt (Berlin)"), für die übrigen Klassen die
+  Senatsverwaltung.
