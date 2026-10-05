@@ -7,6 +7,12 @@ ein Git-Tag `v<version>` dazu.
 
 ## [Unveröffentlicht]
 
+## [0.9.0] – 2026-10-05
+
+Landesregeln für Sachsen und Sachsen-Anhalt, zusammen zehn Länder; Kontakte für Sachsen-Anhalt und
+– als allgemeine Anschrift der Verwaltung – für Sachsen; in der Karte der Schalter „Kontakt
+vorhanden". Regeln 0.9.0 · Schema 1 · Datenstand 31.12.2025.
+
 ### Hinzugefügt
 
 - Landesregel Sachsen (**belegt**, Sächsisches Straßenverkehrsrechtsgesetz): Auf Gemeindestraßen
