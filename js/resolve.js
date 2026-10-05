@@ -151,6 +151,13 @@ export const TEXTE = Object.freeze({
     snGksVg:
       "Erfüllende Gemeinde dieser Verwaltungsgemeinschaft ist eine Große Kreisstadt – sie ist deshalb auch " +
       "hier für alle Straßen Straßenverkehrsbehörde.",
+    stGemeinde:
+      "In Sachsen-Anhalt ordnet die Gemeinde auf Gemeindestraßen innerhalb geschlossener Ortschaften " +
+      "Verkehrszeichen selbst an (örtliche Straßenverkehrsbehörde).",
+    stVerbandsgemeinde:
+      "In Sachsen-Anhalt ordnet auf Gemeindestraßen innerhalb geschlossener Ortschaften die Verbandsgemeinde " +
+      "für ihre Mitgliedsgemeinden Verkehrszeichen an.",
+    stLandkreis: "Für Kreis-, Landes- und Bundesstraßen ist in Sachsen-Anhalt der Landkreis Straßenverkehrsbehörde.",
   }),
   bedingung: Object.freeze({
     gks: "Große Kreisstadt – sie kann selbst zuständig sein",
@@ -167,6 +174,7 @@ export const TEXTE = Object.freeze({
       "Gemeindestraße vor außerordentlichen Schäden geht",
     mvBestandMoeglich: "Stadt mit 17.000 bis 20.000 Einwohnern – sie kann nach der Übergangsregel selbst zuständig sein",
     rpAusserorts: "falls die Strecke außerhalb geschlossener Ortschaften liegt",
+    stAusserorts: "falls die Gemeindestraße außerhalb geschlossener Ortschaften liegt",
   }),
   quelle: Object.freeze({
     phase1: "Rückfall auf die Kreisebene – die Regel dieses Landes ist noch nicht eingearbeitet",
@@ -287,6 +295,19 @@ export const TEXTE = Object.freeze({
     snGksVg:
       "§ 3 Abs. 2 Satz 3 SächsGemO, zuletzt geändert 27.06.2025; § 1 Nr. 2 SächsKomVerfRDVO vom 22.11.2022; " +
       "§ 3 SächsStrVRG vom 03.05.2019",
+    stUnter:
+      "Landkreise und kreisfreie Städte als untere Verwaltungsbehörde (§ 6 Abs. 1 KVG LSA, Fassung vom " +
+      "16.05.2024) und Straßenverkehrsbehörde laut ihren Webseiten; die Zuständigkeitsvorschrift selbst ist " +
+      "nicht an der Primärquelle gelesen",
+    stOertlich:
+      "Art. 3 § 1 Nr. 5 des Gesetzes zur Fortentwicklung der Verwaltungsgemeinschaften und zur Stärkung der " +
+      "gemeindlichen Verwaltungstätigkeit (Sachsen-Anhalt) vom 13.11.2003 (GVBl. LSA S. 318), neu gefasst " +
+      "22.12.2004 (GVBl. LSA S. 852) – Inhalt nur aus BVerwG, Beschluss vom 03.05.2011 – 3 B 91.10, Wortlaut nicht " +
+      "geprüft; innerorts laut Saalekreis, Gemeindestraßen laut Stadt Halberstadt",
+    stOertlichVerband:
+      "Art. 3 § 1 Nr. 5 des Gesetzes zur Fortentwicklung der Verwaltungsgemeinschaften (Sachsen-Anhalt) – Inhalt " +
+      "nur aus BVerwG 3 B 91.10, Wortlaut nicht geprüft; innerorts laut Saalekreis; § 6 Abs. 1 Nr. 2 und § 90 Abs. 2 " +
+      "KVG LSA [S]",
   }),
   hinweis: Object.freeze({
     autobahnDabei: "Für die Autobahn selbst ist das Fernstraßen-Bundesamt zuständig.",
@@ -934,6 +955,29 @@ function regelSachsen(g, klasse) {
   return ergebnis(gemeindeStelle(g, istStadt(g) ? "stadt" : "gemeinde", "oertliche"), SICHERHEIT.BELEGT, "snGemeinde", "snOertlich");
 }
 
+/**
+ * Sachsen-Anhalt (vermutlich): Landkreise und kreisfreie Städte sind untere Straßenverkehrsbehörde;
+ * die Gemeinden sind örtliche Straßenverkehrsbehörde für Verkehrszeichen nach § 45 StVO (Art. 3 § 1
+ * Nr. 5 des Gesetzes zur Fortentwicklung der Verwaltungsgemeinschaften – Inhalt nur aus BVerwG
+ * 3 B 91.10, das die Auslegung des OVG für 2005–2010 wiedergibt). Auf welchen Straßen, sagen nur die
+ * Behörden: die Stadt Halberstadt „Gemeindestraßen“, der Saalekreis „innerörtliche Gemeindestraßen“ –
+ * Gemeindestraßen außerorts ordne der Landkreis an. Deshalb die Gemeinde mit dem Landkreis als
+ * Alternative außerorts. In einer Verbandsgemeinde erfüllt die Aufgabe die Verbandsgemeinde (§ 90
+ * Abs. 2 KVG LSA). Den Wortlaut haben wir nicht an der Primärquelle gelesen (landesrecht.sachsen-anhalt.de
+ * war nicht erreichbar) – daher überall „vermutlich“.
+ */
+function regelSachsenAnhalt(g, klasse) {
+  const kreis = kreisStelle(g);
+  const sicher = SICHERHEIT.VERMUTLICH; // bis der Wortlaut an der Primärquelle geprüft ist
+  if (g.kreis.kreisfrei) return ergebnis(kreis, sicher, "kreisfrei", "stUnter");
+  if (g.gemeindefrei) return ergebnis(kreis, sicher, "gemeindefrei", "stUnter");
+  if (klasse !== "G") return ergebnis(kreis, sicher, "stLandkreis", "stUnter");
+  const ausserorts = { stelle: kreis, bedingung: "stAusserorts" };
+  if (g.verband) return ergebnis(verbandStelle(g), sicher, "stVerbandsgemeinde", "stOertlichVerband", ausserorts);
+  const ort = gemeindeStelle(g, istStadt(g) ? "stadt" : "gemeinde", "oertliche");
+  return ergebnis(ort, sicher, "stGemeinde", "stOertlich", ausserorts);
+}
+
 /** Landesregeln: (Gemeinde, Klasse) → Ergebnis, oder null für den Rückfall auf Phase 1. */
 export const LANDESREGELN = Object.freeze({
   BB: regelBrandenburg,
@@ -944,6 +988,7 @@ export const LANDESREGELN = Object.freeze({
   RP: regelRheinlandPfalz,
   SH: regelSchleswigHolstein,
   SN: regelSachsen,
+  ST: regelSachsenAnhalt,
   TH: regelThueringen,
 });
 

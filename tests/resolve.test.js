@@ -357,6 +357,24 @@ const G = {
     kreis: kreis("14523", "Vogtlandkreis", "Landkreis", "nein"),
     verband: { ars: "145235402", gen: "Jägerswald", bez: "Verwaltungsverband", name: "Verwaltungsverband Jägerswald" },
   },
+  magdeburg: {
+    ars: "150030000000", gen: "Magdeburg", land: "ST", tkz: [61],
+    kreis: kreis("15003", "Magdeburg", "Kreisfreie Stadt", "ja", true),
+  },
+  halberstadt: {
+    ars: "150850135135", gen: "Halberstadt", land: "ST", tkz: [63],
+    kreis: kreis("15085", "Harz", "Landkreis", "ja"),
+  },
+  ditfurt: {
+    ars: "150855051090", gen: "Ditfurt", name: "Gemeinde Ditfurt", land: "ST", tkz: [64],
+    kreis: kreis("15085", "Harz", "Landkreis", "ja"),
+    verband: { ars: "150855051", gen: "Vorharz", bez: "Verbandsgemeinde", name: "Verbandsgemeinde Vorharz" },
+  },
+  wegeleben: {
+    ars: "150855051365", gen: "Wegeleben", land: "ST", tkz: [63],
+    kreis: kreis("15085", "Harz", "Landkreis", "ja"),
+    verband: { ars: "150855051", gen: "Vorharz", bez: "Verbandsgemeinde", name: "Verbandsgemeinde Vorharz" },
+  },
   kondominium: {
     ars: "079355003095", gen: "Deutsch-Luxemburgisches Hoheitsgebiet [Nittel]", land: "RP", tkz: [],
     kreis: kreis("07235", "Trier-Saarburg", "Landkreis", "ja"),
@@ -1035,6 +1053,42 @@ test("Sachsen: Gemeindestraßen bei der Gemeinde bzw. ihrem Verband, sonst das L
   assert.equal(bergen.zust.L.stelle, "k14523");
 });
 
+test("Sachsen-Anhalt: Landkreis bzw. kreisfreie Stadt; Gemeindestraßen innerorts bei Gemeinde oder Verbandsgemeinde (vermutlich)", () => {
+  const magdeburg = resolveGemeinde(G.magdeburg).zust;
+  for (const k of BAU_KLASSEN) {
+    assert.equal(magdeburg[k].stelle, "k15003", k);
+    assert.equal(magdeburg[k].sicherheit, SICHERHEIT.VERMUTLICH, k);
+  }
+  assert.equal(magdeburg.G.quelle, TEXTE.quelle.stUnter);
+  const halberstadt = resolveGemeinde(G.halberstadt);
+  assert.equal(halberstadt.zust.G.stelle, "g150850135135");
+  assert.equal(halberstadt.zust.G.grund, TEXTE.grund.stGemeinde);
+  assert.equal(halberstadt.zust.G.quelle, TEXTE.quelle.stOertlich);
+  assert.equal(halberstadt.zust.G.sicherheit, SICHERHEIT.VERMUTLICH, "Wortlaut nicht an der Primärquelle gelesen");
+  assert.deepEqual(halberstadt.zust.G.alternative, { stelle: "k15085", bedingung: TEXTE.bedingung.stAusserorts });
+  assert.deepEqual(halberstadt.stellen.g150850135135, {
+    id: "g150850135135", name: "Stadt Halberstadt – Straßenverkehrsbehörde", ebene: "oertliche", art: "stadt",
+  });
+  for (const k of ["K", "L", "B"]) {
+    assert.equal(halberstadt.zust[k].stelle, "k15085", k);
+    assert.equal(halberstadt.zust[k].grund, TEXTE.grund.stLandkreis, k);
+    assert.equal(halberstadt.zust[k].alternative, null, k);
+  }
+  assert.equal(halberstadt.stellen.k15085.name, "Landkreis Harz – Straßenverkehrsbehörde");
+  for (const g of [G.ditfurt, G.wegeleben]) {
+    const { zust, stellen } = resolveGemeinde(g);
+    assert.equal(zust.G.stelle, "v150855051", g.gen);
+    assert.equal(zust.G.grund, TEXTE.grund.stVerbandsgemeinde, g.gen);
+    assert.equal(zust.G.quelle, TEXTE.quelle.stOertlichVerband, g.gen);
+    assert.deepEqual(zust.G.alternative, { stelle: "k15085", bedingung: TEXTE.bedingung.stAusserorts }, g.gen);
+    assert.deepEqual(stellen.v150855051, {
+      id: "v150855051", name: "Verbandsgemeinde Vorharz – Straßenverkehrsbehörde", ebene: "oertliche", art: "verband",
+    });
+    assert.equal(zust.K.stelle, "k15085", g.gen);
+    assert.equal(zust.K.alternative, null, g.gen);
+  }
+});
+
 test("resolveGemeinde: prüft die Eingabe", () => {
   assert.throws(() => resolveGemeinde({ ...G.muenchen, ars: "09162000" }), /ungültiger ARS/);
   assert.throws(() => resolveGemeinde({ ...G.muenchen, kreis: null }), /ohne Kreis/);
@@ -1181,3 +1235,15 @@ test("auswahl: Sachsen, Klasse unklar – Landratsamt, die Gemeinde als Alternat
   assert.equal(gornau.alternative, null);
 });
 
+test("auswahl: Sachsen-Anhalt, Gemeindestraße – die Verbandsgemeinde, außerorts der Landkreis", () => {
+  const d = landesdatei("ST", [G.ditfurt]);
+  const g = auswahl(d, G.ditfurt.ars, ["G"]);
+  assert.equal(g.zustaendig.id, "v150855051");
+  assert.equal(g.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(g.alternative.stelle.id, "k15085");
+  assert.equal(g.alternative.bedingung, TEXTE.bedingung.stAusserorts);
+  const unklar = auswahl(d, G.ditfurt.ars, []);
+  assert.equal(unklar.zustaendig.id, "k15085");
+  assert.equal(unklar.alternative.stelle.id, "v150855051");
+  assert.equal(unklar.alternative.bedingung, TEXTE.bedingung.unklar);
+});

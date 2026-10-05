@@ -143,26 +143,27 @@ test("baueLaender + auswahl: Kontakt der Stelle, die für die Klasse zuständig 
 });
 
 test("baueLaender: Kontakt der Gemeinde nur, wo sie zuständig sein kann", () => {
-  // Sachsen-Anhalt hat (noch) keine Landesregel: Rückfall auf die Kreisebene.
+  // Baden-Württemberg hat (noch) keine Landesregel: Rückfall auf die Kreisebene. Im Bundesportal
+  // führt es die Leistung nicht – die Portaldaten sind hier erfunden, um den Rückfall zu prüfen.
   const a = attr();
-  a.gemeinden["150855001001"] = {
-    ars: "150855001001", gen: "Musterort", name: "Gemeinde Musterort", land: "ST",
-    kreis: kreis("15085", "Harz", "Landkreis", "ja"),
-    verband: { ars: "150855001", name: "Verbandsgemeinde Musterheide" },
+  a.gemeinden["081155001001"] = {
+    ars: "081155001001", gen: "Musterort", name: "Gemeinde Musterort", land: "BW",
+    kreis: kreis("08115", "Böblingen", "Landkreis", "ja"),
+    verband: { ars: "081155001", name: "Gemeindeverwaltungsverband Musterheide" },
   };
   const k = kontakte();
-  k.meta.laender = { ST: { ...k.meta.laender.BY, herausgeber: "8958612" } };
-  k.gemeinden = { "150855001001": { ...k.gemeinden["092740128128"] } };
-  const st = baueLaender(a, { kontakte: k }).dateien["st.json"];
-  const eintrag = st.gemeinden["150855001001"];
-  assert.equal(st.kontakte[eintrag.kontakt].name, "Landratsamt Landshut - Verkehrswesen");
+  k.meta.laender = { BW: { ...k.meta.laender.BY, herausgeber: "8958612" } };
+  k.gemeinden = { "081155001001": { ...k.gemeinden["092740128128"] } };
+  const bw = baueLaender(a, { kontakte: k }).dateien["bw.json"];
+  const eintrag = bw.gemeinden["081155001001"];
+  assert.equal(bw.kontakte[eintrag.kontakt].name, "Landratsamt Landshut - Verkehrswesen");
   assert.equal(eintrag.kontakt_gemeinde, undefined, "Rückfall Phase 1: nur die Kreisebene");
 
-  k.gemeinden["150855001001"].wahl = "stvb";
-  const stvb = baueLaender(a, { kontakte: k }).dateien["st.json"];
-  const r = auswahl(stvb, "150855001001", ["G"]);
+  k.gemeinden["081155001001"].wahl = "stvb";
+  const stvb = baueLaender(a, { kontakte: k }).dateien["bw.json"];
+  const r = auswahl(stvb, "081155001001", ["G"]);
   assert.equal(r.kontakt.name, "Landratsamt Landshut - Verkehrswesen");
-  assert.equal(r.alternative.stelle.id, "g150855001001", "Portal nennt die Gemeinde");
+  assert.equal(r.alternative.stelle.id, "g081155001001", "Portal nennt die Gemeinde");
   assert.equal(r.alternative.kontakt.name, "Markt Essenbach");
 });
 
