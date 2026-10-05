@@ -26,6 +26,7 @@ mit den Konsumenten in [VERTRAG.md](VERTRAG.md).
 | RP | Landesverordnung BS 923-3 – nur lexsoft `[S]`, landesrecht.rlp.de war nicht erreichbar | Verbandsgemeinde bzw. verbandsfreie Gemeinde: Gemeindestraßen, sonst innerorts; außerorts die Kreisverwaltung als Alternative; kreisfreie und 8 große kreisangehörige Städte: alles | vermutlich |
 | SN | SächsStrVRG §§ 1–3, 24; SächsKomVerfRDVO § 1 Nr. 2; SächsGemO § 3 Abs. 2; SächsKomZG §§ 7, 36 – [REVOSax](https://www.revosax.sachsen.de) | Gemeindestraßen: die Gemeinde, in der Verwaltungsgemeinschaft die erfüllende Gemeinde, im Verwaltungsverband der Verband (`v`); sonst das Landratsamt; Kreisfreie Städte und 53 Große Kreisstädte (`SN_GROSSE_KREISSTAEDTE`, nach AGS): alles, als erfüllende Gemeinde auch für die Verwaltungsgemeinschaft | belegt |
 | ST | Art. 3 § 1 Nr. 5 des Gesetzes zur Fortentwicklung der Verwaltungsgemeinschaften – nicht gelesen, Inhalt aus BVerwG 3 B 91.10 und Webseiten | Gemeindestraßen: Gemeinde bzw. Verbandsgemeinde, außerorts der Landkreis als Alternative; sonst der Landkreis | vermutlich |
+| HE | StVRZustV – nicht gelesen; Regel laut Verkehrsministerium und Hessen Mobil (Webseiten) | G: Gemeinde; K: innerorts Gemeinde, außerorts Landkreis (Alternative); L: Gemeinde mit mehr als 7.500 Einwohnern, B: mehr als 50.000, sonst Landkreis (`HE_SCHWELLEN`, ± 5 % Alternative); kreisfreie Städte alles; Hessen Mobil (§ 9 Abs. 2) nur im Text | vermutlich |
 
 ## 1. Rechtsgrundlage finden und lesen
 

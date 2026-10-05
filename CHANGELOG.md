@@ -7,6 +7,17 @@ ein Git-Tag `v<version>` dazu.
 
 ## [Unveröffentlicht]
 
+### Hinzugefügt
+
+- Landesregel Hessen (**vermutlich** – nach den Angaben des Verkehrsministeriums und von Hessen
+  Mobil, die Verordnung ist noch nicht gelesen): Gemeindestraßen ordnet die Stadt bzw. Gemeinde an,
+  Kreisstraßen innerorts ebenso, außerorts der Landkreis (als Alternative). Landesstraßen die
+  Gemeinde mit mehr als 7.500, Bundesstraßen die Stadt mit mehr als 50.000 Einwohnern (die sieben
+  Sonderstatusstädte), sonst der Landkreis – nahe der Schwelle mit der anderen Stelle als
+  Alternative. Kreisfreie Städte für alle Straßen. Straßen von besonderer Verkehrsbedeutung, auf
+  denen Hessen Mobil anordnet, nennt nur der Text. Kontakte gibt es für Hessen noch nicht.
+  Regeln 0.10.0.
+
 ## [0.9.0] – 2026-10-05
 
 Landesregeln für Sachsen und Sachsen-Anhalt, zusammen zehn Länder; Kontakte für Sachsen-Anhalt und

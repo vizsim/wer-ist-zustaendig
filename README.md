@@ -16,11 +16,11 @@ Es gibt zwei Wege zu den Daten:
   Grenzschicht als PMTiles und eine JSON-Datei je Land. Der Vertrag steht in
   [docs/VERTRAG.md](docs/VERTRAG.md).
 
-> **Testversion, kein Rechtsrat.** Zehn Länder haben eine eigene Regel (siehe „Stand").
+> **Testversion, kein Rechtsrat.** Elf Länder haben eine eigene Regel (siehe „Stand").
 > Jede Auskunft ist eine begründete Vermutung mit Quelle. Vor einem Antrag oder einer Anregung
 > bitte prüfen, ob die genannte Stelle wirklich zuständig ist.
 
-## Stand: Phase 2 – Landesregeln für zehn Länder
+## Stand: Phase 2 – Landesregeln für elf Länder
 
 | Was | Stand |
 |---|---|
@@ -35,6 +35,7 @@ Es gibt zwei Wege zu den Daten:
 | **Rheinland-Pfalz** | **vermutlich**: die Verbandsgemeinde bzw. verbandsfreie Gemeinde – auf Gemeindestraßen überall, sonst innerhalb geschlossener Ortschaften; außerorts die Kreisverwaltung (als Alternative). Kreisfreie und große kreisangehörige Städte für alle Straßen |
 | **Sachsen** | **belegt**: Gemeindestraßen die Gemeinde (bzw. erfüllende Gemeinde oder Verwaltungsverband), sonst das Landratsamt; Kreisfreie Städte und 53 Große Kreisstädte für alle Straßen – als erfüllende Gemeinde auch für ihre Verwaltungsgemeinschaft |
 | **Sachsen-Anhalt** | **vermutlich**: Gemeindestraßen die Gemeinde bzw. Verbandsgemeinde, außerorts der Landkreis als Alternative; sonst der Landkreis |
+| **Hessen** | **vermutlich**: Gemeindestraßen und Kreisstraßen innerorts die Stadt bzw. Gemeinde, Kreisstraßen außerorts der Landkreis (als Alternative); Landesstraßen ab mehr als 7.500, Bundesstraßen ab mehr als 50.000 Einwohnern die Stadt, sonst der Landkreis; kreisfreie Städte alles. Straßen von besonderer Verkehrsbedeutung (Hessen Mobil) nur im Text |
 | Bremen (Amt für Straßen und Verkehr, Bremerhaven: Magistrat) | **belegt** |
 | Kreisfreie Städte der übrigen Länder | **vermutlich**: die Stadt |
 | Alle übrigen Gemeinden | **nur Ebene**: Kreis (Landratsamt, Kreisverwaltung); Große Kreisstädte als Alternative |
@@ -107,7 +108,7 @@ node tools/lookup.mjs 48.4005 11.7448 G     # Punkt (lat lon) und Straßenklasse
 | Hintergrundkarte | [OpenFreeMap](https://openfreemap.org) Positron | © OpenMapTiles, © OpenStreetMap-Mitwirkende |
 | Ortssuche | [Photon](https://photon.komoot.io) (komoot) | © OpenStreetMap-Mitwirkende |
 | Schrift | [Barlow](https://github.com/jpt/barlow), selbst gehostet | SIL Open Font License 1.1 ([assets/fonts/OFL.txt](assets/fonts/OFL.txt)) |
-| Rechtsgrundlagen | Fundstellen je Auskunft; Bayern aus [BAYERN.RECHT](https://www.gesetze-bayern.de) (ZustGVerk, GrKrV, AufVGem, VGemO), Schleswig-Holstein aus [Gesetze-Rechtsprechung Schleswig-Holstein](https://www.gesetze-rechtsprechung.sh.juris.de) (StrVRZustVO), Niedersachsen aus [NI-VORIS](https://voris.wolterskluwer-online.de) (ZustVO-Verkehr, NKomVG) und dem Niedersächsischen Ministerialblatt (selbständige Gemeinden), Nordrhein-Westfalen aus [RECHT.NRW.DE](https://recht.nrw.de), Brandenburg aus [BRAVORS](https://bravors.brandenburg.de), Mecklenburg-Vorpommern aus dem Gesetz- und Verordnungsblatt M-V, Sachsen aus [REVOSax](https://www.revosax.sachsen.de) und dem Gemeindeverzeichnis der Landesdirektion, Rheinland-Pfalz und Sachsen-Anhalt vorerst ohne Primärquelle; Fernstraßen-Bundesamt nach § 45 Abs. 11 StVO | – |
+| Rechtsgrundlagen | Fundstellen je Auskunft; Bayern aus [BAYERN.RECHT](https://www.gesetze-bayern.de) (ZustGVerk, GrKrV, AufVGem, VGemO), Schleswig-Holstein aus [Gesetze-Rechtsprechung Schleswig-Holstein](https://www.gesetze-rechtsprechung.sh.juris.de) (StrVRZustVO), Niedersachsen aus [NI-VORIS](https://voris.wolterskluwer-online.de) (ZustVO-Verkehr, NKomVG) und dem Niedersächsischen Ministerialblatt (selbständige Gemeinden), Nordrhein-Westfalen aus [RECHT.NRW.DE](https://recht.nrw.de), Brandenburg aus [BRAVORS](https://bravors.brandenburg.de), Mecklenburg-Vorpommern aus dem Gesetz- und Verordnungsblatt M-V, Sachsen aus [REVOSax](https://www.revosax.sachsen.de) und dem Gemeindeverzeichnis der Landesdirektion, Rheinland-Pfalz, Sachsen-Anhalt und Hessen vorerst ohne Primärquelle (Hessen nach den Webseiten des Verkehrsministeriums und von Hessen Mobil); Fernstraßen-Bundesamt nach § 45 Abs. 11 StVO | – |
 | Favicon | [Fax-Symbol](https://www.svgrepo.com/svg/299100/fax) von SVG Repo | CC0 |
 
 Code: AGPL-3.0-or-later.
