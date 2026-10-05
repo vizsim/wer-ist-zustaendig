@@ -584,7 +584,7 @@ function regelNiedersachsen(g, klasse) {
     return ergebnis(gemeindeStelle(g, art, "untere"), SICHERHEIT.BELEGT, "niSelbstaendig", "niSelbstaendig");
   }
   if (NI_SELBSTAENDIG[samtgemeinde]) {
-    return ergebnis({ ...verbandStelle(g), ebene: "untere" }, SICHERHEIT.BELEGT, "niSelbstaendig", "niSelbstaendig");
+    return ergebnis(verbandStelle(g, "untere"), SICHERHEIT.BELEGT, "niSelbstaendig", "niSelbstaendig");
   }
   if (klasse !== "G") return ergebnis(kreis, SICHERHEIT.BELEGT, "niKreis", "niKreis");
   const ort = samtgemeinde ? verbandStelle(g) : gemeindeStelle(g, art, "oertliche");
