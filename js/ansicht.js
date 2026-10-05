@@ -5,7 +5,8 @@
 // verdrahtet nur Karte und Seite.
 
 import { klasse, klassenName, RANG } from "./strassenklasse.js";
-import { SICHERHEIT, TEXTE } from "./resolve.js";
+import { LAENDER, landAusKuerzel } from "./laender.js";
+import { LANDESREGELN, SICHERHEIT, TEXTE } from "./resolve.js";
 
 // Farben nach den RAL-Verkehrsfarben: Verkehrsblau (Autobahn-Schilder), Verkehrsgelb
 // (Bundesstraßen-Schilder), Verkehrsschwarz für Schrift. Die Flächenfarben sind gedämpft,
@@ -39,7 +40,7 @@ export const SICHERHEIT_STIL = Object.freeze({
   },
   "nur Ebene": {
     deckkraft: 0.12, schraffur: true, label: "nur Ebene",
-    text: "Landesregel noch nicht eingearbeitet",
+    text: "Welche Stelle genau zuständig ist, ist offen",
   },
 });
 
@@ -364,13 +365,9 @@ function meistGilt(sicherheit) {
 
 const nachName = (a, b) => a.localeCompare(b, "de");
 
-/**
- * Länder, in denen die Karte für die meisten Gemeinden nur die Ebene nennt (`index.json`), nach Namen. Bremen
- * zählt nicht dazu: Es hat keine Landesregel, aber eine feste Zuordnung.
- */
-export function offeneLaender(index) {
-  const geregelt = [SICHERHEIT.BELEGT, SICHERHEIT.VERMUTLICH];
-  return (index?.laender ?? []).filter((l) => !geregelt.includes(meistGilt(l.sicherheit)))
+/** Länder mit Landesregel, in denen für die meisten Gemeinden die Sicherheit `s` gilt (`index.json`), nach Namen. */
+function laenderMit(index, s) {
+  return (index?.laender ?? []).filter((l) => LANDESREGELN[l.lkz] && meistGilt(l.sicherheit) === s)
     .map((l) => l.name).sort(nachName);
 }
 
@@ -382,9 +379,10 @@ export function offeneLaender(index) {
  */
 export function willkommenHtml(index, { melden } = {}) {
   const laender = index?.laender ?? [];
-  const namen = (s) => aufzaehlung(laender.filter((l) => meistGilt(l.sicherheit) === s).map((l) => l.name).sort(nachName));
+  const namen = (s) => aufzaehlung(laenderMit(index, s));
   const geprueft = namen(SICHERHEIT.BELEGT);
   const vermutlich = namen(SICHERHEIT.VERMUTLICH);
+  const nurEbene = namen(SICHERHEIT.NUR_EBENE);
   // Kontakte der Stelle selbst; Länder, für die es nur die allgemeine Anschrift der Verwaltung gibt
   // (`allgemein` zählt diese Gemeinden), eigens.
   const kontaktLaender = (f) => aufzaehlung(laender.filter(f).map((l) => l.name).sort(nachName).map(imSatz));
@@ -394,19 +392,40 @@ export function willkommenHtml(index, { melden } = {}) {
     ? `Telefon, E-Mail und Webseite der Stelle gibt es bisher für ${esc(mitKontakt)}` +
       `${nurAllgemein ? `, für ${esc(nurAllgemein)} die allgemeine Anschrift der Verwaltung` : ""}.`
     : nurAllgemein && `Für ${esc(nurAllgemein)} gibt es bisher die allgemeine Anschrift der Verwaltung.`;
-  const offen = aufzaehlung(offeneLaender(index));
+  // Länder ohne Landesregel fallen auf die Kreisebene zurück (Phase 1) – seit Bremen und Hamburg keines.
+  const offen = laender.filter((l) => !LANDESREGELN[l.lkz]).length;
   const stand = [
     geprueft && `<li><strong>Geprüft:</strong> ${esc(geprueft)} – die Regel ist an der Rechtsgrundlage geprüft.</li>`,
     vermutlich && `<li><strong>Vermutlich:</strong> ${esc(vermutlich)} – die Regel ist nicht für jede Gemeinde gesichert.</li>`,
-    offen && `<li><strong>Noch offen:</strong> ${esc(offen)}. Dort nennt die Karte nur die Ebene, schraffiert.</li>`,
+    nurEbene && `<li><strong>Nur die Ebene:</strong> ${esc(nurEbene)} – die Karte nennt die Art der Stelle, nicht ` +
+      "welche genau, schraffiert.</li>",
+    offen > 0 && `<li><strong>Noch offen:</strong> ${offen === 1 ? "das übrige Land" : `die übrigen ${offen} Länder`}. ` +
+      "Dort nennt die Karte meist nur die Kreisebene, schraffiert.</li>",
   ].filter(Boolean).join("");
   const link = /^https:\/\//i.test(String(melden ?? "")) ? melden : null;
   return `
     <h2 id="willkommen-titel">Testversion</h2>
     <p>Die Karte zeigt, welche Straßenverkehrsbehörde an einer Straße über Schilder und Tempolimits entscheidet – und wie du sie erreichst.</p>
-    ${stand ? `<ul class="willkommen-stand">${stand}</ul>` : "<p>Den Stand je Land konnte die Karte nicht laden.</p>"}
+    ${stand ? `<ul class="willkommen-stand">${stand}</ul>` : "<p>Jedes Land hat eine eigene Regel; wie sicher eine Auskunft ist, steht jeweils dabei.</p>"}
     ${kontakte ? `<p>${kontakte}</p>` : ""}
     <p>Alle Angaben ohne Gewähr und kein Rechtsrat. Bitte prüfe vor dem Absenden, ob die Stelle wirklich zuständig ist.</p>
     <p>Darstellung und Funktionen ändern sich noch.${link
       ? ` Fehler gefunden? <a href="${esc(link)}" target="_blank" rel="noopener">Bitte melden</a>.` : ""}</p>`;
+}
+
+/**
+ * Teil der Standzeile zu den Regeln: „Regeln 0.13.0: Landesregeln für alle Länder, in Hamburg nur die Ebene"
+ * – fehlt einem Land die Regel, die Länder mit Regel und „sonst meist nur die Kreisebene".
+ * @param {object} index Inhalt von index.json: Regelversion, Sicherheit je Land
+ * @param {string[]} kuerzel Länder mit Landesregel (Schlüssel von `LANDESREGELN`)
+ */
+export function regelnStand(index, kuerzel = Object.keys(LANDESREGELN)) {
+  const version = index?.regeln?.version;
+  const mit = new Set(kuerzel);
+  if (Object.values(LAENDER).every((l) => mit.has(l.lkz))) {
+    const nurEbene = aufzaehlung(laenderMit(index, SICHERHEIT.NUR_EBENE));
+    return `Regeln ${version}: Landesregeln für alle Länder${nurEbene ? `, in ${nurEbene} nur die Ebene` : ""}`;
+  }
+  const namen = [...mit].map((l) => landAusKuerzel(l)?.name ?? l).sort(nachName);
+  return `Regeln ${version}: Landesregeln für ${aufzaehlung(namen.map(imSatz))}, sonst meist nur die Kreisebene`;
 }

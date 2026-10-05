@@ -7,8 +7,8 @@
 //  2. Laufzeit: `auswahl(landesdatei, ars, klassen)` → eine zuständige Stelle für die Straßen
 //     einer Auswahl (höchste Klasse gewinnt; Gemeindestraße ggf. als Alternative).
 //
-// Ohne Landesregel (Phase 1): Rückfall auf die Kreisebene mit amtlichem Namen; Stadtstaaten mit
-// eigener Regel. Phase 2: Landesregeln je Land, eingetragen in `LANDESREGELN`.
+// Ohne Landesregel (Phase 1): Rückfall auf die Kreisebene mit amtlichem Namen. Phase 2: Landesregeln
+// je Land, eingetragen in `LANDESREGELN` – seit Bremen und Hamburg für alle sechzehn Länder.
 // Kein Rechtsrat: Jede Aussage trägt Sicherheit und Quelle.
 
 import { kreisBehoerde, mitZusatz, stadtName } from "./namen.js";
@@ -39,11 +39,13 @@ export const TEXTE = Object.freeze({
       "in manchen Ländern auch Gemeinden, können selbst zuständig sein.",
     gemeindefrei: "Gemeindefreies Gebiet: zuständig ist der Kreis.",
     bremen: "In der Stadt Bremen ist das Amt für Straßen und Verkehr Straßenverkehrsbehörde.",
-    bremerhaven: "In Bremerhaven ist der Magistrat als Ortspolizeibehörde Straßenverkehrsbehörde.",
+    bremerhaven: "In Bremerhaven ist der Magistrat der Stadt Straßenverkehrsbehörde.",
     berlin:
       "In Berlin sind die Bezirksämter zuständig, für Straßen des übergeordneten Netzes die " +
       "Senatsverwaltung.",
-    hamburg: "In Hamburg ist die Polizei Straßenverkehrsbehörde, örtlich das zuständige Polizeikommissariat.",
+    hamburg:
+      "In Hamburg ist die Polizei Straßenverkehrsbehörde, örtlich das zuständige Polizei- bzw. " +
+      "Wasserschutzpolizeikommissariat.",
     autobahn: "Für Autobahnen ist das Fernstraßen-Bundesamt Straßenverkehrsbehörde.",
     kondominium:
       "Gemeinsames deutsch-luxemburgisches Hoheitsgebiet (Mosel, Sauer, Our). Genannt ist die " +
@@ -244,17 +246,33 @@ export const TEXTE = Object.freeze({
     bwHoehereStrasse:
       "falls sich die Maßnahme unmittelbar auf den Verkehr auf Straßen höherer Verkehrsbedeutung auswirkt, etwa auf " +
       "Kreis-, Landes- oder Bundesstraßen",
+    hbPolizei:
+      "falls es um eine Baustelle, eine Veranstaltung oder ein Haltverbot für einen Wohnungsumzug geht – nicht im " +
+      "Überseehafengebiet Bremerhaven, und auf den Straßen aus der Anlage der Verordnung (darunter die großen und " +
+      "alle mit Bus oder Straßenbahn) nur bei Haltverboten für Wohnungsumzüge und Baustellen neben der Fahrbahn",
+    hhZentral:
+      "falls es etwa um Ampeln, eine Kraftfahrstraße, Ortstafeln, Wegweiser an Hauptverkehrsstraßen, einen " +
+      "Bahnübergang mit Schranke oder Lichtzeichen, den Neu- oder Umbau einer Hauptverkehrsstraße, mehr als Tempo 50 " +
+      "innerorts oder ein Vorhaben für ganz Hamburg wie einen Lärmaktionsplan geht",
   }),
   quelle: Object.freeze({
     phase1: "Rückfall auf die Kreisebene – die Regel dieses Landes ist noch nicht eingearbeitet",
     bremen:
-      "Verordnung über die Zuständigkeiten nach der Straßenverkehrs-Ordnung (Bremen) vom " +
-      "19.01.2016, zuletzt geändert 02.09.2025",
+      "§ 1 Abs. 3 Nr. 1 und Abs. 4 der Verordnung über die Zuständigkeiten nach der Straßenverkehrs-Ordnung (Bremen) " +
+      "vom 19.01.2016 (Brem.GBl. S. 6), zuletzt geändert 02.09.2025 (Brem.GBl. S. 674)",
+    bremerhaven:
+      "§ 1 Abs. 3 Nr. 2 der Verordnung über die Zuständigkeiten nach der Straßenverkehrs-Ordnung (Bremen) vom " +
+      "19.01.2016 (Brem.GBl. S. 6), zuletzt geändert 02.09.2025 (Brem.GBl. S. 674)",
     berlin:
       "ASOG Bln, Zuständigkeitskatalog Ordnungsaufgaben Nr. 11 Abs. 4, Nr. 22b Abs. 3 (Wortlaut nicht an der " +
       "Primärquelle geprüft); Aufteilung nach dem übergeordneten Straßennetz laut Service-Portal Berlin " +
       "(Leistung 329908) und den Bezirksämtern Mitte und Neukölln (berlin.de, gelesen 05.10.2026)",
-    hamburg: "Zuständigkeitsanordnung Hamburg (Titel und Fassung noch nicht geprüft)",
+    hamburg:
+      "Anordnung über Zuständigkeiten auf dem Gebiet des Straßenverkehrsrechts (Hamburg) vom 05.01.1999 (Amtl. Anz. " +
+      "S. 345), Abschnitte I bis IX neu gefasst am 06.10.2020 (Amtl. Anz. S. 2089, 2117) – Wortlaut und spätere " +
+      "Änderungen nicht an der Primärquelle geprüft; Aufteilung auf Polizeikommissariate und Verkehrsdirektion laut " +
+      "Handbuch „Zuständigkeiten der Straßenverkehrsbehörden\" der Behörde für Inneres und Sport (Datei vom " +
+      "12.12.2022, 2024 über FragDenStaat herausgegeben)",
     autobahn: "§ 45 Abs. 11 StVO",
     kondominium:
       "Rückfall: angrenzende Gemeinde laut VG25 (SDV_ARS); Grenzvertrag Deutschland–Luxemburg nicht ausgewertet",
@@ -431,9 +449,9 @@ export const FESTE_STELLEN = Object.freeze({
     id: "hb-asv", name: mitZusatz("Amt für Straßen und Verkehr Bremen"), ebene: "untere", art: "stadtstaat",
   }),
   "hb-bhv": Object.freeze({
-    id: "hb-bhv", name: mitZusatz("Magistrat der Stadt Bremerhaven (Ortspolizeibehörde)"),
-    ebene: "untere", art: "stadtstaat",
+    id: "hb-bhv", name: mitZusatz("Magistrat der Stadt Bremerhaven"), ebene: "untere", art: "stadtstaat",
   }),
+  "hb-pol": Object.freeze({ id: "hb-pol", name: mitZusatz("Polizei Bremen"), ebene: "untere", art: "stadtstaat" }),
   "be-bezirk": Object.freeze({
     id: "be-bezirk", name: mitZusatz("Bezirksamt (Berlin)"), ebene: "untere", art: "stadtstaat",
   }),
@@ -444,6 +462,9 @@ export const FESTE_STELLEN = Object.freeze({
   "hh-pk": Object.freeze({
     id: "hh-pk", name: mitZusatz("Polizei Hamburg, zuständiges Polizeikommissariat"),
     ebene: "untere", art: "stadtstaat",
+  }),
+  "hh-vd": Object.freeze({
+    id: "hh-vd", name: mitZusatz("Polizei Hamburg, Verkehrsdirektion"), ebene: "untere", art: "stadtstaat",
   }),
 });
 
@@ -492,18 +513,9 @@ function ergebnis(stelle, sicherheit, grund, quelle, alternative = null) {
   };
 }
 
-/** Regel der Phase 1 → { ergebnis (mit Stellen-Objekten) }. */
+/** Regel der Phase 1 (Land ohne Regel): die Kreisebene → { ergebnis (mit Stellen-Objekten) }. */
 function regelPhase1(g) {
   const { ars } = g;
-  if (ars.startsWith("04011")) {
-    return ergebnis(FESTE_STELLEN["hb-asv"], SICHERHEIT.BELEGT, "bremen", "bremen");
-  }
-  if (ars.startsWith("04012")) {
-    return ergebnis(FESTE_STELLEN["hb-bhv"], SICHERHEIT.BELEGT, "bremerhaven", "bremen");
-  }
-  if (ars.startsWith("02")) {
-    return ergebnis(FESTE_STELLEN["hh-pk"], SICHERHEIT.NUR_EBENE, "hamburg", "hamburg");
-  }
   const kreis = kreisStelle(g);
   if (g.kreis.kreisfrei) return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "kreisfrei", "phase1");
   if (g.gemeindefrei) return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "gemeindefrei", "phase1");
@@ -1444,13 +1456,52 @@ function regelBerlin(g, klasse) {
   return ergebnis(senat, SICHERHEIT.VERMUTLICH, "beSenat", "berlin", { stelle: bezirk, bedingung: "berlinNebenstrasse" });
 }
 
+/**
+ * Bremen (belegt, § 1 Abs. 3 und 4 der Verordnung über die Zuständigkeiten nach der StVO vom 19.01.2016):
+ * Straßenverkehrsbehörde ist in der Stadt Bremen das Amt für Straßen und Verkehr, in Bremerhaven der
+ * Magistrat. In der Stadt Bremen – außer im Überseehafengebiet Bremerhaven, das zu ihr gehört – ordnet die
+ * Polizei Bremen an: Arbeitsstellen (auf den Straßen der Anlage nur ohne Inanspruchnahme der Fahrbahn),
+ * Veranstaltungen (nur auf Straßen, die nicht in der Anlage stehen), Halteverbote für Umzüge, dazu einzelne
+ * Ausnahmegenehmigungen. Die Anlage zählt Straßen auf und schließt mit allen übrigen Straßen mit
+ * öffentlichem Nahverkehr. Welche Straße dazugehört, wissen wir nicht – die Polizei steht deshalb in jeder
+ * Klasse als Alternative da.
+ */
+function regelBremen(g) {
+  if (g.kreis.ars === "04011") {
+    return ergebnis(FESTE_STELLEN["hb-asv"], SICHERHEIT.BELEGT, "bremen", "bremen", {
+      stelle: FESTE_STELLEN["hb-pol"], bedingung: "hbPolizei",
+    });
+  }
+  if (g.kreis.ars === "04012") {
+    return ergebnis(FESTE_STELLEN["hb-bhv"], SICHERHEIT.BELEGT, "bremerhaven", "bremerhaven");
+  }
+  return null;
+}
+
+/**
+ * Hamburg (nur Ebene): Straßenverkehrsbehörde ist die Polizei – nach dem Handbuch der Behörde für Inneres
+ * und Sport örtlich das Polizei- bzw. Wasserschutzpolizeikommissariat, für die Aufgaben aus Anlage 4 des
+ * Handbuchs die Verkehrsdirektion als zentrale Straßenverkehrsbehörde: Kraftfahrstraßen und ihre
+ * Umleitungen, Lichtzeichen- und Verkehrsbeeinflussungsanlagen, technisch gesicherte Bahnübergänge, Neu- und
+ * Umbau im Hauptverkehrsstraßennetz, Umleitungen der Autobahnen, Neubaugebiete, Wegweiser an
+ * Hauptverkehrsstraßen und zu überbezirklichen Zielen, Ortstafeln, mehr als 50 km/h innerorts und Vorhaben für
+ * ganz Hamburg. Welches Kommissariat zuständig ist, wissen wir nicht (Flächen der Kommissariate: docs/TODO.md).
+ */
+function regelHamburg() {
+  return ergebnis(FESTE_STELLEN["hh-pk"], SICHERHEIT.NUR_EBENE, "hamburg", "hamburg", {
+    stelle: FESTE_STELLEN["hh-vd"], bedingung: "hhZentral",
+  });
+}
+
 /** Landesregeln: (Gemeinde, Klasse) → Ergebnis, oder null für den Rückfall auf Phase 1. */
 export const LANDESREGELN = Object.freeze({
   BB: regelBrandenburg,
   BE: regelBerlin,
   BW: regelBadenWuerttemberg,
   BY: regelBayern,
+  HB: regelBremen,
   HE: regelHessen,
+  HH: regelHamburg,
   MV: regelMecklenburgVorpommern,
   NI: regelNiedersachsen,
   NW: regelNordrheinWestfalen,

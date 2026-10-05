@@ -10,8 +10,8 @@ import { landAusArs, landesdatei } from "./js/laender.js";
 import { eintragsSchluessel } from "./js/lookup.js";
 import { auswahl } from "./js/resolve.js";
 import {
-  antwortHtml, ARTEN, aufzaehlung, datenBasisAusParam, esc, FARBE, farbAusdruck, flaechenDeckkraft, flaechenFarbe,
-  klassenAusdruck, klassenListe, KONTAKT_STIL, kontaktDeckkraft, kontaktFarbe, offeneLaender, SICHERHEIT_STIL,
+  antwortHtml, ARTEN, datenBasisAusParam, esc, FARBE, farbAusdruck, flaechenDeckkraft, flaechenFarbe,
+  klassenAusdruck, klassenListe, KONTAKT_STIL, kontaktDeckkraft, kontaktFarbe, regelnStand, SICHERHEIT_STIL,
   STRASSEN_LEGENDE, strassenAmPunkt, willkommenHtml,
 } from "./js/ansicht.js";
 import { klassenName } from "./js/strassenklasse.js";
@@ -130,10 +130,9 @@ function verdrahteWillkommen(index) {
 function zeigeStand(index) {
   if (!index) return;
   const d = index.daten ?? {};
-  const offen = offeneLaender(index);
   const teile = [
     d.gebiet && `Gebietsstand ${d.gebiet.replace(/^VG25 /, "")}`,
-    index.regeln && `Regeln ${index.regeln.version}${offen.length ? `, noch offen: ${aufzaehlung(offen)}` : ""}`,
+    index.regeln && regelnStand(index),
   ].filter(Boolean);
   $("#stand").textContent = `${teile.join(". ")}.`;
 }

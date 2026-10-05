@@ -2,13 +2,16 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  auswahl, BAU_KLASSEN, BB_AUF_ANTRAG, BB_AUF_ANTRAG_TEILWEISE, BB_GROSSE_KREISANGEHOERIGE_STAEDTE, BW_OERTLICH, BW_OERTLICH_VG, BW_SCHWELLEN, BW_VG_UNTERE, BW_VOLLSTAENDIG, ergebnisId,
-  FESTE_STELLEN, HE_SCHWELLEN, HE_SONDERSTATUS, kontaktRolle, MV_GROSSE_KREISANGEHOERIGE_STAEDTE, MV_STAEDTE_UEBERGANG,
+  auswahl, BAU_KLASSEN, BB_AUF_ANTRAG, BB_AUF_ANTRAG_TEILWEISE, BB_GROSSE_KREISANGEHOERIGE_STAEDTE, BW_OERTLICH,
+  BW_OERTLICH_VG, BW_SCHWELLEN, BW_VG_UNTERE, BW_VOLLSTAENDIG, ergebnisId,
+  FESTE_STELLEN, HE_SCHWELLEN, HE_SONDERSTATUS, kontaktRolle, LANDESREGELN, MV_GROSSE_KREISANGEHOERIGE_STAEDTE,
+  MV_STAEDTE_UEBERGANG,
   NI_GEMEINDESTRASSEN, NI_SELBSTAENDIG, NI_WIE_KREISFREI, NW_GROSSE_KREISANGEHOERIGE_STAEDTE,
   NW_MITTLERE_KREISANGEHOERIGE_STAEDTE, pruefeListen, resolveGemeinde, RP_ANLAGE_1, RP_GROSSE_KREISANGEHOERIGE_STAEDTE,
   schwaecher, stelleEintragen,
   SICHERHEIT, SN_GROSSE_KREISSTAEDTE, TEXTE, TH_STAEDTE_AUF_ANTRAG,
 } from "../js/resolve.js";
+import { LAENDER } from "../js/laender.js";
 
 const kreis = (ars, gen, bez, nbd, kreisfrei = false) => ({ ars, gen, bez, nbd, kreisfrei, name: gen });
 
@@ -502,10 +505,17 @@ const G = {
   },
 };
 
-// Seit Baden-Württemberg hat jedes Flächenland eine Regel; Bremen und Hamburg stehen als Sonderfälle in
-// Phase 1. Den allgemeinen Rückfall prüfen die Tests deshalb mit Gemeinden unter einem erfundenen
-// Länderkürzel ohne Regel – sonst dieselben Daten.
+// Seit Bremen und Hamburg hat jedes Land eine Regel. Den allgemeinen Rückfall prüfen die Tests deshalb
+// mit Gemeinden unter einem erfundenen Länderkürzel ohne Regel – sonst dieselben Daten.
 const ohneRegel = (g) => ({ ...g, land: "XX" });
+
+test("Landesregeln: jedes Land hat eine", () => {
+  assert.deepEqual(Object.keys(LANDESREGELN).sort(), Object.values(LAENDER).map((l) => l.lkz).sort());
+  const ohne = resolveGemeinde(ohneRegel(G.bremen));
+  assert.equal(ohne.zust.G.stelle, "k04011", "unter erfundenem Kürzel: Rückfall, keine Bremer Stelle");
+  assert.equal(ohne.zust.G.quelle, TEXTE.quelle.phase1);
+  assert.equal(resolveGemeinde(ohneRegel(G.hamburg)).zust.B.stelle, "k02000");
+});
 
 test("Phase 1: kreisfreie Stadt → die Stadt, vermutlich", () => {
   const { zust, stellen } = resolveGemeinde(ohneRegel(G.stuttgart));
@@ -532,16 +542,46 @@ test("Phase 1: Große Kreisstadt (Tkz 67) als Alternative", () => {
   assert.equal(stellen.g081160019019.name, "Stadt Esslingen am Neckar – Straßenverkehrsbehörde");
 });
 
-test("Phase 1: Bremen und Bremerhaven belegt", () => {
-  assert.equal(resolveGemeinde(G.bremen).zust.B.stelle, "hb-asv");
-  assert.equal(resolveGemeinde(G.bremen).zust.B.sicherheit, SICHERHEIT.BELEGT);
-  assert.equal(resolveGemeinde(G.bremerhaven).zust.G.stelle, "hb-bhv");
+test("Bremen: Amt für Straßen und Verkehr, belegt – die Polizei als Alternative (Baustellen, Veranstaltungen, Umzüge)", () => {
+  const { zust, stellen } = resolveGemeinde(G.bremen);
+  for (const k of BAU_KLASSEN) {
+    assert.equal(zust[k].stelle, "hb-asv", k);
+    assert.equal(zust[k].sicherheit, SICHERHEIT.BELEGT, k);
+    assert.deepEqual(zust[k].alternative, { stelle: "hb-pol", bedingung: TEXTE.bedingung.hbPolizei }, k);
+  }
+  assert.equal(new Set(BAU_KLASSEN.map((k) => ergebnisId(zust[k]))).size, 1, "alle Klassen gleich");
+  assert.equal(zust.G.grund, TEXTE.grund.bremen);
+  assert.match(zust.G.quelle, /^§ 1 Abs\. 3 Nr\. 1 und Abs\. 4 .*19\.01\.2016 \(Brem\.GBl\. S\. 6\).*02\.09\.2025/);
+  assert.equal(stellen["hb-asv"].name, "Amt für Straßen und Verkehr Bremen – Straßenverkehrsbehörde");
+  assert.equal(stellen["hb-pol"].name, "Polizei Bremen – Straßenverkehrsbehörde");
+  assert.deepEqual(Object.keys(stellen).sort(), ["hb-asv", "hb-pol"]);
+  assert.match(TEXTE.bedingung.hbPolizei, /Überseehafengebiet Bremerhaven/, "dort ordnet das Amt auch das an");
 });
 
-test("Phase 1: Hamburg – Polizei, nur Ebene", () => {
-  const hh = resolveGemeinde(G.hamburg);
-  assert.equal(hh.zust.G.stelle, "hh-pk");
-  assert.equal(hh.zust.B.sicherheit, SICHERHEIT.NUR_EBENE);
+test("Bremen: Bremerhaven – der Magistrat, belegt, ohne Alternative", () => {
+  const { zust, stellen } = resolveGemeinde(G.bremerhaven);
+  for (const k of BAU_KLASSEN) {
+    assert.equal(zust[k].stelle, "hb-bhv", k);
+    assert.equal(zust[k].sicherheit, SICHERHEIT.BELEGT, k);
+    assert.equal(zust[k].alternative, null, k);
+    assert.equal(zust[k].quelle, TEXTE.quelle.bremerhaven, k);
+  }
+  assert.equal(zust.G.grund, TEXTE.grund.bremerhaven);
+  assert.equal(stellen["hb-bhv"].name, "Magistrat der Stadt Bremerhaven – Straßenverkehrsbehörde");
+});
+
+test("Hamburg: Polizeikommissariat, nur Ebene – die Verkehrsdirektion als Alternative", () => {
+  const { zust, stellen } = resolveGemeinde(G.hamburg);
+  for (const k of BAU_KLASSEN) {
+    assert.equal(zust[k].stelle, "hh-pk", k);
+    assert.equal(zust[k].sicherheit, SICHERHEIT.NUR_EBENE, k);
+    assert.deepEqual(zust[k].alternative, { stelle: "hh-vd", bedingung: TEXTE.bedingung.hhZentral }, k);
+  }
+  assert.equal(zust.B.grund, TEXTE.grund.hamburg);
+  assert.match(zust.B.quelle, /vom 05\.01\.1999 \(Amtl\. Anz\. S\. 345\).*nicht an der Primärquelle geprüft/);
+  assert.equal(stellen["hh-pk"].name, "Polizei Hamburg, zuständiges Polizeikommissariat – Straßenverkehrsbehörde");
+  assert.equal(stellen["hh-vd"].name, "Polizei Hamburg, Verkehrsdirektion – Straßenverkehrsbehörde");
+  assert.equal(stellen["hh-vd"].art, "stadtstaat");
 });
 
 test("Phase 1: gemeindefreies Gebiet → Kreis", () => {

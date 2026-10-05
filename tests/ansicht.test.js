@@ -3,8 +3,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   ALLGEMEIN_HINWEIS, antwortHtml, ARTEN, aufzaehlung, datenBasisAusParam, esc, farbAusdruck, flaechenDeckkraft, flaechenFarbe, imSatz,
-  klassenAusdruck, klassenListe, KONTAKT_STIL, kontaktDeckkraft, kontaktFarbe, offeneLaender, SICHERHEIT_STIL, stelleOhneBehoerde,
-  strassenAmPunkt, strassenName, teileName, telHref, wegeHtml, willkommenHtml,
+  klassenAusdruck, klassenListe, KONTAKT_STIL, kontaktDeckkraft, kontaktFarbe, regelnStand, SICHERHEIT_STIL,
+  stelleOhneBehoerde, strassenAmPunkt, strassenName, teileName, telHref, wegeHtml, willkommenHtml,
 } from "../js/ansicht.js";
 import { TEXTE } from "../js/resolve.js";
 
@@ -300,38 +300,53 @@ test("antwortHtml: Autobahn und kreisfreie Stadt ohne doppelten Ortsnamen", () =
   assert.equal(ort("Stadt Hannover", "Region Hannover", "Niedersachsen"), "Stadt Hannover, Region Hannover, Niedersachsen");
 });
 
-test("willkommenHtml: Stand aus index.json – geprüft, vermutlich, offen; Kontakte; Melden nur https", () => {
+test("willkommenHtml: Stand aus index.json – geprüft, vermutlich, nur die Ebene, offen; Kontakte; Melden nur https", () => {
+  // „XX" steht für ein Land ohne Regel – seit Bremen und Hamburg gibt es keines mehr.
   const index = {
     laender: [
       { lkz: "BY", name: "Bayern", sicherheit: { belegt: 2056, vermutlich: 165, "nur Ebene": 0 }, kontakte: 2221 },
       { lkz: "HH", name: "Hamburg", sicherheit: { belegt: 0, vermutlich: 0, "nur Ebene": 1 } },
       { lkz: "SH", name: "Schleswig-Holstein", sicherheit: { belegt: 1101, vermutlich: 5, "nur Ebene": 0 }, kontakte: 1106 },
       { lkz: "TH", name: "Thüringen", sicherheit: { belegt: 0, vermutlich: 605, "nur Ebene": 0 }, kontakte: 605 },
-      { lkz: "HB", name: "Bremen", sicherheit: { belegt: 2, vermutlich: 0, "nur Ebene": 0 } },
+      { lkz: "HB", name: "Bremen", sicherheit: { belegt: 2, vermutlich: 0, "nur Ebene": 0 }, kontakte: 2 },
+      { lkz: "XX", name: "Testland", sicherheit: { belegt: 0, vermutlich: 3, "nur Ebene": 9 } },
+      { lkz: "XY", name: "Probeland", sicherheit: { belegt: 0, vermutlich: 0, "nur Ebene": 9 } },
     ],
   };
   const html = willkommenHtml(index, { melden: "https://github.com/vizsim/wer-ist-zustaendig/issues/new" });
   assert.ok(html.includes('<h2 id="willkommen-titel">Testversion</h2>'));
-  // Bremen ohne Landesregel, aber fest zugeordnet und belegt: geprüft, nicht offen.
   assert.ok(html.includes("<strong>Geprüft:</strong> Bayern, Bremen und Schleswig-Holstein"));
   assert.ok(html.includes("<strong>Vermutlich:</strong> Thüringen – die Regel ist nicht für jede Gemeinde gesichert."));
-  assert.ok(html.includes("<strong>Noch offen:</strong> Hamburg. Dort nennt die Karte nur die Ebene, schraffiert."));
-  assert.deepEqual(offeneLaender(index), ["Hamburg"]);
-  assert.deepEqual(offeneLaender(null), []);
-  assert.ok(html.includes("gibt es bisher für Bayern, Schleswig-Holstein und Thüringen."));
+  assert.ok(html.includes("<strong>Nur die Ebene:</strong> Hamburg – die Karte nennt die Art der Stelle"), "Regel, aber nur die Ebene");
+  assert.ok(html.includes("die übrigen 2 Länder"), "ohne Regel");
+  assert.ok(!html.includes("Testland") && !html.includes("Probeland"));
+  assert.ok(html.includes("gibt es bisher für Bayern, Bremen, Schleswig-Holstein und Thüringen."));
   assert.ok(html.includes("kein Rechtsrat"));
   assert.ok(html.includes('href="https://github.com/vizsim/wer-ist-zustaendig/issues/new"'));
 
   const ohne = willkommenHtml(null, { melden: "javascript:alert(1)" });
-  assert.ok(ohne.includes("Den Stand je Land konnte die Karte nicht laden."));
-  assert.ok(!ohne.includes("Noch offen"));
+  assert.ok(ohne.includes("Jedes Land hat eine eigene Regel"), "ohne index.json");
   assert.ok(!ohne.includes("href"), "Meldelink nur mit https");
-  const alle = willkommenHtml({ laender: [index.laender[0], index.laender[4]] });
-  assert.ok(!alle.includes("Noch offen"), "nichts offen");
+  const eins = willkommenHtml({ laender: [index.laender[0], index.laender[5]] });
+  assert.ok(eins.includes("das übrige Land"));
+  const alle = willkommenHtml({ laender: index.laender.slice(0, 5) });
+  assert.ok(!alle.includes("Noch offen"), "jedes Land mit Regel");
   const bb = { lkz: "BB", name: "Brandenburg", sicherheit: { belegt: 413, vermutlich: 0, "nur Ebene": 0 }, kontakte: 19 };
   const sortiert = willkommenHtml({ laender: [bb, index.laender[0]] });
   assert.ok(sortiert.includes("<strong>Geprüft:</strong> Bayern und Brandenburg"), "nach Namen, nicht nach Kürzel");
   assert.ok(sortiert.includes("gibt es bisher für Bayern und Brandenburg."));
+});
+
+test("regelnStand: alle Länder mit Regel, dazu die mit meist nur der Ebene – sonst die Länder mit Regel und der Rückfall", () => {
+  const by = { lkz: "BY", name: "Bayern", sicherheit: { belegt: 2056, vermutlich: 165, "nur Ebene": 0 } };
+  const hh = { lkz: "HH", name: "Hamburg", sicherheit: { belegt: 0, vermutlich: 0, "nur Ebene": 1 } };
+  const index = (laender) => ({ regeln: { version: "0.13.0" }, laender });
+  assert.equal(regelnStand(index([by, hh])), "Regeln 0.13.0: Landesregeln für alle Länder, in Hamburg nur die Ebene");
+  assert.equal(regelnStand(index([by])), "Regeln 0.13.0: Landesregeln für alle Länder");
+  assert.equal(
+    regelnStand({ regeln: { version: "0.9.0" }, laender: [by, hh] }, ["TH", "SL", "BY"]),
+    "Regeln 0.9.0: Landesregeln für Bayern, das Saarland und Thüringen, sonst meist nur die Kreisebene",
+  );
 });
 
 test("willkommenHtml: Länder, für die es nur die allgemeine Anschrift gibt, eigens", () => {
