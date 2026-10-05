@@ -134,6 +134,11 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
 ## Karte und Daten
 
 - [ ] **Meldelink im Antwortschild:** Issue-Formular mit ARS und Permalink vorbefüllt.
+- [ ] **Filter „Kontakt vorhanden"** (Idee vom 05.10.2026): ein Schalter, der die Gemeinden
+  einfärbt, für die es einen Kontakt der zuständigen Stelle gibt bzw. wenigstens den Link ins
+  Bundesportal – so sieht man auch die Lücken. Dafür ein Feld je Gemeinde in der Grenzschicht
+  (Kontakt / nur Portal / nichts), im Build aus den Landesdateien; nur ergänzt, also kein neues
+  Schema.
 - [ ] **Größe `by.json`** (1,86 MB, gzip 188 KB): Jede bayerische Gemeinde hat ein eigenes
   Ergebnis für Gemeindestraßen, weil die Stelle `g<ARS>` darin steht. Ein Platzhalter für „die
   Gemeinde selbst" würde die Ergebnisse wieder entdoppeln – Bruch, also Schema 2.
