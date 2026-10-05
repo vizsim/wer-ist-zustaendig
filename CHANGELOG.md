@@ -9,14 +9,19 @@ ein Git-Tag `v<version>` dazu.
 
 ### Hinzugefügt
 
-- Landesregel Hessen (**vermutlich** – nach den Angaben des Verkehrsministeriums und von Hessen
-  Mobil, die Verordnung ist noch nicht gelesen): Gemeindestraßen ordnet die Stadt bzw. Gemeinde an,
-  Kreisstraßen innerorts ebenso, außerorts der Landkreis (als Alternative). Landesstraßen die
-  Gemeinde mit mehr als 7.500, Bundesstraßen die Stadt mit mehr als 50.000 Einwohnern (die sieben
-  Sonderstatusstädte), sonst der Landkreis – nahe der Schwelle mit der anderen Stelle als
-  Alternative. Kreisfreie Städte für alle Straßen. Straßen von besonderer Verkehrsbedeutung, auf
-  denen Hessen Mobil anordnet, nennt nur der Text. Kontakte gibt es für Hessen noch nicht.
-  Regeln 0.10.0.
+- Landesregel Hessen (**belegt**, § 10 der Verordnung zur Bestimmung verkehrsrechtlicher
+  Zuständigkeiten, Fassung vom 28.01.2026): Kreisfreie Städte und die sieben Sonderstatus-Städte
+  sind für alle Straßen zuständig. In den übrigen Gemeinden ordnet die Gemeinde auf Gemeinde- und
+  Kreisstraßen an, auch außerorts, auf Landesstraßen ab mehr als 7.500 Einwohnern; sonst und auf
+  Bundesstraßen der Landkreis. Als Alternative steht der Landkreis da, wenn eine Anordnung über das
+  Gemeindegebiet hinaus wirkt, und an Landesstraßen für Ampeln und Fußgängerüberwege. Gemeinden bis
+  10 % unter 7.500 Einwohnern können nach § 10a noch zuständig sein (**vermutlich**, mit der
+  Gemeinde als Alternative). Auf Autobahnen und 14 Abschnitten von Bundesstraßen ordnet Hessen
+  Mobil an – das steht nur im Text. Kontakte gibt es für Hessen noch nicht.
+- Landesregel Saarland (**belegt**, §§ 7 und 12 Straßenverkehrszuständigkeitsgesetz): Auf
+  Gemeindestraßen ordnet die Gemeinde an, sonst der Landkreis bzw. der Regionalverband Saarbrücken;
+  die Landeshauptstadt Saarbrücken ist für alle Straßen zuständig. Kontakte gibt es noch nicht.
+- Regeln 0.10.0 – Landesregeln für zwölf Länder.
 
 ## [0.9.0] – 2026-10-05
 

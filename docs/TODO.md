@@ -70,21 +70,14 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
   nach dem Grenzvertrag prüfen.
 - [ ] **Stadtstaaten:** Berlin (Netz-WFS: Straßen des übergeordneten Netzes,
   Bezirksgrenzen), Hamburg (Polizeikommissariate als Flächen).
-- [ ] **Hessen belegen** (Regel seit 0.10.0 nur „vermutlich", nach den Webseiten des
-  Verkehrsministeriums und von Hessen Mobil): die Verordnung zur Bestimmung verkehrsrechtlicher
-  Zuständigkeiten (StVRZustV) an rv.hessenrecht.hessen.de lesen, dazu die Matrix von Hessen Mobil
-  („Straßenverkehrsbehördliche Zuständigkeiten in Hessen", Zellen nur als Grafik). Zu klären:
-  Wortlaut der Schwellen („mehr als" 7.500 bzw. 50.000?) und welche Einwohnerzahl gilt – bis
-  dahin steht nahe der Schwelle (± 5 %) die andere Stelle als Alternative; gilt „außerorts der
-  Landkreis" auch für Gemeindestraßen oder nur für Kreisstraßen; haben die Sonderstatusstädte
-  auch Kreisstraßen außerorts? Straßen von besonderer Verkehrsbedeutung (§ 9 Abs. 2 StVRZustV,
-  Hessen Mobil) stehen nur im Text – als feste Stelle abbilden oder erst mit der Zuständigkeit je
-  Straße (Stufe 2)? Hanau ist seit 2026 kreisfrei (GV-ISys 31.10.2026: Kreis 06415); bis zum
-  nächsten Datenstand nennt die Karte bei Kreisstraßen außerorts noch den Main-Kinzig-Kreis als
-  Alternative, mit dem Hinweis auf die Gebietsänderung.
-- [ ] **Übrige Länder:** SL (Straßenverkehrszuständigkeitsgesetz, recht.saarland.de – der Text
-  fehlt noch; das Saarland hat keine Kreisstraßen, der Regionalverband Saarbrücken steht an der
-  Stelle eines Landkreises).
+- [ ] **Hessen, offen** (Regel seit 0.10.0, belegt nach § 10 StVRZustV): Die Liste der
+  Sonderstatus-Städte (`HE_SONDERSTATUS`) an § 4a Abs. 2 HGO prüfen – heute [S], deckt sich mit den
+  kreisangehörigen Städten über 50.000 Einwohnern. Die 14 Abschnitte von Bundesstraßen mit
+  besonderer Verkehrsbedeutung (§ 9 Abs. 2, Hessen Mobil) stehen nur im Text; abbilden erst mit der
+  Zuständigkeit je Straße. Maßgeblich ist die Einwohnerzahl des Hessischen Statistischen Landesamts
+  zum letzten Stichtag vor dem Haushaltsjahr (§ 10a Abs. 2) – heute GV-ISys 31.12.2025. Hanau ist
+  seit 2026 kreisfrei (GV-ISys 31.10.2026: Kreis 06415); die Auskunft bleibt dieselbe, nur der Kreis
+  heißt bis zum nächsten Datenstand noch Main-Kinzig-Kreis.
 - [ ] **Fundstellen nachprüfen:** Berlin (Katalogwortlaut nur sekundär), Hamburg (Titel und
   Fassung der Zuständigkeitsanordnung). Die Texte in `js/resolve.js` sagen das bisher offen.
 - [ ] **Aufsicht:** höhere Straßenverkehrsbehörde je Land mit Fundstelle; Feld `aufsicht`.
@@ -156,10 +149,11 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
   Berne); Landkreis Gifhorn (nur die Zulassungsstelle). Danach die Einträge in
   `config/kontakte_ergaenzt.yaml` löschen.
 - [ ] **Länder ohne Bundesportal-Eintrag** (BW, BE, HB, HH, HE, SL): Kontakte der Stellen der
-  Kreisebene und der Stadtstaaten anders beschaffen (Landesportale oder von Hand). Hessen: Jede
-  Gemeinde ist für ihre Gemeindestraßen zuständig, also braucht es ein Verzeichnis aller 421
-  Gemeinden mit Anschrift wie in Sachsen (`anschriften.py`); das Verwaltungsportal Hessen sperrt
-  den Abruf.
+  Kreisebene und der Stadtstaaten anders beschaffen (Landesportale oder von Hand). In Hessen und im
+  Saarland ist jede Gemeinde für ihre Gemeindestraßen zuständig, also braucht es ein Verzeichnis
+  aller 421 bzw. 52 Gemeinden mit Anschrift wie in Sachsen (`anschriften.py`). Für Hessen in Frage:
+  das Gemeindeverzeichnis auf statistikportal.de und das Hessische Gemeindelexikon
+  (hessen-gemeindelexikon.de); das Verwaltungsportal Hessen sperrt den Abruf.
 - [ ] **Sachsen, Verkehrsstellen** (seit 0.9.0 die allgemeine Anschrift aus dem Gemeindeverzeichnis
   der Landesdirektion, `allgemein`): Die Straßenverkehrsämter der 10 Landratsämter und 3 Kreisfreien
   Städte von deren Webseiten in `config/kontakte_ergaenzt.yaml` (Kreis-ARS) eintragen – sie gehen
