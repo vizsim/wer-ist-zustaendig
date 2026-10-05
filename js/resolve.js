@@ -8,13 +8,14 @@
 //     einer Auswahl (höchste Klasse gewinnt; Gemeindestraße ggf. als Alternative).
 //
 // Ohne Landesregel (Phase 1): Rückfall auf die Kreisebene mit amtlichem Namen; Stadtstaaten mit
-// eigener Regel. Phase 2: Landesregeln für Bayern, Thüringen und Schleswig-Holstein (`LANDESREGELN`).
+// eigener Regel. Phase 2: Landesregeln für Bayern, Thüringen, Schleswig-Holstein und
+// Niedersachsen (`LANDESREGELN`).
 // Kein Rechtsrat: Jede Aussage trägt Sicherheit und Quelle.
 
 import { kreisBehoerde, mitZusatz, stadtName } from "./namen.js";
 import { hoechsteKlasse } from "./strassenklasse.js";
 
-export const REGELN = Object.freeze({ version: "0.7.1", phase: 2, stand: "2026-10-03" });
+export const REGELN = Object.freeze({ version: "0.8.0", phase: 2, stand: "2026-10-05" });
 
 export const SICHERHEIT = Object.freeze({
   BELEGT: "belegt",
@@ -79,6 +80,25 @@ export const TEXTE = Object.freeze({
       "In Schleswig-Holstein ordnen Gemeinden mit mehr als 20.000 Einwohnern Verkehrszeichen selbst " +
       "an. Diese liegt knapp darüber; die maßgebliche Zahl kann abweichen.",
     shAntrag: "Diese Gemeinde ordnet in Schleswig-Holstein auf Antrag selbst Verkehrszeichen an.",
+    niKreis:
+      "In Niedersachsen ist der Landkreis Straßenverkehrsbehörde, in der Region Hannover die Region – " +
+      "außer in den selbständigen Städten und Gemeinden.",
+    niKreisGemeindestrasse:
+      "Auch für Gemeindestraßen ist in Niedersachsen der Landkreis zuständig (in der Region Hannover " +
+      "die Region), solange er die Aufgabe nicht auf Antrag übertragen hat. Ein Verzeichnis dieser " +
+      "Übertragungen gibt es nicht.",
+    niWieKreisfrei:
+      "Die Landeshauptstadt Hannover und die Stadt Göttingen sind wie kreisfreie Städte für alle " +
+      "Straßen Straßenverkehrsbehörde.",
+    niSelbstaendig:
+      "In Niedersachsen sind die großen selbständigen Städte und die selbständigen Gemeinden für alle " +
+      "Straßen ihres Gebiets Straßenverkehrsbehörde.",
+    niUebertragung:
+      "Für Gemeindestraßen hat der Landkreis (in der Region Hannover die Region) die Aufgabe hier auf " +
+      "Antrag übertragen – so steht es auf seiner Webseite.",
+    niVereinbarung:
+      "Burgdorf ist selbständige Gemeinde; die Aufgaben der Straßenverkehrsbehörde nimmt nach Angaben " +
+      "der Region aber seit 2019 die Region Hannover wahr.",
   }),
   bedingung: Object.freeze({
     gks: "Große Kreisstadt – sie kann selbst zuständig sein",
@@ -88,6 +108,7 @@ export const TEXTE = Object.freeze({
     portalStvb: "laut Bundesportal ist die Gemeinde selbst Straßenverkehrsbehörde",
     thAntragMoeglich: "Gemeinde mit 10.000 bis 30.000 Einwohnern – sie kann auf Antrag selbst zuständig sein",
     shParken: "falls es nur um Halten und Parken, eine Baustelle oder eine Veranstaltung geht",
+    niUebertragungMoeglich: "falls ihr die Aufgabe für Gemeindestraßen übertragen ist",
   }),
   quelle: Object.freeze({
     phase1: "Rückfall auf die Kreisebene – die Regel dieses Landes ist noch nicht eingearbeitet",
@@ -128,6 +149,30 @@ export const TEXTE = Object.freeze({
       "§ 4 Abs. 1 StrVRZustVO (Schleswig-Holstein) vom 08.11.2004, Fassung vom 01.12.2025; " +
       "Einwohner laut GV-ISys 31.12.2025",
     shAntrag: "§ 4 Abs. 2 und Anlage Nr. 1 StrVRZustVO (Schleswig-Holstein) vom 08.11.2004, Fassung vom 01.12.2025",
+    niStadt:
+      "§ 2 Abs. 1 Nr. 1 ZustVO-Verkehr (Niedersachsen), Neubekanntmachung vom 25.08.2014, Fassung vom " +
+      "30.06.2025; § 18 NKomVG",
+    niKreis:
+      "§ 2 Abs. 1 Nr. 1 ZustVO-Verkehr (Niedersachsen), Neubekanntmachung vom 25.08.2014, Fassung vom " +
+      "30.06.2025; Region Hannover: § 159 Abs. 1 Nr. 2 NKomVG",
+    niKreisGemeindestrasse:
+      "§ 2 Abs. 1 Nr. 1 und Abs. 2 ZustVO-Verkehr (Niedersachsen), Neubekanntmachung vom 25.08.2014, " +
+      "Fassung vom 30.06.2025",
+    niGemeindefrei:
+      "§ 2 Abs. 1 Nr. 1 ZustVO-Verkehr (Niedersachsen), Fassung vom 30.06.2025; für gemeindefreie " +
+      "Gebiete nicht ausdrücklich geregelt",
+    niWieKreisfrei:
+      "§ 15 Abs. 2 und § 16 Abs. 2 NKomVG, Fassung ab 07.05.2026; § 2 Abs. 1 Nr. 1 ZustVO-Verkehr " +
+      "(Niedersachsen), Fassung vom 30.06.2025",
+    niSelbstaendig:
+      "§ 14 Abs. 3 und 5, § 17 NKomVG (Region Hannover: § 159 Abs. 3 Nr. 3), Fassung ab 07.05.2026; " +
+      "§ 2 Abs. 1 Nr. 1 ZustVO-Verkehr (Niedersachsen), Fassung vom 30.06.2025; selbständige Gemeinden " +
+      "laut Bekanntmachung des Innenministeriums vom 09.11.2021 (Nds. MBl. S. 1690)",
+    niUebertragung:
+      "§ 2 Abs. 2 ZustVO-Verkehr (Niedersachsen), Fassung vom 30.06.2025; Übertragung laut Webseite " +
+      "des Landkreises bzw. der Region [S]",
+    niVereinbarung:
+      "§ 17 und § 159 Abs. 3 Nr. 3 NKomVG; Wahrnehmung durch die Region laut hannover.de und Presse [S]",
   }),
   hinweis: Object.freeze({
     autobahnDabei: "Für die Autobahn selbst ist das Fernstraßen-Bundesamt zuständig.",
@@ -314,8 +359,158 @@ function regelSchleswigHolstein(g) {
   return ergebnis(kreis, sicherheit, knapp ? "shKreisKnapp" : "shKreis", "shKreis", { stelle: ort, bedingung: "shParken" });
 }
 
+/** Niedersachsen: wie kreisfreie Städte (§ 15 Abs. 2, § 16 Abs. 2 NKomVG). */
+export const NI_WIE_KREISFREI = Object.freeze({ "031590016016": "Göttingen", "032410001001": "Hannover" });
+
+/**
+ * Niedersachsen: selbst für alle Straßen zuständig (§ 17 NKomVG) – die großen selbständigen Städte
+ * und die selbständigen Gemeinden laut Bekanntmachung des Innenministeriums vom 09.11.2021
+ * (Nds. MBl. S. 1690, Stand 01.01.2022, 64 Einträge; keine neuere Erklärung gefunden). GV-ISys
+ * kennzeichnet den Status nicht. Selbständige Samtgemeinden mit ihrer Verbands-ARS.
+ */
+export const NI_SELBSTAENDIG = Object.freeze({
+  // große selbständige Städte (§ 14 Abs. 5 NKomVG)
+  "031530017017": "Goslar",
+  "032520006006": "Hameln",
+  "032540021021": "Hildesheim",
+  "033510006006": "Celle",
+  "033520011011": "Cuxhaven",
+  "033550022022": "Lüneburg",
+  "034540032032": "Lingen (Ems)",
+  // selbständige Gemeinden (§ 14 Abs. 3 NKomVG; Bek. MI vom 09.11.2021)
+  "031510009009": "Gifhorn",
+  "031530012012": "Seesen",
+  "031540028028": "Helmstedt",
+  "031550011011": "Northeim",
+  "031550013013": "Einbeck",
+  "031570006006": "Peine",
+  "031580037037": "Wolfenbüttel",
+  "031590010010": "Duderstadt",
+  "031590017017": "Hann. Münden",
+  "031590026026": "Osterode am Harz",
+  "032410002002": "Barsinghausen",
+  "032410003003": "Burgdorf",
+  "032410005005": "Garbsen",
+  "032410008008": "Isernhagen",
+  "032410009009": "Laatzen",
+  "032410010010": "Langenhagen",
+  "032410011011": "Lehrte",
+  "032410012012": "Neustadt am Rübenberge",
+  "032410014014": "Ronnenberg",
+  "032410015015": "Seelze",
+  "032410016016": "Sehnde",
+  "032410017017": "Springe",
+  "032410018018": "Uetze",
+  "032410019019": "Wedemark",
+  "032410021021": "Wunstorf",
+  "032510037037": "Stuhr",
+  "032510047047": "Weyhe",
+  "032520003003": "Bad Pyrmont",
+  "032540002002": "Alfeld (Leine)",
+  "032550023023": "Holzminden",
+  "032560022022": "Nienburg (Weser)",
+  "032570031031": "Rinteln",
+  "033520062062": "Geestland",
+  "033530005005": "Buchholz in der Nordheide",
+  "033530031031": "Seevetal",
+  "033530040040": "Winsen (Luhe)",
+  "033560007007": "Osterholz-Scharmbeck",
+  "033580024024": "Walsrode",
+  "033590010010": "Buxtehude",
+  "033590038038": "Stade",
+  "033600025025": "Uelzen",
+  "033610001001": "Achim",
+  "033610012012": "Verden (Aller)",
+  "034510002002": "Bad Zwischenahn",
+  "034520001001": "Aurich",
+  "034520019019": "Norden",
+  "034530004004": "Cloppenburg",
+  "034530007007": "Friesoythe",
+  "034540035035": "Meppen",
+  "034540041041": "Papenburg",
+  "034550015015": "Schortens",
+  "034550026026": "Varel",
+  "034560015015": "Nordhorn",
+  "034570013013": "Leer (Ostfriesland)",
+  "034580005005": "Ganderkesee",
+  "034590014014": "Bramsche",
+  "034590019019": "Georgsmarienhütte",
+  "034590024024": "Melle",
+  "034590033033": "Wallenhorst",
+  "034600009009": "Vechta",
+  "034610007007": "Nordenham",
+  // selbständige Samtgemeinden: Verbands-ARS
+  "033595403": "Samtgemeinde Harsefeld",
+  "034595401": "Samtgemeinde Artland",
+  "034595402": "Samtgemeinde Bersenbrück",
+});
+
+/**
+ * Niedersachsen: Gemeinden und Samtgemeinden (Verbands-ARS), denen der Landkreis bzw. die Region
+ * die Aufgabe für Gemeindestraßen übertragen hat (§ 2 Abs. 2 ZustVO-Verkehr). Ein Verzeichnis gibt
+ * es nicht; jeder Eintrag laut Webseite des Landkreises bzw. der Region [S], gelesen 04.10.2026.
+ */
+export const NI_GEMEINDESTRASSEN = Object.freeze({
+  "032410006006": "Gehrden – hannover.de",
+  "032410007007": "Hemmingen – hannover.de",
+  "032410013013": "Pattensen – hannover.de",
+  "032570009009": "Bückeburg – Serviceportal Niedersachsen, Landkreis Schaumburg",
+  "032570035035": "Stadthagen – Serviceportal Niedersachsen, Landkreis Schaumburg",
+  "032575403": "Samtgemeinde Nenndorf – Serviceportal Niedersachsen, Landkreis Schaumburg",
+  "032575405": "Samtgemeinde Nienstädt – Serviceportal Niedersachsen, Landkreis Schaumburg",
+  "032575406": "Samtgemeinde Rodenberg – Serviceportal Niedersachsen, Landkreis Schaumburg",
+  "033610006006": "Langwedel – Webseite des Landkreises Verden",
+  "033610008008": "Ottersberg – Webseite des Landkreises Verden",
+  "033610009009": "Oyten – Webseite des Landkreises Verden",
+  "034580007007": "Großenkneten – Webseite des Landkreises Oldenburg",
+  "034580009009": "Hatten – Webseite des Landkreises Oldenburg",
+  "034580010010": "Hude (Oldb) – Webseite des Landkreises Oldenburg",
+  "034580013013": "Wardenburg – Webseite des Landkreises Oldenburg",
+  "034580014014": "Wildeshausen – Webseite des Landkreises Oldenburg",
+});
+
+/** Niedersachsen: selbständige Gemeinden, deren Aufgabe per Vereinbarung die Region wahrnimmt [S]. */
+export const NI_VEREINBARUNG = Object.freeze({
+  "032410003003": "Burgdorf – Region Hannover seit 01.01.2019 (hannover.de, Presse)",
+});
+
+/**
+ * Niedersachsen (ZustVO-Verkehr § 2, NKomVG §§ 14–18 und 159): Landkreise, die Region Hannover
+ * und kreisfreie Städte sind Straßenverkehrsbehörde, Hannover und Göttingen wie kreisfreie Städte,
+ * die großen selbständigen Städte und die selbständigen Gemeinden (auch drei Samtgemeinden) für
+ * alle Straßen. Gemeindestraßen kann der Landkreis auf Antrag übertragen (§ 2 Abs. 2); ein
+ * Verzeichnis fehlt – bekannte Fälle stehen in `NI_GEMEINDESTRASSEN` („vermutlich"), sonst die
+ * Samtgemeinde bzw. die Gemeinde mit mehr als 10.000 Einwohnern als Alternative.
+ */
+function regelNiedersachsen(g, klasse) {
+  const kreis = kreisStelle(g);
+  if (g.kreis.kreisfrei) return ergebnis(kreis, SICHERHEIT.BELEGT, "kreisfrei", "niStadt");
+  if (g.gemeindefrei) return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "gemeindefrei", "niGemeindefrei");
+  if (NI_WIE_KREISFREI[g.ars]) {
+    return ergebnis(gemeindeStelle(g, "stadt", "untere"), SICHERHEIT.BELEGT, "niWieKreisfrei", "niWieKreisfrei");
+  }
+  if (NI_VEREINBARUNG[g.ars]) return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "niVereinbarung", "niVereinbarung");
+  const samtgemeinde = g.verband?.ars;
+  const art = istStadt(g) ? "stadt" : "gemeinde";
+  if (NI_SELBSTAENDIG[g.ars]) {
+    return ergebnis(gemeindeStelle(g, art, "untere"), SICHERHEIT.BELEGT, "niSelbstaendig", "niSelbstaendig");
+  }
+  if (NI_SELBSTAENDIG[samtgemeinde]) {
+    return ergebnis({ ...verbandStelle(g), ebene: "untere" }, SICHERHEIT.BELEGT, "niSelbstaendig", "niSelbstaendig");
+  }
+  if (klasse !== "G") return ergebnis(kreis, SICHERHEIT.BELEGT, "niKreis", "niKreis");
+  const ort = samtgemeinde ? verbandStelle(g) : gemeindeStelle(g, art, "oertliche");
+  if (NI_GEMEINDESTRASSEN[g.ars] || NI_GEMEINDESTRASSEN[samtgemeinde]) {
+    return ergebnis(ort, SICHERHEIT.VERMUTLICH, "niUebertragung", "niUebertragung");
+  }
+  const alternative = samtgemeinde || (g.ew ?? 0) > 10000 ? { stelle: ort, bedingung: "niUebertragungMoeglich" } : null;
+  return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "niKreisGemeindestrasse", "niKreisGemeindestrasse", alternative);
+}
+
 /** Landesregeln: (Gemeinde, Klasse) → Ergebnis, oder null für den Rückfall auf Phase 1. */
-export const LANDESREGELN = Object.freeze({ BY: regelBayern, SH: regelSchleswigHolstein, TH: regelThueringen });
+export const LANDESREGELN = Object.freeze({
+  BY: regelBayern, NI: regelNiedersachsen, SH: regelSchleswigHolstein, TH: regelThueringen,
+});
 
 /**
  * Regel samt Sonderfällen:

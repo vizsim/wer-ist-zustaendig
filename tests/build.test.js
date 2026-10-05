@@ -181,6 +181,28 @@ test("baueLaender + auswahl: in Schleswig-Holstein das Amt mit dem Kontakt der G
   assert.equal(r.alternative.kontakt.name, "Amt Hüttener Berge - FD III Ordnungsamt");
 });
 
+test("baueLaender + auswahl: in Niedersachsen die selbständige Samtgemeinde mit dem Kontakt der Gemeinde-Rolle", () => {
+  const a = attr();
+  a.gemeinden["034595401030"] = {
+    ars: "034595401030", gen: "Quakenbrück", name: "Stadt Quakenbrück", land: "NI", tkz: [63], ew: 14088,
+    kreis: kreis("03459", "Osnabrück", "Landkreis", "ja"),
+    verband: { ars: "034595401", gen: "Artland", name: "Samtgemeinde Artland" },
+  };
+  const k = kontakte();
+  k.meta.laender.NI = { herausgeber: "8669225", abgerufen: "2026-10-03", region_url: "https://…/region/{ars}" };
+  k.gemeinden["034595401030"] = {
+    wahl: "fremd", stellen: 2,
+    kreis: { name: "Landkreis Osnabrück - Verkehrslenkung", adresse: null, telefon: ["0541 0000-0"], email: [], web: [] },
+    gemeinde: { name: "Samtgemeinde Artland - Ordnungsamt", adresse: null, telefon: ["05431 0000-0"], email: [], web: [] },
+  };
+  const ni = baueLaender(a, { kontakte: k }).dateien["ni.json"];
+  const r = auswahl(ni, "034595401030", ["B"]);
+  assert.equal(r.zustaendig.name, "Samtgemeinde Artland – Straßenverkehrsbehörde");
+  assert.equal(r.kontakt.name, "Samtgemeinde Artland - Ordnungsamt");
+  assert.equal(r.alternative, null);
+  assert.equal(ni.gemeinden["034595401030"].kontakt, undefined, "der Kreis kommt in keinem Ergebnis vor");
+});
+
 test("baueLaender: Kontakte nur im Land mit Abruf, entdoppelt und über Ids verknüpft", () => {
   const ohne = baueLaender(attr());
   const { dateien, index } = baueLaender(attr(), { kontakte: kontakte() });

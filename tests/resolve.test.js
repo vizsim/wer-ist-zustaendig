@@ -2,8 +2,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  auswahl, BAU_KLASSEN, ergebnisId, FESTE_STELLEN, resolveGemeinde, schwaecher, SICHERHEIT, TEXTE,
-  TH_STAEDTE_AUF_ANTRAG,
+  auswahl, BAU_KLASSEN, ergebnisId, FESTE_STELLEN, NI_GEMEINDESTRASSEN, NI_SELBSTAENDIG, NI_WIE_KREISFREI,
+  resolveGemeinde, schwaecher, SICHERHEIT, TEXTE, TH_STAEDTE_AUF_ANTRAG,
 } from "../js/resolve.js";
 
 const kreis = (ars, gen, bez, nbd, kreisfrei = false) => ({ ars, gen, bez, nbd, kreisfrei, name: gen });
@@ -75,9 +75,9 @@ const G = {
   },
   berlin: { ars: "110000000000", gen: "Berlin", land: "BE", kreis: kreis("11000", "Berlin", "Kreisfreie Stadt", "nein", true) },
   hamburg: { ars: "020000000000", gen: "Hamburg", land: "HH", kreis: kreis("02000", "Hamburg", "Kreisfreie Stadt", "nein", true) },
-  harz: {
-    ars: "031539504504", gen: "Harz (Landkreis Goslar)", land: "NI", gemeindefrei: true,
-    kreis: kreis("03153", "Goslar", "Landkreis", "ja"),
+  reinhardswald: {
+    ars: "066339200200", gen: "Gutsbezirk Reinhardswald", land: "HE", tkz: [66], ew: 0, gemeindefrei: true,
+    kreis: kreis("06633", "Kassel", "Landkreis", "ja"),
   },
   kiel: {
     ars: "010020000000", gen: "Kiel", land: "SH", tkz: [61], ew: 251842,
@@ -107,6 +107,65 @@ const G = {
   badSchwartau: {
     ars: "010550004004", gen: "Bad Schwartau", land: "SH", tkz: [63], ew: 19918,
     kreis: kreis("01055", "Ostholstein", "Kreis", "ja"),
+  },
+  braunschweig: {
+    ars: "031010000000", gen: "Braunschweig", land: "NI", tkz: [61], ew: 252811,
+    kreis: kreis("03101", "Braunschweig", "Kreisfreie Stadt", "ja", true),
+  },
+  harz: {
+    ars: "031539504504", gen: "Harz (Landkreis Goslar)", land: "NI", tkz: [66], ew: 0, gemeindefrei: true,
+    kreis: kreis("03153", "Goslar", "Landkreis", "ja"),
+  },
+  hannover: {
+    ars: "032410001001", gen: "Hannover", land: "NI", tkz: [63], ew: 522803,
+    kreis: { ...kreis("03241", "Region Hannover", "Landkreis", "nein"), name: "Region Hannover" },
+  },
+  goettingen: {
+    ars: "031590016016", gen: "Göttingen", land: "NI", tkz: [63], ew: 130521,
+    kreis: kreis("03159", "Göttingen", "Landkreis", "ja"),
+  },
+  burgdorf: {
+    ars: "032410003003", gen: "Burgdorf", land: "NI", tkz: [63], ew: 31059,
+    kreis: { ...kreis("03241", "Region Hannover", "Landkreis", "nein"), name: "Region Hannover" },
+  },
+  celle: {
+    ars: "033510006006", gen: "Celle", land: "NI", tkz: [63], ew: 66930,
+    kreis: kreis("03351", "Celle", "Landkreis", "ja"),
+  },
+  seevetal: {
+    ars: "033530031031", gen: "Seevetal", name: "Gemeinde Seevetal", land: "NI", tkz: [64], ew: 44091,
+    kreis: kreis("03353", "Harburg", "Landkreis", "ja"),
+  },
+  alfeld: {
+    ars: "032540002002", gen: "Alfeld (Leine)", land: "NI", tkz: [63], ew: 17991,
+    kreis: kreis("03254", "Hildesheim", "Landkreis", "ja"),
+  },
+  quakenbrueck: {
+    ars: "034595401030", gen: "Quakenbrück", land: "NI", tkz: [63], ew: 14088,
+    kreis: kreis("03459", "Osnabrück", "Landkreis", "ja"),
+    verband: { ars: "034595401", gen: "Artland", name: "Samtgemeinde Artland" },
+  },
+  oyten: {
+    ars: "033610009009", gen: "Oyten", name: "Gemeinde Oyten", land: "NI", tkz: [64], ew: 16509,
+    kreis: kreis("03361", "Verden", "Landkreis", "ja"),
+  },
+  badNenndorf: {
+    ars: "032575403006", gen: "Bad Nenndorf", land: "NI", tkz: [63], ew: 11530,
+    kreis: kreis("03257", "Schaumburg", "Landkreis", "ja"),
+    verband: { ars: "032575403", gen: "Nenndorf", name: "Samtgemeinde Nenndorf" },
+  },
+  lohne: {
+    ars: "034600006006", gen: "Lohne (Oldenburg)", land: "NI", tkz: [63], ew: 28114,
+    kreis: kreis("03460", "Vechta", "Landkreis", "ja"),
+  },
+  doetlingen: {
+    ars: "034580003003", gen: "Dötlingen", name: "Gemeinde Dötlingen", land: "NI", tkz: [64], ew: 6203,
+    kreis: kreis("03458", "Oldenburg", "Landkreis", "ja"),
+  },
+  winkelsett: {
+    ars: "034585401015", gen: "Winkelsett", name: "Gemeinde Winkelsett", land: "NI", tkz: [64], ew: 500,
+    kreis: kreis("03458", "Oldenburg", "Landkreis", "ja"),
+    verband: { ars: "034585401", gen: "Harpstedt", name: "Samtgemeinde Harpstedt" },
   },
   mainz_bingen: {
     ars: "073395001001", gen: "Musterdorf", land: "RP",
@@ -160,10 +219,10 @@ test("Phase 1: Berlin mit Senatsverwaltung als Alternative, Hamburg Polizei", ()
 });
 
 test("Phase 1: gemeindefreies Gebiet → Kreis", () => {
-  const { zust, stellen } = resolveGemeinde(G.harz);
-  assert.equal(zust.G.stelle, "k03153");
+  const { zust, stellen } = resolveGemeinde(G.reinhardswald);
+  assert.equal(zust.G.stelle, "k06633");
   assert.equal(zust.G.grund, TEXTE.grund.gemeindefrei);
-  assert.equal(stellen.k03153.name, "Landkreis Goslar – Straßenverkehrsbehörde");
+  assert.equal(stellen.k06633.name, "Landkreis Kassel – Straßenverkehrsbehörde");
 });
 
 test("Phase 1: RP-Kreisverwaltung, alle Klassen gleich", () => {
@@ -345,6 +404,95 @@ test("Schleswig-Holstein: Gemeinden über 20.000 Einwohner und Glinde selbst; kn
   assert.equal(knapp.sicherheit, SICHERHEIT.VERMUTLICH, "19.918 Einwohner");
   assert.equal(knapp.grund, TEXTE.grund.shKreisKnapp);
   assert.equal(resolveGemeinde({ ...G.badSchwartau, ew: 20500 }).zust.G.grund, TEXTE.grund.shGemeindeKnapp);
+});
+
+test("Niedersachsen: kreisfreie Städte, Hannover und Göttingen für alle Straßen (belegt)", () => {
+  const bs = resolveGemeinde(G.braunschweig).zust;
+  for (const k of BAU_KLASSEN) assert.equal(bs[k].stelle, "k03101", k);
+  assert.equal(bs.G.sicherheit, SICHERHEIT.BELEGT);
+  assert.equal(bs.G.quelle, TEXTE.quelle.niStadt);
+  const h = resolveGemeinde(G.hannover);
+  for (const k of BAU_KLASSEN) assert.equal(h.zust[k].stelle, "g032410001001", k);
+  assert.equal(h.zust.B.grund, TEXTE.grund.niWieKreisfrei);
+  assert.equal(h.zust.B.sicherheit, SICHERHEIT.BELEGT);
+  assert.deepEqual(h.stellen.g032410001001, {
+    id: "g032410001001", name: "Stadt Hannover – Straßenverkehrsbehörde", ebene: "untere", art: "stadt",
+  });
+  assert.equal(resolveGemeinde(G.goettingen).zust.K.stelle, "g031590016016");
+  assert.deepEqual(Object.keys(NI_WIE_KREISFREI).sort(), ["031590016016", "032410001001"]);
+});
+
+test("Niedersachsen: große selbständige Städte und selbständige Gemeinden für alle Straßen, auch Samtgemeinden", () => {
+  const celle = resolveGemeinde(G.celle);
+  for (const k of BAU_KLASSEN) {
+    assert.equal(celle.zust[k].stelle, "g033510006006", k);
+    assert.equal(celle.zust[k].sicherheit, SICHERHEIT.BELEGT, k);
+    assert.equal(celle.zust[k].alternative, null, k);
+  }
+  assert.equal(celle.zust.G.grund, TEXTE.grund.niSelbstaendig);
+  assert.equal(celle.stellen.g033510006006.name, "Stadt Celle – Straßenverkehrsbehörde");
+  const seevetal = resolveGemeinde(G.seevetal).stellen.g033530031031;
+  assert.equal(seevetal.name, "Gemeinde Seevetal – Straßenverkehrsbehörde");
+  assert.equal(seevetal.ebene, "untere");
+  const alfeld = resolveGemeinde(G.alfeld).zust.B;
+  assert.equal(alfeld.stelle, "g032540002002", "der Status zählt, nicht die Einwohnerzahl (17.991)");
+  const artland = resolveGemeinde(G.quakenbrueck);
+  for (const k of BAU_KLASSEN) assert.equal(artland.zust[k].stelle, "v034595401", k);
+  assert.deepEqual(artland.stellen.v034595401, {
+    id: "v034595401", name: "Samtgemeinde Artland – Straßenverkehrsbehörde", ebene: "untere", art: "verband",
+  });
+  const eintraege = Object.keys(NI_SELBSTAENDIG);
+  assert.equal(eintraege.length, 71, "7 große selbständige Städte und 64 selbständige Gemeinden");
+  assert.equal(eintraege.filter((a) => a.length === 9).length, 3, "drei Samtgemeinden");
+});
+
+test("Niedersachsen: Burgdorf per Vereinbarung bei der Region (vermutlich)", () => {
+  const { zust, stellen } = resolveGemeinde(G.burgdorf);
+  for (const k of BAU_KLASSEN) assert.equal(zust[k].stelle, "k03241", k);
+  assert.equal(zust.G.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(zust.G.grund, TEXTE.grund.niVereinbarung);
+  assert.equal(stellen.k03241.name, "Region Hannover – Straßenverkehrsbehörde");
+});
+
+test("Niedersachsen: sonst der Landkreis; Gemeindestraßen nach Übertragung bei Gemeinde bzw. Samtgemeinde", () => {
+  const oyten = resolveGemeinde(G.oyten);
+  assert.equal(oyten.zust.G.stelle, "g033610009009");
+  assert.equal(oyten.zust.G.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(oyten.zust.G.grund, TEXTE.grund.niUebertragung);
+  assert.equal(oyten.stellen.g033610009009.ebene, "oertliche");
+  for (const k of ["K", "L", "B"]) {
+    assert.equal(oyten.zust[k].stelle, "k03361", k);
+    assert.equal(oyten.zust[k].sicherheit, SICHERHEIT.BELEGT, k);
+    assert.equal(oyten.zust[k].grund, TEXTE.grund.niKreis, k);
+  }
+  const nenndorf = resolveGemeinde(G.badNenndorf);
+  assert.equal(nenndorf.zust.G.stelle, "v032575403", "Übertragung an die Samtgemeinde");
+  assert.equal(nenndorf.stellen.v032575403.ebene, "oertliche");
+  assert.equal(nenndorf.zust.K.stelle, "k03257");
+  assert.ok(NI_GEMEINDESTRASSEN["032575403"]);
+});
+
+test("Niedersachsen: ohne bekannte Übertragung der Landkreis, Samtgemeinde oder größere Gemeinde als Alternative", () => {
+  const lohne = resolveGemeinde(G.lohne).zust;
+  assert.equal(lohne.G.stelle, "k03460");
+  assert.equal(lohne.G.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(lohne.G.grund, TEXTE.grund.niKreisGemeindestrasse);
+  assert.deepEqual(lohne.G.alternative, { stelle: "g034600006006", bedingung: TEXTE.bedingung.niUebertragungMoeglich });
+  assert.equal(lohne.K.alternative, null);
+  const klein = resolveGemeinde(G.doetlingen).zust.G;
+  assert.equal(klein.stelle, "k03458");
+  assert.equal(klein.alternative, null, "6.203 Einwohner, keine Samtgemeinde");
+  const winkelsett = resolveGemeinde(G.winkelsett);
+  assert.deepEqual(winkelsett.zust.G.alternative, {
+    stelle: "v034585401", bedingung: TEXTE.bedingung.niUebertragungMoeglich,
+  });
+  assert.equal(winkelsett.stellen.v034585401.name, "Samtgemeinde Harpstedt – Straßenverkehrsbehörde");
+  assert.equal(winkelsett.stellen.k03458.name, "Landkreis Oldenburg – Straßenverkehrsbehörde");
+  const harz = resolveGemeinde(G.harz).zust.G;
+  assert.equal(harz.stelle, "k03153");
+  assert.equal(harz.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(harz.grund, TEXTE.grund.gemeindefrei);
+  assert.equal(harz.quelle, TEXTE.quelle.niGemeindefrei);
 });
 
 test("resolveGemeinde: prüft die Eingabe", () => {
