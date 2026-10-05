@@ -381,22 +381,22 @@ const G = {
     kreis: kreis("15085", "Harz", "Landkreis", "ja"),
     verband: { ars: "150855051", gen: "Vorharz", bez: "Verbandsgemeinde", name: "Verbandsgemeinde Vorharz" },
   },
-  // Hessen: Einwohner gerundet, bis die Werte aus GV-ISys nachgetragen sind (pruefe_laender.py zeigt sie).
+  // Hessen: Einwohner laut GV-ISys 31.12.2025.
   frankfurt: {
-    ars: "064120000000", gen: "Frankfurt am Main", land: "HE", tkz: [61], ew: 775000,
+    ars: "064120000000", gen: "Frankfurt am Main", land: "HE", tkz: [61], ew: 760656,
     kreis: kreis("06412", "Frankfurt am Main", "Kreisfreie Stadt", "ja", true),
   },
   hanau: {
-    ars: "064350014014", gen: "Hanau", land: "HE", tkz: [63], ew: 101000,
+    ars: "064350014014", gen: "Hanau", land: "HE", tkz: [63], ew: 98582,
     kreis: kreis("06435", "Main-Kinzig-Kreis", "Landkreis", "nein"),
   },
   badVilbel: {
-    ars: "064400003003", gen: "Bad Vilbel", land: "HE", tkz: [63], ew: 34000,
+    ars: "064400003003", gen: "Bad Vilbel", land: "HE", tkz: [63], ew: 35886,
     kreis: kreis("06440", "Wetteraukreis", "Landkreis", "nein"),
   },
   breitenbach: {
-    ars: "066320004004", gen: "Breitenbach am Herzberg", name: "Gemeinde Breitenbach am Herzberg", land: "HE",
-    tkz: [64], ew: 1900, kreis: kreis("06632", "Hersfeld-Rotenburg", "Landkreis", "ja"),
+    ars: "066320004004", gen: "Breitenbach a.Herzberg", name: "Gemeinde Breitenbach a.Herzberg", land: "HE",
+    tkz: [64], ew: 1651, kreis: kreis("06632", "Hersfeld-Rotenburg", "Landkreis", "ja"),
   },
   kondominium: {
     ars: "079355003095", gen: "Deutsch-Luxemburgisches Hoheitsgebiet [Nittel]", land: "RP", tkz: [],
@@ -1141,7 +1141,7 @@ test("Hessen: Gemeindestraßen bei der Gemeinde, Kreisstraßen innerorts ebenso 
   }
   assert.equal(zust.L.grund, TEXTE.grund.heLandesstrasse);
   assert.deepEqual(stellen.g066320004004, {
-    id: "g066320004004", name: "Gemeinde Breitenbach am Herzberg – Straßenverkehrsbehörde", ebene: "oertliche",
+    id: "g066320004004", name: "Gemeinde Breitenbach a.Herzberg – Straßenverkehrsbehörde", ebene: "oertliche",
     art: "gemeinde",
   });
   assert.equal(stellen.k06632.name, "Landkreis Hersfeld-Rotenburg – Straßenverkehrsbehörde");
