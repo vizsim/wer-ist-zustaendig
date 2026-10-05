@@ -49,7 +49,7 @@ dienste:
     pause: 1.0  # Sekunden zwischen zwei Anfragen
     # Länder, deren Kontakte in die Landesdateien gehen – nach Durchsicht der Review-CSV
     # freigegeben. Weitere Länder dürfen schon im Cache liegen.
-    freigegeben: [TH, BY, SH, NI, MV]
+    freigegeben: [TH, BY, SH, NI, MV, ST]
     lizenz: "Amtliche Kontaktangaben; Nutzungsbedingungen des Portals nicht gesondert geprüft"
     vermerk: "Kontakt laut Bundesportal (verwaltung.bund.de)"
 
