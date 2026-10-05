@@ -55,16 +55,57 @@ def test_kreis_typen() -> None:
     }
 
 
+def _landesdatei(region: bool) -> dict:
+    """Bayern im Kleinen: Freising (GKS) und eine Gemeinde mit Gemeindestraßen bei ihr selbst."""
+    kreis, gks, gemeinde = "e1", "e2", "e3"
+    return {
+        **({"bundesportal_region": "https://…/region/{ars}"} if region else {}),
+        "stellen": {},
+        "ergebnisse": {
+            kreis: {"stelle": "k09178"},
+            gks: {"stelle": "g091780124124"},
+            gemeinde: {"stelle": "g091785101201"},
+        },
+        "gemeinden": {
+            "091780124124": {"z": dict.fromkeys("GKLB", gks), "kontakt_gemeinde": "c1"},
+            "091785101201": {
+                "z": {"G": gemeinde, "K": kreis, "L": kreis, "B": kreis},
+                "kontakt": "c2",
+            },
+            "091785101202": {"z": {"G": gemeinde, "K": kreis, "L": kreis, "B": kreis}},
+        },
+    }
+
+
+def test_kontakt_status() -> None:
+    d = _landesdatei(region=True)
+    assert grenzen.kontakt_status(d, "091780124124") == "k", "Stadt mit eigenem Kontakt"
+    assert grenzen.kontakt_status(d, "091785101201") == "t", "Kreis ja, Gemeinde nein"
+    assert grenzen.kontakt_status(d, "091785101202") == "p", "kein Kontakt, aber Link ins Portal"
+    assert grenzen.kontakt_status(_landesdatei(region=False), "091785101202") == "n"
+
+
+def test_kontakte_aus_landesdateien_und_mehrheit(tmp_path) -> None:
+    (tmp_path / "index.json").write_text(json.dumps({"laender": [{"datei": "by.json"}]}))
+    (tmp_path / "by.json").write_text(json.dumps(_landesdatei(region=True)))
+    kontakte = grenzen.kontakte_aus_landesdateien(tmp_path)
+    assert kontakte == {"091780124124": "k", "091785101201": "t", "091785101202": "p"}
+    assert grenzen.mehrheit_je_kreis(kontakte) == {"09178": "k"}, "Gleichstand: der erste nach Name"
+    assert grenzen.kontakte_aus_landesdateien(tmp_path / "fehlt") == {}
+
+
 def test_schreibe_fgb(fixture_daten, tmp_path) -> None:
     gem, krs = tmp_path / "gemeinden.fgb", tmp_path / "kreise.fgb"
     alle = [p["ars"] for p in fixture_daten.punkte]
     typen = {ars: ("kreis", "nur Ebene") for ars in alle}
     typen["091785101201"] = ("gemeinde", "belegt")
-    n = grenzen.schreibe_fgb(fixture_daten.gpkg, gem, krs, typen)
+    kontakte = dict.fromkeys(alle, "n") | {"091780124124": "k", "091785101201": "p"}
+    n = grenzen.schreibe_fgb(fixture_daten.gpkg, gem, krs, typen, kontakte)
     assert n == 10
     df = pyogrio.read_dataframe(gem)
     assert df.crs.to_epsg() == 4326
-    assert set(df.columns) == {"ars", "gen", "eg", "sg", "geometry"}
+    assert set(df.columns) == {"ars", "gen", "eg", "sg", "ko", "geometry"}
+    assert dict(zip(df["ars"], df["ko"], strict=True))["091780124124"] == "k"
     assert df["ars"].str.len().eq(12).all()
     k = pyogrio.read_dataframe(krs)
     assert "Landkreis Freising" in set(k["name"])
@@ -76,6 +117,11 @@ def test_schreibe_fgb(fixture_daten, tmp_path) -> None:
     typ = {a: (e, s) for a, e, s in zip(k["ars"], k["eg"], k["sg"], strict=True)}
     assert typ["09178"] == ("gemeinde", "belegt"), "Freising und Musterdorf 1:1, Paar nach Name"
     assert typ["07339"] == ("kreis", "nur Ebene")
+    ko = dict(zip(k["ars"], k["ko"], strict=True))
+    assert ko["09178"] == "k", "Freising k, Musterdorf p – Gleichstand, der erste nach Name"
+    assert ko["09162"] == "n"
+    ohne = grenzen.schreibe_fgb(fixture_daten.gpkg, gem, krs, typen)
+    assert ohne == 10 and "ko" not in pyogrio.read_dataframe(gem).columns, "ohne Kontakte kein Feld"
 
 
 def test_schreibe_fgb_verlangt_vollstaendige_landesdateien(fixture_daten, tmp_path) -> None:

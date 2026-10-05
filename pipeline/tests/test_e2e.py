@@ -60,8 +60,10 @@ def test_ende_zu_ende(fixture_daten, tmp_path) -> None:
     assert typen["091785101201"] == ("gemeinde", "belegt")  # Bayern: Gemeindestraßen
     assert typen["073395001001"] == ("verband", "vermutlich")  # Rheinland-Pfalz: Verbandsgemeinde
     assert typen["040110000000"] == ("stadtstaat", "belegt")
+    kontakte = grenzen.kontakte_aus_landesdateien(aus)
+    assert set(kontakte.values()) == {"n"}, "ohne kontakte.json weder Kontakt noch Link ins Portal"
     gem_fgb, krs_fgb = tmp_path / "gemeinden.fgb", tmp_path / "kreise.fgb"
-    grenzen.schreibe_fgb(fixture_daten.gpkg, gem_fgb, krs_fgb, typen)
+    grenzen.schreibe_fgb(fixture_daten.gpkg, gem_fgb, krs_fgb, typen, kontakte)
     teile = [
         tiles.tippecanoe("gemeinden", gem_fgb, tmp_path / "g.pmtiles"),
         tiles.tippecanoe("kreise", krs_fgb, tmp_path / "k.pmtiles"),
