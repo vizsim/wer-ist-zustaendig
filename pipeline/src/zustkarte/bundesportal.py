@@ -52,7 +52,7 @@ FUNKTIONSPOSTFACH = re.compile(
     r"post|info|verwaltung|verkehr|stra(ß|ss)e|ordnung|amt|b(ü|ue)rger|service|kontakt|stadt|"
     r"gemeinde|rathaus|lra|kreis|mail|office|zentrale|fachdienst|fachbereich|sekretariat|"
     r"tiefbau|bau|infrastruktur|sicherheit|kfz|aufsicht|abteilung|referat|organisation|kanzlei|"
-    r"^fd|^sg|^vg",
+    r"sondernutzung|^svb|^fd|^sg|^vg",
     re.I,
 )
 ALLGEMEIN = {"kreis", "land", "landkreis", "stadt", "an", "am", "der", "im", "in", "bei", "und"}
@@ -425,6 +425,8 @@ def ergaenzungen() -> dict[str, dict[str, Any]]:
 
 
 def kontakt_von_hand(eintrag: dict[str, Any]) -> dict[str, Any]:
+    """Eintrag von Hand → Kontakt; `allgemein: true` im Eintrag, wenn er nur die allgemeine
+    Anschrift der Verwaltung ist (Zentrale statt Verkehrsstelle)."""
     datum = ".".join(reversed(str(eintrag["stand"]).split("-")))
     return {
         "name": eintrag["name"],
@@ -433,7 +435,81 @@ def kontakt_von_hand(eintrag: dict[str, Any]) -> dict[str, Any]:
         "email": list(eintrag.get("email") or []),
         "web": list(eintrag.get("web") or []),
         "quelle": f"Webseite der Behörde, Stand {datum}",
+        **({"allgemein": True} if eintrag.get("allgemein") else {}),
     }
+
+
+# Quelle der Länder, deren Kontakte nur von Hand kommen (`ergaenze_von_hand`).
+VON_HAND = {
+    "id": "von_hand",
+    "label": "Kontakte von Hand: Webseiten der Behörden (pipeline/config/kontakte_ergaenzt.yaml)",
+    "lizenz": "Amtliche Kontaktangaben der Behörden",
+    "vermerk": "Kontakt laut Webseite der Behörde",
+}
+VON_HAND_KURZ = "Webseiten der Behörden"
+
+
+def nur_von_hand() -> list[str]:
+    """Länder ohne die Leistung im Bundesportal, deren Kontakte nur von Hand kommen
+    (config/kontakte_ergaenzt.yaml, `nur_von_hand`)."""
+    return [str(x).upper() for x in load_yaml("kontakte_ergaenzt.yaml").get("nur_von_hand") or []]
+
+
+def ergaenze_von_hand(
+    daten: dict[str, Any],
+    review: list[list[str]],
+    attr: dict[str, Any],
+    laender: list[str] | None = None,
+) -> int:
+    """Kontakte für Länder ohne Bundesportal und ohne eigene Quelle (`nur_von_hand`, heute Berlin)
+    in `daten` (kontakte.json) und `review` eintragen – nur aus den Einträgen von Hand
+    (`luecken_fuellen`), ohne Urteil `wahl`. Wie bei Sachsen (anschriften.py) trägt das Land unter
+    `meta.laender` `kurz` und `quelle`; `abgerufen` ist der Stand des jüngsten Eintrags. Ein Land
+    ohne Eintrag bleibt weg. Gibt die Zahl der Gemeinden zurück."""
+    laender = nur_von_hand() if laender is None else laender
+    hand = ergaenzungen()
+    n = 0
+    for land in sorted(set(laender) - set(daten["meta"]["laender"])):
+        ars_land = sorted(a for a, g in attr.items() if g["land"] == land)
+        staende = [
+            str(e["stand"])
+            for schluessel, e in hand.items()
+            if e.get("stand") and any(a.startswith(schluessel) for a in ars_land)
+        ]
+        if not staende:
+            continue
+        gemeinden = {
+            a: {"wahl": None, "stellen": 0, "kreis": None, "gemeinde": None} for a in ars_land
+        }
+        luecken_fuellen(gemeinden, attr, land)
+        daten["gemeinden"].update(gemeinden)
+        daten["meta"]["laender"][land] = {
+            "abgerufen": max(staende),
+            "kurz": VON_HAND_KURZ,
+            "quelle": VON_HAND,
+        }
+        leer = {"name": "", "telefon": [], "email": []}
+        for ars, e in gemeinden.items():
+            g = attr[ars]
+            k, gm = e["kreis"] or leer, e["gemeinde"] or leer
+            review.append(
+                [
+                    land,
+                    ars,
+                    g["name"],
+                    g["kreis"]["name"],
+                    "",
+                    "",
+                    k["name"],
+                    " / ".join(k["telefon"]),
+                    " / ".join(k["email"]),
+                    gm["name"],
+                    " / ".join(gm["telefon"]),
+                    "von Hand",
+                ]
+            )
+        n += len(gemeinden)
+    return n
 
 
 def luecken_fuellen(gemeinden: dict[str, Any], attr: dict[str, Any], land: str) -> None:

@@ -47,20 +47,29 @@ def typen_aus_landesdateien(ordner: Path) -> dict[str, tuple[str, str]]:
     return typen
 
 
+def kontakt_rolle(stelle: str, ars: str) -> str | None:
+    """Wie `kontaktRolle` in js/resolve.js: `gemeinde` (Feld `kontakt_gemeinde`) für die Gemeinde
+    selbst (`g<ARS>`) und ihren Verband (`v…`), `kreis` (Feld `kontakt`) für die Kreisebene (`k…`)
+    und in Berlin die Senatsverwaltung (`be-senat`), sonst None."""
+    if stelle == f"g{ars}" or stelle.startswith("v"):
+        return "gemeinde"
+    if stelle.startswith("k") or stelle == "be-senat":
+        return "kreis"
+    return None
+
+
 def kontakt_status(daten: dict[str, Any], ars: str) -> str:
     """Hat die zuständige Stelle einen Kontakt? `k` in allen Klassen (G, K, L, B), `t` in einem
     Teil, `a` in keiner, aber die allgemeine Anschrift der Verwaltung (`allgemein`), `p` nichts
     davon, aber das Land führt die Leistung im Bundesportal (die Karte verlinkt dorthin), `n`
-    nichts. Wie `auswahl()`: `k…` → `kontakt`, `g<ARS>` und `v…` → `kontakt_gemeinde`."""
+    nichts. Welcher Kontakt zu welcher Stelle gehört, wie in `auswahl()` (`kontakt_rolle`)."""
     g = daten["gemeinden"][ars]
     kontakte = daten.get("kontakte") or {}
+    feld = {"kreis": "kontakt", "gemeinde": "kontakt_gemeinde"}
 
     def kontakt(stelle: str) -> dict[str, Any] | None:
-        if stelle.startswith("k"):
-            return kontakte.get(g.get("kontakt") or "")
-        if stelle == f"g{ars}" or stelle.startswith("v"):
-            return kontakte.get(g.get("kontakt_gemeinde") or "")
-        return None
+        rolle = kontakt_rolle(stelle, ars)
+        return kontakte.get(g.get(feld[rolle]) or "") if rolle else None
 
     je_klasse = [kontakt(daten["ergebnisse"][g["z"][k]]["stelle"]) for k in ("G", "K", "L", "B")]
     eigen = [bool(k) and not k.get("allgemein") for k in je_klasse]

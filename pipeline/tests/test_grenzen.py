@@ -107,6 +107,38 @@ def test_kontakt_status() -> None:
     assert grenzen.kontakt_status(_landesdatei(region=False), "091785101202") == "n"
 
 
+def test_kontakt_status_berlin() -> None:
+    """In Berlin hat der Senat (`be-senat`) den Kontakt der Kreisebene, der Bezirk den der
+    Gemeinde; ohne Bezirk (`be-bezirk`) gibt es keinen – wie `kontaktRolle` in js/resolve.js."""
+    assert grenzen.kontakt_rolle("be-senat", "110000000001") == "kreis"
+    assert grenzen.kontakt_rolle("g110000000001", "110000000001") == "gemeinde"
+    assert grenzen.kontakt_rolle("be-bezirk", "110000000000") is None
+
+    def klassen(g: str) -> dict:
+        return {"G": g, "K": "es", "L": "es", "B": "es"}
+
+    d = {
+        "ergebnisse": {
+            "e1": {"stelle": "g110000000001"},
+            "e4": {"stelle": "g110000000004"},
+            "eb": {"stelle": "be-bezirk"},
+            "es": {"stelle": "be-senat"},
+        },
+        "kontakte": {
+            "cs": {"name": "Senat", "allgemein": True},
+            "c1": {"name": "Bezirksamt Mitte"},
+        },
+        "gemeinden": {
+            "110000000001": {"z": klassen("e1"), "kontakt": "cs", "kontakt_gemeinde": "c1"},
+            "110000000004": {"z": klassen("e4"), "kontakt": "cs"},
+            "110000000000": {"z": klassen("eb"), "kontakt": "cs"},
+        },
+    }
+    assert grenzen.kontakt_status(d, "110000000001") == "t", "Bezirk ja, Senat nur allgemein"
+    assert grenzen.kontakt_status(d, "110000000004") == "a", "Bezirk ohne Kontakt"
+    assert grenzen.kontakt_status(d, "110000000000") == "a", "ganz Berlin: nur der Senat"
+
+
 def test_kontakte_aus_landesdateien_und_mehrheit(tmp_path) -> None:
     (tmp_path / "index.json").write_text(json.dumps({"laender": [{"datei": "by.json"}]}))
     (tmp_path / "by.json").write_text(json.dumps(_landesdatei(region=True)))

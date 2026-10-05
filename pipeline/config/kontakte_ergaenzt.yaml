@@ -7,6 +7,15 @@
 # die das Portal keinen nennt. Oder ARS einer Gemeinde (12 Stellen) mit `rolle` (`kreis` oder
 # `gemeinde`) – ersetzt den Portalwert dieser Rolle. Nur Funktionspostfächer, keine Personen.
 
+# `allgemein: true`, wenn der Eintrag nur die allgemeine Anschrift der Verwaltung ist (Zentrale
+# statt Verkehrsstelle) – die Karte sagt dann dazu, dass man nach der Straßenverkehrsbehörde fragt.
+#
+# Länder, die die Leistung nicht im Bundesportal führen und keine eigene Quelle haben: Ihre
+# Kontakte kommen nur aus dieser Datei (`zust kontakte`, auch mit --nur-cache). In Berlin hat der
+# Senat die Rolle `kreis` (Schlüssel 11000), jeder Bezirk die Rolle `gemeinde` (Schlüssel
+# 1100000000 + Bezirksnummer).
+nur_von_hand: [BE]
+
 kontakte:
   "160700004004":  # Stadt Arnstadt – Portal nennt nur das Rathaus; Stadt ist Straßenverkehrsbehörde
     rolle: gemeinde
@@ -265,3 +274,115 @@ kontakte:
     email: ["info@wesermarsch.de"]  # allgemeines Postfach; die Verkehrsbehörde nennt nur persönliche Adressen
     web: ["https://wesermarsch.de/services/fahrzeug-und-verkehr/sonstige-verkehrsangelegenheiten/"]
     stand: "2026-10-04"
+
+  # Berlin (kein Bundesportal): Senat und Bezirksämter. Abgeschrieben vom Service-Portal Berlin
+  # und den Seiten der Bezirksämter; vor der Freigabe im Browser gegenlesen (Übergabe Berlin).
+  # Charlottenburg-Wilmersdorf fehlt noch: Die Seite der Straßenverkehrsbehörde war nicht
+  # erreichbar, das Service-Portal nennt keine.
+  "11000":  # Senatsverwaltung – zentrale Straßenverkehrsbehörde für das übergeordnete Netz
+    name: "Senatsverwaltung für Mobilität, Verkehr, Klimaschutz und Umwelt"
+    adresse: "Am Köllnischen Park 3, 10179 Berlin"
+    telefon: ["(030) 9025-0"]
+    email: ["post@senmvku.berlin.de"]  # Abteilung VI Verkehrsmanagement nennt nur ein Postfach für Arbeitsstellen
+    web: ["https://service.berlin.de/standort/330563/"]
+    allgemein: true  # Zentrale der Senatsverwaltung, nicht die Abteilung Verkehrsmanagement
+    stand: "2026-10-05"
+
+  "110000000001":
+    rolle: gemeinde
+    name: "Bezirksamt Mitte - Straßen- und Grünflächenamt"
+    adresse: "Karl-Marx-Allee 31, 10178 Berlin"
+    telefon: ["(030) 9018-22823"]
+    email: ["sga@ba-mitte.berlin.de"]
+    web: ["https://service.berlin.de/standort/327224/"]
+    stand: "2026-10-05"
+
+  "110000000002":
+    rolle: gemeinde
+    name: "Bezirksamt Friedrichshain-Kreuzberg - Straßen- und Grünflächenamt, Straßenverkehrsbehörde"
+    adresse: "Yorckstraße 4-11, 10965 Berlin"
+    telefon: ["(030) 90298-8029"]
+    email: ["strassenverkehrsbehoerde@ba-fk.berlin.de"]
+    web: ["https://service.berlin.de/dienstleistung/326439/standort/328876/"]
+    stand: "2026-10-05"
+
+  "110000000003":
+    rolle: gemeinde
+    name: "Bezirksamt Pankow - Straßen- und Grünflächenamt, Straßenverkehrsbehörde"
+    adresse: "Storkower Straße 97, 10405 Berlin"
+    telefon: ["(030) 90295-0"]  # Zentrale
+    email: ["svb@ba-pankow.berlin.de"]
+    web: ["https://service.berlin.de/dienstleistung/325649/standort/326497/"]
+    stand: "2026-10-05"
+
+  "110000000005":
+    rolle: gemeinde
+    name: "Bezirksamt Spandau - Straßen- und Grünflächenamt"
+    adresse: "Otternbuchtstraße 35, 13599 Berlin"
+    telefon: ["(030) 90279-2721"]
+    email: ["sga@ba-spandau.berlin.de"]
+    web: ["https://service.berlin.de/standort/326688/"]
+    stand: "2026-10-05"
+
+  "110000000006":
+    rolle: gemeinde
+    name: "Bezirksamt Steglitz-Zehlendorf - Straßen- und Grünflächenamt, Straßenverkehrsbehörde"
+    adresse: "Unter den Eichen 1, 12203 Berlin"
+    telefon: []  # auf den Seiten nur persönliche Durchwahlen
+    email: ["svb@ba-sz.berlin.de"]
+    web: ["https://www.berlin.de/ba-steglitz-zehlendorf/politik-und-verwaltung/aemter/strassen-und-gruenflaechenamt/tiefbau/artikel.743816.php"]
+    stand: "2026-10-05"
+
+  "110000000007":
+    rolle: gemeinde
+    name: "Bezirksamt Tempelhof-Schöneberg - Straßen- und Grünflächenamt, Straßenverkehrsbehörde"
+    adresse: "Großbeerenstraße 2-10, Haus 3, 12107 Berlin"
+    telefon: ["(030) 90277-1520"]  # Geschäftszimmer
+    email: ["sv@ba-ts.berlin.de"]
+    web: ["https://www.berlin.de/ba-tempelhof-schoeneberg/politik-und-verwaltung/aemter/strassen-und-gruenflaechenamt/strassenverkehrsbehoerde/artikel.1135696.php"]
+    stand: "2026-10-05"
+
+  "110000000008":
+    rolle: gemeinde
+    name: "Bezirksamt Neukölln - Straßen- und Grünflächenamt, Straßenverkehrsbehörde"
+    adresse: "Gradestraße 36, 12347 Berlin"
+    telefon: []  # für Daueranordnungen bittet die Stelle ausschließlich um schriftliche Anfragen
+    email: ["svb-da@bezirksamt-neukoelln.de", "svb@bezirksamt-neukoelln.de"]  # Daueranordnungen; Baustellen
+    web: ["https://www.berlin.de/ba-neukoelln/politik-und-verwaltung/aemter/strassen-und-gruenflaechenamt/strassen-und-verwaltung/strassen-verkehrsbehoerde/artikel.685441.php"]
+    stand: "2026-10-05"
+
+  "110000000009":
+    rolle: gemeinde
+    name: "Bezirksamt Treptow-Köpenick - Straßen- und Grünflächenamt, Straßenverkehrsbehörde"
+    adresse: "Neue Krugallee 4, 12435 Berlin"
+    telefon: ["(030) 90297-0"]  # Zentrale
+    email: ["SGA-SVB@ba-tk.berlin.de"]
+    web: ["https://service.berlin.de/dienstleistung/325649/standort/123559/"]
+    stand: "2026-10-05"
+
+  "110000000010":
+    rolle: gemeinde
+    name: "Bezirksamt Marzahn-Hellersdorf - Straßenverkehrsbehörde"
+    adresse: "Schkopauer Ring 2, 12681 Berlin"
+    telefon: ["(030) 90293-7511"]  # ohne Namen genannt; die zweite Nummer gehört einer Person
+    email: ["sondernutzung_ag@ba-mh.berlin.de"]  # das einzige Postfach, das die Seite der Stelle nennt
+    web: ["https://service.berlin.de/standort/324677/"]
+    stand: "2026-10-05"
+
+  "110000000011":
+    rolle: gemeinde
+    name: "Bezirksamt Lichtenberg - Straßen- und Grünflächenamt, Straßenverkehrsbehörde"
+    adresse: "Alt-Friedrichsfelde 60, 10315 Berlin"
+    telefon: ["(030) 90296-6561"]  # Nummer des Amts laut Service-Portal
+    email: ["svb@lichtenberg.berlin.de"]
+    web: ["https://www.berlin.de/ba-lichtenberg/politik-und-verwaltung/behoerdenwegweiser/artikel.1402686.php"]
+    stand: "2026-10-05"
+
+  "110000000012":
+    rolle: gemeinde
+    name: "Bezirksamt Reinickendorf - Straßen- und Grünflächenamt, Straßenverkehrsbehörde"
+    adresse: "Eichborndamm 215, 13437 Berlin"
+    telefon: ["(030) 90294-2939"]
+    email: ["strassenverkehrsbehoerde@reinickendorf.berlin.de"]
+    web: ["https://service.berlin.de/dienstleistung/325649/standort/325695/"]
+    stand: "2026-10-05"

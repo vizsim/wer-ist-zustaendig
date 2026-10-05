@@ -130,7 +130,8 @@ def kontakte(
     """Bundesportal: Kontakt der zuständigen Stelle je Gemeinde → data/interim/kontakte.json.
 
     Eine Anfrage je Gemeinde (gedrosselt, mit Cache); danach `zust laender` neu bauen. Für
-    Sachsen kommen die allgemeinen Anschriften der Verwaltungen dazu (Quelle `lds_sachsen`).
+    Sachsen kommen die allgemeinen Anschriften der Verwaltungen dazu (Quelle `lds_sachsen`), für
+    Länder ohne Portal und ohne eigene Quelle (Berlin) die Einträge von Hand.
     """
     import json
     from collections import Counter
@@ -145,6 +146,7 @@ def kontakte(
             bundesportal.abrufen(lkz, ars, force=force, melde=typer.echo)
     daten, review = bundesportal.tabelle(attr)
     anschriften.ergaenze(daten, review, attr)
+    bundesportal.ergaenze_von_hand(daten, review, attr)
     bundesportal.schreibe(daten, review, paths.kontakte_json, paths.review / "kontakte-review.csv")
     for lkz, meta in daten["meta"]["laender"].items():
         land_g = [g for a, g in daten["gemeinden"].items() if attr[a]["land"] == lkz]
@@ -152,8 +154,14 @@ def kontakte(
         n = len(land_g)
         kreis = sum(g["kreis"] is not None for g in land_g)
         gemeinde = sum(g["gemeinde"] is not None for g in land_g)
+        # Gemeinden, deren Kontakte alle nur die allgemeine Anschrift der Verwaltung sind.
+        allgemein = sum(
+            all(k.get("allgemein") for k in ks)
+            for ks in ([k for k in (g["kreis"], g["gemeinde"]) if k] for g in land_g)
+            if ks
+        )
         herkunft = (
-            f"{meta['kurz']} (allgemeine Anschrift)"
+            meta["kurz"] + (f" (nur allgemeine Anschrift: {allgemein})" if allgemein else "")
             if "kurz" in meta
             else "Portal: " + " · ".join(f"{k} {v}" for k, v in sorted(wahl.items()))
         )

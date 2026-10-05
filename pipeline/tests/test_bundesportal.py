@@ -160,6 +160,8 @@ def test_funktionspostfach() -> None:
         "kanzlei@lra-aoe.de",
         "post.ordnungsamt@weimarerland.de",
         "infrastruktur@eisenach.de",
+        "svb-da@bezirksamt-neukoelln.de",
+        "sondernutzung_ag@ba-mh.berlin.de",
     ):
         assert bp.funktionspostfach(m), m
     for m in (
@@ -254,6 +256,54 @@ def test_tabelle_aus_cache(tmp_path, monkeypatch) -> None:
         "Landkreis Mainz-Bingen",
         "passt",
     ]
+
+
+def test_ergaenze_von_hand(monkeypatch) -> None:
+    """Berlin führt die Leistung nicht im Portal: Senat (Kreis-ARS) und Bezirke (ARS, Rolle
+    gemeinde) nur von Hand, ohne Urteil des Portals; das Land mit eigener Quelle wie Sachsen."""
+    senat = {
+        "name": "Senatsverwaltung",
+        "telefon": ["(030) 9025-0"],
+        "email": ["post@senmvku.berlin.de"],
+        "allgemein": True,
+        "stand": "2026-10-05",
+    }
+    mitte = {
+        "rolle": "gemeinde",
+        "name": "Bezirksamt Mitte - Straßen- und Grünflächenamt",
+        "email": ["sga@ba-mitte.berlin.de"],
+        "stand": "2026-10-04",
+    }
+    monkeypatch.setattr(bp, "ergaenzungen", lambda: {"11000": senat, "110000000001": mitte})
+    berlin = {"ars": "11000", "name": "Berlin", "gen": "Berlin", "kreisfrei": True}
+
+    def eintrag(name: str, land: str = "BE") -> dict:
+        return {"land": land, "name": name, "kreis": berlin, "kondominium": None}
+
+    attr = {
+        "110000000000": eintrag("Berlin"),
+        "110000000001": eintrag("Bezirk Mitte"),
+        "110000000004": eintrag("Bezirk Charlottenburg-Wilmersdorf"),
+        "040110000000": eintrag("Bremen", "HB"),
+    }
+    daten = {"meta": {"laender": {}}, "gemeinden": {}}
+    review: list[list[str]] = []
+    assert bp.ergaenze_von_hand(daten, review, attr, ["BE", "HB"]) == 3
+    assert daten["meta"]["laender"] == {
+        "BE": {"abgerufen": "2026-10-05", "kurz": "Webseiten der Behörden", "quelle": bp.VON_HAND}
+    }, "HB: keine Einträge von Hand, also kein Land mit Kontakten"
+    g = daten["gemeinden"]
+    assert set(g) == {"110000000000", "110000000001", "110000000004"}
+    assert all(e["wahl"] is None and e["kreis"]["name"] == "Senatsverwaltung" for e in g.values())
+    assert g["110000000000"]["kreis"]["allgemein"] is True, "Zentrale statt Verkehrsstelle"
+    assert g["110000000001"]["gemeinde"]["email"] == ["sga@ba-mitte.berlin.de"]
+    assert "allgemein" not in g["110000000001"]["gemeinde"]
+    assert g["110000000001"]["gemeinde"]["quelle"] == "Webseite der Behörde, Stand 04.10.2026"
+    assert g["110000000004"]["gemeinde"] is None, "Bezirk ohne Eintrag: kein Kontakt"
+    assert [z[11] for z in review] == ["von Hand"] * 3
+    vorher = json.dumps(daten, sort_keys=True)
+    assert bp.ergaenze_von_hand(daten, review, attr, ["BE"]) == 0, "schon da: nichts doppelt"
+    assert json.dumps(daten, sort_keys=True) == vorher
 
 
 def test_luecken_fuellen(monkeypatch) -> None:

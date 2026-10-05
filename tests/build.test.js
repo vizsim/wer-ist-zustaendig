@@ -292,6 +292,54 @@ test("baueLaender + auswahl: Kontakte aus einer eigenen Quelle des Landes, nur a
   assert.equal(mitStand.daten.kontakte, "Anschriftenverzeichnis der Statistischen Ämter 31.01.2026");
 });
 
+test("baueLaender + auswahl: Berlin – Senat und Bezirksämter mit Kontakten von Hand, ohne Bundesportal", () => {
+  const berlin = kreis("11000", "Berlin", "Kreisfreie Stadt", "nein", true);
+  const a = attr();
+  a.gemeinden["110000000000"] = {
+    ars: "110000000000", gen: "Berlin", name: "Berlin", land: "BE", tkz: [61], ew: 3685265, kreis: berlin, bezirk: null,
+  };
+  a.gemeinden["110000000001"] = {
+    ars: "110000000001", gen: "Mitte", name: "Bezirk Mitte", land: "BE", tkz: [], ew: null, kreis: berlin,
+    bezirk: { nr: "01", name: "Mitte" },
+  };
+  const hand = (name, mehr = {}) => ({
+    name, adresse: null, telefon: ["(030) 1234-0"], email: [], web: [], quelle: "Webseite der Behörde, Stand 05.10.2026",
+    ...mehr,
+  });
+  const senat = hand("Senatsverwaltung für Mobilität, Verkehr, Klimaschutz und Umwelt", { allgemein: true });
+  const vonHand = { id: "von_hand", label: "Kontakte von Hand", lizenz: "–", vermerk: "Kontakt laut Webseite der Behörde" };
+  const k = kontakte();
+  k.meta.laender.BE = { abgerufen: "2026-10-05", kurz: "Webseiten der Behörden", quelle: vonHand };
+  k.gemeinden["110000000000"] = { wahl: null, stellen: 0, kreis: senat, gemeinde: null };
+  k.gemeinden["110000000001"] = {
+    wahl: null, stellen: 0, kreis: senat, gemeinde: hand("Bezirksamt Mitte - Straßen- und Grünflächenamt"),
+  };
+  const { dateien, index } = baueLaender(a, { kontakte: k });
+  const be = dateien["be.json"];
+  assert.equal(be.daten.kontakte, "Webseiten der Behörden 05.10.2026");
+  assert.deepEqual(be.quellen.at(-1), vonHand);
+  assert.ok(!be.quellen.some((q) => q.id === "bundesportal"), "keine Kontakte aus dem Portal");
+  assert.equal(be.bundesportal_region, undefined);
+  assert.equal(Object.keys(be.kontakte).length, 2, "der Senat einmal für alle Einträge");
+  const land = index.laender.find((l) => l.lkz === "BE");
+  assert.deepEqual([land.kontakte, land.allgemein], [2, 1], "ganz Berlin: nur die Zentrale des Senats");
+  assert.equal(be.gemeinden["110000000001"].name, "Bezirk Mitte");
+  assert.equal(be.gemeinden["110000000001"].ew, undefined);
+
+  const g = auswahl(be, "110000000001", ["G"]);
+  assert.equal(g.zustaendig.name, "Bezirksamt Mitte – Straßenverkehrsbehörde");
+  assert.equal(g.kontakt.name, "Bezirksamt Mitte - Straßen- und Grünflächenamt");
+  assert.equal(g.kontakt.allgemein, undefined);
+  assert.equal(g.alternative.kontakt.name, senat.name);
+  assert.equal(g.bundesportal, null);
+  const b = auswahl(be, "110000000001", ["B"]);
+  assert.equal(b.zustaendig.id, "be-senat");
+  assert.equal(b.kontakt.allgemein, true);
+  const gesamt = be.gemeinden["110000000000"];
+  assert.ok(gesamt.kontakt, "Senat auch für ganz Berlin");
+  assert.equal(gesamt.kontakt_gemeinde, undefined);
+});
+
 test("baueLaender: Link ins Bundesportal für jedes Land, das die Leistung dort führt", () => {
   const k = kontakte();
   k.meta.portal = { RP: "https://verwaltung.bund.de/…/herausgeber/RP-8958611/region/{ars}" };
