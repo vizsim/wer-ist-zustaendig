@@ -134,8 +134,8 @@ export function baueLaender(attr, opts = {}) {
   const dateien = {};
   const laender = [];
   const lkzs = [...proLand.keys()].sort();
-  // Quelle der Kontakte eines Landes: das Bundesportal oder eine eigene des Landes (`quelle`,
-  // `kurz`), etwa das Gemeindeverzeichnis der Landesdirektion Sachsen.
+  // Quelle der Kontakte eines Landes: das Bundesportal oder ein Verzeichnis (`quelle`, `kurz`,
+  // `stand` statt des Abrufdatums, wenn es einen hat), etwa das der Landesdirektion Sachsen.
   const kontaktQuelle = (bp) => bp.quelle ?? kontakte.meta.quelle;
   for (const lkz of lkzs) {
     const l = landAusKuerzel(lkz);
@@ -158,7 +158,7 @@ export function baueLaender(attr, opts = {}) {
       land: lkz,
       name: l.name,
       regeln: REGELN,
-      daten: bp ? { ...meta.stand, kontakte: `${bp.kurz ?? "Bundesportal"} ${datumDe(bp.abgerufen)}` } : meta.stand ?? null,
+      daten: bp ? { ...meta.stand, kontakte: `${bp.kurz ?? "Bundesportal"} ${datumDe(bp.stand ?? bp.abgerufen)}` } : meta.stand ?? null,
       erzeugt,
       hinweis: HINWEIS,
       bundesportal: BUNDESPORTAL,

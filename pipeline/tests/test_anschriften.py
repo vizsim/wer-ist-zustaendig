@@ -185,3 +185,140 @@ def test_datei_von_hand_uebernehmen(tmp_path, monkeypatch) -> None:
     assert meta["abgerufen"].startswith("2026-09-21") and meta["von_hand"] is True
     assert meta["url"] is None and meta["seite"].startswith("https://www.lds.sachsen.de/")
     assert fetch.fetch(an.SACHSEN) == ziel, "liegt schon da"
+
+
+# Anschriftenverzeichnis der Statistischen Ämter: Aufbau wie das Blatt „Anschriften_31_01_2026"
+# (Titelzeilen, Kopf, dann Land, Kreise, Gemeinden; Fläche und Bevölkerung dahinter).
+VERZEICHNIS = [
+    ["Anschriften der Gemeinde- und Stadtverwaltungen"],
+    ["Land", "", "Satzart", "Textkennzeichen", "", "Amtlicher Regionalschlüssel (ARS)"],
+    ["06", "Hessen", "10", "", "", "06", "", "Hessen", "Hessische Staatskanzlei",
+     "Georg-August-Zinn-Straße 1", "65183", "Wiesbaden", "presse@stk.hessen.de"],
+    ["06", "Hessen", "40", "41", "Kreisfreie Stadt", "06412", "", "Frankfurt am Main, Stadt",
+     "Magistrat der Stadt Frankfurt am Main", "Römerberg 23", "60311", "Frankfurt am Main",
+     "info@stadt-frankfurt.de"],
+    ["06", "Hessen", "60", "61", "Kreisfreie Stadt", "064120000000", "06412000",
+     "Frankfurt am Main, Stadt", "Magistrat der Stadt Frankfurt am Main", "Römerberg 23", "60311",
+     "Frankfurt am Main", "info@stadt-frankfurt.de"],
+    ["06", "Hessen", "40", "41", "Kreisfreie Stadt", "06415", "", "Hanau, Brüder-Grimm-Stadt",
+     "Magistrat der Stadt Hanau", "Am Markt 14-18", "63450", "Hanau", "zentraledienste@hanau.de"],
+    ["06", "Hessen", "60", "61", "Kreisfreie Stadt", "064150000000", "06415000",
+     "Hanau, Brüder-Grimm-Stadt", "Magistrat der Stadt Hanau", "Am Markt 14 - 18", "63450", "Hanau",
+     "zentraledienste@hanau.de"],
+    ["06", "Hessen", "40", "44", "Landkreis", "06632", "", "Hersfeld-Rotenburg",
+     "Kreisausschuss des Landkreises Hersfeld-Rotenburg", "Friedloser Straße 12", "36251",
+     "Bad Hersfeld, Kreisstadt", "landkreis@hef-rof.de"],
+    ["06", "Hessen", "40", "44", "Landkreis", "06633", "", "Kassel",
+     "Kreisausschuss des Landkreises Kassel", "Wilhelmshöher Allee 19-21", "34117", "Kassel",
+     "info@landkreiskassel.de"],
+    # erst der Verband, dann die Gemeinde selbst (so in BW, BY, SN und TH)
+    ["06", "Hessen", "60", "64", "Gemeinde", "066320004004", "06632004", "Breitenbach a. Herzberg",
+     "Verband", "Verbandsstraße 1", "36287", "Breitenbach", "verband@breitenbach.de"],
+    ["06", "Hessen", "60", "64", "Gemeinde", "066320004004", "06632004", "Breitenbach a. Herzberg",
+     "Gemeindevorstand der Gemeinde Breitenbach a. Herzberg", "Hauptstraße 2", "36287",
+     "Breitenbach a. Herzberg", "magistrat@breitenbach-herzberg.de"],
+    ["06", "Hessen", "60", "63", "Stadt", "064380006006", "06438006", "Langen (Hessen), Stadt",
+     "Magistrat der Stadt Langen", "Südliche Ringstraße 80", "63225", "Langen (Hessen)",
+     "presse@langen.de"],
+]  # fmt: skip
+
+
+def _xlsx(pfad) -> None:
+    import pandas as pd
+    import pyogrio
+
+    zeilen = [z + [""] * (15 - len(z)) for z in VERZEICHNIS]
+    for z in zeilen[2:]:
+        z[13:15] = ["100,5", "1234"]  # Fläche, Bevölkerung
+    pfad.parent.mkdir(parents=True, exist_ok=True)
+    df = pd.DataFrame(zeilen, columns=[f"Feld{i}" for i in range(15)])
+    pyogrio.write_dataframe(df, pfad, layer="Anschriften_31_01_2026", driver="XLSX")
+
+
+def _attr_he() -> dict:
+    hef = {"ars": "06632", "gen": "Hersfeld-Rotenburg", "name": "Landkreis Hersfeld-Rotenburg"}
+    mkk = {"ars": "06435", "gen": "Main-Kinzig-Kreis", "name": "Main-Kinzig-Kreis"}
+    ks = {"ars": "06633", "gen": "Kassel", "name": "Landkreis Kassel"}
+    ffm = {
+        "ars": "06412",
+        "gen": "Frankfurt am Main",
+        "name": "Frankfurt am Main",
+        "kreisfrei": True,
+    }
+    of = {"ars": "06438", "gen": "Offenbach", "name": "Landkreis Offenbach"}
+
+    def g(ars: str, name: str, gen: str, kreis: dict, gemeindefrei: bool = False) -> dict:
+        return {"ars": ars, "ags": ars[:5] + ars[9:], "name": name, "gen": gen, "land": "HE",
+                "kreis": kreis, "verband": None, "gemeindefrei": gemeindefrei}  # fmt: skip
+
+    return {
+        "064120000000": g("064120000000", "Stadt Frankfurt am Main", "Frankfurt am Main", ffm),
+        "064350014014": g("064350014014", "Stadt Hanau", "Hanau", mkk),
+        "064380006006": g("064380006006", "Stadt Langen (Hessen)", "Langen (Hessen)", of),
+        "066320004004": g(
+            "066320004004", "Gemeinde Breitenbach a.Herzberg", "Breitenbach a.Herzberg", hef
+        ),
+        "066339200200": g(
+            "066339200200", "Gutsbezirk Reinhardswald", "Gutsbezirk Reinhardswald", ks, True
+        ),
+    }
+
+
+def test_lies_verzeichnis(tmp_path) -> None:
+    pfad = tmp_path / "anschriften.xlsx"
+    _xlsx(pfad)
+    zeilen = an.lies_verzeichnis(pfad)
+    assert "06" not in zeilen, "nur Kreise, Verbände und Gemeinden"
+    assert set(zeilen) == {"06412", "064120000000", "06415", "064150000000", "06632", "06633",
+                           "066320004004", "064380006006"}  # fmt: skip
+    assert zeilen["06632"]["email"] == "landkreis@hef-rof.de"
+    assert zeilen["066320004004"]["strasse"] == "Hauptstraße 2", (
+        "die Gemeinde selbst, nicht der Verband"
+    )
+    assert zeilen["064120000000"]["plz"] == "60311", "Schlüssel und PLZ bleiben Text"
+
+
+def test_verzeichnis_rollen(tmp_path) -> None:
+    pfad = tmp_path / "anschriften.xlsx"
+    _xlsx(pfad)
+    g = an.verzeichnis(_attr_he(), an.lies_verzeichnis(pfad), "HE")
+    breitenbach = g["066320004004"]
+    assert breitenbach["gemeinde"] == {
+        "name": "Gemeinde Breitenbach a.Herzberg",
+        "adresse": "Hauptstraße 2, 36287 Breitenbach a. Herzberg",
+        "telefon": [],
+        "email": ["magistrat@breitenbach-herzberg.de"],
+        "web": [],
+        "allgemein": True,
+    }
+    assert breitenbach["kreis"]["name"] == "Landkreis Hersfeld-Rotenburg", "wie die Stelle"
+    assert breitenbach["kreis"]["email"] == ["landkreis@hef-rof.de"]
+    assert breitenbach["kreis"]["adresse"] == "Friedloser Straße 12, 36251 Bad Hersfeld", "Ort kurz"
+    assert g["064120000000"]["kreis"]["name"] == "Stadt Frankfurt am Main", "kreisfrei: die Stadt"
+    hanau = g["064350014014"]["gemeinde"]
+    assert hanau["adresse"] == "Am Markt 14 - 18, 63450 Hanau", "umgeschlüsselt: nach dem Namen"
+    assert g["064350014014"]["kreis"] is None, "Main-Kinzig-Kreis fehlt im Auszug"
+    assert g["064380006006"]["gemeinde"]["email"] == [], "presse@ ist kein Weg für Anliegen"
+    wald = g["066339200200"]
+    assert wald["gemeinde"] is None and wald["kreis"]["name"] == "Landkreis Kassel"
+
+
+def test_ergaenze_verzeichnis(tmp_path, monkeypatch) -> None:
+    paths = Paths(root=tmp_path)
+    monkeypatch.setattr(an, "get_paths", lambda: paths)
+    monkeypatch.setattr(an.bundesportal, "ergaenzungen", lambda: {})
+    url = an.quellen()[an.VERZEICHNIS]["url"]
+    pfad = paths.raw_quelle(an.VERZEICHNIS) / fetch.dateiname(url)
+    _xlsx(pfad)
+    pfad.with_name(pfad.name + ".meta.json").write_text(
+        json.dumps({"abgerufen": "2026-10-05T12:00:00+00:00"})
+    )
+    daten = {"meta": {"laender": {}}, "gemeinden": {}}
+    review: list[list[str]] = []
+    assert an.ergaenze(daten, review, _attr_he()) == 5, "nur Hessen hat Gemeinden in der Tabelle"
+    he = daten["meta"]["laender"]["HE"]
+    assert he["stand"] == "2026-01-31" and he["abgerufen"] == "2026-10-05"
+    assert he["kurz"] == "Anschriftenverzeichnis der Statistischen Ämter"
+    assert he["quelle"]["id"] == "anschriften" and "Quellenangabe" in he["quelle"]["lizenz"]
+    assert "SL" not in daten["meta"]["laender"], "Land aus `laender` ohne Gemeinden hier"
+    assert len(review) == 5 and review[0][0] == "HE"

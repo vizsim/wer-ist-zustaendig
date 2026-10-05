@@ -285,6 +285,11 @@ test("baueLaender + auswahl: Kontakte aus einer eigenen Quelle des Landes, nur a
   const land = Object.fromEntries(index.laender.map((l) => [l.lkz, l]));
   assert.deepEqual([land.SN.kontakte, land.SN.allgemein], [1, 1]);
   assert.equal(land.BY.allgemein, undefined);
+
+  // Ein Verzeichnis mit eigenem Stand: der Stand statt des Abrufdatums.
+  k.meta.laender.SN = { ...k.meta.laender.SN, stand: "2026-01-31", kurz: "Anschriftenverzeichnis der Statistischen Ämter" };
+  const mitStand = baueLaender(a, { kontakte: k }).dateien["sn.json"];
+  assert.equal(mitStand.daten.kontakte, "Anschriftenverzeichnis der Statistischen Ämter 31.01.2026");
 });
 
 test("baueLaender: Link ins Bundesportal für jedes Land, das die Leistung dort führt", () => {
