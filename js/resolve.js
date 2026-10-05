@@ -158,16 +158,32 @@ export const TEXTE = Object.freeze({
       "In Sachsen-Anhalt ordnet auf Gemeindestraßen innerhalb geschlossener Ortschaften die Verbandsgemeinde " +
       "für ihre Mitgliedsgemeinden Verkehrszeichen an.",
     stLandkreis: "Für Kreis-, Landes- und Bundesstraßen ist in Sachsen-Anhalt der Landkreis Straßenverkehrsbehörde.",
-    heGemeindestrasse: "Auf Gemeindestraßen ordnet in Hessen die Stadt bzw. Gemeinde Verkehrszeichen an.",
-    heKreisstrasse:
-      "Auf Kreisstraßen ordnet in Hessen innerorts die Stadt bzw. Gemeinde Verkehrszeichen an, außerorts der " +
-      "Landkreis. Auf Straßen von besonderer Verkehrsbedeutung ordnet Hessen Mobil an.",
+    heKreisfrei:
+      "Kreisfreie Städte sind in Hessen für alle Straßen Straßenverkehrsbehörde – außer auf Autobahnen und auf " +
+      "14 Abschnitten von Bundesstraßen mit besonderer Verkehrsbedeutung (Hessen Mobil).",
+    heSonderstatus:
+      "Sonderstatus-Städte sind in Hessen für alle Straßen Straßenverkehrsbehörde – außer auf Autobahnen und auf " +
+      "14 Abschnitten von Bundesstraßen mit besonderer Verkehrsbedeutung (Hessen Mobil).",
+    heGemeindestrasse:
+      "Auf Gemeindestraßen ordnet in Hessen die Stadt bzw. Gemeinde Verkehrszeichen an; wirkt eine Anordnung " +
+      "über das Gemeindegebiet hinaus, der Landkreis.",
+    heKreisstrasse: "Auf Kreisstraßen ordnet in Hessen die Stadt bzw. Gemeinde Verkehrszeichen an, innerorts wie außerorts.",
     heLandesstrasse:
       "Auf Landesstraßen ordnet in Hessen die Stadt bzw. Gemeinde Verkehrszeichen an, wenn sie mehr als 7.500 " +
-      "Einwohner hat, sonst der Landkreis. Auf Straßen von besonderer Verkehrsbedeutung ordnet Hessen Mobil an.",
+      "Einwohner hat.",
+    heLandesstrasseKreis:
+      "Auf Landesstraßen ordnet in Hessen der Landkreis Verkehrszeichen an, wenn die Gemeinde nicht mehr als " +
+      "7.500 Einwohner hat.",
     heBundesstrasse:
-      "Auf Bundesstraßen ordnet in Hessen die Stadt Verkehrszeichen an, wenn sie mehr als 50.000 Einwohner hat, " +
-      "sonst der Landkreis. Auf Straßen von besonderer Verkehrsbedeutung ordnet Hessen Mobil an.",
+      "Auf Bundesstraßen ordnet in Hessen der Landkreis Verkehrszeichen an, außer in Sonderstatus- und kreisfreien " +
+      "Städten; auf 14 Abschnitten mit besonderer Verkehrsbedeutung Hessen Mobil.",
+    slGemeinde:
+      "Im Saarland ordnet die Gemeinde auf Gemeindestraßen Verkehrsbeschränkungen, Fußgängerüberwege und " +
+      "Vorfahrtregeln selbst an.",
+    slKreis:
+      "Für Landstraßen und Bundesstraßen ist im Saarland der Landkreis bzw. der Regionalverband Saarbrücken " +
+      "Straßenverkehrsbehörde.",
+    slSaarbruecken: "Die Landeshauptstadt Saarbrücken ist für alle Straßen ihres Gebiets selbst Straßenverkehrsbehörde.",
   }),
   bedingung: Object.freeze({
     gks: "Große Kreisstadt – sie kann selbst zuständig sein",
@@ -185,8 +201,14 @@ export const TEXTE = Object.freeze({
     mvBestandMoeglich: "Stadt mit 17.000 bis 20.000 Einwohnern – sie kann nach der Übergangsregel selbst zuständig sein",
     rpAusserorts: "falls die Strecke außerhalb geschlossener Ortschaften liegt",
     stAusserorts: "falls die Gemeindestraße außerhalb geschlossener Ortschaften liegt",
-    heAusserorts: "falls die Kreisstraße außerhalb geschlossener Ortschaften liegt",
-    heSchwelle: "Einwohnerzahl nahe der Schwelle – falls die maßgebliche Zahl auf der anderen Seite liegt",
+    heUeberoertlich: "falls die Anordnung über das Gemeindegebiet hinaus wirkt",
+    heAmpel:
+      "falls es um eine Ampel oder einen Fußgängerüberweg geht oder die Anordnung über das Gemeindegebiet " +
+      "hinaus wirkt",
+    heAmpelAusserhalb:
+      "falls es um eine Ampel oder einen Fußgängerüberweg außerhalb der Ortsdurchfahrt geht oder die Anordnung " +
+      "über das Gemeindegebiet hinaus wirkt",
+    heBestand: "falls die Gemeinde bis vor Kurzem mehr als 7.500 Einwohner hatte – sie bleibt dann bis zu drei Jahre zuständig",
   }),
   quelle: Object.freeze({
     phase1: "Rückfall auf die Kreisebene – die Regel dieses Landes ist noch nicht eingearbeitet",
@@ -320,11 +342,28 @@ export const TEXTE = Object.freeze({
       "Art. 3 § 1 Nr. 5 des Gesetzes zur Fortentwicklung der Verwaltungsgemeinschaften (Sachsen-Anhalt) – Inhalt " +
       "nur aus BVerwG 3 B 91.10, Wortlaut nicht geprüft; innerorts laut Saalekreis; § 6 Abs. 1 Nr. 2 und § 90 Abs. 2 " +
       "KVG LSA [S]",
-    heRegel:
-      "Verordnung zur Bestimmung verkehrsrechtlicher Zuständigkeiten (StVRZustV, Hessen) – Wortlaut nicht geprüft; " +
-      "Regel laut Hessischem Ministerium für Wirtschaft, Energie, Verkehr, Wohnen und ländlichen Raum " +
-      "(wirtschaft.hessen.de, gelesen 05.10.2026) und Hessen Mobil; Straßen von besonderer Verkehrsbedeutung " +
-      "abschließend in § 9 Abs. 2 StVRZustV; Einwohner laut GV-ISys 31.12.2025",
+    heStadt:
+      "§ 10 Abs. 1 Nr. 2 Buchst. a und b Doppelbuchst. aa der Verordnung zur Bestimmung verkehrsrechtlicher " +
+      "Zuständigkeiten (StVRZustV, Hessen) vom 12.11.2007 (GVBl. I S. 800), zuletzt geändert 28.01.2026 " +
+      "(GVBl. 2026 Nr. 5); Straßen von besonderer Verkehrsbedeutung § 9 Abs. 2",
+    heSonderstatus:
+      "§ 10 Abs. 1 Nr. 2 Buchst. b Doppelbuchst. bb StVRZustV (Hessen) vom 12.11.2007 (GVBl. I S. 800), " +
+      "zuletzt geändert 28.01.2026 (GVBl. 2026 Nr. 5); Sonderstatus-Städte nach § 4a Abs. 2 HGO [S]",
+    heGemeinde:
+      "§ 10 Abs. 1 Nr. 2 Buchst. b Doppelbuchst. cc und § 10a StVRZustV (Hessen) vom 12.11.2007 (GVBl. I S. 800), " +
+      "zuletzt geändert 28.01.2026 (GVBl. 2026 Nr. 5); Einwohner laut GV-ISys 31.12.2025, maßgeblich ist die Zahl " +
+      "des Hessischen Statistischen Landesamts vor dem Haushaltsjahr",
+    heLandkreis:
+      "§ 10 Abs. 1 Nr. 2 Buchst. b Doppelbuchst. cc Dreifachbuchst. aaa und Doppelbuchst. dd StVRZustV (Hessen) " +
+      "vom 12.11.2007 (GVBl. I S. 800), zuletzt geändert 28.01.2026 (GVBl. 2026 Nr. 5); Straßen von besonderer " +
+      "Verkehrsbedeutung § 9 Abs. 2",
+    slUnter:
+      "§ 7 Abs. 1 Straßenverkehrszuständigkeitsgesetz (StVZustG, Saarland) vom 13.06.2001 (Amtsbl. S. 1430), " +
+      "zuletzt geändert 11.11.2020 (Amtsbl. I S. 1262)",
+    slOertlich:
+      "§ 12 Abs. 1 StVZustG (Saarland) vom 13.06.2001 (Amtsbl. S. 1430), zuletzt geändert 11.11.2020 " +
+      "(Amtsbl. I S. 1262); Gemeindestraßen und sonstige öffentliche Straßen nach § 3 Abs. 1 Nr. 3 und 4 " +
+      "Saarländisches Straßengesetz",
   }),
   hinweis: Object.freeze({
     autobahnDabei: "Für die Autobahn selbst ist das Fernstraßen-Bundesamt zuständig.",
@@ -995,33 +1034,77 @@ function regelSachsenAnhalt(g, klasse) {
   return ergebnis(ort, sicher, "stGemeinde", "stOertlich", ausserorts);
 }
 
-/** Hessen: Einwohnerschwellen für Landes- und Bundesstraßen (Städte und Gemeinden mit mehr Einwohnern). */
-export const HE_SCHWELLEN = Object.freeze({ L: 7500, B: 50000 });
+/**
+ * Hessen: Sonderstatus-Städte nach § 4a Abs. 2 HGO, nach ARS – für alle Straßen selbst zuständig. Die
+ * Liste [S] deckt sich mit den kreisangehörigen Städten über 50.000 Einwohnern (GV-ISys 31.12.2025);
+ * Hanau ist seit 2026 kreisfrei.
+ */
+export const HE_SONDERSTATUS = Object.freeze({
+  "064330012012": "Rüsselsheim am Main",
+  "064340001001": "Bad Homburg v.d.Höhe",
+  "064350014014": "Hanau",
+  "065310005005": "Gießen",
+  "065320023023": "Wetzlar",
+  "065340014014": "Marburg",
+  "066310009009": "Fulda",
+});
 
 /**
- * Hessen (vermutlich): Straßenverkehrsbehörden sind die Landräte, die Oberbürgermeister und die
- * Bürgermeister; wer zuständig ist, hängt an Straßenklasse und Einwohnerzahl (Verordnung zur Bestimmung
- * verkehrsrechtlicher Zuständigkeiten). Laut Verkehrsministerium: Gemeindestraßen die Stadt bzw.
- * Gemeinde, Kreisstraßen innerorts ebenso und außerorts der Landkreis, Landesstraßen die Gemeinde ab
- * mehr als 7.500 Einwohnern, Bundesstraßen ab mehr als 50.000, sonst der Landkreis; Straßen von
- * besonderer Verkehrsbedeutung (abschließend in § 9 Abs. 2 StVRZustV) Hessen Mobil – nicht abgebildet,
- * nur im Text. Nahe an einer Schwelle (± 5 %) steht die andere Stelle als Alternative. Den Wortlaut
- * haben wir nicht gelesen (das Rechtsportal war nicht erreichbar) – daher überall „vermutlich“.
+ * Hessen: Einwohnerschwellen der übrigen kreisangehörigen Gemeinden – Landesstraßen ab mehr als 7.500,
+ * Ampeln und Fußgängerüberwege in der Ortsdurchfahrt von Bundes- und Landesstraßen ab mehr als 30.000.
+ * Wer unter 7.500 fällt, bleibt bis 10 % darunter zuständig, höchstens drei Jahre (§ 10a).
+ */
+export const HE_SCHWELLEN = Object.freeze({ L: 7500, ortsdurchfahrt: 30000, bestand: 6750 });
+
+/**
+ * Hessen (belegt, StVRZustV § 10 Abs. 1 Nr. 2, § 10a): Straßenverkehrsbehörde ist in kreisfreien Städten und
+ * Sonderstatus-Städten die Oberbürgermeisterin bzw. der Oberbürgermeister, in den übrigen Gemeinden die
+ * Bürgermeisterin bzw. der Bürgermeister – außer für Bundesstraßen, für Landesstraßen in Gemeinden mit bis
+ * zu 7.500 Einwohnern und für Anordnungen, die über das Gemeindegebiet hinaus wirken; Ampeln und
+ * Fußgängerüberwege an Bundes- und Landesstraßen ordnet der Landrat an, außer in der Ortsdurchfahrt von
+ * Gemeinden über 30.000 Einwohnern. Sonst die Landrätin bzw. der Landrat. Autobahnen und 14 Abschnitte von
+ * Bundesstraßen mit besonderer Verkehrsbedeutung (§ 9 Abs. 2): Hessen Mobil, nur im Text.
  */
 function regelHessen(g, klasse) {
   const kreis = kreisStelle(g);
-  const sicher = SICHERHEIT.VERMUTLICH; // bis der Wortlaut an der Primärquelle geprüft ist
-  if (g.kreis.kreisfrei) return ergebnis(kreis, sicher, "kreisfrei", "heRegel");
-  if (g.gemeindefrei) return ergebnis(kreis, sicher, "gemeindefrei", "heRegel");
+  if (g.kreis.kreisfrei) return ergebnis(kreis, SICHERHEIT.BELEGT, "heKreisfrei", "heStadt");
+  if (g.gemeindefrei) return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "gemeindefrei", "heLandkreis");
+  if (HE_SONDERSTATUS[g.ars]) {
+    return ergebnis(gemeindeStelle(g, "stadt", "untere"), SICHERHEIT.BELEGT, "heSonderstatus", "heSonderstatus");
+  }
   const ew = g.ew ?? 0;
-  const ort = gemeindeStelle(g, istStadt(g) ? "stadt" : "gemeinde", ew > HE_SCHWELLEN.B ? "untere" : "oertliche");
-  if (klasse === "G") return ergebnis(ort, sicher, "heGemeindestrasse", "heRegel");
-  if (klasse === "K") return ergebnis(ort, sicher, "heKreisstrasse", "heRegel", { stelle: kreis, bedingung: "heAusserorts" });
-  const schwelle = HE_SCHWELLEN[klasse];
-  const [stelle, andere] = ew > schwelle ? [ort, kreis] : [kreis, ort];
-  const knapp = Math.abs(ew - schwelle) <= schwelle * 0.05;
-  const grund = klasse === "L" ? "heLandesstrasse" : "heBundesstrasse";
-  return ergebnis(stelle, sicher, grund, "heRegel", knapp ? { stelle: andere, bedingung: "heSchwelle" } : null);
+  const ort = gemeindeStelle(g, istStadt(g) ? "stadt" : "gemeinde", "oertliche");
+  if (klasse === "G") return ergebnis(ort, SICHERHEIT.BELEGT, "heGemeindestrasse", "heGemeinde");
+  if (klasse === "K") {
+    return ergebnis(ort, SICHERHEIT.BELEGT, "heKreisstrasse", "heGemeinde", { stelle: kreis, bedingung: "heUeberoertlich" });
+  }
+  if (klasse === "L" && ew > HE_SCHWELLEN.L) {
+    const bedingung = ew > HE_SCHWELLEN.ortsdurchfahrt ? "heAmpelAusserhalb" : "heAmpel";
+    return ergebnis(ort, SICHERHEIT.BELEGT, "heLandesstrasse", "heGemeinde", { stelle: kreis, bedingung });
+  }
+  if (klasse === "L" && ew >= HE_SCHWELLEN.bestand) {
+    return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "heLandesstrasseKreis", "heGemeinde", { stelle: ort, bedingung: "heBestand" });
+  }
+  return ergebnis(kreis, SICHERHEIT.BELEGT, klasse === "L" ? "heLandesstrasseKreis" : "heBundesstrasse", "heLandkreis");
+}
+
+const SL_SAARBRUECKEN = "100410100100";
+
+/**
+ * Saarland (belegt, StVZustG): Straßenverkehrsbehörden sind die Landkreise, der Regionalverband
+ * Saarbrücken und die Landeshauptstadt Saarbrücken (§ 7 Abs. 1). Verkehrsbeschränkungen,
+ * Fußgängerüberwege und Vorfahrtregeln auf Gemeindestraßen und sonstigen öffentlichen Straßen ordnet die
+ * Gemeinde an (§ 12 Abs. 1). Kreisstraßen gibt es nicht; Landstraßen II. Ordnung zählen als `L`.
+ */
+function regelSaarland(g, klasse) {
+  const kreis = kreisStelle(g);
+  if (g.ars === SL_SAARBRUECKEN) {
+    return ergebnis(gemeindeStelle(g, "stadt", "untere"), SICHERHEIT.BELEGT, "slSaarbruecken", "slUnter");
+  }
+  if (g.kreis.kreisfrei) return ergebnis(kreis, SICHERHEIT.BELEGT, "kreisfrei", "slUnter");
+  if (g.gemeindefrei) return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "gemeindefrei", "slUnter");
+  if (klasse !== "G") return ergebnis(kreis, SICHERHEIT.BELEGT, "slKreis", "slUnter");
+  return ergebnis(gemeindeStelle(g, istStadt(g) ? "stadt" : "gemeinde", "oertliche"), SICHERHEIT.BELEGT, "slGemeinde", "slOertlich");
 }
 
 /** Landesregeln: (Gemeinde, Klasse) → Ergebnis, oder null für den Rückfall auf Phase 1. */
@@ -1034,6 +1117,7 @@ export const LANDESREGELN = Object.freeze({
   NW: regelNordrheinWestfalen,
   RP: regelRheinlandPfalz,
   SH: regelSchleswigHolstein,
+  SL: regelSaarland,
   SN: regelSachsen,
   ST: regelSachsenAnhalt,
   TH: regelThueringen,
