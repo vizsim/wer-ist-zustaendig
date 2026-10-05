@@ -14,7 +14,7 @@
 import { kreisBehoerde, mitZusatz, stadtName } from "./namen.js";
 import { hoechsteKlasse } from "./strassenklasse.js";
 
-export const REGELN = Object.freeze({ version: "0.11.0", phase: 2, stand: "2026-10-05" });
+export const REGELN = Object.freeze({ version: "0.12.0", phase: 2, stand: "2026-10-05" });
 
 export const SICHERHEIT = Object.freeze({
   BELEGT: "belegt",
