@@ -45,15 +45,21 @@ export const SICHERHEIT_STIL = Object.freeze({
 
 /**
  * Kontakt der zuständigen Stelle (Feld `ko` in den Kacheln) → Legende und Flächenfarbe, wenn die
- * Karte nach Kontakten färbt: `k` für alle Straßenklassen, `t` für einen Teil, `p` nur der Link ins
- * Bundesportal, `n` noch nichts. Grün für vorhanden, Verkehrsgelb für den Umweg übers Portal.
+ * Karte nach Kontakten färbt: `k` für alle Straßenklassen, `t` für einen Teil, `a` nur die
+ * allgemeine Anschrift der Verwaltung, `p` nur der Link ins Bundesportal, `n` noch nichts. Grün für
+ * vorhanden, Blau für die allgemeine Anschrift, Verkehrsgelb für den Umweg übers Portal.
  */
 export const KONTAKT_STIL = Object.freeze({
   k: { label: "Kontakt für alle Straßen", farbe: "#2e7d4f", deckkraft: 0.45 },
   t: { label: "Kontakt für einen Teil der Straßen", farbe: "#7fb35a", deckkraft: 0.42 },
+  a: { label: "Nur die allgemeine Anschrift (Rathaus, Landratsamt)", farbe: "#5b8db8", deckkraft: 0.38 },
   p: { label: "Nur der Link ins Bundesportal", farbe: "#e0a100", deckkraft: 0.36 },
   n: { label: "Noch kein Kontakt", farbe: "#9aa3a8", deckkraft: 0.16 },
 });
+
+/** Unter einem Kontakt, der nur die allgemeine Anschrift der Verwaltung ist (`allgemein`). */
+export const ALLGEMEIN_HINWEIS =
+  "Allgemeine Anschrift der Verwaltung, nicht der Verkehrsstelle – bitte nach der Straßenverkehrsbehörde fragen.";
 
 /** MapLibre-Ausdruck → Flächenfarbe je Kontaktstatus; Kacheln ohne Feld wie „noch kein Kontakt". */
 export function kontaktFarbe(feld = ["get", "ko"]) {
@@ -279,6 +285,8 @@ export function antwortHtml(r, strassen, { landName, bundesportal, hinweis } = {
         "<span>Kontakt</span> im Bundesportal ansehen</a></li></ul>"
       : `<p class="schild-hinweis">Kontaktdaten${landName ? ` für ${esc(landName)}` : ""} haben wir noch nicht.</p>`;
   }
+  // Nur die allgemeine Anschrift der Verwaltung (Rathaus, Landratsamt): sagen, wonach man fragt.
+  const allgemein = (kontakt) => (kontakt?.allgemein ? `<p class="schild-hinweis">${esc(ALLGEMEIN_HINWEIS)}</p>` : "");
 
   const a = r.alternative;
   const altBehoerde = teileName(a?.stelle?.name).behoerde;
@@ -289,6 +297,7 @@ export function antwortHtml(r, strassen, { landName, bundesportal, hinweis } = {
       <p class="alternative-bedingung">${esc(satz(a.bedingung))}</p>
       ${altStelle ? `<p class="alternative-stelle">${esc(altStelle)}</p>` : ""}
       ${wegeHtml(a.kontakt)}
+      ${allgemein(a.kontakt)}
     </div>` : "";
 
   const s = strassen?.[0];
@@ -314,6 +323,7 @@ export function antwortHtml(r, strassen, { landName, bundesportal, hinweis } = {
       ${stelleZeile ? `<p class="schild-zusatz">${esc(stelleZeile)}</p>` : ""}
       ${k?.adresse ? `<p class="schild-adresse">${esc(k.adresse)}</p>` : ""}
       ${wege}
+      ${allgemein(k)}
     </div>
     ${alternative}
     <p class="ort">${strasse}${ort}</p>
@@ -351,7 +361,15 @@ export function willkommenHtml(index, { melden } = {}) {
   const namen = (s) => aufzaehlung(mitRegel.filter((l) => meistGilt(l.sicherheit) === s).map((l) => l.name).sort(nachName));
   const geprueft = namen(SICHERHEIT.BELEGT);
   const vermutlich = namen(SICHERHEIT.VERMUTLICH);
-  const mitKontakt = aufzaehlung(laender.filter((l) => l.kontakte > 0).map((l) => l.name).sort(nachName));
+  // Kontakte der Stelle selbst; Länder, für die es nur die allgemeine Anschrift der Verwaltung gibt
+  // (`allgemein` zählt diese Gemeinden), eigens.
+  const kontaktLaender = (f) => aufzaehlung(laender.filter(f).map((l) => l.name).sort(nachName));
+  const mitKontakt = kontaktLaender((l) => l.kontakte > (l.allgemein ?? 0));
+  const nurAllgemein = kontaktLaender((l) => l.kontakte > 0 && l.allgemein === l.kontakte);
+  const kontakte = mitKontakt
+    ? `Telefon, E-Mail und Webseite der Stelle gibt es bisher für ${esc(mitKontakt)}` +
+      `${nurAllgemein ? `, für ${esc(nurAllgemein)} die allgemeine Anschrift der Verwaltung` : ""}.`
+    : nurAllgemein && `Für ${esc(nurAllgemein)} gibt es bisher die allgemeine Anschrift der Verwaltung.`;
   const offen = laender.length - mitRegel.length;
   const stand = [
     geprueft && `<li><strong>Geprüft:</strong> ${esc(geprueft)} – die Regel ist an der Rechtsgrundlage geprüft.</li>`,
@@ -364,7 +382,7 @@ export function willkommenHtml(index, { melden } = {}) {
     <h2 id="willkommen-titel">Testversion</h2>
     <p>Die Karte zeigt, welche Straßenverkehrsbehörde an einer Straße über Schilder und Tempolimits entscheidet – und wie du sie erreichst.</p>
     ${stand ? `<ul class="willkommen-stand">${stand}</ul>` : "<p>Erst wenige Länder haben eine eigene Regel; sonst nennt die Karte die Kreisebene.</p>"}
-    ${mitKontakt ? `<p>Telefon, E-Mail und Webseite der Stelle gibt es bisher für ${esc(mitKontakt)}.</p>` : ""}
+    ${kontakte ? `<p>${kontakte}</p>` : ""}
     <p>Alle Angaben ohne Gewähr und kein Rechtsrat. Bitte prüfe vor dem Absenden, ob die Stelle wirklich zuständig ist.</p>
     <p>Darstellung und Funktionen ändern sich noch.${link
       ? ` Fehler gefunden? <a href="${esc(link)}" target="_blank" rel="noopener">Bitte melden</a>.` : ""}</p>`;

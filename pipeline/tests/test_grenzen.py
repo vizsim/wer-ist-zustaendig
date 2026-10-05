@@ -56,23 +56,38 @@ def test_kreis_typen() -> None:
 
 
 def _landesdatei(region: bool) -> dict:
-    """Bayern im Kleinen: Freising (GKS) und eine Gemeinde mit Gemeindestraßen bei ihr selbst."""
-    kreis, gks, gemeinde = "e1", "e2", "e3"
+    """Bayern im Kleinen: Freising (GKS), Gemeinden mit Gemeindestraßen bei sich selbst – eine mit
+    Kontakt des Landratsamts, eine ohne Kontakt, eine nur mit der allgemeinen Anschrift ihres
+    Rathauses und eine mit beidem."""
+    kreis, gks = "e1", "e2"
+    gemeinde = {f"0917851012{n:02d}": f"e2{n:02d}" for n in (1, 2, 3, 4)}
+
+    def klassen(ars: str) -> dict:
+        return {"G": gemeinde[ars], "K": kreis, "L": kreis, "B": kreis}
+
     return {
         **({"bundesportal_region": "https://…/region/{ars}"} if region else {}),
         "stellen": {},
         "ergebnisse": {
             kreis: {"stelle": "k09178"},
             gks: {"stelle": "g091780124124"},
-            gemeinde: {"stelle": "g091785101201"},
+            **{e: {"stelle": f"g{ars}"} for ars, e in gemeinde.items()},
+        },
+        "kontakte": {
+            "c1": {"name": "Stadt Freising - Verkehrsamt"},
+            "c2": {"name": "Landratsamt Freising - Straßenverkehr"},
+            "c3": {"name": "Gemeinde Musterdorf", "allgemein": True},
         },
         "gemeinden": {
             "091780124124": {"z": dict.fromkeys("GKLB", gks), "kontakt_gemeinde": "c1"},
-            "091785101201": {
-                "z": {"G": gemeinde, "K": kreis, "L": kreis, "B": kreis},
+            "091785101201": {"z": klassen("091785101201"), "kontakt": "c2"},
+            "091785101202": {"z": klassen("091785101202")},
+            "091785101203": {"z": klassen("091785101203"), "kontakt_gemeinde": "c3"},
+            "091785101204": {
+                "z": klassen("091785101204"),
                 "kontakt": "c2",
+                "kontakt_gemeinde": "c3",
             },
-            "091785101202": {"z": {"G": gemeinde, "K": kreis, "L": kreis, "B": kreis}},
         },
     }
 
@@ -82,6 +97,8 @@ def test_kontakt_status() -> None:
     assert grenzen.kontakt_status(d, "091780124124") == "k", "Stadt mit eigenem Kontakt"
     assert grenzen.kontakt_status(d, "091785101201") == "t", "Kreis ja, Gemeinde nein"
     assert grenzen.kontakt_status(d, "091785101202") == "p", "kein Kontakt, aber Link ins Portal"
+    assert grenzen.kontakt_status(d, "091785101203") == "a", "nur die allgemeine Anschrift"
+    assert grenzen.kontakt_status(d, "091785101204") == "t", "Kreis ja, Gemeinde nur allgemein"
     assert grenzen.kontakt_status(_landesdatei(region=False), "091785101202") == "n"
 
 
@@ -89,8 +106,16 @@ def test_kontakte_aus_landesdateien_und_mehrheit(tmp_path) -> None:
     (tmp_path / "index.json").write_text(json.dumps({"laender": [{"datei": "by.json"}]}))
     (tmp_path / "by.json").write_text(json.dumps(_landesdatei(region=True)))
     kontakte = grenzen.kontakte_aus_landesdateien(tmp_path)
-    assert kontakte == {"091780124124": "k", "091785101201": "t", "091785101202": "p"}
-    assert grenzen.mehrheit_je_kreis(kontakte) == {"09178": "k"}, "Gleichstand: der erste nach Name"
+    assert kontakte == {
+        "091780124124": "k",
+        "091785101201": "t",
+        "091785101202": "p",
+        "091785101203": "a",
+        "091785101204": "t",
+    }
+    assert grenzen.mehrheit_je_kreis(kontakte) == {"09178": "t"}
+    del kontakte["091785101204"]
+    assert grenzen.mehrheit_je_kreis(kontakte) == {"09178": "a"}, "Gleichstand: der erste nach Name"
     assert grenzen.kontakte_aus_landesdateien(tmp_path / "fehlt") == {}
 
 

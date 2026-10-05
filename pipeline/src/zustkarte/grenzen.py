@@ -47,23 +47,27 @@ def typen_aus_landesdateien(ordner: Path) -> dict[str, tuple[str, str]]:
 
 def kontakt_status(daten: dict[str, Any], ars: str) -> str:
     """Hat die zuständige Stelle einen Kontakt? `k` in allen Klassen (G, K, L, B), `t` in einem
-    Teil, `p` in keiner, aber das Land führt die Leistung im Bundesportal (die Karte verlinkt
-    dorthin), `n` nichts. Wie `auswahl()`: `k…` → `kontakt`, `g<ARS>` und `v…` →
-    `kontakt_gemeinde`."""
+    Teil, `a` in keiner, aber die allgemeine Anschrift der Verwaltung (`allgemein`), `p` nichts
+    davon, aber das Land führt die Leistung im Bundesportal (die Karte verlinkt dorthin), `n`
+    nichts. Wie `auswahl()`: `k…` → `kontakt`, `g<ARS>` und `v…` → `kontakt_gemeinde`."""
     g = daten["gemeinden"][ars]
+    kontakte = daten.get("kontakte") or {}
 
-    def hat(stelle: str) -> bool:
+    def kontakt(stelle: str) -> dict[str, Any] | None:
         if stelle.startswith("k"):
-            return bool(g.get("kontakt"))
+            return kontakte.get(g.get("kontakt") or "")
         if stelle == f"g{ars}" or stelle.startswith("v"):
-            return bool(g.get("kontakt_gemeinde"))
-        return False
+            return kontakte.get(g.get("kontakt_gemeinde") or "")
+        return None
 
-    treffer = [hat(daten["ergebnisse"][g["z"][k]]["stelle"]) for k in ("G", "K", "L", "B")]
-    if all(treffer):
+    je_klasse = [kontakt(daten["ergebnisse"][g["z"][k]]["stelle"]) for k in ("G", "K", "L", "B")]
+    eigen = [bool(k) and not k.get("allgemein") for k in je_klasse]
+    if all(eigen):
         return "k"
-    if any(treffer):
+    if any(eigen):
         return "t"
+    if any(je_klasse):
+        return "a"
     return "p" if daten.get("bundesportal_region") else "n"
 
 

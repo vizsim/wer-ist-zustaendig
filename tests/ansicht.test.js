@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  antwortHtml, ARTEN, aufzaehlung, datenBasisAusParam, esc, farbAusdruck, flaechenDeckkraft, flaechenFarbe,
+  ALLGEMEIN_HINWEIS, antwortHtml, ARTEN, aufzaehlung, datenBasisAusParam, esc, farbAusdruck, flaechenDeckkraft, flaechenFarbe,
   klassenAusdruck, klassenListe, KONTAKT_STIL, kontaktDeckkraft, kontaktFarbe, SICHERHEIT_STIL, stelleOhneBehoerde,
   strassenAmPunkt, strassenName, teileName, telHref, wegeHtml, willkommenHtml,
 } from "../js/ansicht.js";
@@ -220,6 +220,34 @@ test("antwortHtml: Alternative mit Bedingung und eigenem Kontakt; Herkunft je Qu
   assert.equal(html.split("Kontaktdaten: Bundesportal 02.10.2026").length - 1, 1);
 });
 
+test("antwortHtml: allgemeine Anschrift der Verwaltung mit Hinweis, auch bei der Alternative", () => {
+  const rathaus = {
+    name: "Gemeinde Amtsberg", adresse: "Poststr. 30, 09439 Amtsberg", telefon: ["037209 6790"],
+    email: ["info@amtsberg.eu"], web: [], allgemein: true,
+  };
+  const html = antwortHtml({
+    ...BASIS, gemeinde: "Amtsberg", land: "SN", stand: { kontakte: "Landesdirektion Sachsen 05.10.2026" },
+    zustaendig: { name: "Gemeinde Amtsberg – Straßenverkehrsbehörde" }, kontakt: rathaus,
+  }, [], { landName: "Sachsen" });
+  assert.ok(html.includes('<p class="schild-zusatz">Straßenverkehrsbehörde</p>'), "die Stelle, nach der man fragt");
+  assert.ok(html.includes(`<p class="schild-hinweis">${ALLGEMEIN_HINWEIS}</p>`));
+  assert.ok(html.indexOf(ALLGEMEIN_HINWEIS) > html.indexOf('class="wege"'), "unter den Wegen");
+  assert.ok(html.includes("Kontaktdaten: Landesdirektion Sachsen 05.10.2026."));
+
+  const alt = antwortHtml({
+    ...BASIS, land: "SN", zustaendig: { name: "Landratsamt Erzgebirgskreis – Straßenverkehrsbehörde" },
+    kontakt: { name: "Landratsamt Erzgebirgskreis - Straßenverkehrsamt", telefon: ["03733 831-0"] },
+    alternative: {
+      stelle: { name: "Gemeinde Amtsberg – Straßenverkehrsbehörde" }, bedingung: TEXTE.bedingung.gemeindestrasse,
+      kontakt: rathaus,
+    },
+  }, []);
+  assert.equal(alt.split(ALLGEMEIN_HINWEIS).length - 1, 1, "nur bei der Alternative");
+  assert.ok(alt.indexOf(ALLGEMEIN_HINWEIS) > alt.indexOf('class="alternative"'));
+  const eigen = antwortHtml({ ...BASIS, zustaendig: { name: "X – Straßenverkehrsbehörde" }, kontakt: { ...rathaus, allgemein: undefined } }, []);
+  assert.ok(!eigen.includes(ALLGEMEIN_HINWEIS), "Kontakt der Stelle selbst: kein Hinweis");
+});
+
 test("antwortHtml: Alternative ohne Kontakt nur mit Name und Bedingung", () => {
   const html = antwortHtml({
     ...BASIS, zustaendig: { name: "Landratsamt Esslingen – Straßenverkehrsbehörde" },
@@ -279,6 +307,16 @@ test("willkommenHtml: Stand aus index.json – geprüft, vermutlich, offen; Kont
   assert.ok(sortiert.includes("gibt es bisher für Bayern und Brandenburg."));
 });
 
+test("willkommenHtml: Länder, für die es nur die allgemeine Anschrift gibt, eigens", () => {
+  const by = { lkz: "BY", name: "Bayern", sicherheit: { belegt: 2221, vermutlich: 0, "nur Ebene": 0 }, kontakte: 2221 };
+  const sn = { lkz: "SN", name: "Sachsen", sicherheit: { belegt: 418, vermutlich: 0, "nur Ebene": 0 }, kontakte: 418, allgemein: 418 };
+  assert.ok(willkommenHtml({ laender: [sn, by] })
+    .includes("gibt es bisher für Bayern, für Sachsen die allgemeine Anschrift der Verwaltung.</p>"));
+  assert.ok(willkommenHtml({ laender: [sn] }).includes("<p>Für Sachsen gibt es bisher die allgemeine Anschrift der Verwaltung.</p>"));
+  const teils = { ...sn, allgemein: 100 };
+  assert.ok(willkommenHtml({ laender: [by, teils] }).includes("gibt es bisher für Bayern und Sachsen.</p>"), "teils eigene Kontakte");
+});
+
 test("aufzaehlung: Komma, vor dem letzten Namen „und“", () => {
   assert.equal(aufzaehlung([]), "");
   assert.equal(aufzaehlung(["Bayern"]), "Bayern");
@@ -287,7 +325,7 @@ test("aufzaehlung: Komma, vor dem letzten Namen „und“", () => {
 });
 
 test("kontaktFarbe, kontaktDeckkraft: je Kontaktstatus; Kacheln ohne Feld wie „noch kein Kontakt“", () => {
-  assert.deepEqual(Object.keys(KONTAKT_STIL), ["k", "t", "p", "n"], "Werte des Felds ko (docs/VERTRAG.md)");
+  assert.deepEqual(Object.keys(KONTAKT_STIL), ["k", "t", "a", "p", "n"], "Werte des Felds ko (docs/VERTRAG.md)");
   for (const [ko, st] of Object.entries(KONTAKT_STIL)) {
     assert.equal(werte(kontaktFarbe(), { ko }), st.farbe, ko);
     assert.equal(werte(kontaktDeckkraft(), { ko }), st.deckkraft, ko);
