@@ -166,3 +166,102 @@ kontakte:
     email: ["kanzlei@lra-aoe.de"]
     web: ["https://www.lra-aoe.de/themen/fahrzeug-verkehr/verkehrswesen-allgemein/"]
     stand: "2026-10-03"
+
+  # Niedersachsen. Landkreis Hildesheim (03254) nicht ermittelt: Die Webseite nennt nur die
+  # Zulassungsstelle (docs/TODO.md).
+
+  "03101":  # Stadt Braunschweig – Portal nennt keine Stelle
+    name: "Stadt Braunschweig - Fachbereich Tiefbau und Verkehr, Abteilung Straßenverkehr"
+    adresse: "Bohlweg 30, 38100 Braunschweig"
+    telefon: ["0531 470-1"]  # Bürgertelefon; die Abteilung nennt kein Telefon
+    email: ["strassenverkehr@braunschweig.de"]
+    web: ["https://www.braunschweig.de/politik_verwaltung/fb_institutionen/fachbereiche_referate/fb66/fb66_4/index.php"]
+    stand: "2026-10-04"
+
+  "03401":  # Stadt Delmenhorst – Portal nennt keine Stelle
+    name: "Stadt Delmenhorst - Fachdienst Verkehr"
+    adresse: "Am Stadtwall 1, 27749 Delmenhorst"
+    telefon: ["04221 99-2307"]
+    email: ["anfragen.verkehr@delmenhorst.de"]
+    web: ["https://www.delmenhorst.de/vv/oe/fb50/fd54/index.php"]
+    stand: "2026-10-04"
+
+  "03403":  # Stadt Oldenburg (Oldb) – Portal nennt keine Stelle
+    name: "Stadt Oldenburg - Amt für Verkehr und Straßenbau, Fachdienst Verkehrslenkung"
+    adresse: "Industriestraße 1 h, 26121 Oldenburg"
+    telefon: ["0441 235-4444"]  # zugleich ServiceCenter der Stadt
+    email: ["verkehrslenkung@stadt-oldenburg.de"]
+    web: ["https://serviceportal.oldenburg.de/buergerservice/verwaltung/verkehrslenkung-900000087-36200.html"]
+    stand: "2026-10-04"
+
+  "03151":  # Landkreis Gifhorn – Portal nennt nur die Zulassungsstelle
+    name: "Landkreis Gifhorn - Abteilung Verkehrswesen, Verkehrsaufsicht"
+    adresse: "Rockwellstraße 16, 38518 Gifhorn"
+    telefon: ["05371 82-0"]  # Zentrale; die Durchwahlen auf der Seite gehören Personen
+    email: ["verkehrsaufsicht@landkreis-gifhorn.de"]
+    web: ["https://www.landkreis-gifhorn.de/Service/Verkehrsaufsicht.php?object=tx,4083.5098.1"]
+    stand: "2026-10-04"
+
+  "03251":  # Landkreis Diepholz – Portal nennt den Fachdienst ohne „Landkreis" und nur die Zentrale
+    name: "Landkreis Diepholz - Fachdienst Straßenverkehrswesen, Team Verkehrssicherung"
+    adresse: "Niedersachsenstraße 2, 49356 Diepholz"
+    telefon: ["05441 976-1622", "05441 976-0"]  # Nummer des Teams, dann die Zentrale
+    email: ["verkehrssicherung@diepholz.de"]
+    web: ["https://www.diepholz.de/portal/seiten/verkehrssicherung-1000481-21750.html"]
+    stand: "2026-10-04"
+
+  "03355":  # Landkreis Lüneburg – Portal nennt die Stelle ohne „Landkreis", nur mit persönlicher E-Mail
+    name: "Landkreis Lüneburg - Verkehrsangelegenheiten und Bußgeldstelle"
+    adresse: "Am Springintgut 1, 21335 Lüneburg"
+    telefon: ["04131 26-1302", "04131 26-0"]  # Nummer der Stelle, dann die Zentrale
+    email: ["av@landkreis-lueneburg.de"]  # Allgemeine Verkehrsangelegenheiten
+    web: ["https://service.landkreis-lueneburg.de/buergerservice/verwaltung/verkehrsangelegenheiten-und-bussgeldstelle-900000700-36300.html"]
+    stand: "2026-10-04"
+
+  "03356":  # Landkreis Osterholz – Portal nennt keine Stelle
+    name: "Landkreis Osterholz - Straßenverkehrsamt, Sachgebiet Verkehrslenkung"
+    adresse: "Osterholzer Straße 23, 27711 Osterholz-Scharmbeck"
+    telefon: ["04791 930-2020"]  # Nummer des Sachgebiets laut Seite
+    email: ["verkehrslenkung@landkreis-osterholz.de"]
+    web: ["https://www.landkreis-osterholz.de/buergerservice/verwaltung/sachgebiet-verkehrslenkung-schuelerbefoerderung-901000794-21000.html"]
+    stand: "2026-10-04"
+
+  "03359":  # Landkreis Stade – Portal nennt Stellen von Buxtehude und Harsefeld
+    name: "Landkreis Stade - Amt Straßenverkehr, Verkehrsangelegenheiten"
+    adresse: "Harburger Straße 193, 21680 Stade"
+    telefon: ["04141 12-3652"]  # Sammelnummer des Amtes
+    email: ["verkehr@landkreis-stade.de"]
+    web: ["https://www.landkreis-stade.de/portal/seiten/genehmigungen-nach-der-stvo-901000067-20350.html"]
+    stand: "2026-10-04"
+
+  "03361":  # Landkreis Verden – Portal nennt keine Stelle
+    name: "Landkreis Verden - Fachdienst Ordnung und Verkehr"
+    adresse: "Lindhooper Straße 67, 27283 Verden (Aller)"
+    telefon: ["04231 15-0"]  # Zentrale; die Seite nennt nur eine persönliche Durchwahl
+    email: ["verkehr@landkreis-verden.de"]
+    web: ["https://www.landkreis-verden.de/portal/seiten/verkehrsrechtliche-anordnungen-und-ausnahmegenehmigungen-uebermaessige-strassennutzung-901001943-20600.html"]
+    stand: "2026-10-04"
+
+  "03451":  # Landkreis Ammerland – Portal nennt das Straßenverkehrsamt ohne Telefon und E-Mail
+    name: "Landkreis Ammerland - Straßenverkehrsamt, Allgemeine Verkehrsangelegenheiten"
+    adresse: "Ammerlandallee 12, 26655 Westerstede"
+    telefon: ["04488 56-0"]  # Zentrale; die Durchwahlen auf der Seite gehören Personen
+    email: ["verkehrsbehoerde@ammerland.de"]
+    web: ["https://www.ammerland.de/Landkreis/Kreisverwaltung/Fach%C3%A4mter/Stra%C3%9Fenverkehrsamt"]
+    stand: "2026-10-04"
+
+  "03458":  # Landkreis Oldenburg – Portal nennt das Straßenverkehrsamt ohne „Landkreis" (Urteil `stvb`)
+    name: "Landkreis Oldenburg - Straßenverkehrsamt, Verkehrslenkung"
+    adresse: "Delmenhorster Straße 6, 27793 Wildeshausen"
+    telefon: ["04431 85-0"]  # Nummer des Straßenverkehrsamts laut Seite (= Zentrale)
+    email: ["verkehrslenkung@oldenburg-kreis.de"]
+    web: ["https://www.oldenburg-kreis.de/buergerservice/verwaltung/strassenverkehrsamt-900000016-21700.html"]
+    stand: "2026-10-04"
+
+  "03461":  # Landkreis Wesermarsch – Portal nennt eine fremde Stelle (Gemeinde Berne)
+    name: "Landkreis Wesermarsch - Fachdienst Sicherheit, Ordnung & Straßenverkehr (Verkehrsbehörde)"
+    adresse: "Poggenburger Straße 15, 26919 Brake"
+    telefon: ["04401 927-0"]  # Zentrale; die Verkehrsbehörde nennt nur persönliche Durchwahlen
+    email: ["info@wesermarsch.de"]  # allgemeines Postfach; die Verkehrsbehörde nennt nur persönliche Adressen
+    web: ["https://wesermarsch.de/services/fahrzeug-und-verkehr/sonstige-verkehrsangelegenheiten/"]
+    stand: "2026-10-04"
