@@ -54,9 +54,9 @@ Der Layer `bezirke` enthält die zwölf Berliner Bezirke, amtlich aus dem Geopor
 |---|---|---|---|---|
 | `gemeinden` | 7–12 | `ars` | String (12) | Amtlicher Regionalschlüssel |
 | | | `gen` | String | Gemeindename (VG25 `GEN`) |
-| | | `eg` | String | Art der Stelle für Gemeindestraßen: `kreis`, `stadt` (kreisfrei oder selbst zuständig), `gemeinde`, `verband` (Rheinland-Pfalz, selbständige Samtgemeinden in Niedersachsen), `stadtstaat` |
+| | | `eg` | String | Art der Stelle für Gemeindestraßen: `kreis`, `stadt` (kreisfrei oder selbst zuständig), `gemeinde`, `verband` (etwa Rheinland-Pfalz, selbständige Samtgemeinden in Niedersachsen, Verwaltungsgemeinschaften in Baden-Württemberg), `stadtstaat` |
 | | | `sg` | String | Sicherheit dieser Stelle: `belegt`, `vermutlich`, `nur Ebene` |
-| | | `ko` | String | Kontakt der zuständigen Stelle: `k` für alle Straßenklassen (G, K, L, B), `t` für einen Teil, `a` für keine, aber die allgemeine Anschrift der Verwaltung (Kontakte mit `allgemein`, heute Hessen, Saarland, Sachsen und der Berliner Senat), `p` nichts davon, aber Link ins Bundesportal, `n` nichts; seit Regeln 0.9.0 |
+| | | `ko` | String | Kontakt der zuständigen Stelle: `k` für alle Straßenklassen (G, K, L, B), `t` für einen Teil, `a` für keine, aber die allgemeine Anschrift der Verwaltung (Kontakte mit `allgemein`, heute Baden-Württemberg, Hessen, Saarland, Sachsen und der Berliner Senat), `p` nichts davon, aber Link ins Bundesportal, `n` nichts; seit Regeln 0.9.0 |
 | `kreise` | 4–10 | `ars` | String (5) | Kreis (ARS-Präfix) |
 | | | `name` | String | voller Name nach `NBD` („Landkreis Freising", „Region Hannover") |
 | | | `art` | String | `kreis`, `stadt` (kreisfrei), `stadtstaat` |
@@ -136,12 +136,13 @@ TH), haben im Kopf `bundesportal_region`: den Link auf die Seite der Leistung f�
 - eine fünfte Tabelle `kontakte` (siehe unten) und je Gemeinde die Felder `kontakt` und
   `kontakt_gemeinde`.
 
-Sachsen, Hessen und das Saarland führen die Leistung nicht im Bundesportal. Ihre Kontakte sind nur
-die allgemeine Anschrift von Rathaus bzw. Landratsamt (`allgemein`): in Sachsen aus dem
-Gemeindeverzeichnis der Landesdirektion (`daten.kontakte`: „Landesdirektion Sachsen 05.10.2026",
-Quelle `lds_sachsen`, Datenlizenz Deutschland – Namensnennung 2.0), in Hessen und im Saarland aus
-dem Anschriftenverzeichnis der Statistischen Ämter („Anschriftenverzeichnis der Statistischen Ämter
-31.01.2026", Quelle `anschriften`) – dort nur Anschrift und E-Mail.
+Sachsen, Hessen, das Saarland und Baden-Württemberg führen die Leistung nicht im Bundesportal. Ihre
+Kontakte sind nur die allgemeine Anschrift von Rathaus bzw. Landratsamt (`allgemein`): in Sachsen
+aus dem Gemeindeverzeichnis der Landesdirektion (`daten.kontakte`: „Landesdirektion Sachsen
+05.10.2026", Quelle `lds_sachsen`, Datenlizenz Deutschland – Namensnennung 2.0), in Hessen, im
+Saarland und in Baden-Württemberg aus dem Anschriftenverzeichnis der Statistischen Ämter
+(„Anschriftenverzeichnis der Statistischen Ämter 31.01.2026", Quelle `anschriften`) – dort nur
+Anschrift und E-Mail.
 
 Berlin führt die Leistung auch nicht im Bundesportal. Seine Kontakte sind von Hand abgeschrieben
 (`daten.kontakte`: „Webseiten der Behörden 05.10.2026", Quelle `von_hand`): je Bezirk das
@@ -195,8 +196,8 @@ die übrigen Klassen das Landratsamt. Die Kontaktangaben sind hier ausgelassen.
 |---|---|
 | `fba` | Fernstraßen-Bundesamt (Autobahnen); in jeder Landesdatei |
 | `k` + Kreis-ARS (5) | Kreisebene bzw. kreisfreie Stadt, z. B. `k09178`, `k09162` |
-| `g` + ARS (12) | eine Gemeinde: Große Kreisstadt, Stadt mit eigener Straßenverkehrsbehörde (in Nordrhein-Westfalen die Mittleren und Großen kreisangehörigen Städte, in Niedersachsen die selbständigen Städte und Gemeinden), in Bayern jede kreisangehörige Gemeinde für ihre Gemeindestraßen, in Niedersachsen Gemeinden, denen die Gemeindestraßen übertragen sind, in Rheinland-Pfalz die verbandsfreie Gemeinde, in Sachsen und Sachsen-Anhalt die Gemeinde für ihre Gemeindestraßen, in Hessen die Sonderstatus-Städte für alle Straßen und die übrigen Gemeinden für Gemeinde- und Kreisstraßen, ab mehr als 7.500 Einwohnern auch für Landesstraßen, im Saarland die Landeshauptstadt Saarbrücken für alle Straßen und jede Gemeinde für ihre Gemeindestraßen; in Berlin das Bezirksamt eines Bezirks (`g110000000001` …, `untere`, Art `stadtstaat`) |
-| `v` + Verbands-ARS (9) | ein Verband: in Schleswig-Holstein das Amt (Halten und Parken, Baustellen, Veranstaltungen); in Brandenburg das Amt Schlieben (§ 4a Abs. 2 StGÜZV, `untere`); in Niedersachsen die Samtgemeinde – als `untere`, wenn sie selbständige Gemeinde ist, sonst als `oertliche` für Gemeindestraßen; in Rheinland-Pfalz und Sachsen-Anhalt die Verbandsgemeinde (`oertliche`); in Sachsen die Verwaltungsgemeinschaft bzw. der Verwaltungsverband für Gemeindestraßen (`oertliche`), als `untere` für alle Straßen, wenn eine Große Kreisstadt erfüllende Gemeinde ist |
+| `g` + ARS (12) | eine Gemeinde: Große Kreisstadt, Stadt mit eigener Straßenverkehrsbehörde (in Nordrhein-Westfalen die Mittleren und Großen kreisangehörigen Städte, in Niedersachsen die selbständigen Städte und Gemeinden), in Bayern jede kreisangehörige Gemeinde für ihre Gemeindestraßen, in Niedersachsen Gemeinden, denen die Gemeindestraßen übertragen sind, in Rheinland-Pfalz die verbandsfreie Gemeinde, in Sachsen und Sachsen-Anhalt die Gemeinde für ihre Gemeindestraßen, in Hessen die Sonderstatus-Städte für alle Straßen und die übrigen Gemeinden für Gemeinde- und Kreisstraßen, ab mehr als 7.500 Einwohnern auch für Landesstraßen, im Saarland die Landeshauptstadt Saarbrücken für alle Straßen und jede Gemeinde für ihre Gemeindestraßen, in Baden-Württemberg die Großen Kreisstädte für alle Straßen (`untere`) und die Gemeinden, die örtliche Straßenverkehrsbehörde sind, für ihre Gemeindestraßen (`oertliche`; als Alternative auch, wo eine Gemeinde es nach ihren Einwohnern sein könnte, ab 90 % der Schwelle von mehr als 5.000); in Berlin das Bezirksamt eines Bezirks (`g110000000001` …, `untere`, Art `stadtstaat`) |
+| `v` + Verbands-ARS (9) | ein Verband: in Schleswig-Holstein das Amt (Halten und Parken, Baustellen, Veranstaltungen); in Brandenburg das Amt Schlieben (§ 4a Abs. 2 StGÜZV, `untere`); in Niedersachsen die Samtgemeinde – als `untere`, wenn sie selbständige Gemeinde ist, sonst als `oertliche` für Gemeindestraßen; in Rheinland-Pfalz und Sachsen-Anhalt die Verbandsgemeinde (`oertliche`); in Sachsen die Verwaltungsgemeinschaft bzw. der Verwaltungsverband für Gemeindestraßen (`oertliche`), als `untere` für alle Straßen, wenn eine Große Kreisstadt erfüllende Gemeinde ist; in Baden-Württemberg die Verwaltungsgemeinschaft bzw. der Gemeindeverwaltungsverband – als `untere` für alle Straßen, wenn sie untere Verwaltungsbehörde ist, als `oertliche` für die Gemeindestraßen, wenn sie örtliche Straßenverkehrsbehörde ist; beides auch als Alternative, wo sie es nach ihren Einwohnern sein könnte |
 | `hb-asv`, `hb-bhv` | Bremen: Amt für Straßen und Verkehr; Magistrat Bremerhaven |
 | `be-bezirk`, `be-senat` | Berlin: Bezirksamt, wo der Bezirk nicht bekannt ist (Eintrag `110000000000`); Senatsverwaltung, zuständig für das übergeordnete Straßennetz – ihr Kontakt ist der der Kreisebene (`kontakt`) |
 | `hh-pk` | Hamburg: Polizei, zuständiges Polizeikommissariat |
@@ -226,7 +227,7 @@ Konsumenten lesen sie nur als Verweis.
 | `ew` | optional: Bevölkerung laut GV-ISys |
 | `z` | Ergebnis-Id je Straßenklasse `G`, `K`, `L`, `B`. Autobahnen (`A`) sind überall gleich und stehen nicht in der Tabelle |
 | `kontakt` | optional: Id in `kontakte` – Kontakt der Kreisebene (Landratsamt) bzw. der kreisfreien Stadt, in Berlin der Senatsverwaltung; nur, wenn diese Stelle (`k…`, `be-senat`) in den Ergebnissen der Gemeinde vorkommt (Auswahl siehe `pipeline/README.md`) |
-| `kontakt_gemeinde` | optional: Id in `kontakte` – Kontakt der Gemeinde selbst (Rathaus; in Bayern oft die Verwaltungsgemeinschaft, in Schleswig-Holstein das Amt, in Berlin das Bezirksamt); nur, wenn die Gemeinde (`g` + ARS) oder ihr Verband (`v` + ARS) in den Ergebnissen vorkommt, als Stelle oder Alternative |
+| `kontakt_gemeinde` | optional: Id in `kontakte` – Kontakt der Gemeinde selbst (Rathaus; in Bayern oft die Verwaltungsgemeinschaft, in Schleswig-Holstein das Amt, in Berlin das Bezirksamt); nur, wenn die Gemeinde (`g` + ARS) oder ihr Verband (`v` + ARS) in den Ergebnissen vorkommt, als Stelle oder Alternative. Kommt nur der Verband vor, ist es in den Ländern mit Kontakten aus Verzeichnissen das Rathaus am Sitz seiner Verwaltung (keiner, wenn das Verzeichnis den Sitz nicht kennt); ist die Gemeinde selbst der Sitz oder gehört der Sitz nicht zum Verband, ihr eigenes Rathaus |
 | `nachbar` | optional: ARS der angrenzenden Gemeinde, nur bei Kondominium-Flächen |
 | `aenderung` | optional: `{ art, stand, name_neu? }`, wenn die Gemeinde nach dem Datenstand aufgelöst, umgeschlüsselt oder umbenannt wurde |
 
@@ -238,7 +239,7 @@ Konsumenten lesen sie nur als Verweis.
 | `adresse` | Hausanschrift oder `null` |
 | `telefon`, `email`, `web` | Listen, können leer sein. Nummern und Postfächer für den Straßenverkehr stehen vorn, Zulassung und Fahrerlaubnis hinten. Nur Funktionspostfächer, keine Adressen mit Personennamen |
 | `quelle` | optional: Herkunft, wenn der Kontakt nicht aus der Quelle des Landes (`daten.kontakte`) stammt („Webseite der Behörde, Stand 03.10.2026") |
-| `allgemein` | optional, seit Regeln 0.9.0: `true`, wenn der Kontakt nur die allgemeine Anschrift der Verwaltung ist (Rathaus, Landratsamt), nicht die der Straßenverkehrsbehörde. Konsumenten sagen das dazu – die Karte: „bitte nach der Straßenverkehrsbehörde fragen". Name ist dann der der Behörde („Gemeinde Amtsberg", „Landratsamt Erzgebirgskreis"); in einer Verwaltungsgemeinschaft bzw. einem Verwaltungsverband die Gemeinde am Sitz der Verwaltung |
+| `allgemein` | optional, seit Regeln 0.9.0: `true`, wenn der Kontakt nur die allgemeine Anschrift der Verwaltung ist (Rathaus, Landratsamt), nicht die der Straßenverkehrsbehörde. Konsumenten sagen das dazu – die Karte: „bitte nach der Straßenverkehrsbehörde fragen". Name ist dann der der Behörde („Gemeinde Amtsberg", „Landratsamt Erzgebirgskreis"); für einen Verband (`v…`) die Gemeinde am Sitz seiner Verwaltung |
 
 Die Id ist `c` + FNV-1a über das JSON des Kontakts, gültig nur innerhalb der Landesdatei. Welcher
 Kontakt zu welcher Stelle gehört, ordnet `auswahl` zu (siehe unten). Der Name des Kontakts nennt
@@ -304,8 +305,13 @@ dort erfunden.
 - `tkz`: Textkennzeichen aus GV-ISys. Genutzt werden 61/62 (kreisfreie Stadt, Stadtkreis), 63
   (Stadt), 65/66 (gemeindefreies Gebiet) und 67 (Große Kreisstadt); die übrigen Werte stehen in
   der Satzbeschreibung des GV100AD. Nicht mit `ibz` (Bezeichnungsliste des BKG) verwechseln.
-- `ew`: Bevölkerung laut GV-ISys; die Thüringer Regel unterscheidet danach (über 30.000, über
-  10.000 Einwohner).
+- `ew`: Bevölkerung laut GV-ISys; Regeln mit Schwellen unterscheiden danach (Thüringen,
+  Schleswig-Holstein, Hessen, Baden-Württemberg).
+- `verband.ew` und `verband.mitglieder` stehen nicht in der Datei: Der Build (`baueLaender`)
+  ergänzt vor `resolveGemeinde` die Summe der Einwohner und die Namen (`gen`, sortiert) aller
+  Mitglieder des Verbands – für die Verwaltungsgemeinschaften in Baden-Württemberg (Schwellen,
+  Listen je Gemeinschaft). Wer `resolveGemeinde` selbst aufruft, ergänzt sie ebenso; ohne
+  `verband.ew` ist dort nichts „belegt“, ohne `mitglieder` zählt nur der eigene Name.
 - `gemeindefrei`: 6. ARS-Stelle `9`.
 - `kondominium`: `null` oder `{ nachbar }` für die Flächen des deutsch-luxemburgischen
   Kondominiums (VG25 `BEZ = Kondominium`). `nachbar` ist der ARS der angrenzenden Gemeinde
