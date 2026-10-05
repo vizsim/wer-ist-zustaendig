@@ -130,8 +130,9 @@ def kontakte(
     """Bundesportal: Kontakt der zuständigen Stelle je Gemeinde → data/interim/kontakte.json.
 
     Eine Anfrage je Gemeinde (gedrosselt, mit Cache); danach `zust laender` neu bauen. Für
-    Sachsen kommen die allgemeinen Anschriften der Verwaltungen dazu (Quelle `lds_sachsen`), für
-    Länder ohne Portal und ohne eigene Quelle (Berlin) die Einträge von Hand.
+    Sachsen, Hessen, das Saarland und Baden-Württemberg kommen die allgemeinen Anschriften der
+    Verwaltungen dazu (Quellen `lds_sachsen`, `anschriften`), für Länder ohne Portal und ohne
+    eigene Quelle (Berlin) die Einträge von Hand.
     """
     import json
     from collections import Counter

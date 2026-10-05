@@ -157,7 +157,7 @@ function attrBw() {
   return a;
 }
 
-/** Kontakte wie aus dem Anschriftenverzeichnis: Landratsamt und Rathaus. */
+/** Kontakte wie aus dem Anschriftenverzeichnis: die Gemeinde selbst und, im Verband, die Verwaltung am Sitz. */
 function kontakteBw(a) {
   const k = kontakte();
   const quelle = { id: "anschriften", label: "Anschriftenverzeichnis", lizenz: "–", vermerk: "Statistische Ämter" };
@@ -167,6 +167,7 @@ function kontakteBw(a) {
     if (g.land !== "BW") continue;
     k.gemeinden[ars] = {
       wahl: null, stellen: 0, kreis: allgemein("Landkreis Göppingen"), gemeinde: allgemein(g.name),
+      ...(g.verband && g.verband.sitz !== ars ? { verband: allgemein("Gemeinde Mustersitz") } : {}),
     };
   }
   return k;
@@ -200,6 +201,28 @@ test("baueLaender: Kontakt der Gemeinde nur, wo sie zuständig sein kann – mit
   const mitLuecke = baueLaender(luecke).dateien["bw.json"];
   assert.equal(auswahl(mitLuecke, "081175001001", ["K"]).sicherheit, "vermutlich");
   assert.equal(auswahl(baueLaender(attrBw()).dateien["bw.json"], "081175001001", ["K"]).sicherheit, "belegt");
+});
+
+test("baueLaender + auswahl: für den Verband die Verwaltung am Sitz, für die Gemeinde selbst ihr Rathaus", () => {
+  const a = attrBw();
+  const bw = baueLaender(a, { kontakte: kontakteBw(a) }).dateien["bw.json"];
+  const ort = auswahl(bw, "081175001001", ["G"]);
+  assert.equal(ort.alternative.stelle.id, "v081175001");
+  assert.equal(ort.alternative.kontakt.name, "Gemeinde Mustersitz", "Verband: die Verwaltung am Sitz");
+  const tal = auswahl(bw, "081175001003", ["G"]);
+  assert.equal(tal.alternative.stelle.id, "g081175001003", "6.000 Einwohner: die Gemeinde selbst");
+  assert.equal(tal.alternative.kontakt.name, "Gemeinde Mustertal", "ihr eigenes Rathaus, nicht das am Sitz");
+  assert.equal(auswahl(bw, "081175001002", ["G"]).alternative.kontakt.name, "Gemeinde Mustersitz", "der Sitz selbst");
+  assert.equal(bw.daten.kontakte, "Anschriftenverzeichnis 31.01.2026");
+
+  // Ohne Eintrag für den Verband gilt der der Gemeinde; ist er leer (der Sitz hat keine Anschrift), keiner.
+  const k = kontakteBw(a);
+  delete k.gemeinden["081175001001"].verband;
+  const ohne = baueLaender(a, { kontakte: k }).dateien["bw.json"];
+  assert.equal(auswahl(ohne, "081175001001", ["G"]).alternative.kontakt.name, "Gemeinde Musterort");
+  k.gemeinden["081175001001"].verband = null;
+  const leer = baueLaender(a, { kontakte: k }).dateien["bw.json"];
+  assert.equal(auswahl(leer, "081175001001", ["G"]).alternative.kontakt, null, "nicht das Rathaus der Gemeinde");
 });
 
 test("baueLaender: Gemeinschaften aus den Listen – ein genanntes Mitglied genügt; Warnungen zu den Listen", () => {

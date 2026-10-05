@@ -427,7 +427,7 @@ def test_eigene_stelle_nicht_der_gleichnamige_kreis() -> None:
 def test_ergaenzungen_von_hand_sind_vollstaendig() -> None:
     for schluessel, k in bp.ergaenzungen().items():
         assert len(schluessel) in (5, 12) and schluessel.isdigit(), schluessel
-        assert k.get("rolle", "kreis") in ("kreis", "gemeinde"), schluessel
+        assert k.get("rolle", "kreis") in ("kreis", "gemeinde", "verband"), schluessel
         assert len(schluessel) == 12 or k.get("rolle", "kreis") == "kreis", schluessel
         assert k["name"] and k["stand"], schluessel
         assert k.get("telefon") or k.get("email") or k.get("web"), f"{schluessel}: kein Kontaktweg"

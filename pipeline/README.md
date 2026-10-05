@@ -26,7 +26,7 @@ uv run zust alles         # alles in einem Lauf
 |---|---|---|
 | `zust fetch [id] [--force]` | Quellen aus `config/sources.yaml` laden, ZIPs entpacken; daneben `<datei>.meta.json` mit URL, Größe, SHA-256 und Abrufdatum. Mit `--datei <pfad>` eine von Hand geladene Datei übernehmen (Abrufdatum: Änderungszeit der Datei) | `data/raw/<id>/` |
 | `zust tabelle` | VG25 + GV-ISys verknüpfen und prüfen, dazu die Berliner Bezirke | `data/interim/gemeinden_attr.json`, `data/review/tabelle-bericht.json` |
-| `zust kontakte [--land TH] [--nur-cache]` | optional: Kontakt der zuständigen Stelle je Gemeinde aus dem Bundesportal (eine Anfrage je Gemeinde, gedrosselt, mit Cache); für Sachsen, Hessen und das Saarland die allgemeinen Anschriften aus `lds_sachsen` und `anschriften`, für Berlin die Einträge von Hand | `data/interim/kontakte.json`, `data/review/kontakte-review.csv` |
+| `zust kontakte [--land TH] [--nur-cache]` | optional: Kontakt der zuständigen Stelle je Gemeinde aus dem Bundesportal (eine Anfrage je Gemeinde, gedrosselt, mit Cache); für Sachsen, Hessen, das Saarland und Baden-Württemberg die allgemeinen Anschriften aus `lds_sachsen` und `anschriften`, für Berlin die Einträge von Hand | `data/interim/kontakte.json`, `data/review/kontakte-review.csv` |
 | `zust laender` | Regeln über alle Gemeinden (Node), mit Kontakten, falls vorhanden; Größen je Datei | `data/zustaendigkeit/<lkz>.json`, `index.json`, `data/review/zustaendigkeit-review.csv` |
 | `zust grenzen [--dry-run]` | VG25-Flächen und Berliner Bezirke → FlatGeobuf → tippecanoe → tile-join; meldet die Größe, warnt über 100 MB | `data/zustaendigkeit/gemeinden.pmtiles` |
 | `zust manifest` | Manifest mit Label, Quellenvermerk, Datenstand und Größe | `data/manifest.json` |
@@ -79,27 +79,33 @@ weitere Länder dürfen schon im Cache liegen. Den Link auf die Seite der Gemein
 (`bundesportal_region`) bekommt jedes Land aus der Länderliste der Leistung (`meta.portal` in
 `kontakte.json`); Länder, die die Leistung nicht im Portal führen, bekommen keinen.
 
-### Kontakte aus Verzeichnissen (Sachsen, Hessen, Saarland)
+### Kontakte aus Verzeichnissen (Sachsen, Hessen, Saarland, Baden-Württemberg)
 
-Sachsen, Hessen und das Saarland führen die Leistung nicht im Bundesportal. Für sie nimmt
-`zust kontakte` die Anschriften der Gemeinde- und Kreisverwaltungen aus zwei Verzeichnissen
-(`anschriften.py`), wenn deren Dateien unter `data/raw/` liegen:
+Sachsen, Hessen, das Saarland und Baden-Württemberg führen die Leistung nicht im Bundesportal. Für
+sie nimmt `zust kontakte` die Anschriften der Gemeinde- und Kreisverwaltungen aus zwei
+Verzeichnissen (`anschriften.py`), wenn deren Dateien unter `data/raw/` liegen:
 
 - **Sachsen:** das Gemeindeverzeichnis der Landesdirektion (Quelle `lds_sachsen`) mit Anschrift,
   Telefon, E-Mail und Webseite. Die CSV gibt es nur über den Knopf „Download csv-File" auf der
   Seite; übernehmen mit `uv run zust fetch lds_sachsen --datei ~/Downloads/LDS_Gemeindeverzeichnis_Sachsen.csv`.
-- **Hessen und Saarland** (`laender` der Quelle `anschriften`): das Anschriftenverzeichnis der
-  Statistischen Ämter für ganz Deutschland, nur mit Anschrift und E-Mail; `uv run zust fetch
-  anschriften` lädt es (xlsx, gelesen über GDAL). Zuordnung über den ARS; fehlt er (eine Stadt wurde
-  nach dem Stichtag der Gemeindetabelle umgeschlüsselt, etwa Hanau), über den Namen.
+- **Hessen, Saarland und Baden-Württemberg** (`laender` der Quelle `anschriften`): das
+  Anschriftenverzeichnis der Statistischen Ämter für ganz Deutschland, nur mit Anschrift und
+  E-Mail; `uv run zust fetch anschriften` lädt es (xlsx, gelesen über GDAL). Zuordnung über den
+  ARS; fehlt er (eine Stadt wurde nach dem Stichtag der Gemeindetabelle umgeschlüsselt, etwa
+  Hanau), über den Namen.
 
 ```bash
 uv run zust kontakte --nur-cache && uv run zust laender && uv run zust grenzen
 ```
 
 Kreisebene ist das Landratsamt bzw. die Kreisverwaltung (Zeile mit Kreisschlüssel) oder die
-kreisfreie Stadt, die Gemeinde ihr Rathaus – in einer Verwaltungsgemeinschaft bzw. einem
-Verwaltungsverband die Gemeinde am Sitz der Verwaltung, wenn sie dazugehört. Das ist die
+kreisfreie Stadt, die Gemeinde ihr Rathaus. Gehört sie zu einer Verwaltungsgemeinschaft bzw. einem
+Verwaltungsverband, dessen Sitz eine andere Gemeinde des Verbands ist, steht in `kontakte.json` dazu
+die Rolle `verband`: das Rathaus am Sitz (`null`, wenn das Verzeichnis den Sitz nicht kennt). Der
+Build nimmt sie, wenn von der Gemeinde nur der Verband in den Ergebnissen vorkommt (Stelle `v…`,
+auch als Alternative), nicht die Gemeinde selbst (`g…`) – in Baden-Württemberg kann je nach Gemeinde
+das eine oder das andere örtliche Straßenverkehrsbehörde sein. Ein Eintrag von Hand für die Rolle
+`gemeinde` gilt auch für den Verband, einer mit `rolle: verband` nur für ihn. Das ist die
 **allgemeine Anschrift**, nicht die der Straßenverkehrsbehörde: Die Kontakte tragen `allgemein`, die
 Karte sagt das dazu. Bürgermeister und Fax bleiben weg; E-Mail-Adressen nur als Funktionspostfach
 oder mit dem Namen der Gemeinde („koenigswalde@", „gv-jonsdorf@"), nicht `presse@` oder

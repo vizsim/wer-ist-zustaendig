@@ -5,7 +5,9 @@
 #
 # Schlüssel: Kreis-ARS (5 Stellen) – Kontakt der Kreisebene für alle Gemeinden des Kreises, für
 # die das Portal keinen nennt. Oder ARS einer Gemeinde (12 Stellen) mit `rolle` (`kreis` oder
-# `gemeinde`) – ersetzt den Portalwert dieser Rolle. Nur Funktionspostfächer, keine Personen.
+# `gemeinde`) – ersetzt den Portalwert dieser Rolle; `gemeinde` gilt auch, wo ihr Verband zuständig
+# ist. `rolle: verband` nur für den Verband (Stelle `v…`), wenn die Gemeinde selbst einen anderen
+# Kontakt hat. Nur Funktionspostfächer, keine Personen.
 
 # `allgemein: true`, wenn der Eintrag nur die allgemeine Anschrift der Verwaltung ist (Zentrale
 # statt Verkehrsstelle) – die Karte sagt dann dazu, dass man nach der Straßenverkehrsbehörde fragt.

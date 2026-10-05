@@ -1,4 +1,5 @@
-"""Anschriften der Verwaltungen für Länder ohne Bundesportal-Eintrag – Sachsen, Hessen, Saarland.
+"""Anschriften der Verwaltungen für Länder ohne Bundesportal-Eintrag – Sachsen, Hessen, Saarland,
+Baden-Württemberg.
 
 Zwei Verzeichnisse nennen je Gemeinde und Kreis die Anschrift der Verwaltung, also das Rathaus bzw.
 das Landratsamt, nicht die Straßenverkehrsbehörde:
@@ -14,10 +15,13 @@ Funktionspostfach.
 Rollen wie beim Bundesportal (`bundesportal.tabelle`):
 - `kreis`: das Landratsamt bzw. die Kreisverwaltung (Zeile mit dem Kreisschlüssel) oder die
   kreisfreie Stadt;
-- `gemeinde`: die Gemeinde selbst; in einer Verwaltungsgemeinschaft bzw. einem Verwaltungsverband
-  die Verwaltung an dessen Sitz (`verband.sitz`, bei der Gemeinschaft die erfüllende Gemeinde),
-  wenn der Sitz zum Verband gehört.
-Einträge von Hand (`config/kontakte_ergaenzt.yaml`) gehen vor.
+- `gemeinde`: die Gemeinde selbst;
+- `verband` (nur für Mitglieder eines Verbands): die Verwaltung an dessen Sitz (`verband.sitz`, bei
+  der Gemeinschaft die erfüllende Gemeinde), wenn der Sitz eine andere Gemeinde des Verbands ist –
+  `None`, wenn das Verzeichnis den Sitz nicht kennt. Der Build nimmt sie, wenn von der Gemeinde nur
+  der Verband in den Ergebnissen vorkommt (`v…`), nicht die Gemeinde selbst (tools/lib/laender.mjs).
+Einträge von Hand (`config/kontakte_ergaenzt.yaml`) gehen vor; einer für die Rolle `gemeinde` gilt
+auch für den Verband.
 """
 
 from __future__ import annotations
@@ -145,7 +149,8 @@ def _rollen(
     kontakt_aus: Callable[[dict[str, str], str, str], dict[str, Any]],
 ) -> dict[str, dict[str, Any]]:
     """ARS → {wahl, stellen, kreis, gemeinde} für jede Gemeinde des Landes; fehlt eine Zeile, bleibt
-    die Rolle leer (`None`)."""
+    die Rolle leer (`None`). Dazu `verband`, wenn die Gemeinde zu einem Verband gehört, dessen Sitz
+    eine andere Gemeinde des Verbands ist."""
 
     def aus(zeile: dict[str, str] | None, name: str, gen: str) -> dict[str, Any] | None:
         return kontakt_aus(zeile, name, gen) if zeile else None
@@ -159,17 +164,17 @@ def _rollen(
             kreis = aus(zeile_kreis(k) or zeile_gemeinde(g), g["name"], g["gen"])
         else:
             kreis = aus(zeile_kreis(k), kreisname(k), k["gen"])
-        ort = g
-        verband = g.get("verband")
-        sitz = attr.get((verband or {}).get("sitz") or "")
-        if sitz and (sitz.get("verband") or {}).get("ars") == verband["ars"]:
-            ort = sitz
-        gemeinden[ars] = {
+        e = {
             "wahl": None,
             "stellen": 0,
             "kreis": kreis,
-            "gemeinde": aus(zeile_gemeinde(ort), ort["name"], ort["gen"]),
+            "gemeinde": aus(zeile_gemeinde(g), g["name"], g["gen"]),
         }
+        verband = g.get("verband")
+        sitz = attr.get((verband or {}).get("sitz") or "")
+        if sitz and sitz["ars"] != ars and (sitz.get("verband") or {}).get("ars") == verband["ars"]:
+            e["verband"] = aus(zeile_gemeinde(sitz), sitz["name"], sitz["gen"])
+        gemeinden[ars] = e
     return gemeinden
 
 
@@ -238,7 +243,7 @@ def _eintragen(
     pfad: Path,
 ) -> None:
     """Kontakte eines Landes in kontakte.json (`daten`) und die Review-Zeilen übernehmen; Einträge
-    von Hand gehen vor."""
+    von Hand gehen vor – einer für die Rolle `gemeinde` auch für den Verband."""
     q = quellen()[qid]
     von_hand = bundesportal.ergaenzungen()
     for ars, e in gemeinden.items():
@@ -246,7 +251,10 @@ def _eintragen(
             e["kreis"] = bundesportal.kontakt_von_hand(von_hand[ars[:5]])
         hand = von_hand.get(ars)
         if hand:
-            e[hand.get("rolle", "kreis")] = bundesportal.kontakt_von_hand(hand)
+            rolle = hand.get("rolle", "kreis")
+            e[rolle] = bundesportal.kontakt_von_hand(hand)
+            if rolle == "gemeinde":
+                e.pop("verband", None)
     daten["gemeinden"].update(gemeinden)
     quelle = {"id": qid, "label": q["label"], "lizenz": q["lizenz"], "vermerk": q["vermerk"]}
     daten["meta"]["laender"][land] = {

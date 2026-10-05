@@ -118,12 +118,20 @@ def test_sachsen_rollen(tmp_path) -> None:
     assert chemnitz["kreis"]["name"] == "Stadt Chemnitz", "kreisfrei: die Stadt"
     assert chemnitz["kreis"]["telefon"] == ["0371 4880"]
 
-    koenigswalde = g["145215101340"]["gemeinde"]
-    assert koenigswalde["name"] == "Gemeinde Bärenstein", "erfüllende Gemeinde am Sitz"
-    assert g["145215101060"]["gemeinde"] == koenigswalde
+    koenigswalde = g["145215101340"]
+    assert koenigswalde["gemeinde"]["name"] == "Gemeinde Königswalde", "die Gemeinde selbst"
+    assert koenigswalde["verband"]["name"] == "Gemeinde Bärenstein", "erfüllende Gemeinde am Sitz"
+    assert koenigswalde["verband"]["adresse"] == "Oberwiesenthaler Str. 14, 09471 Bärenstein"
+    assert g["145215101060"]["gemeinde"] == koenigswalde["verband"]
+    assert "verband" not in g["145215101060"], "der Sitz selbst"
+    assert "verband" not in amtsberg, "ohne Verband"
+    ohne_sitz = an.sachsen(_attr(), {k: v for k, v in zeilen.items() if k != "14521060"})
+    assert ohne_sitz["145215101340"]["verband"] is None, "Sitz nicht im Verzeichnis: kein Kontakt"
+    assert ohne_sitz["145215101340"]["gemeinde"]["name"] == "Gemeinde Königswalde"
 
     jesewitz = g["147305601140"]
-    assert jesewitz["gemeinde"]["name"] == "Gemeinde Jesewitz", "Sitz gehört nicht zum Verband"
+    assert jesewitz["gemeinde"]["name"] == "Gemeinde Jesewitz"
+    assert "verband" not in jesewitz, "Sitz gehört nicht zum Verband"
     assert jesewitz["gemeinde"]["email"] == [], "Personenname"
     assert jesewitz["gemeinde"]["web"] == []
     assert jesewitz["kreis"] is None, "Landkreis fehlt in der Datei"
@@ -141,8 +149,17 @@ def test_ergaenze(tmp_path, monkeypatch) -> None:
         "stand": "2026-10-05",
     }
     lra = {"name": "Landratsamt Erzgebirgskreis - Straßenverkehr", "web": [], "stand": "2026-10-05"}
+    koenigswalde = {**hand, "name": "Gemeinde Königswalde - Ordnungsamt"}
+    jesewitz = {**hand, "rolle": "verband", "name": "Verwaltungsverband Eilenburg-West"}
     monkeypatch.setattr(
-        an.bundesportal, "ergaenzungen", lambda: {"145210010010": hand, "14521": lra}
+        an.bundesportal,
+        "ergaenzungen",
+        lambda: {
+            "145210010010": hand,
+            "14521": lra,
+            "145215101340": koenigswalde,
+            "147305601140": jesewitz,
+        },
     )
     daten = {"meta": {"laender": {}}, "gemeinden": {}}
     review: list[list[str]] = []
@@ -156,6 +173,12 @@ def test_ergaenze(tmp_path, monkeypatch) -> None:
     assert amtsberg["gemeinde"]["name"] == "Gemeinde Amtsberg - Ordnungsamt", "von Hand vor"
     assert "allgemein" not in amtsberg["gemeinde"]
     assert amtsberg["kreis"]["name"] == "Landratsamt Erzgebirgskreis - Straßenverkehr"
+    im_verband = daten["gemeinden"]["145215101340"]
+    assert im_verband["gemeinde"]["name"] == "Gemeinde Königswalde - Ordnungsamt"
+    assert "verband" not in im_verband, "von Hand für die Gemeinde: gilt auch für den Verband"
+    nur_verband = daten["gemeinden"]["147305601140"]
+    assert nur_verband["verband"]["name"] == "Verwaltungsverband Eilenburg-West", "rolle: verband"
+    assert nur_verband["gemeinde"]["name"] == "Gemeinde Jesewitz", "die Gemeinde behält ihren"
     assert daten["gemeinden"]["145110000000"]["kreis"]["allgemein"], "andere Kreise unverändert"
     assert len(review) == 6
     assert review[0][:4] == ["SN", "145110000000", "Stadt Chemnitz", "Chemnitz"]

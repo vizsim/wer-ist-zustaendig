@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 //
 // Eingabe: gemeinden_attr.json der Pipeline (docs/VERTRAG.md, „Zwischenprodukt"), optional
-// kontakte.json (`zust kontakte`: Bundesportal, in Sachsen die Anschriften der Verwaltungen).
+// kontakte.json (`zust kontakte`: Bundesportal, sonst die Anschriften der Verwaltungen oder
+// Einträge von Hand).
 // Ausgabe: je Land eine Datei (Stellen, Ergebnisse und Kontakte entdoppelt, Gemeinden mit
 // Verweisen), dazu index.json und Zeilen für die Review-CSV. Deterministisch: gleiche Eingabe,
 // gleiche Bytes.
@@ -130,11 +131,20 @@ export function baueLaender(attr, opts = {}) {
     eintrag.z = z;
     // Kontakte der Stellen, die in den Ergebnissen dieser Gemeinde vorkommen: Kreisebene bzw.
     // kreisfreie Stadt (→ kontakt) und die Gemeinde selbst bzw. ihr Amt (→ kontakt_gemeinde);
-    // welche Stelle welche Rolle hat, sagt `kontaktRolle` (in Berlin Senat und Bezirk).
+    // welche Stelle welche Rolle hat, sagt `kontaktRolle` (in Berlin Senat und Bezirk). Kommt von
+    // der Gemeinde-Rolle nur ihr Verband vor (`v…`) und hat kontakte.json für ihn einen eigenen
+    // Eintrag (`verband`: die Verwaltung am Sitz, aus den Anschriftenverzeichnissen – auch `null`,
+    // wenn es für den Sitz keine Anschrift gibt), gilt dieser.
     const ids = [...new Set(BAU_KLASSEN.flatMap((kl) => [zust[kl].stelle, zust[kl].alternative?.stelle]).filter(Boolean))];
     const rollen = new Set(ids.map((id) => kontaktRolle(id, ars)));
+    const eigene = kontakte?.gemeinden?.[ars];
+    const nurVerband = !ids.includes(`g${ars}`) && ids.some((id) => id.startsWith("v"));
+    const jeRolle = {
+      kreis: eigene?.kreis,
+      gemeinde: nurVerband && eigene && "verband" in eigene ? eigene.verband : eigene?.gemeinde,
+    };
     for (const [rolle, feld] of [["kreis", "kontakt"], ["gemeinde", "kontakt_gemeinde"]]) {
-      const k = kontakte?.gemeinden?.[ars]?.[rolle];
+      const k = jeRolle[rolle];
       if (k && rollen.has(rolle)) {
         const { id, kontakt } = kontaktEintrag(k);
         land.kontakte[id] = kontakt;
