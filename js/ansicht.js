@@ -27,7 +27,7 @@ export const ARTEN = Object.freeze({
   stadt: { label: "Stadt (kreisfrei oder selbst zuständig)", farbe: "#e0a100" },
   stadtstaat: { label: "Stadtstaat", farbe: "#7e6ba8" },
   gemeinde: { label: "Gemeinde selbst", farbe: "#3f8f5a" },
-  verband: { label: "Gemeindeverband", farbe: "#2e8a8a" },
+  verband: { label: "Gemeindeverband (Verbandsgemeinde, Samtgemeinde)", farbe: "#2e8a8a" },
 });
 
 /** Sicherheit (Feld `sg`) → Deckkraft der Fläche; „nur Ebene" zusätzlich schraffiert. */
@@ -323,10 +323,11 @@ function meistGilt(sicherheit) {
 export function willkommenHtml(index, { melden } = {}) {
   const laender = index?.laender ?? [];
   const mitRegel = laender.filter((l) => LANDESREGELN[l.lkz]);
-  const namen = (s) => aufzaehlung(mitRegel.filter((l) => meistGilt(l.sicherheit) === s).map((l) => l.name));
+  const nachName = (a, b) => a.localeCompare(b, "de");
+  const namen = (s) => aufzaehlung(mitRegel.filter((l) => meistGilt(l.sicherheit) === s).map((l) => l.name).sort(nachName));
   const geprueft = namen(SICHERHEIT.BELEGT);
   const vermutlich = namen(SICHERHEIT.VERMUTLICH);
-  const mitKontakt = aufzaehlung(laender.filter((l) => l.kontakte > 0).map((l) => l.name));
+  const mitKontakt = aufzaehlung(laender.filter((l) => l.kontakte > 0).map((l) => l.name).sort(nachName));
   const offen = laender.length - mitRegel.length;
   const stand = [
     geprueft && `<li><strong>Geprüft:</strong> ${esc(geprueft)} – die Regel ist an der Rechtsgrundlage geprüft.</li>`,

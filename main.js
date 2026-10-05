@@ -25,7 +25,7 @@ const MELDEN = "https://github.com/vizsim/wer-ist-zustaendig/issues/new?template
 // neue Version des Textes zeigt es wieder.
 const WILLKOMMEN = Object.freeze({ schluessel: "wer-ist-zustaendig.willkommen", version: "1" });
 const STIL = "https://tiles.openfreemap.org/styles/positron";
-const ARTEN_LEGENDE = ["kreis", "stadt", "gemeinde", "stadtstaat"]; // verband folgt mit RP, SH
+const ARTEN_LEGENDE = ["kreis", "stadt", "gemeinde", "verband", "stadtstaat"];
 const STRASSEN_LAYER = ["strassen-neben", "strassen-haupt"];
 // Hauptstraßen der Unfallkarte erst ab z10: Darunter sind ihre Kacheln riesig (z7 im Mittel
 // 1,3 MB, z6 bis 7,9 MB), und die Hintergrundkarte zeigt die großen Straßen ohnehin.

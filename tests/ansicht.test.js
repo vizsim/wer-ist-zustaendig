@@ -273,6 +273,10 @@ test("willkommenHtml: Stand aus index.json – geprüft, vermutlich, offen; Kont
   assert.ok(!ohne.includes("href"), "Meldelink nur mit https");
   const eins = willkommenHtml({ laender: [index.laender[0], index.laender[1]] });
   assert.ok(eins.includes("das übrige Land"));
+  const bb = { lkz: "BB", name: "Brandenburg", sicherheit: { belegt: 413, vermutlich: 0, "nur Ebene": 0 }, kontakte: 19 };
+  const sortiert = willkommenHtml({ laender: [bb, index.laender[0]] });
+  assert.ok(sortiert.includes("<strong>Geprüft:</strong> Bayern und Brandenburg"), "nach Namen, nicht nach Kürzel");
+  assert.ok(sortiert.includes("gibt es bisher für Bayern und Brandenburg."));
 });
 
 test("aufzaehlung: Komma, vor dem letzten Namen „und“", () => {
