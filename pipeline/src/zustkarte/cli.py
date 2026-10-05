@@ -132,7 +132,7 @@ def kontakte(
     Eine Anfrage je Gemeinde (gedrosselt, mit Cache); danach `zust laender` neu bauen. Für
     Sachsen, Hessen, das Saarland und Baden-Württemberg kommen die allgemeinen Anschriften der
     Verwaltungen dazu (Quellen `lds_sachsen`, `anschriften`), für Länder ohne Portal und ohne
-    eigene Quelle (Berlin) die Einträge von Hand.
+    eigene Quelle (Berlin, Bremen) die Einträge von Hand.
     """
     import json
     from collections import Counter

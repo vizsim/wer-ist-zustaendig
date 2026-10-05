@@ -26,7 +26,7 @@ uv run zust alles         # alles in einem Lauf
 |---|---|---|
 | `zust fetch [id] [--force]` | Quellen aus `config/sources.yaml` laden, ZIPs entpacken; daneben `<datei>.meta.json` mit URL, Größe, SHA-256 und Abrufdatum. Mit `--datei <pfad>` eine von Hand geladene Datei übernehmen (Abrufdatum: Änderungszeit der Datei) | `data/raw/<id>/` |
 | `zust tabelle` | VG25 + GV-ISys verknüpfen und prüfen, dazu die Berliner Bezirke | `data/interim/gemeinden_attr.json`, `data/review/tabelle-bericht.json` |
-| `zust kontakte [--land TH] [--nur-cache]` | optional: Kontakt der zuständigen Stelle je Gemeinde aus dem Bundesportal (eine Anfrage je Gemeinde, gedrosselt, mit Cache); für Sachsen, Hessen, das Saarland und Baden-Württemberg die allgemeinen Anschriften aus `lds_sachsen` und `anschriften`, für Berlin die Einträge von Hand | `data/interim/kontakte.json`, `data/review/kontakte-review.csv` |
+| `zust kontakte [--land TH] [--nur-cache]` | optional: Kontakt der zuständigen Stelle je Gemeinde aus dem Bundesportal (eine Anfrage je Gemeinde, gedrosselt, mit Cache); für Sachsen, Hessen, das Saarland und Baden-Württemberg die allgemeinen Anschriften aus `lds_sachsen` und `anschriften`, für Berlin und Bremen die Einträge von Hand | `data/interim/kontakte.json`, `data/review/kontakte-review.csv` |
 | `zust laender` | Regeln über alle Gemeinden (Node), mit Kontakten, falls vorhanden; Größen je Datei | `data/zustaendigkeit/<lkz>.json`, `index.json`, `data/review/zustaendigkeit-review.csv` |
 | `zust grenzen [--dry-run]` | VG25-Flächen und Berliner Bezirke → FlatGeobuf → tippecanoe → tile-join; meldet die Größe, warnt über 100 MB | `data/zustaendigkeit/gemeinden.pmtiles` |
 | `zust manifest` | Manifest mit Label, Quellenvermerk, Datenstand und Größe | `data/manifest.json` |
@@ -113,17 +113,22 @@ oder mit dem Namen der Gemeinde („koenigswalde@", „gv-jonsdorf@"), nicht `pr
 Landratsamt durch seine Verkehrsstelle ersetzen. Datum (Abruf bzw. Stand des Verzeichnisses) und
 Quellenvermerk gehen in die Landesdatei.
 
-### Kontakte nur von Hand (Berlin)
+### Kontakte nur von Hand (Berlin, Bremen)
 
 Länder ohne die Leistung im Bundesportal und ohne eigene Quelle stehen in
-`config/kontakte_ergaenzt.yaml` unter `nur_von_hand` – heute Berlin. Ihre Kontakte kommen nur aus
-den Einträgen dort (`bundesportal.ergaenze_von_hand`): in Berlin die Senatsverwaltung als
-Kreisebene (Schlüssel `11000`) und je Bezirk das Bezirksamt als Gemeinde (Schlüssel des Bezirks,
-`rolle: gemeinde`). Wie bei Sachsen trägt das Land in `kontakte.json` unter `meta.laender` `kurz`
-(„Webseiten der Behörden") und `quelle`; `abgerufen` ist der Stand des jüngsten Eintrags. Ein
-Eintrag mit `allgemein: true` ist nur die allgemeine Anschrift der Verwaltung – in Berlin die
-Zentrale der Senatsverwaltung, weil die Abteilung Verkehrsmanagement nur ein Postfach für
-Arbeitsstellen nennt. Auch hierfür genügt `zust kontakte --nur-cache`.
+`config/kontakte_ergaenzt.yaml` unter `nur_von_hand` – heute Berlin und Bremen. Ihre Kontakte
+kommen nur aus den Einträgen dort (`bundesportal.ergaenze_von_hand`): in Berlin die
+Senatsverwaltung als Kreisebene (Schlüssel `11000`) und je Bezirk das Bezirksamt als Gemeinde
+(Schlüssel des Bezirks, `rolle: gemeinde`); in Bremen das Amt für Straßen und Verkehr und der
+Magistrat Bremerhaven als Kreisebene (`04011`, `04012`). Welche Stelle welche Rolle hat, sagt
+`kontaktRolle` in `js/resolve.js` (in Python `grenzen.kontakt_rolle`); die Polizei Bremen, die
+Alternative in der Stadt Bremen, hat keine. Wie bei Sachsen trägt das Land in `kontakte.json` unter
+`meta.laender` `kurz` („Webseiten der Behörden") und `quelle`; `abgerufen` ist der Stand des
+jüngsten Eintrags. Ein Eintrag mit `allgemein: true` ist nur die allgemeine Anschrift der
+Verwaltung – in Berlin die Zentrale der Senatsverwaltung, weil die Abteilung Verkehrsmanagement nur
+ein Postfach für Arbeitsstellen nennt. Stammt ein Eintrag nicht von der Webseite der Behörde, sagt
+`quelle` woher (Bremerhaven: ein Schreiben der Straßenverkehrsbehörde). Hamburg fehlt: Welches
+Polizeikommissariat zuständig ist, wissen wir nicht. Auch hierfür genügt `zust kontakte --nur-cache`.
 
 ### Berlin: die zwölf Bezirke
 

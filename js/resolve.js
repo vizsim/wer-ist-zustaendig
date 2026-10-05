@@ -1582,19 +1582,25 @@ export function schwaecher(a, b) {
   return (SICHER_RANG[a] ?? 0) <= (SICHER_RANG[b] ?? 0) ? a : b;
 }
 
+/** Feste Stellen mit dem Kontakt der Kreisebene (`kontakt`): die zentrale Stelle eines Stadtstaats. */
+const ROLLE_KREIS = new Set(["be-senat", "hb-asv", "hb-bhv", "hh-vd"]);
+
 /**
  * Welcher Kontakt eines Gemeindeeintrags gehört zu einer Stelle?
  * - `gemeinde` (Feld `kontakt_gemeinde`): die Gemeinde selbst (`g` + ARS) oder ihr Verband (`v…`) – in
  *   Berlin der Bezirk, dessen Eintrag die Gemeinde ist;
- * - `kreis` (Feld `kontakt`): die Kreisebene bzw. kreisfreie Stadt (`k…`), in Berlin die Senatsverwaltung;
- * - sonst `null` (Bund, Bremen, Hamburg, das Bezirksamt ohne bekannten Bezirk).
+ * - `kreis` (Feld `kontakt`): die Kreisebene bzw. kreisfreie Stadt (`k…`), in Berlin die Senatsverwaltung,
+ *   in Bremen das Amt für Straßen und Verkehr bzw. der Magistrat Bremerhaven, in Hamburg die
+ *   Verkehrsdirektion der Polizei;
+ * - sonst `null` (Bund, die Polizei Bremen, das Polizeikommissariat in Hamburg, das Bezirksamt ohne
+ *   bekannten Bezirk).
  * @param {string} id Id der Stelle
  * @param {string} ars ARS des Eintrags
  */
 export function kontaktRolle(id, ars) {
   const s = String(id ?? "");
   if (s === `g${ars}` || s.startsWith("v")) return "gemeinde";
-  if (s.startsWith("k") || s === "be-senat") return "kreis";
+  if (s.startsWith("k") || ROLLE_KREIS.has(s)) return "kreis";
   return null;
 }
 

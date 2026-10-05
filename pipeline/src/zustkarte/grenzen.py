@@ -47,13 +47,18 @@ def typen_aus_landesdateien(ordner: Path) -> dict[str, tuple[str, str]]:
     return typen
 
 
+# Feste Stellen mit dem Kontakt der Kreisebene – wie `ROLLE_KREIS` in js/resolve.js.
+ROLLE_KREIS = frozenset({"be-senat", "hb-asv", "hb-bhv", "hh-vd"})
+
+
 def kontakt_rolle(stelle: str, ars: str) -> str | None:
     """Wie `kontaktRolle` in js/resolve.js: `gemeinde` (Feld `kontakt_gemeinde`) für die Gemeinde
-    selbst (`g<ARS>`) und ihren Verband (`v…`), `kreis` (Feld `kontakt`) für die Kreisebene (`k…`)
-    und in Berlin die Senatsverwaltung (`be-senat`), sonst None."""
+    selbst (`g<ARS>`) und ihren Verband (`v…`); `kreis` (Feld `kontakt`) für die Kreisebene (`k…`),
+    in Berlin die Senatsverwaltung, in Bremen das Amt für Straßen und Verkehr bzw. den Magistrat
+    Bremerhaven und in Hamburg die Verkehrsdirektion; sonst None."""
     if stelle == f"g{ars}" or stelle.startswith("v"):
         return "gemeinde"
-    if stelle.startswith("k") or stelle == "be-senat":
+    if stelle.startswith("k") or stelle in ROLLE_KREIS:
         return "kreis"
     return None
 

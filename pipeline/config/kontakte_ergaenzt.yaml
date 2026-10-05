@@ -15,8 +15,15 @@
 # Länder, die die Leistung nicht im Bundesportal führen und keine eigene Quelle haben: Ihre
 # Kontakte kommen nur aus dieser Datei (`zust kontakte`, auch mit --nur-cache). In Berlin hat der
 # Senat die Rolle `kreis` (Schlüssel 11000), jeder Bezirk die Rolle `gemeinde` (Schlüssel
-# 1100000000 + Bezirksnummer).
-nur_von_hand: [BE]
+# 1100000000 + Bezirksnummer). In Bremen haben das Amt für Straßen und Verkehr (04011) und der
+# Magistrat Bremerhaven (04012) die Rolle `kreis` – `kontaktRolle` in js/resolve.js; die Polizei
+# Bremen (Alternative in der Stadt Bremen) hat keine. Hamburg fehlt noch: Welches
+# Polizeikommissariat zuständig ist, wissen wir nicht; die Verkehrsdirektion (Alternative) hätte die
+# Rolle `kreis` (Schlüssel 02000, dann HH hier ergänzen).
+#
+# `quelle` (optional) ersetzt die Herkunft „Webseite der Behörde, Stand …", wenn ein Eintrag von
+# woanders stammt.
+nur_von_hand: [BE, HB]
 
 kontakte:
   "160700004004":  # Stadt Arnstadt – Portal nennt nur das Rathaus; Stadt ist Straßenverkehrsbehörde
@@ -394,4 +401,25 @@ kontakte:
     telefon: ["(030) 90294-2939"]
     email: ["strassenverkehrsbehoerde@reinickendorf.berlin.de"]
     web: ["https://service.berlin.de/dienstleistung/325649/standort/325695/"]
+    stand: "2026-10-05"
+
+  # Bremen (kein Bundesportal): Straßenverkehrsbehörde nach § 1 Abs. 3 der Bremer Verordnung.
+  "04011":  # Stadt Bremen – Amt für Straßen und Verkehr (Impressum und Seite der Straßenverkehrsbehörde)
+    name: "Amt für Straßen und Verkehr Bremen"
+    adresse: "Herdentorsteinweg 49/50, 28195 Bremen"
+    telefon: ["0421 361-89780"]  # Zentrale; die Abteilung nennt Nummern nur für einzelne Aufgaben (Bürgerbüro, Parken)
+    email: ["office@asv.bremen.de"]
+    web: ["https://www.asv.bremen.de/aufgaben/strassenverkehrsbehoerde-1723"]
+    stand: "2026-10-05"
+
+  # Anschrift und Postfach aus einem Schreiben der Stelle vom 03.04.2024 (veröffentlicht über FragDenStaat);
+  # das Postfach nennen laut Suchmaschine auch die Seiten auf bremerhaven.de. Die Seite selbst war von hier
+  # aus nicht lesbar – im Browser gegenlesen (Hausnummer, Telefon), dann `quelle` streichen.
+  "04012":  # Bremerhaven – Magistrat, Bürger- und Ordnungsamt
+    name: "Magistrat der Stadt Bremerhaven - Bürger- und Ordnungsamt, Straßenverkehrsbehörde"
+    adresse: "Hinrich-Schmalfeldt-Straße (Stadthaus 5), 27576 Bremerhaven"
+    telefon: []
+    email: ["strassenverkehrsbehoerde@magistrat.bremerhaven.de"]
+    web: ["https://www.bremerhaven.de/de/verwaltung-politik-sicherheit/buergerservice/adressen-oeffnungszeiten/strassenverkehrsbehoerde.163704.html"]
+    quelle: "Schreiben der Straßenverkehrsbehörde vom 03.04.2024"
     stand: "2026-10-05"

@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import json
+import re
 
 import pyogrio
 import pytest
 from conftest import BEZIRKE
 
 from zustkarte import berlin, grenzen, tiles
+from zustkarte.config import repo_root
 
 
 def test_profil_args_gemeinden() -> None:
@@ -137,6 +139,38 @@ def test_kontakt_status_berlin() -> None:
     assert grenzen.kontakt_status(d, "110000000001") == "t", "Bezirk ja, Senat nur allgemein"
     assert grenzen.kontakt_status(d, "110000000004") == "a", "Bezirk ohne Kontakt"
     assert grenzen.kontakt_status(d, "110000000000") == "a", "ganz Berlin: nur der Senat"
+
+
+def test_kontakt_status_bremen_hamburg() -> None:
+    """Bremen: Amt bzw. Magistrat mit dem Kontakt der Kreisebene, die Polizei (Alternative) ohne;
+    Hamburg: die Verkehrsdirektion wie die Kreisebene, das Kommissariat ohne."""
+    assert grenzen.kontakt_rolle("hb-asv", "040110000000") == "kreis"
+    assert grenzen.kontakt_rolle("hb-bhv", "040120000000") == "kreis"
+    assert grenzen.kontakt_rolle("hb-pol", "040110000000") is None
+    assert grenzen.kontakt_rolle("hh-vd", "020000000000") == "kreis"
+    assert grenzen.kontakt_rolle("hh-pk", "020000000000") is None
+    alle = {k: "e" for k in ("G", "K", "L", "B")}
+    d = {
+        "ergebnisse": {"e": {"stelle": "hb-asv"}, "h": {"stelle": "hh-pk"}},
+        "kontakte": {"ca": {"name": "Amt für Straßen und Verkehr Bremen"}},
+        "gemeinden": {
+            "040110000000": {"z": alle, "kontakt": "ca"},
+            "020000000000": {"z": dict.fromkeys(alle, "h"), "kontakt": "ca"},
+        },
+    }
+    assert grenzen.kontakt_status(d, "040110000000") == "k"
+    assert grenzen.kontakt_status(d, "020000000000") == "n", (
+        "Kommissariat: nie der Kontakt der Kreisebene"
+    )
+
+
+def test_kontakt_rolle_wie_in_resolve_js() -> None:
+    """Die festen Stellen mit dem Kontakt der Kreisebene stehen in js/resolve.js und in grenzen.py
+    – gleich halten."""
+    quelle = (repo_root() / "js" / "resolve.js").read_text(encoding="utf-8")
+    m = re.search(r"const ROLLE_KREIS = new Set\(\[([^\]]*)\]\)", quelle)
+    assert m, "ROLLE_KREIS fehlt in js/resolve.js"
+    assert set(re.findall(r'"([^"]+)"', m.group(1))) == grenzen.ROLLE_KREIS
 
 
 def test_kontakte_aus_landesdateien_und_mehrheit(tmp_path) -> None:

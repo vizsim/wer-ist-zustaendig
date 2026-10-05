@@ -426,7 +426,8 @@ def ergaenzungen() -> dict[str, dict[str, Any]]:
 
 def kontakt_von_hand(eintrag: dict[str, Any]) -> dict[str, Any]:
     """Eintrag von Hand → Kontakt; `allgemein: true` im Eintrag, wenn er nur die allgemeine
-    Anschrift der Verwaltung ist (Zentrale statt Verkehrsstelle)."""
+    Anschrift der Verwaltung ist (Zentrale statt Verkehrsstelle). `quelle` im Eintrag ersetzt die
+    Herkunft „Webseite der Behörde, Stand …“, wenn er von woanders stammt."""
     datum = ".".join(reversed(str(eintrag["stand"]).split("-")))
     return {
         "name": eintrag["name"],
@@ -434,7 +435,7 @@ def kontakt_von_hand(eintrag: dict[str, Any]) -> dict[str, Any]:
         "telefon": list(eintrag.get("telefon") or []),
         "email": list(eintrag.get("email") or []),
         "web": list(eintrag.get("web") or []),
-        "quelle": f"Webseite der Behörde, Stand {datum}",
+        "quelle": eintrag.get("quelle") or f"Webseite der Behörde, Stand {datum}",
         **({"allgemein": True} if eintrag.get("allgemein") else {}),
     }
 
@@ -461,7 +462,7 @@ def ergaenze_von_hand(
     attr: dict[str, Any],
     laender: list[str] | None = None,
 ) -> int:
-    """Kontakte für Länder ohne Bundesportal und ohne eigene Quelle (`nur_von_hand`, heute Berlin)
+    """Kontakte für Länder ohne Bundesportal und ohne eigene Quelle (`nur_von_hand`: Berlin, Bremen)
     in `daten` (kontakte.json) und `review` eintragen – nur aus den Einträgen von Hand
     (`luecken_fuellen`), ohne Urteil `wahl`. Wie bei Sachsen (anschriften.py) trägt das Land unter
     `meta.laender` `kurz` und `quelle`; `abgerufen` ist der Stand des jüngsten Eintrags. Ein Land

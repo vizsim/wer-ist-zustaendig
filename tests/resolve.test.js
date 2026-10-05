@@ -1890,12 +1890,63 @@ test("auswahl: Berlin – Nebenstraße beim Bezirk, unklare Straße beim Senat; 
   assert.equal(gesamt.alternative.kontakt.name, "Senatsverwaltung – Verkehrsmanagement");
 });
 
-test("kontaktRolle: Gemeinde bzw. Verband, Kreisebene, in Berlin Bezirk und Senat", () => {
+test("auswahl: Bremen – das Amt mit seinem Kontakt, die Polizei als Alternative ohne; Bremerhaven", () => {
+  const d = landesdatei("HB", [G.bremen, G.bremerhaven]);
+  d.kontakte = {
+    c1: { name: "Amt für Straßen und Verkehr Bremen" }, c2: { name: "Rathaus" },
+    c3: { name: "Magistrat der Stadt Bremerhaven - Bürger- und Ordnungsamt, Straßenverkehrsbehörde" },
+  };
+  // Ein Kontakt der Gemeinde-Rolle gehört nie zur Polizei.
+  Object.assign(d.gemeinden[G.bremen.ars], { kontakt: "c1", kontakt_gemeinde: "c2" });
+  Object.assign(d.gemeinden[G.bremerhaven.ars], { kontakt: "c3" });
+
+  const b = auswahl(d, G.bremen.ars, ["B", "G"]);
+  assert.equal(b.zustaendig.id, "hb-asv");
+  assert.equal(b.sicherheit, SICHERHEIT.BELEGT);
+  assert.equal(b.kontakt.name, "Amt für Straßen und Verkehr Bremen");
+  assert.equal(b.alternative.stelle.id, "hb-pol", "die Alternative der Regel – die Gemeindestraße hat dieselbe Stelle");
+  assert.equal(b.alternative.bedingung, TEXTE.bedingung.hbPolizei);
+  assert.equal(b.alternative.kontakt, null);
+  const unklar = auswahl(d, G.bremen.ars, ["unklar"]);
+  assert.equal(unklar.sicherheit, SICHERHEIT.VERMUTLICH, "unklare Klasse: höchstens vermutlich");
+  assert.equal(unklar.alternative.stelle.id, "hb-pol");
+
+  const bhv = auswahl(d, G.bremerhaven.ars, ["G"]);
+  assert.equal(bhv.zustaendig.name, "Magistrat der Stadt Bremerhaven – Straßenverkehrsbehörde");
+  assert.equal(bhv.kontakt.name, d.kontakte.c3.name);
+  assert.equal(bhv.alternative, null);
+});
+
+test("auswahl: Hamburg – das Kommissariat ohne Kontakt, die Verkehrsdirektion als Alternative", () => {
+  const d = landesdatei("HH", [G.hamburg]);
+  const r = auswahl(d, G.hamburg.ars, ["B", "G"]);
+  assert.equal(r.zustaendig.id, "hh-pk");
+  assert.equal(r.sicherheit, SICHERHEIT.NUR_EBENE);
+  assert.equal(r.kontakt, null, "welches Kommissariat, ist unbekannt");
+  assert.equal(r.alternative.stelle.name, "Polizei Hamburg, Verkehrsdirektion – Straßenverkehrsbehörde");
+  assert.equal(r.alternative.bedingung, TEXTE.bedingung.hhZentral);
+  assert.equal(r.alternative.kontakt, null, "noch kein Kontakt der Verkehrsdirektion");
+  d.kontakte = { c1: { name: "Polizei Hamburg, Verkehrsdirektion" } };
+  d.gemeinden[G.hamburg.ars].kontakt = "c1";
+  const mit = auswahl(d, G.hamburg.ars, ["B"]);
+  assert.equal(mit.alternative.kontakt.name, "Polizei Hamburg, Verkehrsdirektion", "Rolle der Kreisebene");
+  assert.equal(mit.kontakt, null, "nie für das Kommissariat");
+});
+
+test("kontaktRolle: Gemeinde bzw. Verband, Kreisebene, in Berlin Bezirk und Senat, in Bremen und Hamburg", () => {
   assert.equal(kontaktRolle("g092740128128", "092740128128"), "gemeinde");
   assert.equal(kontaktRolle("g092740128128", "091780124124"), null, "nie die Gemeinde eines anderen Eintrags");
   assert.equal(kontaktRolle("v073395001", "073395001001"), "gemeinde");
   assert.equal(kontaktRolle("k09274", "092740128128"), "kreis");
   assert.equal(kontaktRolle("g110000000001", "110000000001"), "gemeinde");
   assert.equal(kontaktRolle("be-senat", "110000000001"), "kreis");
-  for (const id of ["be-bezirk", "fba", "hb-asv", "hh-pk", null]) assert.equal(kontaktRolle(id, "110000000001"), null, String(id));
+  for (const id of ["hb-asv", "hb-bhv", "hh-vd"]) assert.equal(kontaktRolle(id, "040110000000"), "kreis", id);
+  for (const id of ["be-bezirk", "fba", "hb-pol", "hh-pk", null]) {
+    assert.equal(kontaktRolle(id, "110000000001"), null, String(id));
+  }
+  // Jede feste Stelle hat eine Rolle oder steht hier ausdrücklich ohne – neue nicht vergessen.
+  const ohne = ["fba", "be-bezirk", "hb-pol", "hh-pk"];
+  for (const id of Object.keys(FESTE_STELLEN)) {
+    assert.equal(kontaktRolle(id, "040110000000") === null, ohne.includes(id), id);
+  }
 });

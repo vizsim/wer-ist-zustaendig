@@ -424,12 +424,23 @@ def test_eigene_stelle_nicht_der_gleichnamige_kreis() -> None:
     assert bp.eigene_stelle(amt, albersdorf), "Amt, dessen Name den Kreisnamen enthält"
 
 
+def test_kontakt_von_hand_eigene_quelle() -> None:
+    """Ein Eintrag, der nicht von der Webseite der Behörde stammt, nennt seine Herkunft selbst."""
+    basis = {"name": "Magistrat", "email": ["post@example.org"], "stand": "2026-10-05"}
+    assert bp.kontakt_von_hand(basis)["quelle"] == "Webseite der Behörde, Stand 05.10.2026"
+    brief = {**basis, "quelle": "Schreiben der Straßenverkehrsbehörde vom 03.04.2024"}
+    assert bp.kontakt_von_hand(brief)["quelle"] == brief["quelle"]
+
+
 def test_ergaenzungen_von_hand_sind_vollstaendig() -> None:
     for schluessel, k in bp.ergaenzungen().items():
         assert len(schluessel) in (5, 12) and schluessel.isdigit(), schluessel
         assert k.get("rolle", "kreis") in ("kreis", "gemeinde", "verband"), schluessel
         assert len(schluessel) == 12 or k.get("rolle", "kreis") == "kreis", schluessel
         assert k["name"] and k["stand"], schluessel
+        assert "quelle" not in k or (isinstance(k["quelle"], str) and k["quelle"].strip()), (
+            schluessel
+        )
         assert k.get("telefon") or k.get("email") or k.get("web"), f"{schluessel}: kein Kontaktweg"
         for m in k.get("email") or []:
             assert bp.funktionspostfach(m), f"{schluessel}: {m} sieht nach Person aus"

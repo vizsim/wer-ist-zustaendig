@@ -446,6 +446,58 @@ test("baueLaender + auswahl: Berlin – Senat und Bezirksämter mit Kontakten vo
   assert.equal(gesamt.kontakt_gemeinde, undefined);
 });
 
+test("baueLaender + auswahl: Bremen – Amt und Magistrat mit Kontakten von Hand, die Polizei ohne; Hamburg ohne", () => {
+  const a = attr();
+  const stadt = (ars, gen, land) => ({
+    ars, gen, name: gen, land, tkz: [61], kreis: kreis(ars.slice(0, 5), gen, "Kreisfreie Stadt", "nein", true),
+  });
+  a.gemeinden["040110000000"] = stadt("040110000000", "Bremen", "HB");
+  a.gemeinden["040120000000"] = stadt("040120000000", "Bremerhaven", "HB");
+  a.gemeinden["020000000000"] = stadt("020000000000", "Hamburg", "HH");
+  const hand = (name, mehr = {}) => ({
+    name, adresse: null, telefon: [], email: ["office@example.org"], web: [], quelle: "Webseite der Behörde, Stand 05.10.2026",
+    ...mehr,
+  });
+  const vonHand = { id: "von_hand", label: "Kontakte von Hand", lizenz: "–", vermerk: "Kontakt laut Webseite der Behörde" };
+  const k = kontakte();
+  k.meta.laender.HB = { abgerufen: "2026-10-05", kurz: "Webseiten der Behörden", quelle: vonHand };
+  k.gemeinden["040110000000"] = {
+    wahl: null, stellen: 0, kreis: hand("Amt für Straßen und Verkehr Bremen"),
+    gemeinde: hand("Rathaus Bremen", { allgemein: true }),
+  };
+  k.gemeinden["040120000000"] = {
+    wahl: null, stellen: 0, gemeinde: null,
+    kreis: hand("Magistrat der Stadt Bremerhaven - Straßenverkehrsbehörde", { quelle: "Schreiben vom 03.04.2024" }),
+  };
+  const { dateien, index } = baueLaender(a, { kontakte: k });
+  const hb = dateien["hb.json"];
+  assert.equal(hb.daten.kontakte, "Webseiten der Behörden 05.10.2026");
+  assert.deepEqual(Object.keys(hb.stellen).sort(), ["fba", "hb-asv", "hb-bhv", "hb-pol"]);
+  assert.deepEqual(Object.values(hb.kontakte).map((x) => x.name).sort(), [
+    "Amt für Straßen und Verkehr Bremen", "Magistrat der Stadt Bremerhaven - Straßenverkehrsbehörde",
+  ], "kein Kontakt der Gemeinde-Rolle: keine Stelle in Bremen hat sie");
+  assert.equal(hb.gemeinden["040110000000"].kontakt_gemeinde, undefined);
+  const land = index.laender.find((l) => l.lkz === "HB");
+  assert.deepEqual(land.sicherheit, { belegt: 2, vermutlich: 0, "nur Ebene": 0 });
+  assert.deepEqual([land.kontakte, land.allgemein], [2, undefined]);
+
+  const b = auswahl(hb, "040110000000", ["K"]);
+  assert.equal(b.zustaendig.id, "hb-asv");
+  assert.equal(b.kontakt.name, "Amt für Straßen und Verkehr Bremen");
+  assert.equal(b.alternative.stelle.id, "hb-pol");
+  assert.equal(b.alternative.kontakt, null);
+  assert.equal(b.bundesportal, null);
+  const bhv = auswahl(hb, "040120000000", ["G"]);
+  assert.equal(bhv.kontakt.name, "Magistrat der Stadt Bremerhaven - Straßenverkehrsbehörde");
+  assert.equal(bhv.kontakt.quelle, "Schreiben vom 03.04.2024", "eigene Herkunft des Eintrags");
+  assert.equal(hb.gemeinden["040120000000"].kontakt_gemeinde, undefined, "Bremerhaven: keine Alternative");
+
+  const hh = dateien["hh.json"];
+  assert.equal(hh.kontakte, undefined, "Hamburg: keine Kontakte");
+  assert.deepEqual(index.laender.find((l) => l.lkz === "HH").sicherheit, { belegt: 0, vermutlich: 0, "nur Ebene": 1 });
+  assert.equal(auswahl(hh, "020000000000", ["G"]).alternative.stelle.id, "hh-vd");
+});
+
 test("baueLaender: Link ins Bundesportal für jedes Land, das die Leistung dort führt", () => {
   const k = kontakte();
   k.meta.portal = { RP: "https://verwaltung.bund.de/…/herausgeber/RP-8958611/region/{ars}" };
