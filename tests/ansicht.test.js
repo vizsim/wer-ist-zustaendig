@@ -253,7 +253,7 @@ test("willkommenHtml: Stand aus index.json – geprüft, vermutlich, offen; Kont
   const index = {
     laender: [
       { lkz: "BY", name: "Bayern", sicherheit: { belegt: 2056, vermutlich: 165, "nur Ebene": 0 }, kontakte: 2221 },
-      { lkz: "NI", name: "Niedersachsen", sicherheit: { belegt: 0, vermutlich: 33, "nur Ebene": 931 } },
+      { lkz: "HE", name: "Hessen", sicherheit: { belegt: 0, vermutlich: 4, "nur Ebene": 417 } },
       { lkz: "SH", name: "Schleswig-Holstein", sicherheit: { belegt: 1101, vermutlich: 5, "nur Ebene": 0 }, kontakte: 1106 },
       { lkz: "TH", name: "Thüringen", sicherheit: { belegt: 0, vermutlich: 605, "nur Ebene": 0 }, kontakte: 605 },
       { lkz: "BW", name: "Baden-Württemberg", sicherheit: { belegt: 0, vermutlich: 11, "nur Ebene": 1092 } },
@@ -262,7 +262,7 @@ test("willkommenHtml: Stand aus index.json – geprüft, vermutlich, offen; Kont
   const html = willkommenHtml(index, { melden: "https://github.com/vizsim/wer-ist-zustaendig/issues/new" });
   assert.ok(html.includes('<h2 id="willkommen-titel">Testversion</h2>'));
   assert.ok(html.includes("<strong>Geprüft:</strong> Bayern und Schleswig-Holstein"));
-  assert.ok(html.includes("<strong>Vermutlich:</strong> Thüringen"));
+  assert.ok(html.includes("<strong>Vermutlich:</strong> Thüringen – die Regel ist nicht für jede Gemeinde gesichert."));
   assert.ok(html.includes("die übrigen 2 Länder"));
   assert.ok(html.includes("gibt es bisher für Bayern, Schleswig-Holstein und Thüringen."));
   assert.ok(html.includes("kein Rechtsrat"));

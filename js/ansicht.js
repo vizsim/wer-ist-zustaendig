@@ -330,7 +330,7 @@ export function willkommenHtml(index, { melden } = {}) {
   const offen = laender.length - mitRegel.length;
   const stand = [
     geprueft && `<li><strong>Geprüft:</strong> ${esc(geprueft)} – die Regel ist an der Rechtsgrundlage geprüft.</li>`,
-    vermutlich && `<li><strong>Vermutlich:</strong> ${esc(vermutlich)} – die Regel stammt aus einer Sekundärquelle.</li>`,
+    vermutlich && `<li><strong>Vermutlich:</strong> ${esc(vermutlich)} – die Regel ist nicht für jede Gemeinde gesichert.</li>`,
     offen > 0 && `<li><strong>Noch offen:</strong> ${offen === 1 ? "das übrige Land" : `die übrigen ${offen} Länder`}. ` +
       "Dort nennt die Karte meist nur die Kreisebene, schraffiert.</li>",
   ].filter(Boolean).join("");
