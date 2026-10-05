@@ -5,7 +5,8 @@ import {
   auswahl, BAU_KLASSEN, BB_AUF_ANTRAG, BB_AUF_ANTRAG_TEILWEISE, BB_GROSSE_KREISANGEHOERIGE_STAEDTE, ergebnisId,
   FESTE_STELLEN, MV_GROSSE_KREISANGEHOERIGE_STAEDTE, MV_STAEDTE_UEBERGANG, NI_GEMEINDESTRASSEN, NI_SELBSTAENDIG,
   NI_WIE_KREISFREI, NW_GROSSE_KREISANGEHOERIGE_STAEDTE, NW_MITTLERE_KREISANGEHOERIGE_STAEDTE, resolveGemeinde,
-  RP_ANLAGE_1, RP_GROSSE_KREISANGEHOERIGE_STAEDTE, schwaecher, SICHERHEIT, TEXTE, TH_STAEDTE_AUF_ANTRAG,
+  RP_ANLAGE_1, RP_GROSSE_KREISANGEHOERIGE_STAEDTE, schwaecher, SICHERHEIT, SN_GROSSE_KREISSTAEDTE, TEXTE,
+  TH_STAEDTE_AUF_ANTRAG,
 } from "../js/resolve.js";
 
 const kreis = (ars, gen, bez, nbd, kreisfrei = false) => ({ ars, gen, bez, nbd, kreisfrei, name: gen });
@@ -302,6 +303,59 @@ const G = {
   bendorf: {
     ars: "071370203203", gen: "Bendorf", land: "RP", tkz: [63],
     kreis: kreis("07137", "Mayen-Koblenz", "Landkreis", "ja"),
+  },
+  dresden: {
+    ars: "146120000000", gen: "Dresden", land: "SN", tkz: [61],
+    kreis: kreis("14612", "Dresden", "Kreisfreie Stadt", "ja", true),
+  },
+  plauen: {
+    ars: "145230320320", gen: "Plauen", land: "SN", tkz: [63],
+    kreis: kreis("14523", "Vogtlandkreis", "Landkreis", "nein"),
+  },
+  zschopau: {
+    ars: "145215138690", gen: "Zschopau", land: "SN", tkz: [63],
+    kreis: kreis("14521", "Erzgebirgskreis", "Landkreis", "nein"),
+    verband: {
+      ars: "145215138", gen: "Zschopau", bez: "Verwaltungsgemeinschaft", name: "Verwaltungsgemeinschaft Zschopau",
+      sitz: "145215138690",
+    },
+  },
+  gornau: {
+    ars: "145215138220", gen: "Gornau/Erzgeb.", name: "Gemeinde Gornau/Erzgeb.", land: "SN", tkz: [64],
+    kreis: kreis("14521", "Erzgebirgskreis", "Landkreis", "nein"),
+    verband: {
+      ars: "145215138", gen: "Zschopau", bez: "Verwaltungsgemeinschaft", name: "Verwaltungsgemeinschaft Zschopau",
+      sitz: "145215138690",
+    },
+  },
+  amtsberg: {
+    ars: "145210010010", gen: "Amtsberg", name: "Gemeinde Amtsberg", land: "SN", tkz: [64],
+    kreis: kreis("14521", "Erzgebirgskreis", "Landkreis", "nein"),
+  },
+  rodewisch: {
+    ars: "145230360360", gen: "Rodewisch", land: "SN", tkz: [63],
+    kreis: kreis("14523", "Vogtlandkreis", "Landkreis", "nein"),
+  },
+  treuen: {
+    ars: "145235134430", gen: "Treuen", land: "SN", tkz: [63],
+    kreis: kreis("14523", "Vogtlandkreis", "Landkreis", "nein"),
+    verband: {
+      ars: "145235134", gen: "Treuen", bez: "Verwaltungsgemeinschaft", name: "Verwaltungsgemeinschaft Treuen",
+      sitz: "145235134430",
+    },
+  },
+  neuensalz: {
+    ars: "145235134270", gen: "Neuensalz", name: "Gemeinde Neuensalz", land: "SN", tkz: [64],
+    kreis: kreis("14523", "Vogtlandkreis", "Landkreis", "nein"),
+    verband: {
+      ars: "145235134", gen: "Treuen", bez: "Verwaltungsgemeinschaft", name: "Verwaltungsgemeinschaft Treuen",
+      sitz: "145235134430",
+    },
+  },
+  bergen: {
+    ars: "145235402050", gen: "Bergen", name: "Gemeinde Bergen", land: "SN", tkz: [64],
+    kreis: kreis("14523", "Vogtlandkreis", "Landkreis", "nein"),
+    verband: { ars: "145235402", gen: "Jägerswald", bez: "Verwaltungsverband", name: "Verwaltungsverband Jägerswald" },
   },
   kondominium: {
     ars: "079355003095", gen: "Deutsch-Luxemburgisches Hoheitsgebiet [Nittel]", land: "RP", tkz: [],
@@ -901,6 +955,86 @@ test("Rheinland-Pfalz: kreisfreie und große kreisangehörige Städte für alle 
   for (const ars of Object.keys(RP_ANLAGE_1)) assert.match(ars, /^07\d{7}(\d{3})?$/, ars);
 });
 
+test("Sachsen: Kreisfreie Städte und Große Kreisstädte für alle Straßen (belegt)", () => {
+  const dresden = resolveGemeinde(G.dresden).zust;
+  for (const k of BAU_KLASSEN) assert.equal(dresden[k].stelle, "k14612", k);
+  assert.equal(dresden.G.sicherheit, SICHERHEIT.BELEGT);
+  assert.equal(dresden.G.quelle, TEXTE.quelle.snUnter);
+  const plauen = resolveGemeinde(G.plauen);
+  for (const k of BAU_KLASSEN) {
+    assert.equal(plauen.zust[k].stelle, "g145230320320", k);
+    assert.equal(plauen.zust[k].sicherheit, SICHERHEIT.BELEGT, k);
+    assert.equal(plauen.zust[k].alternative, null, k);
+  }
+  assert.equal(plauen.zust.B.grund, TEXTE.grund.snGks);
+  assert.deepEqual(plauen.stellen.g145230320320, {
+    id: "g145230320320", name: "Stadt Plauen – Straßenverkehrsbehörde", ebene: "untere", art: "stadt",
+  });
+  const zschopau = resolveGemeinde(G.zschopau).zust;
+  for (const k of BAU_KLASSEN) assert.equal(zschopau[k].stelle, "g145215138690", `${k}: Schlüssel ist der AGS`);
+  // Liste: 53 Große Kreisstädte, je Landkreis wie beim Staatsministerium des Innern (01.01.2026).
+  const je = {};
+  for (const ags of Object.keys(SN_GROSSE_KREISSTAEDTE)) {
+    assert.match(ags, /^14\d{6}$/, ags);
+    je[ags.slice(0, 5)] = (je[ags.slice(0, 5)] ?? 0) + 1;
+  }
+  assert.deepEqual(je, {
+    14521: 6, 14522: 7, 14523: 5, 14524: 6, 14625: 5, 14626: 5, 14627: 5, 14628: 4, 14729: 5, 14730: 5,
+  });
+});
+
+test("Sachsen: Große Kreisstadt als erfüllende Gemeinde – zuständig für die ganze Verwaltungsgemeinschaft", () => {
+  const { zust, stellen } = resolveGemeinde(G.gornau);
+  for (const k of BAU_KLASSEN) {
+    assert.equal(zust[k].stelle, "v145215138", k);
+    assert.equal(zust[k].sicherheit, SICHERHEIT.BELEGT, k);
+    assert.equal(zust[k].grund, TEXTE.grund.snGksVg, k);
+    assert.equal(zust[k].quelle, TEXTE.quelle.snGksVg, k);
+  }
+  assert.deepEqual(stellen.v145215138, {
+    id: "v145215138", name: "Verwaltungsgemeinschaft Zschopau – Straßenverkehrsbehörde", ebene: "untere", art: "verband",
+  });
+  // Nur in der Verwaltungsgemeinschaft (§ 3 Abs. 2 Satz 3 SächsGemO), nicht im Verwaltungsverband.
+  const vv = resolveGemeinde({ ...G.bergen, verband: { ...G.bergen.verband, sitz: "145230320320" } }).zust;
+  assert.equal(vv.K.stelle, "k14523");
+  assert.equal(vv.G.stelle, "v145235402");
+});
+
+test("Sachsen: Gemeindestraßen bei der Gemeinde bzw. ihrem Verband, sonst das Landratsamt (belegt)", () => {
+  const amtsberg = resolveGemeinde(G.amtsberg);
+  assert.equal(amtsberg.zust.G.stelle, "g145210010010");
+  assert.equal(amtsberg.zust.G.grund, TEXTE.grund.snGemeinde);
+  assert.equal(amtsberg.zust.G.quelle, TEXTE.quelle.snOertlich);
+  assert.equal(amtsberg.zust.G.sicherheit, SICHERHEIT.BELEGT);
+  assert.deepEqual(amtsberg.stellen.g145210010010, {
+    id: "g145210010010", name: "Gemeinde Amtsberg – Straßenverkehrsbehörde", ebene: "oertliche", art: "gemeinde",
+  });
+  for (const k of ["K", "L", "B"]) {
+    assert.equal(amtsberg.zust[k].stelle, "k14521", k);
+    assert.equal(amtsberg.zust[k].grund, TEXTE.grund.snLandratsamt, k);
+    assert.equal(amtsberg.zust[k].sicherheit, SICHERHEIT.BELEGT, k);
+    assert.equal(amtsberg.zust[k].alternative, null, k);
+  }
+  assert.equal(amtsberg.stellen.k14521.name, "Landratsamt Erzgebirgskreis – Straßenverkehrsbehörde");
+  const rodewisch = resolveGemeinde(G.rodewisch);
+  assert.equal(rodewisch.stellen.g145230360360.name, "Stadt Rodewisch – Straßenverkehrsbehörde");
+  assert.equal(rodewisch.zust.B.stelle, "k14523", "Stadt, aber keine Große Kreisstadt");
+
+  for (const g of [G.neuensalz, G.treuen]) {
+    const { zust, stellen } = resolveGemeinde(g);
+    assert.equal(zust.G.stelle, "v145235134", g.gen);
+    assert.equal(zust.G.grund, TEXTE.grund.snVerwaltungsgemeinschaft, g.gen);
+    assert.equal(zust.G.quelle, TEXTE.quelle.snOertlichVerband, g.gen);
+    assert.equal(stellen.v145235134.ebene, "oertliche", g.gen);
+    assert.equal(zust.K.stelle, "k14523", `${g.gen}: Treuen ist keine Große Kreisstadt`);
+  }
+  const bergen = resolveGemeinde(G.bergen);
+  assert.equal(bergen.zust.G.stelle, "v145235402");
+  assert.equal(bergen.zust.G.grund, TEXTE.grund.snVerwaltungsverband);
+  assert.equal(bergen.stellen.v145235402.name, "Verwaltungsverband Jägerswald – Straßenverkehrsbehörde");
+  assert.equal(bergen.zust.L.stelle, "k14523");
+});
+
 test("resolveGemeinde: prüft die Eingabe", () => {
   assert.throws(() => resolveGemeinde({ ...G.muenchen, ars: "09162000" }), /ungültiger ARS/);
   assert.throws(() => resolveGemeinde({ ...G.muenchen, kreis: null }), /ohne Kreis/);
@@ -1035,3 +1169,15 @@ test("auswahl: Rheinland-Pfalz, Klasse unklar – Verbandsgemeinde, außerorts d
   assert.equal(beide.zustaendig.id, "v073395002");
   assert.equal(beide.alternative.stelle.id, "k07339", "die Alternative der Landesstraße");
 });
+
+test("auswahl: Sachsen, Klasse unklar – Landratsamt, die Gemeinde als Alternative; Große Kreisstadt für alles", () => {
+  const d = landesdatei("SN", [G.amtsberg, G.gornau]);
+  const r = auswahl(d, G.amtsberg.ars, []);
+  assert.equal(r.zustaendig.id, "k14521");
+  assert.equal(r.alternative.stelle.id, "g145210010010");
+  assert.equal(r.alternative.bedingung, TEXTE.bedingung.unklar);
+  const gornau = auswahl(d, G.gornau.ars, ["G", "B"]);
+  assert.equal(gornau.zustaendig.id, "v145215138");
+  assert.equal(gornau.alternative, null);
+});
+

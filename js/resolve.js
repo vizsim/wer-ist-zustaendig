@@ -139,6 +139,18 @@ export const TEXTE = Object.freeze({
       "In Rheinland-Pfalz ordnet die Verbandsgemeinde bzw. die verbandsfreie Gemeinde Verkehrszeichen an; " +
       "diese auch auf Landes- und Kreisstraßen außerhalb geschlossener Ortschaften.",
     rpGks: "In Rheinland-Pfalz ist die große kreisangehörige Stadt für alle Straßen selbst Straßenverkehrsbehörde.",
+    snGemeinde: "In Sachsen ordnet die Gemeinde auf Gemeindestraßen Verkehrszeichen selbst an (örtliche Straßenverkehrsbehörde).",
+    snVerwaltungsgemeinschaft:
+      "In Sachsen ordnet die Gemeinde auf Gemeindestraßen Verkehrszeichen selbst an; in einer " +
+      "Verwaltungsgemeinschaft übernimmt das die erfüllende Gemeinde.",
+    snVerwaltungsverband:
+      "In Sachsen ordnet die Gemeinde auf Gemeindestraßen Verkehrszeichen selbst an; in einem " +
+      "Verwaltungsverband übernimmt das der Verband.",
+    snLandratsamt: "Für Kreis-, Staats- und Bundesstraßen ist in Sachsen das Landratsamt Straßenverkehrsbehörde.",
+    snGks: "Große Kreisstädte sind in Sachsen für alle Straßen ihres Gebiets Straßenverkehrsbehörde.",
+    snGksVg:
+      "Erfüllende Gemeinde dieser Verwaltungsgemeinschaft ist eine Große Kreisstadt – sie ist deshalb auch " +
+      "hier für alle Straßen Straßenverkehrsbehörde.",
   }),
   bedingung: Object.freeze({
     gks: "Große Kreisstadt – sie kann selbst zuständig sein",
@@ -261,6 +273,20 @@ export const TEXTE = Object.freeze({
     rpAnlage1:
       "§ 5 Abs. 1 Satz 3 und Anlage 1 der Landesverordnung über Zuständigkeiten auf dem Gebiet des " +
       "Straßenverkehrsrechts (Rheinland-Pfalz) vom 12.03.1987 [S]",
+    snUnter:
+      "§§ 1 und 3 Sächsisches Straßenverkehrsrechtsgesetz (SächsStrVRG) vom 03.05.2019 (SächsGVBl. S. 317), " +
+      "zuletzt geändert 24.06.2026",
+    snOertlich: "§§ 1 und 2 SächsStrVRG vom 03.05.2019 (SächsGVBl. S. 317), zuletzt geändert 24.06.2026",
+    snOertlichVerband:
+      "§§ 2 und 24 SächsStrVRG vom 03.05.2019, zuletzt geändert 24.06.2026; § 7 Abs. 1 Nr. 1 und § 36 Abs. 3 " +
+      "SächsKomZG, zuletzt geändert 09.02.2022",
+    snGks:
+      "§ 3 SächsStrVRG vom 03.05.2019; § 1 Nr. 2 SächsKomVerfRDVO vom 22.11.2022 (SächsGVBl. S. 634); Große " +
+      "Kreisstädte laut Gemeindeverzeichnis der Landesdirektion Sachsen (01.08.2026), 53 laut Staatsministerium " +
+      "des Innern (01.01.2026)",
+    snGksVg:
+      "§ 3 Abs. 2 Satz 3 SächsGemO, zuletzt geändert 27.06.2025; § 1 Nr. 2 SächsKomVerfRDVO vom 22.11.2022; " +
+      "§ 3 SächsStrVRG vom 03.05.2019",
   }),
   hinweis: Object.freeze({
     autobahnDabei: "Für die Autobahn selbst ist das Fernstraßen-Bundesamt zuständig.",
@@ -835,6 +861,79 @@ function regelRheinlandPfalz(g, klasse) {
   return ergebnis(ort, sicher, "rpOrt", "rpOrt", { stelle: kreis, bedingung: "rpAusserorts" });
 }
 
+/** AGS (8 Stellen) aus einem ARS: Land, Regierungsbezirk, Kreis und Gemeinde – ohne den Verband. */
+const agsVon = (ars) => (ARS_RE.test(String(ars ?? "")) ? `${ars.slice(0, 5)}${ars.slice(9)}` : null);
+
+/**
+ * Große Kreisstädte in Sachsen (§ 3 Abs. 2 und 3 SächsGemO): 53 am 01.01.2026 laut Staatsministerium des
+ * Innern (Kommunale Gliederung, Zahl je Landkreis). Namen und Schlüssel aus dem Gemeindeverzeichnis der
+ * Landesdirektion Sachsen, Stand 01.08.2026: Status „Große Kreisstadt“, bei Stollberg/Erzgeb., Zschopau,
+ * Mittweida, Rochlitz, Crimmitschau und Limbach-Oberfrohna fehlt er dort, sie führen aber einen
+ * Oberbürgermeister und heißen in amt24 „Große Kreisstadt“. GV-ISys kennzeichnet sie in Sachsen nicht
+ * (Textkennzeichen 63, nicht 67). Schlüssel ist der AGS – er bleibt gleich, wenn sich der Verband ändert.
+ */
+export const SN_GROSSE_KREISSTAEDTE = Object.freeze({
+  // Erzgebirgskreis
+  "14521020": "Annaberg-Buchholz", "14521035": "Aue-Bad Schlema", "14521390": "Marienberg",
+  "14521550": "Schwarzenberg/Erzgeb.", "14521590": "Stollberg/Erzgeb.", "14521690": "Zschopau",
+  // Mittelsachsen
+  "14522050": "Brand-Erbisdorf", "14522080": "Döbeln", "14522140": "Flöha", "14522180": "Freiberg",
+  "14522230": "Hainichen", "14522360": "Mittweida", "14522490": "Rochlitz",
+  // Vogtlandkreis
+  "14523020": "Auerbach/Vogtl.", "14523160": "Klingenthal", "14523300": "Oelsnitz/Vogtl.", "14523320": "Plauen",
+  "14523340": "Reichenbach im Vogtland",
+  // Zwickau
+  "14524030": "Crimmitschau", "14524080": "Glauchau", "14524120": "Hohenstein-Ernstthal",
+  "14524180": "Limbach-Oberfrohna", "14524300": "Werdau", "14524330": "Zwickau",
+  // Bautzen
+  "14625020": "Bautzen", "14625040": "Bischofswerda", "14625240": "Hoyerswerda", "14625250": "Kamenz",
+  "14625480": "Radeberg",
+  // Görlitz
+  "14626110": "Görlitz", "14626290": "Löbau", "14626370": "Niesky", "14626600": "Weißwasser/O.L.",
+  "14626610": "Zittau",
+  // Meißen
+  "14627010": "Coswig", "14627060": "Großenhain", "14627140": "Meißen", "14627210": "Radebeul",
+  "14627230": "Riesa",
+  // Sächsische Schweiz-Osterzgebirge
+  "14628060": "Dippoldiswalde", "14628110": "Freital", "14628270": "Pirna", "14628360": "Sebnitz",
+  // Leipzig (Landkreis)
+  "14729050": "Borna", "14729150": "Geithain", "14729160": "Grimma", "14729260": "Markkleeberg",
+  "14729410": "Wurzen",
+  // Nordsachsen
+  "14730070": "Delitzsch", "14730110": "Eilenburg", "14730230": "Oschatz", "14730270": "Schkeuditz",
+  "14730310": "Torgau",
+});
+
+/**
+ * Sachsen (belegt, SächsStrVRG): Die Gemeinden sind örtliche Straßenverkehrsbehörde für Maßnahmen nach
+ * § 45 StVO, die ausschließlich Gemeindestraßen betreffen (§ 2), die Landkreise und Kreisfreien Städte
+ * untere für alles Übrige (§ 3). Den Großen Kreisstädten ist der Vollzug nach § 3 übertragen (§ 1 Nr. 2
+ * SächsKomVerfRDVO); ist eine von ihnen erfüllende Gemeinde einer Verwaltungsgemeinschaft, gilt das für
+ * alle Beteiligten (§ 3 Abs. 2 Satz 3 SächsGemO). Die Aufgabe der örtlichen Behörde ist eine
+ * Weisungsaufgabe (§ 24 SächsStrVRG) und geht damit auf den Verwaltungsverband bzw. die erfüllende
+ * Gemeinde der Verwaltungsgemeinschaft über (§ 7 Abs. 1 Nr. 1, § 36 Abs. 3 SächsKomZG) – beide hier als
+ * Stelle `v` + Verbands-ARS; die erfüllende Gemeinde ist `verband.sitz`.
+ */
+function regelSachsen(g, klasse) {
+  const kreis = kreisStelle(g);
+  if (g.kreis.kreisfrei) return ergebnis(kreis, SICHERHEIT.BELEGT, "kreisfrei", "snUnter");
+  if (g.gemeindefrei) return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "gemeindefrei", "snUnter");
+  if (SN_GROSSE_KREISSTAEDTE[agsVon(g.ars)]) {
+    return ergebnis(gemeindeStelle(g, "stadt", "untere"), SICHERHEIT.BELEGT, "snGks", "snGks");
+  }
+  const verband = g.verband;
+  const verwaltungsverband = Boolean(verband) && /verband/i.test(verband.bez ?? verband.name ?? "");
+  if (verband && !verwaltungsverband && SN_GROSSE_KREISSTAEDTE[agsVon(verband.sitz)]) {
+    return ergebnis(verbandStelle(g, "untere"), SICHERHEIT.BELEGT, "snGksVg", "snGksVg");
+  }
+  if (klasse !== "G") return ergebnis(kreis, SICHERHEIT.BELEGT, "snLandratsamt", "snUnter");
+  if (verband) {
+    const grund = verwaltungsverband ? "snVerwaltungsverband" : "snVerwaltungsgemeinschaft";
+    return ergebnis(verbandStelle(g), SICHERHEIT.BELEGT, grund, "snOertlichVerband");
+  }
+  return ergebnis(gemeindeStelle(g, istStadt(g) ? "stadt" : "gemeinde", "oertliche"), SICHERHEIT.BELEGT, "snGemeinde", "snOertlich");
+}
+
 /** Landesregeln: (Gemeinde, Klasse) → Ergebnis, oder null für den Rückfall auf Phase 1. */
 export const LANDESREGELN = Object.freeze({
   BB: regelBrandenburg,
@@ -844,6 +943,7 @@ export const LANDESREGELN = Object.freeze({
   NW: regelNordrheinWestfalen,
   RP: regelRheinlandPfalz,
   SH: regelSchleswigHolstein,
+  SN: regelSachsen,
   TH: regelThueringen,
 });
 

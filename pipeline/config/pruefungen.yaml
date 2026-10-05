@@ -3,9 +3,10 @@
 
 # Große Kreisstädte (GV-ISys-Textkennzeichen 67) je Land. Nur BW, BY und SN kennen den Status
 # in dieser Form; jedes andere Land mit Kennzeichen 67 ist ein Fehler.
-# SN: Destatis führt die rund 53 Großen Kreisstädte dort als 63 (Stadt), nicht 67 (GV100AD
-# 31.12.2025 geprüft), VG25 markiert sie auch nicht. Bis eine Liste aus der Primärquelle
-# vorliegt (docs/TODO.md), 0 erwarten – taucht 67 in SN auf, fällt es hier auf.
+# SN: Destatis führt die 53 Großen Kreisstädte dort als 63 (Stadt), nicht 67 (GV100AD
+# 31.12.2025 geprüft), VG25 markiert sie auch nicht. Die Landesregel nimmt sie aus der Liste
+# `SN_GROSSE_KREISSTAEDTE` in js/resolve.js (AGS); hier 0 erwarten – taucht 67 in SN auf, fällt
+# es auf.
 grosse_kreisstaedte:
   BW: { erwartet: 96, toleranz: 6, quelle: "Statistik BW, Große Kreisstädte am 01.01.2025" }
   BY: { erwartet: 29, toleranz: 3, quelle: "GrKrV (Bayern), Liste der Großen Kreisstädte" }
