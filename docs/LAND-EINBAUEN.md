@@ -28,6 +28,7 @@ mit den Konsumenten in [VERTRAG.md](VERTRAG.md).
 | ST | Art. 3 § 1 Nr. 5 des Gesetzes zur Fortentwicklung der Verwaltungsgemeinschaften – nicht gelesen, Inhalt aus BVerwG 3 B 91.10 und Webseiten | Gemeindestraßen: Gemeinde bzw. Verbandsgemeinde, außerorts der Landkreis als Alternative; sonst der Landkreis | vermutlich |
 | HE | StVRZustV § 10 Abs. 1 Nr. 2, § 10a; § 9 Abs. 2 (Hessen Mobil) – [Bürgerservice Hessenrecht](https://www.rv.hessenrecht.hessen.de) | kreisfreie Städte und Sonderstatus-Städte (`HE_SONDERSTATUS`): alles; sonst G und K die Gemeinde (Landkreis als Alternative bei überörtlicher Wirkung), L die Gemeinde mit mehr als 7.500 Einwohnern (Landkreis als Alternative für Ampeln und Fußgängerüberwege), sonst und B der Landkreis; 6.750–7.500 Einwohner (§ 10a) mit der Gemeinde als Alternative | belegt |
 | SL | StVZustG §§ 7, 12 – [Bürgerservice Saarland](https://recht.saarland.de) | G: die Gemeinde; sonst der Landkreis bzw. der Regionalverband Saarbrücken; die Landeshauptstadt Saarbrücken alles | belegt |
+| BE | ASOG Bln, Zuständigkeitskatalog Ordnungsaufgaben Nr. 11 Abs. 4, Nr. 22b Abs. 3 – nicht an der Primärquelle gelesen; Aufteilung laut Service-Portal Berlin und Bezirksämtern | G: das Bezirksamt des Bezirks (Layer `bezirke`, Einträge `1100000000` + Nummer), Senat als Alternative; K, L, B: die Senatsverwaltung, Bezirksamt als Alternative; ganz Berlin: Bezirksamt nur als Ebene | vermutlich |
 
 ## 1. Rechtsgrundlage finden und lesen
 
@@ -138,7 +139,8 @@ Der Lauf schreibt am Ende `kontakte.json` mit dem Code, der beim Start geladen w
 - Lücken (`luecken_fuellen`): erst Einträge von Hand, dann der Kreiskontakt der übrigen Gemeinden
   des Kreises, dann der Kontakt des Verbands, den das Portal für die übrigen Mitglieder nennt.
 - Der Build (`tools/lib/laender.mjs`) übernimmt einen Kontakt nur, wenn seine Stelle in den
-  Ergebnissen der Gemeinde vorkommt: `k…` → `kontakt`, `g…` und `v…` → `kontakt_gemeinde`.
+  Ergebnissen der Gemeinde vorkommt. Welcher Kontakt zu welcher Stelle gehört, sagt `kontaktRolle`
+  in `js/resolve.js`: `k…` und in Berlin `be-senat` → `kontakt`, `g…` und `v…` → `kontakt_gemeinde`.
 
 ## 4. Durchsehen und Lücken schließen
 

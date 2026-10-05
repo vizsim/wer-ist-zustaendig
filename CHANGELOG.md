@@ -7,6 +7,24 @@ ein Git-Tag `v<version>` dazu.
 
 ## [Unveröffentlicht]
 
+### Hinzugefügt
+
+- Landesregel Berlin (**vermutlich**): Auf Gemeindestraßen ordnet das Bezirksamt an, auf Kreis-,
+  Landes- und Bundesstraßen die Senatsverwaltung (Abteilung Verkehrsmanagement) – jeweils mit der
+  anderen Stelle als Alternative, denn maßgeblich ist, ob die Straße zum übergeordneten
+  Straßennetz gehört. Die Karte nennt das Bezirksamt des Bezirks, in dem der Punkt liegt.
+- Die zwölf Berliner Bezirke als eigene Einträge in `be.json` (`110000000001` bis
+  `110000000012`, Feld `bezirk`) und als Layer `bezirke` in `gemeinden.pmtiles`, Grenzen aus dem
+  Geoportal Berlin (ALKIS Berlin Bezirke, dl-de/zero-2.0).
+- Kontakte in Berlin: alle zwölf Bezirksämter und die Senatsverwaltung als allgemeine Anschrift,
+  von den Webseiten der Behörden (Quelle `von_hand`).
+
+### Geändert
+
+- Berlin als Ganzes (`110000000000`): für Kreis-, Landes- und Bundesstraßen jetzt die
+  Senatsverwaltung (**vermutlich**) statt nur der Ebene.
+- Die Auskunft nennt jeden Ort nur einmal („Bezirk Mitte, Berlin", „Stadt München, Bayern").
+
 ## [0.10.0] – 2026-10-05
 
 Landesregeln für Hessen und das Saarland, beide belegt, zusammen zwölf Länder; Kontakte für beide als

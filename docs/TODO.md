@@ -68,8 +68,12 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
 - [ ] **Deutsch-luxemburgisches Kondominium** (abgestimmt 2026-10-02): Die 25 Flächen auf Mosel,
   Sauer und Our nennen heute die Stelle der angrenzenden Gemeinde, „nur Ebene". Zuständigkeit
   nach dem Grenzvertrag prüfen.
-- [ ] **Stadtstaaten:** Berlin (Netz-WFS: Straßen des übergeordneten Netzes,
-  Bezirksgrenzen), Hamburg (Polizeikommissariate als Flächen).
+- [ ] **Berlin, offen** (Regel seit 0.11.0 nur „vermutlich"): das übergeordnete Straßennetz als
+  Zuständigkeit je Straße (Netz-WFS im Geoportal) – erst damit ist die Aufteilung Senat/Bezirk mehr
+  als der Anhalt über die Straßenklasse. Den Wortlaut von ASOG Bln, Zuständigkeitskatalog
+  Ordnungsaufgaben Nr. 11 Abs. 4 und Nr. 22b Abs. 3 an gesetze.berlin.de prüfen. Optional feste
+  Punkte für die übrigen acht Bezirke.
+- [ ] **Hamburg:** Polizeikommissariate als Flächen.
 - [ ] **Hessen, offen** (Regel seit 0.10.0, belegt nach § 10 StVRZustV): Die Liste der
   Sonderstatus-Städte (`HE_SONDERSTATUS`) an § 4a Abs. 2 HGO prüfen – heute [S], deckt sich mit den
   kreisangehörigen Städten über 50.000 Einwohnern. Die 14 Abschnitte von Bundesstraßen mit
@@ -78,8 +82,8 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
   zum letzten Stichtag vor dem Haushaltsjahr (§ 10a Abs. 2) – heute GV-ISys 31.12.2025. Hanau ist
   seit 2026 kreisfrei (GV-ISys 31.10.2026: Kreis 06415); die Auskunft bleibt dieselbe, nur der Kreis
   heißt bis zum nächsten Datenstand noch Main-Kinzig-Kreis.
-- [ ] **Fundstellen nachprüfen:** Berlin (Katalogwortlaut nur sekundär), Hamburg (Titel und
-  Fassung der Zuständigkeitsanordnung). Die Texte in `js/resolve.js` sagen das bisher offen.
+- [ ] **Fundstellen nachprüfen:** Hamburg (Titel und Fassung der Zuständigkeitsanordnung). Der
+  Text in `js/resolve.js` sagt das bisher offen.
 - [ ] **Aufsicht:** höhere Straßenverkehrsbehörde je Land mit Fundstelle; Feld `aufsicht`.
   Gefunden: NW die Bezirksregierungen (§ 6 ZustVO Straßenverkehr); NI das Verkehrsministerium
   über Landkreise, Region und Städte, der Landkreis über die übrigen Gemeinden (§ 171 Abs. 5
@@ -148,8 +152,8 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
   Kontaktweg oder nur mit persönlicher Adresse); Landkreis Wesermarsch (Tiefbau der Gemeinde
   Berne); Landkreis Gifhorn (nur die Zulassungsstelle). Danach die Einträge in
   `config/kontakte_ergaenzt.yaml` löschen.
-- [ ] **Länder ohne Bundesportal-Eintrag** (BW, BE, HB, HH): Kontakte der Stellen der Kreisebene
-  und der Stadtstaaten anders beschaffen (Landesportale oder von Hand).
+- [ ] **Länder ohne Bundesportal-Eintrag** (BW, HB, HH): Kontakte der Stellen der Kreisebene und
+  der Stadtstaaten anders beschaffen (Landesportale oder von Hand).
 - [ ] **Verkehrsstellen statt allgemeiner Anschrift** (Sachsen seit 0.9.0, Hessen und Saarland
   seit 0.10.0, `allgemein`): Die Straßenverkehrsämter der Kreisebene – in Sachsen 10 Landratsämter
   und 3 Kreisfreie Städte, in Hessen 21 Landkreise und 5 kreisfreie Städte, im Saarland 5 Landkreise
