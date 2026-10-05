@@ -7,6 +7,11 @@ ein Git-Tag `v<version>` dazu.
 
 ## [Unveröffentlicht]
 
+## [0.11.0] – 2026-10-05
+
+Landesregel für Berlin je Bezirk, zusammen dreizehn Länder; Kontakte für alle zwölf Bezirksämter und
+die Senatsverwaltung. Regeln 0.11.0 · Schema 1 · Datenstand 31.12.2025.
+
 ### Hinzugefügt
 
 - Landesregel Berlin (**vermutlich**): Auf Gemeindestraßen ordnet das Bezirksamt an, auf Kreis-,
