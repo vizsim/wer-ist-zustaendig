@@ -7,6 +7,14 @@ ein Git-Tag `v<version>` dazu.
 
 ## [Unveröffentlicht]
 
+– noch nichts –
+
+## [0.8.0] – 2026-10-05
+
+Landesregeln für fünf weitere Länder – Niedersachsen, Nordrhein-Westfalen, Brandenburg,
+Mecklenburg-Vorpommern und Rheinland-Pfalz, zusammen acht. Regeln 0.8.0 · Schema 1 · Datenstand
+31.12.2025.
+
 ### Hinzugefügt
 
 - Landesregel Niedersachsen (ZustVO-Verkehr in der Fassung vom 30.06.2025, NKomVG, gelesen in
