@@ -255,6 +255,9 @@ function satz(s) {
   return t ? `${t[0].toUpperCase()}${t.slice(1)}${/[.!?]$/.test(t) ? "" : "."}` : "";
 }
 
+/** Ländername im Satz: „für Hessen", aber „für das Saarland". */
+const imSatz = (land) => (land === "Saarland" ? "das Saarland" : land);
+
 /** Herkunft eines Kontakts: eigene (von Hand ergänzt) oder der Datenstand des Portals. */
 function herkunft(k, stand) {
   return k ? k.quelle ?? stand?.kontakte ?? null : null;
@@ -283,7 +286,7 @@ export function antwortHtml(r, strassen, { landName, bundesportal, hinweis } = {
     wege = portal
       ? `<ul class="wege"><li><a class="weg" href="${esc(portal)}" target="_blank" rel="noopener">` +
         "<span>Kontakt</span> im Bundesportal ansehen</a></li></ul>"
-      : `<p class="schild-hinweis">Kontaktdaten${landName ? ` für ${esc(landName)}` : ""} haben wir noch nicht.</p>`;
+      : `<p class="schild-hinweis">Kontaktdaten${landName ? ` für ${esc(imSatz(landName))}` : ""} haben wir noch nicht.</p>`;
   }
   // Nur die allgemeine Anschrift der Verwaltung (Rathaus, Landratsamt): sagen, wonach man fragt.
   const allgemein = (kontakt) => (kontakt?.allgemein ? `<p class="schild-hinweis">${esc(ALLGEMEIN_HINWEIS)}</p>` : "");

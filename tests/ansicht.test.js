@@ -195,6 +195,8 @@ test("antwortHtml: Land nicht im Bundesportal – Hinweis statt Link ins Leere",
   }, [], { landName: "Berlin" });
   assert.ok(html.includes('<p class="schild-hinweis">Kontaktdaten für Berlin haben wir noch nicht.</p>'));
   assert.ok(!html.includes("Bundesportal"));
+  const saar = antwortHtml({ ...BASIS, land: "SL", zustaendig: { name: "Landkreis Saarlouis – Straßenverkehrsbehörde" }, kontakt: null }, [], { landName: "Saarland" });
+  assert.ok(saar.includes("Kontaktdaten für das Saarland haben wir noch nicht."));
   const autobahn = antwortHtml({ ...BASIS, keinBrief: true, zustaendig: { name: "Fernstraßen-Bundesamt – Straßenverkehrsbehörde" } }, []);
   assert.ok(!autobahn.includes("schild-hinweis"), "Autobahn: kein Hinweis");
 });
