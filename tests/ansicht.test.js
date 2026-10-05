@@ -292,6 +292,12 @@ test("antwortHtml: Autobahn und kreisfreie Stadt ohne doppelten Ortsnamen", () =
     .match(/<p class="ort">([^<]*)<\/p>/)[1];
   assert.equal(ort("Hamburg", "Hamburg", "Hamburg"), "Hamburg", "Stadtstaat: Stadt, Kreis und Land gleich");
   assert.equal(ort("Bezirk Mitte", "Berlin", "Berlin"), "Bezirk Mitte, Berlin");
+  // Namen wie in den Landesdateien: ohne ihre Art verglichen.
+  assert.equal(ort("Stadt München", "Kreisfreie Stadt München", "Bayern"), "Stadt München, Bayern");
+  assert.equal(ort("Bezirk Mitte", "Kreisfreie Stadt Berlin", "Berlin"), "Bezirk Mitte, Berlin");
+  assert.equal(ort("Stadt Hamburg", "Kreisfreie Stadt Hamburg", "Hamburg"), "Stadt Hamburg");
+  assert.equal(ort("Gemeinde Fernwald", "Landkreis Gießen", "Hessen"), "Gemeinde Fernwald, Landkreis Gießen, Hessen");
+  assert.equal(ort("Stadt Hannover", "Region Hannover", "Niedersachsen"), "Stadt Hannover, Region Hannover, Niedersachsen");
 });
 
 test("willkommenHtml: Stand aus index.json – geprüft, vermutlich, offen; Kontakte; Melden nur https", () => {
