@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  ALLGEMEIN_HINWEIS, antwortHtml, ARTEN, aufzaehlung, datenBasisAusParam, esc, farbAusdruck, flaechenDeckkraft, flaechenFarbe,
+  ALLGEMEIN_HINWEIS, antwortHtml, ARTEN, aufzaehlung, datenBasisAusParam, esc, farbAusdruck, flaechenDeckkraft, flaechenFarbe, imSatz,
   klassenAusdruck, klassenListe, KONTAKT_STIL, kontaktDeckkraft, kontaktFarbe, SICHERHEIT_STIL, stelleOhneBehoerde,
   strassenAmPunkt, strassenName, teileName, telHref, wegeHtml, willkommenHtml,
 } from "../js/ansicht.js";
@@ -248,6 +248,16 @@ test("antwortHtml: allgemeine Anschrift der Verwaltung mit Hinweis, auch bei der
   assert.ok(alt.indexOf(ALLGEMEIN_HINWEIS) > alt.indexOf('class="alternative"'));
   const eigen = antwortHtml({ ...BASIS, zustaendig: { name: "X – Straßenverkehrsbehörde" }, kontakt: { ...rathaus, allgemein: undefined } }, []);
   assert.ok(!eigen.includes(ALLGEMEIN_HINWEIS), "Kontakt der Stelle selbst: kein Hinweis");
+
+  // Ein Verzeichnis ohne Telefon und ohne brauchbare E-Mail: die Anschrift, kein „haben wir noch nicht".
+  const nurAnschrift = antwortHtml({
+    ...BASIS, land: "HE", zustaendig: { name: "Stadt Langen (Hessen) – Straßenverkehrsbehörde" },
+    kontakt: { name: "Stadt Langen (Hessen)", adresse: "Südliche Ringstraße 80, 63225 Langen (Hessen)", telefon: [], email: [], web: [], allgemein: true },
+  }, [], { landName: "Hessen" });
+  assert.ok(nurAnschrift.includes("Südliche Ringstraße 80"));
+  assert.ok(!nurAnschrift.includes("haben wir noch nicht"));
+  assert.ok(!nurAnschrift.includes('class="wege"'));
+  assert.ok(nurAnschrift.includes(ALLGEMEIN_HINWEIS));
 });
 
 test("antwortHtml: Alternative ohne Kontakt nur mit Name und Bedingung", () => {
@@ -317,6 +327,10 @@ test("willkommenHtml: Länder, für die es nur die allgemeine Anschrift gibt, ei
   assert.ok(willkommenHtml({ laender: [sn] }).includes("<p>Für Sachsen gibt es bisher die allgemeine Anschrift der Verwaltung.</p>"));
   const teils = { ...sn, allgemein: 100 };
   assert.ok(willkommenHtml({ laender: [by, teils] }).includes("gibt es bisher für Bayern und Sachsen.</p>"), "teils eigene Kontakte");
+  const sl = { lkz: "SL", name: "Saarland", sicherheit: { belegt: 52, vermutlich: 0, "nur Ebene": 1 }, kontakte: 52, allgemein: 52 };
+  assert.ok(willkommenHtml({ laender: [sl, sn, by] }).includes("für das Saarland und Sachsen die allgemeine Anschrift der Verwaltung."));
+  assert.equal(imSatz("Saarland"), "das Saarland");
+  assert.equal(imSatz("Hessen"), "Hessen");
 });
 
 test("aufzaehlung: Komma, vor dem letzten Namen „und“", () => {

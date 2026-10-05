@@ -256,7 +256,7 @@ function satz(s) {
 }
 
 /** Ländername im Satz: „für Hessen", aber „für das Saarland". */
-const imSatz = (land) => (land === "Saarland" ? "das Saarland" : land);
+export const imSatz = (land) => (land === "Saarland" ? "das Saarland" : land);
 
 /** Herkunft eines Kontakts: eigene (von Hand ergänzt) oder der Datenstand des Portals. */
 function herkunft(k, stand) {
@@ -281,12 +281,15 @@ export function antwortHtml(r, strassen, { landName, bundesportal, hinweis } = {
   const stelleZeile = (k && stelleOhneBehoerde(k.name, schild.behoerde)) || schild.zusatz;
   // Ohne eigenen Kontakt: die Seite der Gemeinde im Bundesportal, wo das Land die Leistung dort
   // führt – sonst ehrlich ein Hinweis statt eines Links ins Leere.
+  // Ohne Wege, aber mit Anschrift (ein Verzeichnis ohne Telefon und E-Mail) fehlt nichts zu sagen.
   let wege = wegeHtml(k);
   if (!wege && !r.keinBrief) {
     wege = portal
       ? `<ul class="wege"><li><a class="weg" href="${esc(portal)}" target="_blank" rel="noopener">` +
         "<span>Kontakt</span> im Bundesportal ansehen</a></li></ul>"
-      : `<p class="schild-hinweis">Kontaktdaten${landName ? ` für ${esc(imSatz(landName))}` : ""} haben wir noch nicht.</p>`;
+      : k?.adresse
+        ? ""
+        : `<p class="schild-hinweis">Kontaktdaten${landName ? ` für ${esc(imSatz(landName))}` : ""} haben wir noch nicht.</p>`;
   }
   // Nur die allgemeine Anschrift der Verwaltung (Rathaus, Landratsamt): sagen, wonach man fragt.
   const allgemein = (kontakt) => (kontakt?.allgemein ? `<p class="schild-hinweis">${esc(ALLGEMEIN_HINWEIS)}</p>` : "");
@@ -366,7 +369,7 @@ export function willkommenHtml(index, { melden } = {}) {
   const vermutlich = namen(SICHERHEIT.VERMUTLICH);
   // Kontakte der Stelle selbst; Länder, für die es nur die allgemeine Anschrift der Verwaltung gibt
   // (`allgemein` zählt diese Gemeinden), eigens.
-  const kontaktLaender = (f) => aufzaehlung(laender.filter(f).map((l) => l.name).sort(nachName));
+  const kontaktLaender = (f) => aufzaehlung(laender.filter(f).map((l) => l.name).sort(nachName).map(imSatz));
   const mitKontakt = kontaktLaender((l) => l.kontakte > (l.allgemein ?? 0));
   const nurAllgemein = kontaktLaender((l) => l.kontakte > 0 && l.allgemein === l.kontakte);
   const kontakte = mitKontakt

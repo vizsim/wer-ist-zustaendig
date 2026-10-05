@@ -10,8 +10,8 @@ import { landAusArs, landAusKuerzel, landesdatei } from "./js/laender.js";
 import { auswahl, LANDESREGELN } from "./js/resolve.js";
 import {
   antwortHtml, ARTEN, aufzaehlung, datenBasisAusParam, esc, FARBE, farbAusdruck, flaechenDeckkraft, flaechenFarbe,
-  klassenAusdruck, klassenListe, KONTAKT_STIL, kontaktDeckkraft, kontaktFarbe, SICHERHEIT_STIL, STRASSEN_LEGENDE,
-  strassenAmPunkt, willkommenHtml,
+  imSatz, klassenAusdruck, klassenListe, KONTAKT_STIL, kontaktDeckkraft, kontaktFarbe, SICHERHEIT_STIL,
+  STRASSEN_LEGENDE, strassenAmPunkt, willkommenHtml,
 } from "./js/ansicht.js";
 import { klassenName } from "./js/strassenklasse.js";
 
@@ -133,7 +133,7 @@ function zeigeStand(index) {
     .sort((a, b) => a.localeCompare(b, "de"));
   const teile = [
     d.gebiet && `Gebietsstand ${d.gebiet.replace(/^VG25 /, "")}`,
-    index.regeln && `Regeln ${index.regeln.version}: Landesregeln für ${aufzaehlung(laender)}, sonst meist nur die Kreisebene`,
+    index.regeln && `Regeln ${index.regeln.version}: Landesregeln für ${aufzaehlung(laender.map(imSatz))}, sonst meist nur die Kreisebene`,
   ].filter(Boolean);
   $("#stand").textContent = `${teile.join(". ")}.`;
 }
