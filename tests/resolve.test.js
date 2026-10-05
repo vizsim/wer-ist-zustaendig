@@ -340,7 +340,8 @@ const G = {
     ars: "145235134430", gen: "Treuen", land: "SN", tkz: [63],
     kreis: kreis("14523", "Vogtlandkreis", "Landkreis", "nein"),
     verband: {
-      ars: "145235134", gen: "Treuen", bez: "Verwaltungsgemeinschaft", name: "Verwaltungsgemeinschaft Treuen",
+      ars: "145235134", gen: "Treuen/Neuensalz", bez: "Verwaltungsgemeinschaft",
+      name: "Verwaltungsgemeinschaft Treuen/Neuensalz",
       sitz: "145235134430",
     },
   },
@@ -348,7 +349,8 @@ const G = {
     ars: "145235134270", gen: "Neuensalz", name: "Gemeinde Neuensalz", land: "SN", tkz: [64],
     kreis: kreis("14523", "Vogtlandkreis", "Landkreis", "nein"),
     verband: {
-      ars: "145235134", gen: "Treuen", bez: "Verwaltungsgemeinschaft", name: "Verwaltungsgemeinschaft Treuen",
+      ars: "145235134", gen: "Treuen/Neuensalz", bez: "Verwaltungsgemeinschaft",
+      name: "Verwaltungsgemeinschaft Treuen/Neuensalz",
       sitz: "145235134430",
     },
   },
