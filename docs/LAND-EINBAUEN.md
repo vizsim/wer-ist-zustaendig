@@ -24,6 +24,8 @@ mit den Konsumenten in [VERTRAG.md](VERTRAG.md).
 | BB | StGÜZV §§ 4, 4a, zuletzt geändert 23.08.2024 – [BRAVORS](https://bravors.brandenburg.de) | Landkreis bzw. kreisfreie Stadt; 3 Große kreisangehörige Städte und 4 Städte auf Antrag: alles; 6 Kommunen, darunter das Amt Schlieben (`v`, `untere`), nur Halten und Parken, Baustellen, Veranstaltungen – als Alternative | belegt |
 | MV | StVZustLVO M-V vom 12.08.2021 – GVOBl. M-V (PDF) | Landkreis bzw. kreisfreie Stadt; 4 große kreisangehörige Städte; Städte über 20.000 Einwohner; Übergangsregel als Liste (`MV_STAEDTE_UEBERGANG`) | belegt; bis 1.000 über 20.000 vermutlich |
 | RP | Landesverordnung BS 923-3 – nur lexsoft `[S]`, landesrecht.rlp.de war nicht erreichbar | Verbandsgemeinde bzw. verbandsfreie Gemeinde: Gemeindestraßen, sonst innerorts; außerorts die Kreisverwaltung als Alternative; kreisfreie und 8 große kreisangehörige Städte: alles | vermutlich |
+| SN | SächsStrVRG §§ 1–3, 24; SächsKomVerfRDVO § 1 Nr. 2; SächsGemO § 3 Abs. 2; SächsKomZG §§ 7, 36 – [REVOSax](https://www.revosax.sachsen.de) | Gemeindestraßen: die Gemeinde, in der Verwaltungsgemeinschaft die erfüllende Gemeinde, im Verwaltungsverband der Verband (`v`); sonst das Landratsamt; Kreisfreie Städte und 53 Große Kreisstädte (`SN_GROSSE_KREISSTAEDTE`, nach AGS): alles, als erfüllende Gemeinde auch für die Verwaltungsgemeinschaft | belegt |
+| ST | Art. 3 § 1 Nr. 5 des Gesetzes zur Fortentwicklung der Verwaltungsgemeinschaften – nicht gelesen, Inhalt aus BVerwG 3 B 91.10 und Webseiten | Gemeindestraßen: Gemeinde bzw. Verbandsgemeinde, außerorts der Landkreis als Alternative; sonst der Landkreis | vermutlich |
 
 ## 1. Rechtsgrundlage finden und lesen
 
@@ -202,7 +204,7 @@ npm test && (cd pipeline && uv run pytest && uvx ruff check && uvx ruff format -
 `#karte=14/<lat>/<lon>&p=<lat>,<lon>` öffnet die Antwort für einen Punkt. Ansehen: kreisfreie
 Stadt, Stadt über der Schwelle, kleine Gemeinde in einem Verband, Klick auf eine Bundesstraße,
 eine Alternative mit Kontakt, die Übersicht bei Zoom 5,5 (das Land sollte nicht mehr schraffiert
-sein) und das Handy-Format (390 × 844). Für Skripte: Playwright liegt im npx-Cache
+sein, mit dem Schalter „Kontakt vorhanden" zeigt sie die Lücken bei den Kontakten) und das Handy-Format (390 × 844). Für Skripte: Playwright liegt im npx-Cache
 (`createRequire("/home/simon/.npm/_npx/e41f203b7505f1fb/node_modules/")`,
 `require("playwright-core")`); das Willkommensfenster vorher mit
 `context.addInitScript(() => localStorage.setItem("wer-ist-zustaendig.willkommen", "1"))`
@@ -222,11 +224,14 @@ ausblenden; `window.__karte` ist die MapLibre-Instanz.
   auf GitHub Pages; die Daten gehen mit `b2 sync` in den Bucket (siehe „Veröffentlichen" in
   [pipeline/README.md](../pipeline/README.md)), danach das Tag `v<regeln.version>`.
 
-## Was Niedersachsen gelehrt hat
+## Was beim Einbauen auffiel
 
 - **Status statt Schwelle:** Wer selbst zuständig ist, folgt aus einer amtlichen Liste, nicht aus
   der Einwohnerzahl, und GV-ISys kennzeichnet den Status nicht. Die Liste als Konstante mit ARS
   anlegen, aus der Quelle erzeugt statt abgetippt, und ihre Länge im Test festhalten.
+- **AGS statt ARS, wenn Gemeinden den Verband wechseln:** Die Großen Kreisstädte in Sachsen
+  gehören teils einer Verwaltungsgemeinschaft an; deren Schlüssel steckt im ARS und ändert sich
+  mit ihr. Eine Liste solcher Gemeinden führt deshalb den AGS (`agsVon(ars)`).
 - **Zuständigkeit ohne Verzeichnis:** Übertragungen auf Antrag (hier die Gemeindestraßen) sind
   nirgends gesammelt. Dann „vermutlich" beim Kreis, die mögliche Stelle als Alternative, bekannte
   Fälle von Webseiten der Kreise mit `[S]` als eigene Liste.

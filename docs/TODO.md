@@ -51,25 +51,31 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
 - [ ] **Brandenburg, § 4a Abs. 2 StGÜZV:** Veranstaltungen und Baustellen gelten nicht, wenn eine
   Anordnung mehrere Gemeinden betrifft – im Amt Schlieben also nicht für amtsweite Anordnungen;
   die Alternative bildet das nicht ab.
-- [ ] **Weitere belegte Länder:** SN (Gemeinde nur bei Gemeindestraßen), BW (Landratsamt, GKS,
-  Stadtkreise, Verwaltungsgemeinschaften; Offenes als Alternative). Je Land 5–10 Golden-Tests
-  mit echten ARS; Review-CSV durchsehen.
-- [ ] **Große Kreisstädte in Sachsen** (abgestimmt 2026-10-02): GV-ISys führt sie als 63
-  (Stadt), nicht 67; VG25 kennzeichnet sie nicht. Liste der rund 53 GKS mit ARS aus der
-  Primärquelle als Konfiguration anlegen, dann `pruefungen.yaml` (SN, heute 0) anpassen. Bis
-  dahin bekommen sächsische Gemeinden keine GKS-Alternative.
+- [ ] **Sachsen-Anhalt belegen** (Regel seit 0.9.0 nur „vermutlich"): Art. 3 § 1 Nr. 5 des
+  Gesetzes zur Fortentwicklung der Verwaltungsgemeinschaften vom 13.11.2003 (GVBl. LSA S. 318,
+  neu gefasst 22.12.2004) an landesrecht.sachsen-anhalt.de lesen – heute nur aus BVerwG 3 B 91.10
+  und Webseiten der Behörden. Zu klären: nur Gemeindestraßen, nur innerorts (dann bleibt der
+  Landkreis als Alternative außerorts)? Wo steht, dass die Landkreise untere
+  Straßenverkehrsbehörde sind (`TEXTE.quelle.stUnter`)? Vorbehalt in § 90 Abs. 2 KVG LSA?
+  Tangermünde: laut Stadt ordnet der Landkreis Stendal auch dort an.
+- [ ] **Sachsen, erfüllende Gemeinde:** Dass in 13 Verwaltungsgemeinschaften die Große Kreisstadt
+  erfüllende Gemeinde ist, folgt aus `verband.sitz` (SDV_ARS) und dem Namen der Gemeinschaft; am
+  Gemeindeverzeichnis des Statistischen Landesamts (Tabelle 4) bestätigen.
+- [ ] **Weitere belegte Länder:** BW (Landratsamt, GKS, Stadtkreise, Verwaltungsgemeinschaften;
+  Offenes als Alternative). 5–10 Golden-Tests mit echten ARS; Review-CSV durchsehen.
 - [ ] **Deutsch-luxemburgisches Kondominium** (abgestimmt 2026-10-02): Die 25 Flächen auf Mosel,
   Sauer und Our nennen heute die Stelle der angrenzenden Gemeinde, „nur Ebene". Zuständigkeit
   nach dem Grenzvertrag prüfen.
 - [ ] **Stadtstaaten:** Berlin (Netz-WFS: Straßen des übergeordneten Netzes,
   Bezirksgrenzen), Hamburg (Polizeikommissariate als Flächen).
-- [ ] **Übrige Länder:** HE, SL, ST.
+- [ ] **Übrige Länder:** HE, SL.
 - [ ] **Fundstellen nachprüfen:** Berlin (Katalogwortlaut nur sekundär), Hamburg (Titel und
   Fassung der Zuständigkeitsanordnung). Die Texte in `js/resolve.js` sagen das bisher offen.
 - [ ] **Aufsicht:** höhere Straßenverkehrsbehörde je Land mit Fundstelle; Feld `aufsicht`.
   Gefunden: NW die Bezirksregierungen (§ 6 ZustVO Straßenverkehr); NI das Verkehrsministerium
   über Landkreise, Region und Städte, der Landkreis über die übrigen Gemeinden (§ 171 Abs. 5
-  NKomVG). Die Listen der Länder (§ 4 GO NRW, StGÜZV, selbständige Gemeinden in NI) gehören in
+  NKomVG); SN die Landkreise über die Gemeinden als örtliche Straßenverkehrsbehörden (§ 24 Abs. 2
+  SächsStrVRG). Die Listen der Länder (dazu die Großen Kreisstädte in SN) (§ 4 GO NRW, StGÜZV, selbständige Gemeinden in NI) gehören in
   die jährliche Rechtsdurchsicht.
 - [ ] **Validierung:** etwa 10 Gemeinden je Land, geschichtet; juristische Durchsicht der Regeln
   und der Review-CSV; danach Version 1.0.
@@ -112,7 +118,12 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
   Gemeinden; das Portal nennt oft die Stellen anderer Verbandsgemeinden des Kreises; Fehlgriff
   „Landesbetrieb Mobilität Trier" für die VG Trier-Land (Domain mit „trier"); die Kreisverwaltung
   als Alternative meist ohne Kontakt. Auswahl nachschärfen (Domain-Teile wie `kreis-`,
-  Landesbetriebe ausschließen), von Hand ergänzen, dann freigeben. ST ist noch nicht abgerufen.
+  Landesbetriebe ausschließen), von Hand ergänzen, dann freigeben.
+- [ ] **Sachsen-Anhalt, Lücken** (freigegeben seit 0.9.0): nur 9 von 218 Gemeinden mit Kontakt in
+  jeder Klasse (`node tools/check-kontakte.mjs ST --alle`). Für Gemeindestraßen nennt das Portal
+  die Gemeinde bzw. Verbandsgemeinde nur 13-mal; ohne Kreiskontakt sind die Landkreise
+  Anhalt-Bitterfeld, Harz, Jerichower Land und Salzlandkreis, der Burgenlandkreis und die
+  kreisfreien Städte Dessau-Roßlau, Halle (Saale) und Magdeburg. Von den Webseiten ergänzen.
 - [ ] **Fehler im Portal melden** – Redaktion Thüringen: Landkreis Saalfeld-Rudolstadt (für alle
   Gemeinden nur das Ordnungsamt der VG „Schwarzatal"), Landkreis Hildburghausen (für alle
   Gemeinden die Stadtverwaltung Hildburghausen), Suhl (nur „Gewerbeangelegenheiten").
@@ -130,15 +141,13 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
   `config/kontakte_ergaenzt.yaml` löschen.
 - [ ] **Länder ohne Bundesportal-Eintrag** (BW, BE, HB, HH, HE, SL, SN): Kontakte der rund 105
   Stellen der Kreisebene und der Stadtstaaten anders beschaffen (Landesportale oder von Hand).
+  Sachsen: Vorschlag aus der Übergabe – Gemeindeverzeichnis der Landesdirektion (CSV, DL-DE BY
+  2.0) für alle 418 Gemeinden, allerdings Rathaus statt Verkehrsstelle (entscheiden, ob das
+  reicht; Bürgermeister nicht übernehmen); die 13 Landratsämter und Kreisfreien Städte von Hand.
 
 ## Karte und Daten
 
 - [ ] **Meldelink im Antwortschild:** Issue-Formular mit ARS und Permalink vorbefüllt.
-- [ ] **Filter „Kontakt vorhanden"** (Idee vom 05.10.2026): ein Schalter, der die Gemeinden
-  einfärbt, für die es einen Kontakt der zuständigen Stelle gibt bzw. wenigstens den Link ins
-  Bundesportal – so sieht man auch die Lücken. Dafür ein Feld je Gemeinde in der Grenzschicht
-  (Kontakt / nur Portal / nichts), im Build aus den Landesdateien; nur ergänzt, also kein neues
-  Schema.
 - [ ] **Größe `by.json`** (1,86 MB, gzip 188 KB): Jede bayerische Gemeinde hat ein eigenes
   Ergebnis für Gemeindestraßen, weil die Stelle `g<ARS>` darin steht. Ein Platzhalter für „die
   Gemeinde selbst" würde die Ergebnisse wieder entdoppeln – Bruch, also Schema 2.

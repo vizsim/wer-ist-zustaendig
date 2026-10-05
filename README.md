@@ -10,16 +10,17 @@ nennt, **wie sicher** sie ist und **woher** sie stammt.
 Es gibt zwei Wege zu den Daten:
 
 - eine **Karte** unter [vizsim.de/wer-ist-zustaendig](https://vizsim.de/wer-ist-zustaendig/)
-  ([index.html](index.html)): Straße anklicken oder suchen, Auskunft lesen;
+  ([index.html](index.html)): Straße anklicken oder suchen, Auskunft lesen; der Schalter
+  „Kontakt vorhanden" zeigt, wo es schon einen Kontakt der zuständigen Stelle gibt;
 - **Dateien** für andere Anwendungen, zuerst die [Unfallkarte](https://github.com/vizsim/unfallkarte):
   Grenzschicht als PMTiles und eine JSON-Datei je Land. Der Vertrag steht in
   [docs/VERTRAG.md](docs/VERTRAG.md).
 
-> **Testversion, kein Rechtsrat.** Acht Länder haben eine eigene Regel (siehe „Stand").
+> **Testversion, kein Rechtsrat.** Zehn Länder haben eine eigene Regel (siehe „Stand").
 > Jede Auskunft ist eine begründete Vermutung mit Quelle. Vor einem Antrag oder einer Anregung
 > bitte prüfen, ob die genannte Stelle wirklich zuständig ist.
 
-## Stand: Phase 2 – Landesregeln für acht Länder
+## Stand: Phase 2 – Landesregeln für zehn Länder
 
 | Was | Stand |
 |---|---|
@@ -32,15 +33,17 @@ Es gibt zwei Wege zu den Daten:
 | **Brandenburg** | **belegt**: der Landkreis bzw. die kreisfreie Stadt; Eberswalde, Eisenhüttenstadt, Schwedt/Oder, Guben, Prenzlau, Teltow und Werder (Havel) selbst. Halten und Parken, Baustellen, Veranstaltungen: in Wittenberge, Kyritz, Finsterwalde, Luckau, Kleinmachnow und im Amt Schlieben die Kommune (als Alternative) |
 | **Mecklenburg-Vorpommern** | **belegt**: der Landkreis bzw. die kreisfreie Stadt; Greifswald, Neubrandenburg, Stralsund, Wismar und Städte über 20.000 Einwohner selbst, nach der Übergangsregel auch Neustrelitz, Waren (Müritz) und Parchim |
 | **Rheinland-Pfalz** | **vermutlich**: die Verbandsgemeinde bzw. verbandsfreie Gemeinde – auf Gemeindestraßen überall, sonst innerhalb geschlossener Ortschaften; außerorts die Kreisverwaltung (als Alternative). Kreisfreie und große kreisangehörige Städte für alle Straßen |
+| **Sachsen** | **belegt**: Gemeindestraßen die Gemeinde (bzw. erfüllende Gemeinde oder Verwaltungsverband), sonst das Landratsamt; Kreisfreie Städte und 53 Große Kreisstädte für alle Straßen – als erfüllende Gemeinde auch für ihre Verwaltungsgemeinschaft |
+| **Sachsen-Anhalt** | **vermutlich**: Gemeindestraßen die Gemeinde bzw. Verbandsgemeinde, außerorts der Landkreis als Alternative; sonst der Landkreis |
 | Bremen (Amt für Straßen und Verkehr, Bremerhaven: Magistrat) | **belegt** |
 | Kreisfreie Städte der übrigen Länder | **vermutlich**: die Stadt |
 | Alle übrigen Gemeinden | **nur Ebene**: Kreis (Landratsamt, Kreisverwaltung); Große Kreisstädte als Alternative |
 | Berlin, Hamburg | **nur Ebene**: Bezirksamt bzw. Senatsverwaltung; zuständiges Polizeikommissariat |
 | Autobahnen | Fernstraßen-Bundesamt, kein Brief an die Kommune |
-| **Kontakt** (Telefon, E-Mail, Webseite) | **Thüringen, Bayern und Schleswig-Holstein: jede Gemeinde, jede Straßenklasse** – der Kontakt genau der Stelle, die zuständig ist, aus dem Bundesportal; einzelne Lücken von den Webseiten der Behörden. **Niedersachsen:** 865 von 964 Gemeinden; es fehlen vor allem selbständige Städte und der Landkreis Hildesheim (dort der Link ins Portal). **Mecklenburg-Vorpommern:** 385 von 724 Gemeinden; für Schwerin und die Landkreise Rostock, Nordwestmecklenburg und Ludwigslust-Parchim nennt das Portal keine Stelle. Übrige Länder im Bundesportal (BB, NW, RP, ST): Link auf die Seite der Gemeinde dort – für BB und NW nennt das Portal kaum Stellen, für RP oft nicht die eigene Verbandsgemeinde. Länder ohne Bundesportal-Eintrag (BW, BE, HB, HH, HE, SL, SN): noch keine Kontakte |
+| **Kontakt** (Telefon, E-Mail, Webseite) | **Thüringen, Bayern und Schleswig-Holstein: jede Gemeinde, jede Straßenklasse** – der Kontakt genau der Stelle, die zuständig ist, aus dem Bundesportal; einzelne Lücken von den Webseiten der Behörden. **Niedersachsen:** 865 von 964 Gemeinden; es fehlen vor allem selbständige Städte und der Landkreis Hildesheim (dort der Link ins Portal). **Mecklenburg-Vorpommern:** 385 von 724 Gemeinden; für Schwerin und die Landkreise Rostock, Nordwestmecklenburg und Ludwigslust-Parchim nennt das Portal keine Stelle. **Sachsen-Anhalt:** der Landkreis für Kreis-, Landes- und Bundesstraßen in sechs Landkreisen (123 von 218 Gemeinden), für Gemeindestraßen kaum. Übrige Länder im Bundesportal (BB, NW, RP): Link auf die Seite der Gemeinde dort – für BB und NW nennt das Portal kaum Stellen, für RP oft nicht die eigene Verbandsgemeinde. Länder ohne Bundesportal-Eintrag (BW, BE, HB, HH, HE, SL, SN): noch keine Kontakte |
 
 Die Regeln der übrigen Länder folgen (siehe [docs/TODO.md](docs/TODO.md)): erst die voll
-belegten Länder (BW, SN), dann die Stadtstaaten, dann der Rest. Bis dahin zeigt die Karte
+belegten Länder (BW), dann die Stadtstaaten, dann der Rest. Bis dahin zeigt die Karte
 für die meisten Gemeinden ehrlich nur die Kreisebene – schraffiert. Kontakte folgen Land für Land,
 sobald die Daten aus dem Bundesportal durchgesehen sind.
 
@@ -101,7 +104,7 @@ node tools/lookup.mjs 48.4005 11.7448 G     # Punkt (lat lon) und Straßenklasse
 | Hintergrundkarte | [OpenFreeMap](https://openfreemap.org) Positron | © OpenMapTiles, © OpenStreetMap-Mitwirkende |
 | Ortssuche | [Photon](https://photon.komoot.io) (komoot) | © OpenStreetMap-Mitwirkende |
 | Schrift | [Barlow](https://github.com/jpt/barlow), selbst gehostet | SIL Open Font License 1.1 ([assets/fonts/OFL.txt](assets/fonts/OFL.txt)) |
-| Rechtsgrundlagen | Fundstellen je Auskunft; Bayern aus [BAYERN.RECHT](https://www.gesetze-bayern.de) (ZustGVerk, GrKrV, AufVGem, VGemO), Schleswig-Holstein aus [Gesetze-Rechtsprechung Schleswig-Holstein](https://www.gesetze-rechtsprechung.sh.juris.de) (StrVRZustVO), Niedersachsen aus [NI-VORIS](https://voris.wolterskluwer-online.de) (ZustVO-Verkehr, NKomVG) und dem Niedersächsischen Ministerialblatt (selbständige Gemeinden), Nordrhein-Westfalen aus [RECHT.NRW.DE](https://recht.nrw.de), Brandenburg aus [BRAVORS](https://bravors.brandenburg.de), Mecklenburg-Vorpommern aus dem Gesetz- und Verordnungsblatt M-V, Rheinland-Pfalz vorerst aus einer Sekundärquelle; Fernstraßen-Bundesamt nach § 45 Abs. 11 StVO | – |
+| Rechtsgrundlagen | Fundstellen je Auskunft; Bayern aus [BAYERN.RECHT](https://www.gesetze-bayern.de) (ZustGVerk, GrKrV, AufVGem, VGemO), Schleswig-Holstein aus [Gesetze-Rechtsprechung Schleswig-Holstein](https://www.gesetze-rechtsprechung.sh.juris.de) (StrVRZustVO), Niedersachsen aus [NI-VORIS](https://voris.wolterskluwer-online.de) (ZustVO-Verkehr, NKomVG) und dem Niedersächsischen Ministerialblatt (selbständige Gemeinden), Nordrhein-Westfalen aus [RECHT.NRW.DE](https://recht.nrw.de), Brandenburg aus [BRAVORS](https://bravors.brandenburg.de), Mecklenburg-Vorpommern aus dem Gesetz- und Verordnungsblatt M-V, Sachsen aus [REVOSax](https://www.revosax.sachsen.de) und dem Gemeindeverzeichnis der Landesdirektion, Rheinland-Pfalz und Sachsen-Anhalt vorerst ohne Primärquelle; Fernstraßen-Bundesamt nach § 45 Abs. 11 StVO | – |
 | Favicon | [Fax-Symbol](https://www.svgrepo.com/svg/299100/fax) von SVG Repo | CC0 |
 
 Code: AGPL-3.0-or-later.

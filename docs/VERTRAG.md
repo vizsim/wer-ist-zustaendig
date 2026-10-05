@@ -3,7 +3,7 @@
 Dieses Dokument ist die Schnittstelle zwischen „Wer ist zuständig?" und allen, die die Dateien
 nutzen – zuerst die Karte in diesem Repo, dann die Unfallkarte.
 
-Stand: **Schema 1** · Regeln 0.8.0 (Phase 2: Landesregeln für Bayern, Brandenburg, Mecklenburg-Vorpommern, Niedersachsen, Nordrhein-Westfalen, Rheinland-Pfalz, Schleswig-Holstein und Thüringen) · Datenstand 31.12.2025
+Stand: **Schema 1** · Regeln 0.9.0 (Phase 2: Landesregeln für Bayern, Brandenburg, Mecklenburg-Vorpommern, Niedersachsen, Nordrhein-Westfalen, Rheinland-Pfalz, Sachsen, Sachsen-Anhalt, Schleswig-Holstein und Thüringen) · Datenstand 31.12.2025
 
 ## Regeln für alle Dateien
 
@@ -53,12 +53,13 @@ für die Darstellung genügt das; nachgeschlagen wird in z12 mit voller Auflösu
 | | | `gen` | String | Gemeindename (VG25 `GEN`) |
 | | | `eg` | String | Art der Stelle für Gemeindestraßen: `kreis`, `stadt` (kreisfrei oder selbst zuständig), `gemeinde`, `verband` (Rheinland-Pfalz, selbständige Samtgemeinden in Niedersachsen), `stadtstaat` |
 | | | `sg` | String | Sicherheit dieser Stelle: `belegt`, `vermutlich`, `nur Ebene` |
+| | | `ko` | String | Kontakt der zuständigen Stelle: `k` für alle Straßenklassen (G, K, L, B), `t` für einen Teil, `p` für keine, aber Link ins Bundesportal, `n` nichts; seit Regeln 0.9.0 |
 | `kreise` | 4–10 | `ars` | String (5) | Kreis (ARS-Präfix) |
 | | | `name` | String | voller Name nach `NBD` („Landkreis Freising", „Region Hannover") |
 | | | `art` | String | `kreis`, `stadt` (kreisfrei), `stadtstaat` |
-| | | `eg`, `sg` | String | was für die meisten Gemeinden des Kreises gilt (Werte wie im Layer `gemeinden`); für die Übersicht unter Zoom 7, wo es keine Gemeinden gibt |
+| | | `eg`, `sg`, `ko` | String | was für die meisten Gemeinden des Kreises gilt (Werte wie im Layer `gemeinden`); für die Übersicht unter Zoom 7, wo es keine Gemeinden gibt |
 
-`eg` und `sg` dienen nur der Einfärbung; die Auskunft kommt immer aus der Landesdatei.
+`eg`, `sg` und `ko` dienen nur der Einfärbung; die Auskunft kommt immer aus der Landesdatei.
 
 **Nachschlagen am Punkt:** Kachel in `maxZoom` (12) bestimmen, Layer `gemeinden` dekodieren,
 Punkt in Polygon nach der Gerade-Ungerade-Regel über alle Ringe eines Features
@@ -76,7 +77,7 @@ eigene Kreise); die Landesdatei nennt dort die Stelle der angrenzenden Gemeinde,
 ```json
 {
   "schema": 1,
-  "regeln": { "version": "0.8.0", "phase": 2, "stand": "2026-10-05" },
+  "regeln": { "version": "0.9.0", "phase": 2, "stand": "2026-10-05" },
   "daten": {
     "gebiet": "VG25 31.12.2025",
     "status": "GV-ISys 31.12.2025",
@@ -162,8 +163,8 @@ die übrigen Klassen das Landratsamt. Die Kontaktangaben sind hier ausgelassen.
 |---|---|
 | `fba` | Fernstraßen-Bundesamt (Autobahnen); in jeder Landesdatei |
 | `k` + Kreis-ARS (5) | Kreisebene bzw. kreisfreie Stadt, z. B. `k09178`, `k09162` |
-| `g` + ARS (12) | eine Gemeinde: Große Kreisstadt, Stadt mit eigener Straßenverkehrsbehörde (in Nordrhein-Westfalen die Mittleren und Großen kreisangehörigen Städte, in Niedersachsen die selbständigen Städte und Gemeinden), in Bayern jede kreisangehörige Gemeinde für ihre Gemeindestraßen, in Niedersachsen Gemeinden, denen die Gemeindestraßen übertragen sind, in Rheinland-Pfalz die verbandsfreie Gemeinde |
-| `v` + Verbands-ARS (9) | ein Verband: in Schleswig-Holstein das Amt (Halten und Parken, Baustellen, Veranstaltungen); in Brandenburg das Amt Schlieben (§ 4a Abs. 2 StGÜZV, `untere`); in Niedersachsen die Samtgemeinde – als `untere`, wenn sie selbständige Gemeinde ist, sonst als `oertliche` für Gemeindestraßen; in Rheinland-Pfalz die Verbandsgemeinde (`oertliche`) |
+| `g` + ARS (12) | eine Gemeinde: Große Kreisstadt, Stadt mit eigener Straßenverkehrsbehörde (in Nordrhein-Westfalen die Mittleren und Großen kreisangehörigen Städte, in Niedersachsen die selbständigen Städte und Gemeinden), in Bayern jede kreisangehörige Gemeinde für ihre Gemeindestraßen, in Niedersachsen Gemeinden, denen die Gemeindestraßen übertragen sind, in Rheinland-Pfalz die verbandsfreie Gemeinde, in Sachsen und Sachsen-Anhalt die Gemeinde für ihre Gemeindestraßen |
+| `v` + Verbands-ARS (9) | ein Verband: in Schleswig-Holstein das Amt (Halten und Parken, Baustellen, Veranstaltungen); in Brandenburg das Amt Schlieben (§ 4a Abs. 2 StGÜZV, `untere`); in Niedersachsen die Samtgemeinde – als `untere`, wenn sie selbständige Gemeinde ist, sonst als `oertliche` für Gemeindestraßen; in Rheinland-Pfalz und Sachsen-Anhalt die Verbandsgemeinde (`oertliche`); in Sachsen die Verwaltungsgemeinschaft bzw. der Verwaltungsverband für Gemeindestraßen (`oertliche`), als `untere` für alle Straßen, wenn eine Große Kreisstadt erfüllende Gemeinde ist |
 | `hb-asv`, `hb-bhv` | Bremen: Amt für Straßen und Verkehr; Magistrat Bremerhaven |
 | `be-bezirk`, `be-senat` | Berlin: Bezirksamt; Senatsverwaltung (übergeordnetes Netz) |
 | `hh-pk` | Hamburg: Polizei, zuständiges Polizeikommissariat |
@@ -173,7 +174,7 @@ die übrigen Klassen das Landratsamt. Die Kontaktangaben sind hier ausgelassen.
 | Feld | Inhalt |
 |---|---|
 | `stelle` | Id in `stellen` |
-| `sicherheit` | `belegt` (Primärquelle, getestete Regel; heute BB, BY, HB, MV, NI, NW und SH) · `vermutlich` (Regel aus Sekundärquelle wie in TH und RP, Eingabe unsicher – oder das Land nennt im Bundesportal dieselbe Stelle) · `nur Ebene` (Land noch offen) |
+| `sicherheit` | `belegt` (Primärquelle, getestete Regel; heute BB, BY, HB, MV, NI, NW, SH und SN) · `vermutlich` (Regel aus Sekundärquelle wie in TH, RP und ST, Eingabe unsicher – oder das Land nennt im Bundesportal dieselbe Stelle) · `nur Ebene` (Land noch offen) |
 | `grund` | ein Satz für Popup und Report |
 | `quelle` | Fundstelle mit Fassung; beim Rückfall auf die Kreisebene der Hinweis darauf |
 | `alternative` | `null` oder `{ stelle, bedingung }`; `bedingung` ist ein Satzteil („falls nur die Gemeindestraße betroffen ist") |

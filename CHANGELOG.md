@@ -7,7 +7,25 @@ ein Git-Tag `v<version>` dazu.
 
 ## [Unveröffentlicht]
 
-– noch nichts –
+### Hinzugefügt
+
+- Landesregel Sachsen (**belegt**, Sächsisches Straßenverkehrsrechtsgesetz): Auf Gemeindestraßen
+  ordnet die Gemeinde Verkehrszeichen an – in einer Verwaltungsgemeinschaft die erfüllende Gemeinde,
+  im Verwaltungsverband der Verband –, sonst das Landratsamt. Kreisfreie Städte und die 53 Großen
+  Kreisstädte sind für alle Straßen zuständig; ist eine Große Kreisstadt erfüllende Gemeinde, auch für
+  die übrigen Gemeinden ihrer Verwaltungsgemeinschaft. Sachsen führt die Leistung nicht im
+  Bundesportal – Kontakte gibt es dort noch nicht.
+- Landesregel Sachsen-Anhalt (**vermutlich** – die Vorschrift ist nur aus einer Entscheidung des
+  BVerwG und den Webseiten der Behörden bekannt): Gemeindestraßen bei der Gemeinde bzw.
+  Verbandsgemeinde, außerhalb geschlossener Ortschaften der Landkreis als Alternative; Kreis-,
+  Landes- und Bundesstraßen beim Landkreis.
+- Kontakte in Sachsen-Anhalt aus dem Bundesportal: der Landkreis für Kreis-, Landes- und
+  Bundesstraßen in sechs Landkreisen (123 von 218 Gemeinden); für Gemeindestraßen nennt das Portal
+  die Gemeinde bzw. Verbandsgemeinde nur in 13 Fällen.
+- Karte: Schalter „Kontakt vorhanden" in der Legende. Er färbt die Gemeinden danach, ob es einen
+  Kontakt der zuständigen Stelle gibt – für alle Straßen, für einen Teil, nur den Link ins
+  Bundesportal oder noch nichts; unter Zoomstufe 7 je Kreis. Der Zustand steht im Link
+  (`ansicht=kontakt`). Dafür das neue Feld `ko` in beiden Layern der Grenzschicht.
 
 ## [0.8.0] – 2026-10-05
 
