@@ -19,7 +19,7 @@ Es gibt zwei Wege zu den Daten:
 > Jede Auskunft ist eine begründete Vermutung mit Quelle. Vor einem Antrag oder einer Anregung
 > bitte prüfen, ob die genannte Stelle wirklich zuständig ist.
 
-## Stand: Phase 2 – Bayern, Thüringen, Schleswig-Holstein
+## Stand: Phase 2 – Bayern, Thüringen, Schleswig-Holstein, Niedersachsen
 
 | Was | Stand |
 |---|---|
@@ -27,12 +27,13 @@ Es gibt zwei Wege zu den Daten:
 | **Bayern** | **belegt**: Gemeindestraßen – die Gemeinde selbst (in einer Verwaltungsgemeinschaft erledigt die Gemeinschaft die Verwaltungsarbeit); Kreis-, Staats- und Bundesstraßen – das Landratsamt; Große Kreisstädte und kreisfreie Städte für alle Straßen |
 | **Thüringen** | **vermutlich**: Städte über 30.000 Einwohner und Eisenach für alle Straßen; Städte, die auf Antrag Straßenverkehrsbehörde sind (Apolda, Arnstadt, Eisenberg, Heilbad Heiligenstadt), für alle außer Bundesstraßen; sonst der Landkreis, bei Gemeinden mit 10.000 bis 30.000 Einwohnern die Gemeinde als Alternative |
 | **Schleswig-Holstein** | **belegt**: der Kreis bzw. die kreisfreie Stadt; Gemeinden über 20.000 Einwohner und Glinde selbst. Halten und Parken, Baustellen und Veranstaltungen: das Amt bzw. die amtsfreie Gemeinde (als Alternative). Knapp unter oder über 20.000 Einwohnern nur **vermutlich** |
+| **Niedersachsen** | **belegt**: der Landkreis bzw. die Region Hannover; kreisfreie Städte, Hannover, Göttingen, die großen selbständigen Städte und die selbständigen Gemeinden (auch drei Samtgemeinden) für alle Straßen. Gemeindestraßen sonst nur **vermutlich** beim Landkreis – er kann sie auf Antrag übertragen, ein Verzeichnis fehlt: bekannte Fälle als Gemeinde bzw. Samtgemeinde, sonst Samtgemeinde oder Gemeinde über 10.000 Einwohner als Alternative |
 | Bremen (Amt für Straßen und Verkehr, Bremerhaven: Magistrat) | **belegt** |
 | Kreisfreie Städte der übrigen Länder | **vermutlich**: die Stadt |
 | Alle übrigen Gemeinden | **nur Ebene**: Kreis (Landratsamt, Kreisverwaltung); Große Kreisstädte als Alternative |
 | Berlin, Hamburg | **nur Ebene**: Bezirksamt bzw. Senatsverwaltung; zuständiges Polizeikommissariat |
 | Autobahnen | Fernstraßen-Bundesamt, kein Brief an die Kommune |
-| **Kontakt** (Telefon, E-Mail, Webseite) | **Thüringen, Bayern und Schleswig-Holstein: jede Gemeinde, jede Straßenklasse** – der Kontakt genau der Stelle, die zuständig ist, aus dem Bundesportal; einzelne Lücken von den Webseiten der Behörden. Übrige Länder im Bundesportal (BB, MV, NI, NW, RP, ST): Link auf die Seite der Gemeinde dort. Länder ohne Bundesportal-Eintrag (BW, BE, HB, HH, HE, SL, SN): noch keine Kontakte |
+| **Kontakt** (Telefon, E-Mail, Webseite) | **Thüringen, Bayern und Schleswig-Holstein: jede Gemeinde, jede Straßenklasse** – der Kontakt genau der Stelle, die zuständig ist, aus dem Bundesportal; einzelne Lücken von den Webseiten der Behörden. **Niedersachsen:** 865 von 964 Gemeinden; es fehlen vor allem selbständige Städte und der Landkreis Hildesheim (dort der Link ins Portal). Übrige Länder im Bundesportal (BB, MV, NW, RP, ST): Link auf die Seite der Gemeinde dort. Länder ohne Bundesportal-Eintrag (BW, BE, HB, HH, HE, SL, SN): noch keine Kontakte |
 
 Die Regeln der übrigen Länder folgen (siehe [docs/TODO.md](docs/TODO.md)): erst die voll
 belegten Länder (BW, BB, NW, SN), dann die Stadtstaaten, dann der Rest. Bis dahin zeigt die Karte
@@ -91,12 +92,12 @@ node tools/lookup.mjs 48.4005 11.7448 G     # Punkt (lat lon) und Straßenklasse
 |---|---|---|
 | Gemeinde- und Kreisgrenzen, Schlüssel, Namen | [BKG, Verwaltungsgebiete 1:25 000 (VG25)](https://gdz.bkg.bund.de/index.php/default/verwaltungsgebiete-1-25-000-stand-31-12-vg25.html), Stand 31.12.2025 | CC BY 4.0 · © BKG (2026) CC BY 4.0, Datenquellen: [datenquellen_vg25.pdf](https://sgx.geodatenzentrum.de/web_public/gdz/datenquellen/datenquellen_vg25.pdf) |
 | Große Kreisstädte, Einwohnerzahlen | [Destatis, Gemeindeverzeichnis GV-ISys](https://www.destatis.de/DE/Themen/Laender-Regionen/Regionales/Gemeindeverzeichnis/_inhalt.html), Jahresausgabe 31.12.2025 | Statistisches Bundesamt (Destatis); Vervielfältigung und Verbreitung mit Quellenangabe gestattet |
-| Kontakte der Behörden (TH, BY, SH) | [Bundesportal](https://verwaltung.bund.de/leistungsverzeichnis/de/leistung/99108014042000), Leistung „Aufstellung von Verkehrszeichen anregen“, Angaben der Länder; Ergänzungen von den Webseiten der Behörden | amtliche Kontaktangaben, nur Funktionspostfächer; Quelle und Abrufdatum in jeder Auskunft |
+| Kontakte der Behörden (TH, BY, SH, NI) | [Bundesportal](https://verwaltung.bund.de/leistungsverzeichnis/de/leistung/99108014042000), Leistung „Aufstellung von Verkehrszeichen anregen“, Angaben der Länder; Ergänzungen von den Webseiten der Behörden | amtliche Kontaktangaben, nur Funktionspostfächer; Quelle und Abrufdatum in jeder Auskunft |
 | Straßen in der Karte | Kacheln der [Unfallkarte](https://github.com/vizsim/unfallkarte) aus OpenStreetMap | © OpenStreetMap-Mitwirkende (ODbL) |
 | Hintergrundkarte | [OpenFreeMap](https://openfreemap.org) Positron | © OpenMapTiles, © OpenStreetMap-Mitwirkende |
 | Ortssuche | [Photon](https://photon.komoot.io) (komoot) | © OpenStreetMap-Mitwirkende |
 | Schrift | [Barlow](https://github.com/jpt/barlow), selbst gehostet | SIL Open Font License 1.1 ([assets/fonts/OFL.txt](assets/fonts/OFL.txt)) |
-| Rechtsgrundlagen | Fundstellen je Auskunft; Bayern aus [BAYERN.RECHT](https://www.gesetze-bayern.de) (ZustGVerk, GrKrV, AufVGem, VGemO), Schleswig-Holstein aus [Gesetze-Rechtsprechung Schleswig-Holstein](https://www.gesetze-rechtsprechung.sh.juris.de) (StrVRZustVO); Fernstraßen-Bundesamt nach § 45 Abs. 11 StVO | – |
+| Rechtsgrundlagen | Fundstellen je Auskunft; Bayern aus [BAYERN.RECHT](https://www.gesetze-bayern.de) (ZustGVerk, GrKrV, AufVGem, VGemO), Schleswig-Holstein aus [Gesetze-Rechtsprechung Schleswig-Holstein](https://www.gesetze-rechtsprechung.sh.juris.de) (StrVRZustVO), Niedersachsen aus [NI-VORIS](https://voris.wolterskluwer-online.de) (ZustVO-Verkehr, NKomVG) und dem Niedersächsischen Ministerialblatt (selbständige Gemeinden); Fernstraßen-Bundesamt nach § 45 Abs. 11 StVO | – |
 | Favicon | [Fax-Symbol](https://www.svgrepo.com/svg/299100/fax) von SVG Repo | CC0 |
 
 Code: AGPL-3.0-or-later.

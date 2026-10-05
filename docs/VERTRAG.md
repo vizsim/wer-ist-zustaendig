@@ -3,7 +3,7 @@
 Dieses Dokument ist die Schnittstelle zwischen „Wer ist zuständig?" und allen, die die Dateien
 nutzen – zuerst die Karte in diesem Repo, dann die Unfallkarte.
 
-Stand: **Schema 1** · Regeln 0.7.1 (Phase 2: Landesregeln für Bayern, Thüringen und Schleswig-Holstein) · Datenstand 31.12.2025
+Stand: **Schema 1** · Regeln 0.8.0 (Phase 2: Landesregeln für Bayern, Thüringen, Schleswig-Holstein und Niedersachsen) · Datenstand 31.12.2025
 
 ## Regeln für alle Dateien
 
@@ -76,7 +76,7 @@ eigene Kreise); die Landesdatei nennt dort die Stelle der angrenzenden Gemeinde,
 ```json
 {
   "schema": 1,
-  "regeln": { "version": "0.7.1", "phase": 2, "stand": "2026-10-03" },
+  "regeln": { "version": "0.8.0", "phase": 2, "stand": "2026-10-05" },
   "daten": {
     "gebiet": "VG25 31.12.2025",
     "status": "GV-ISys 31.12.2025",
@@ -162,8 +162,8 @@ die übrigen Klassen das Landratsamt. Die Kontaktangaben sind hier ausgelassen.
 |---|---|
 | `fba` | Fernstraßen-Bundesamt (Autobahnen); in jeder Landesdatei |
 | `k` + Kreis-ARS (5) | Kreisebene bzw. kreisfreie Stadt, z. B. `k09178`, `k09162` |
-| `g` + ARS (12) | eine Gemeinde: Große Kreisstadt, Stadt mit eigener Straßenverkehrsbehörde, in Bayern jede kreisangehörige Gemeinde für ihre Gemeindestraßen |
-| `v` + Verbands-ARS (9) | ein Verband: in Schleswig-Holstein das Amt (Halten und Parken, Baustellen, Veranstaltungen) |
+| `g` + ARS (12) | eine Gemeinde: Große Kreisstadt, Stadt mit eigener Straßenverkehrsbehörde, in Bayern jede kreisangehörige Gemeinde für ihre Gemeindestraßen, in Niedersachsen selbständige Städte und Gemeinden sowie Gemeinden, denen die Gemeindestraßen übertragen sind |
+| `v` + Verbands-ARS (9) | ein Verband: in Schleswig-Holstein das Amt (Halten und Parken, Baustellen, Veranstaltungen); in Niedersachsen die Samtgemeinde – als `untere`, wenn sie selbständige Gemeinde ist, sonst als `oertliche` für Gemeindestraßen |
 | `hb-asv`, `hb-bhv` | Bremen: Amt für Straßen und Verkehr; Magistrat Bremerhaven |
 | `be-bezirk`, `be-senat` | Berlin: Bezirksamt; Senatsverwaltung (übergeordnetes Netz) |
 | `hh-pk` | Hamburg: Polizei, zuständiges Polizeikommissariat |

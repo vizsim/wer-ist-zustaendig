@@ -7,7 +7,29 @@ ein Git-Tag `v<version>` dazu.
 
 ## [Unveröffentlicht]
 
-– noch nichts –
+### Hinzugefügt
+
+- Landesregel Niedersachsen (ZustVO-Verkehr in der Fassung vom 30.06.2025, NKomVG, gelesen in
+  NI-VORIS): der Landkreis bzw. die Region Hannover (**belegt**); kreisfreie Städte, Hannover und
+  Göttingen, die 7 großen selbständigen Städte und die 64 selbständigen Gemeinden – darunter die
+  Samtgemeinden Artland, Bersenbrück und Harsefeld – für alle Straßen (**belegt**, Liste des
+  Innenministeriums vom 09.11.2021). Gemeindestraßen kann der Landkreis auf Antrag übertragen; ein
+  Verzeichnis gibt es nicht. Deshalb sind Gemeindestraßen sonst nur **vermutlich** beim Landkreis,
+  mit der Samtgemeinde bzw. einer Gemeinde über 10.000 Einwohner als Alternative; 16 Übertragungen,
+  die Landkreise oder die Region auf ihren Webseiten nennen, stehen als Gemeinde bzw. Samtgemeinde
+  da. Burgdorf: laut Region nimmt sie die Aufgabe seit 2019 wahr (**vermutlich**). Regeln 0.8.0.
+- Kontakte in Niedersachsen aus dem Bundesportal, für 12 Landkreise und kreisfreie Städte von den
+  Webseiten der Behörden. 865 von 964 Gemeinden haben den Kontakt der zuständigen Stelle; es fehlen
+  vor allem viele selbständige Städte (das Portal nennt dort den Landkreis oder nichts) und der
+  Landkreis Hildesheim – dort führt die Karte ins Bundesportal.
+
+### Geändert
+
+- Willkommensfenster: „Vermutlich" heißt jetzt „die Regel ist nicht für jede Gemeinde gesichert"
+  statt „die Regel stammt aus einer Sekundärquelle" – in Niedersachsen liegt es an den
+  unveröffentlichten Übertragungen, nicht an der Quelle.
+- Kontaktauswahl: Eine Stelle mit dem Namen eines Kreises, der den Gemeindenamen enthält und mehr
+  sagt, gilt nicht als Stelle der Gemeinde (`@region-hannover.de` ist nicht die Landeshauptstadt).
 
 ## [0.7.1] – 2026-10-04
 

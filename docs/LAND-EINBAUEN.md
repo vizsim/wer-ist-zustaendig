@@ -1,7 +1,7 @@
 # Ein Land einbauen
 
-So sind Bayern, Thüringen und Schleswig-Holstein in die Karte gekommen – als Ablauf für das
-nächste Land, zuerst Niedersachsen. Grundregeln stehen in [CLAUDE.md](../CLAUDE.md), der Vertrag
+So sind Bayern, Thüringen, Schleswig-Holstein und Niedersachsen in die Karte gekommen – als
+Ablauf für das nächste Land. Grundregeln stehen in [CLAUDE.md](../CLAUDE.md), der Vertrag
 mit den Konsumenten in [VERTRAG.md](VERTRAG.md).
 
 **Fertig ist ein Land, wenn**
@@ -13,13 +13,14 @@ mit den Konsumenten in [VERTRAG.md](VERTRAG.md).
   keine Lücke (Alternativen ohne Kontakt sind erlaubt, kommen aber in die TODO);
 - README, CHANGELOG und TODO den neuen Stand zeigen und alles in kleinen Commits liegt.
 
-## Die drei Länder im Überblick
+## Die Länder im Überblick
 
 | Land | Rechtsgrundlage und wo gelesen | Regel | Sicherheit |
 |---|---|---|---|
 | BY | ZustGVerk Art. 2, 3, 6; GrKrV § 2 Nr. 2; AufVGem § 1 Nr. 5; VGemO Art. 4 – [gesetze-bayern.de](https://www.gesetze-bayern.de) | Gemeindestraßen: die Gemeinde (in einer Verwaltungsgemeinschaft bleibt sie zuständig, die VG erledigt die Verwaltungsarbeit); Kreis-, Staats-, Bundesstraßen: das Landratsamt; Große Kreisstädte (Textkennzeichen 67) und kreisfreie Städte: alles | belegt; gemeindefreie Gebiete vermutlich |
 | TH | Thüringer Zuständigkeitsverordnung Straßenverkehrsrecht vom 13.02.2007, Stand 20.05.2026 – nur bei umwelt-online, also Sekundärquelle `[S]`; das Landesportal lädt nur mit JavaScript und ließ sich nicht rendern | über 30.000 Einwohner und Eisenach: alles; Städte auf Antrag (§ 2 Abs. 7: 10.000–30.000 Einwohner, erkannt am Portal-Urteil `stvb` oder an `TH_STAEDTE_AUF_ANTRAG`): alles außer Bundesstraßen; sonst der Landkreis, Gemeinden mit 10.000–30.000 Einwohnern als Alternative | vermutlich |
 | SH | StrVRZustVO §§ 3–5 und Anlage, Fassung 01.12.2025 – [gesetze-rechtsprechung.sh.juris.de](https://www.gesetze-rechtsprechung.sh.juris.de), im Browser gerendert | Kreis bzw. kreisfreie Stadt; über 20.000 Einwohner und Glinde (Anlage, `SH_AUF_ANTRAG`): die Gemeinde; Amt bzw. amtsfreie Gemeinde als Alternative für Halten und Parken, Baustellen, Veranstaltungen (neue Stellen-Id `v` + Amts-ARS) | belegt; ± 1.000 um 20.000 Einwohner vermutlich |
+| NI | ZustVO-Verkehr § 2, Fassung 30.06.2025; NKomVG §§ 14–18, 159 – [NI-VORIS](https://voris.wolterskluwer-online.de), gerendert; Liste der selbständigen Gemeinden: Nds. MBl. 2021 S. 1690 (PDF) | Landkreis bzw. Region Hannover; kreisfreie Städte, Hannover, Göttingen (`NI_WIE_KREISFREI`), große selbständige Städte und selbständige Gemeinden, auch drei Samtgemeinden (`NI_SELBSTAENDIG`, nach Liste – keine Schwelle): alles; Gemeindestraßen auf Antrag übertragbar, ohne Verzeichnis: bekannte Fälle (`NI_GEMEINDESTRASSEN`, `[S]`) die Gemeinde bzw. Samtgemeinde, sonst der Landkreis mit Samtgemeinde oder Gemeinde über 10.000 Einwohner als Alternative; Burgdorf per Vereinbarung bei der Region (`NI_VEREINBARUNG`) | belegt; Gemeindestraßen außerhalb der selbständigen Gemeinden vermutlich |
 
 ## 1. Rechtsgrundlage finden und lesen
 
@@ -218,25 +219,21 @@ ausblenden; `window.__karte` ist die MapLibre-Instanz.
   auf GitHub Pages; die Daten gehen mit `b2 sync` in den Bucket (siehe „Veröffentlichen" in
   [pipeline/README.md](../pipeline/README.md)), danach das Tag `v<regeln.version>`.
 
-## Niedersachsen: Ausgangslage
+## Was Niedersachsen gelehrt hat
 
-**Daten** (Abruf 03.10.2026, im Cache, nicht freigegeben): 964 Gemeinden. Portal-Urteil `passt`
-708, `fremd` 145, `keine` 94, `stvb` 16, `mehrdeutig` 1. Kontakt der Kreisebene für 762 Gemeinden
-(mit Kreiskontakt der Nachbarn); keiner in den Landkreisen Diepholz (45), Gifhorn (42), Stade
-(40), Hildesheim (20), Oldenburg (15), Osterholz (11), Verden (11), Wesermarsch (9), Ammerland
-(6) und in den kreisfreien Städten Braunschweig, Delmenhorst und Oldenburg (Oldb). 650 Gemeinden
-gehören zu einer Samtgemeinde; einen Kontakt der Gemeinde selbst gibt es nur für 124.
-
-**Zu klären** – Hinweise, nichts davon ist geprüft:
-
-- Wie heißt die niedersächsische Zuständigkeitsverordnung zum Straßenverkehrsrecht, in welcher
-  Fassung? Primärquelle ist das Landesrecht-Portal NI-VORIS (voris.niedersachsen.de).
-- Welche Gemeinden sind selbst Straßenverkehrsbehörde – etwa die großen selbständigen Städte und
-  die selbständigen Gemeinden nach dem NKomVG? Wer sind die 16 Gemeinden mit Urteil `stvb`?
-- Sonderfälle: Region Hannover und Landeshauptstadt Hannover, die Stadt Göttingen im Landkreis
-  Göttingen, Städte mit gleichnamigem Landkreis (Osnabrück, Oldenburg, Hildesheim) – dort kann
-  die Domain-Erkennung Kreis und Stadt verwechseln. Beispiel: Für die Landeshauptstadt nennt das
-  Portal nur „86.01 - Team Verwaltung" mit Adressen `@region-hannover.de`; die Auswahl hält das
-  für eine Stelle der Region und zugleich der Stadt.
-- Sind Samtgemeinden für einen Teil der Aufgaben zuständig (wie die Ämter in SH)?
-- Die gemeindefreien Gebiete (zum Beispiel Harz, Giebel) gehen an den Landkreis, „vermutlich".
+- **Status statt Schwelle:** Wer selbst zuständig ist, folgt aus einer amtlichen Liste, nicht aus
+  der Einwohnerzahl, und GV-ISys kennzeichnet den Status nicht. Die Liste als Konstante mit ARS
+  anlegen, aus der Quelle erzeugt statt abgetippt, und ihre Länge im Test festhalten.
+- **Zuständigkeit ohne Verzeichnis:** Übertragungen auf Antrag (hier die Gemeindestraßen) sind
+  nirgends gesammelt. Dann „vermutlich" beim Kreis, die mögliche Stelle als Alternative, bekannte
+  Fälle von Webseiten der Kreise mit `[S]` als eigene Liste.
+- **Das Portal-Urteil `stvb` nicht ungeprüft übernehmen:** Im Landkreis Oldenburg heißt das
+  Straßenverkehrsamt des Kreises im Portal nur „Straßenverkehrsamt", die Auswahl hielt es für eine
+  Stelle der Gemeinden. Die Regel wertet `stvb` in Niedersachsen nicht aus; den Kreiskontakt gibt
+  es von Hand. Dasselbe Muster (Kreisstelle ohne Behördennamen) in Ammerland, Diepholz, Lüneburg.
+- **Vor jeder Änderung an der Auswahl** `pipeline/data/interim/kontakte.json` sichern und danach
+  vergleichen, welche Kontakte sich in allen Ländern ändern. Der erste Versuch gegen die
+  Verwechslung von Region und Landeshauptstadt Hannover hätte 98 Gemeinden in BY, SH und TH den
+  Kontakt genommen, weil der Namensvergleich mit Teilwörtern arbeitet („ilm" in „Ilmenau").
+- **Recherche knapp halten:** Ein Agent für die Rechtsgrundlage, einer für die Kontakte, mit
+  den Regeln aus Schritt 4 im Auftrag. Was danach fehlt, kommt in die TODO, statt weiterzusuchen.
