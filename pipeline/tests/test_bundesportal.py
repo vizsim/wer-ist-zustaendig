@@ -349,6 +349,31 @@ def test_eigene_stelle_an_der_domain() -> None:
     assert not bp.eigene_stelle(segeberg, elmshorn)
 
 
+def test_eigene_stelle_nicht_der_gleichnamige_kreis() -> None:
+    region = {"gen": "Region Hannover", "kreisfrei": False}
+    hannover = {"gen": "Hannover", "verband": None, "kreis": region}
+    team = _stelle(
+        "86.01 - Team Verwaltung", [], ["info.verkehr@region-hannover.de"]
+    )  # so nennt das Portal die Stelle für die Landeshauptstadt
+    assert not bp.eigene_stelle(team, hannover), "Stelle der Region"
+    assert bp.waehle_gemeinde([team], hannover) is None
+    assert bp.waehle_kreis([team], hannover) == team
+    stadt = _stelle("Fachbereich Tiefbau", [], ["tiefbau@hannover-stadt.de"])
+    assert bp.eigene_stelle(stadt, hannover)
+    ilm = {"gen": "Ilmenau", "verband": None, "kreis": {"gen": "Ilm-Kreis", "kreisfrei": False}}
+    ilmenau = _stelle(
+        "Stadtverwaltung Ilmenau - Straßenverkehrsbehörde", [], ["verkehr@ilmenau.de"]
+    )
+    assert bp.eigene_stelle(ilmenau, ilm), "„ilm“ steckt nur im Wort „Ilmenau“"
+    albersdorf = {
+        "gen": "Albersdorf",
+        "verband": {"gen": "Mitteldithmarschen"},
+        "kreis": {"gen": "Dithmarschen", "kreisfrei": False},
+    }
+    amt = _stelle("Amt Mitteldithmarschen - Fachdienst Ordnung", ["0481 0000-0"])
+    assert bp.eigene_stelle(amt, albersdorf), "Amt, dessen Name den Kreisnamen enthält"
+
+
 def test_ergaenzungen_von_hand_sind_vollstaendig() -> None:
     for schluessel, k in bp.ergaenzungen().items():
         assert len(schluessel) in (5, 12) and schluessel.isdigit(), schluessel

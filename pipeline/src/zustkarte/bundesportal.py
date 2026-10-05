@@ -223,8 +223,14 @@ def _gehoert_zu(stelle: dict[str, Any], gen: str) -> bool:
 
 def eigene_stelle(stelle: dict[str, Any], gemeinde: dict[str, Any]) -> bool:
     """Stelle der Gemeinde selbst oder ihres Verbands (Rathaus, Verwaltungsgemeinschaft, Amt)?
-    Erkannt am Namen oder an der Domain („Amt für Tiefbau und Verkehr", tiefbau@elmshorn.de)."""
+    Erkannt am Namen oder an der Domain („Amt für Tiefbau und Verkehr", tiefbau@elmshorn.de).
+    Nicht die Stelle eines Kreises, dessen Name den der Gemeinde enthält und mehr sagt: Eine
+    Adresse `@region-hannover.de` gehört der Region, nicht der Landeshauptstadt Hannover."""
     if KREISEBENE.search(_norm(stelle["name"])):
+        return False
+    kreis = gemeinde["kreis"]
+    im_kreisnamen = set(_woerter(gemeinde["gen"])) < set(_woerter(kreis["gen"]))
+    if not kreis.get("kreisfrei") and im_kreisnamen and _gehoert_zu(stelle, kreis["gen"]):
         return False
     namen = [gemeinde["gen"]] + ([gemeinde["verband"]["gen"]] if gemeinde.get("verband") else [])
     return any(_gehoert_zu(stelle, n) for n in namen if n)
