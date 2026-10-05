@@ -7,6 +7,11 @@ ein Git-Tag `v<version>` dazu.
 
 ## [Unveröffentlicht]
 
+## [0.10.0] – 2026-10-05
+
+Landesregeln für Hessen und das Saarland, beide belegt, zusammen zwölf Länder; Kontakte für beide als
+allgemeine Anschrift der Verwaltung. Regeln 0.10.0 · Schema 1 · Datenstand 31.12.2025.
+
 ### Hinzugefügt
 
 - Landesregel Hessen (**belegt**, § 10 der Verordnung zur Bestimmung verkehrsrechtlicher
@@ -28,7 +33,6 @@ ein Git-Tag `v<version>` dazu.
   übernommen; dann steht nur die Anschrift da (fünf Gemeinden, darunter Wiesbaden).
 - Antwortkarte: Hat ein Kontakt nur eine Anschrift, steht nicht mehr „Kontaktdaten haben wir noch
   nicht" darunter.
-- Regeln 0.10.0 – Landesregeln für zwölf Länder.
 
 ## [0.9.0] – 2026-10-05
 
