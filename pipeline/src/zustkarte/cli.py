@@ -7,6 +7,7 @@ Die Logik lebt in den gleichnamigen Modulen; hier nur das Typer-Wiring (Imports 
 from __future__ import annotations
 
 import subprocess
+from pathlib import Path
 from shutil import which
 from typing import Annotated
 
@@ -39,7 +40,7 @@ def info() -> None:
     typer.echo(f"pipeline: {paths.root}")
     typer.echo(f"data:     {paths.data}")
     for qid, q in quellen().items():
-        typer.echo(f"quelle {qid:<16} Stand {q['stand']}  {q['lizenz']}")
+        typer.echo(f"quelle {qid:<16} Stand {q.get('stand', 'beim Abruf')}  {q['lizenz']}")
     for b in ("tippecanoe", "tile-join", "node"):
         typer.echo(f"{b:<10} {'ok' if tiles.laeuft(b) else 'FEHLT'}")
 
@@ -48,11 +49,21 @@ def info() -> None:
 def fetch(
     quelle: str = typer.Argument("all", help="Quellen-Id aus sources.yaml oder 'all'"),
     force: bool = typer.Option(False, "--force", help="erneut laden, auch wenn vorhanden"),
+    datei: Annotated[
+        Path | None,
+        typer.Option(help="Datei von Hand übernehmen statt laden (nur mit einer Quellen-Id)"),
+    ] = None,
 ) -> None:
     """Quellen nach data/raw/<id>/ laden (ZIPs entpacken)."""
     from zustkarte import fetch as fetch_mod
 
     alle = quellen()
+    if datei is not None:
+        if quelle not in alle:
+            typer.secho("--datei braucht eine Quellen-Id aus sources.yaml.", fg="red")
+            raise typer.Exit(1)
+        typer.secho(f"{quelle}: {fetch_mod.uebernimm(quelle, datei)}", fg="green")
+        return
     ids = list(alle) if quelle == "all" else [quelle]
     for qid in ids:
         try:
@@ -117,12 +128,13 @@ def kontakte(
 ) -> None:
     """Bundesportal: Kontakt der zuständigen Stelle je Gemeinde → data/interim/kontakte.json.
 
-    Eine Anfrage je Gemeinde (gedrosselt, mit Cache); danach `zust laender` neu bauen.
+    Eine Anfrage je Gemeinde (gedrosselt, mit Cache); danach `zust laender` neu bauen. Für
+    Sachsen kommen die allgemeinen Anschriften der Verwaltungen dazu (Quelle `lds_sachsen`).
     """
     import json
     from collections import Counter
 
-    from zustkarte import bundesportal
+    from zustkarte import anschriften, bundesportal
 
     paths = get_paths()
     attr = json.loads(paths.attr_json.read_text(encoding="utf-8"))["gemeinden"]
@@ -131,17 +143,22 @@ def kontakte(
             ars = sorted(a for a, g in attr.items() if g["land"] == lkz and not g["kondominium"])
             bundesportal.abrufen(lkz, ars, force=force, melde=typer.echo)
     daten, review = bundesportal.tabelle(attr)
+    anschriften.ergaenze(daten, review, attr)
     bundesportal.schreibe(daten, review, paths.kontakte_json, paths.review / "kontakte-review.csv")
-    for lkz in daten["meta"]["laender"]:
+    for lkz, meta in daten["meta"]["laender"].items():
         land_g = [g for a, g in daten["gemeinden"].items() if attr[a]["land"] == lkz]
-        wahl = Counter(g["wahl"] for g in land_g)
+        wahl = Counter(g["wahl"] for g in land_g if g["wahl"])
         n = len(land_g)
         kreis = sum(g["kreis"] is not None for g in land_g)
         gemeinde = sum(g["gemeinde"] is not None for g in land_g)
+        herkunft = (
+            f"{meta['kurz']} (allgemeine Anschrift)"
+            if "kurz" in meta
+            else "Portal: " + " · ".join(f"{k} {v}" for k, v in sorted(wahl.items()))
+        )
         typer.echo(
             f"{lkz} {n:>5} Gemeinden · Kontakt Kreisebene {kreis} ({kreis / n:.0%}) · "
-            f"Gemeinde selbst {gemeinde} · Portal: "
-            + " · ".join(f"{k} {v}" for k, v in sorted(wahl.items()))
+            f"Gemeinde selbst {gemeinde} · {herkunft}"
         )
     offen = [x for x in bundesportal.laender_im_cache() if x not in daten["meta"]["laender"]]
     if offen:

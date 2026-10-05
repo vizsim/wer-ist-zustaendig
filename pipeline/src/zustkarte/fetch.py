@@ -2,7 +2,8 @@
 
 Die Server von BKG und Destatis sind aus manchen Umgebungen (Sandboxen mit Netz-Allowlist) nicht
 erreichbar. Dann `zust fetch` auf einem Rechner mit Netz laufen lassen oder die Dateien von Hand
-nach data/raw/<id>/ legen – die übrigen Schritte lesen nur von dort.
+übernehmen (`zust fetch <id> --datei <pfad>`) – die übrigen Schritte lesen nur von dort. Quellen
+ohne Download-Link (`datei` statt `url` in sources.yaml) kommen immer so herein.
 """
 
 from __future__ import annotations
@@ -45,6 +46,47 @@ def entpacke(zip_pfad: Path) -> Path:
     return ziel
 
 
+def _meta(qid: str, ziel: Path, n: int, sha: str, abgerufen: str, **mehr) -> None:
+    q = quellen()[qid]
+    meta = {
+        "quelle": qid,
+        "url": q.get("url"),
+        "datei": ziel.name,
+        "bytes": n,
+        "sha256": sha,
+        "abgerufen": abgerufen,
+        **mehr,
+    }
+    ziel.with_name(ziel.name + ".meta.json").write_text(
+        json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+
+
+def uebernimm(qid: str, pfad: Path) -> Path:
+    """Datei von Hand übernehmen – für Quellen ohne Download-Link (`datei` statt `url`) oder ohne
+    Netz: nach data/raw/<id>/ kopieren, Metadaten wie beim Download. Abrufdatum ist die
+    Änderungszeit der Datei, also der Zeitpunkt des Downloads im Browser."""
+    q = quellen()[qid]
+    ordner = get_paths().raw_quelle(qid)
+    ordner.mkdir(parents=True, exist_ok=True)
+    ziel = ordner / (dateiname(q["url"]) if q.get("url") else q["datei"])
+    inhalt = pfad.read_bytes()
+    ziel.write_bytes(inhalt)
+    abgerufen = datetime.fromtimestamp(pfad.stat().st_mtime, UTC).isoformat(timespec="seconds")
+    _meta(
+        qid,
+        ziel,
+        len(inhalt),
+        hashlib.sha256(inhalt).hexdigest(),
+        abgerufen,
+        seite=q.get("seite"),
+        von_hand=True,
+    )
+    if ziel.suffix.lower() == ".zip":
+        entpacke(ziel)
+    return ziel
+
+
 def fetch(qid: str, *, force: bool = False, timeout: int = 300) -> Path:
     """Lädt die Quelle `qid` aus sources.yaml (falls nicht vorhanden) und entpackt ZIPs."""
     import requests
@@ -52,6 +94,14 @@ def fetch(qid: str, *, force: bool = False, timeout: int = 300) -> Path:
     q = quellen()[qid]
     ordner = get_paths().raw_quelle(qid)
     ordner.mkdir(parents=True, exist_ok=True)
+    if not q.get("url"):
+        ziel = ordner / q["datei"]
+        if ziel.exists():
+            return ziel
+        raise FileNotFoundError(
+            f"{qid}: ohne Download-Link – Datei auf {q.get('seite')} laden, dann "
+            f"`zust fetch {qid} --datei <pfad>`"
+        )
     ziel = ordner / dateiname(q["url"])
     if ziel.exists() and not force:
         if ziel.suffix.lower() == ".zip":
@@ -82,18 +132,8 @@ def fetch(qid: str, *, force: bool = False, timeout: int = 300) -> Path:
             f"veraltet? Seite prüfen: {q.get('seite', q['url'])}"
         )
     tmp.replace(ziel)
-    meta = {
-        "quelle": qid,
-        "url": q["url"],
-        "datei": ziel.name,
-        "bytes": n,
-        "sha256": sha.hexdigest(),
-        "abgerufen": datetime.now(UTC).isoformat(timespec="seconds"),
-        "header": kopf,
-    }
-    ziel.with_name(ziel.name + ".meta.json").write_text(
-        json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-    )
+    abgerufen = datetime.now(UTC).isoformat(timespec="seconds")
+    _meta(qid, ziel, n, sha.hexdigest(), abgerufen, header=kopf)
     if ziel.suffix.lower() == ".zip":
         entpacke(ziel)
     return ziel

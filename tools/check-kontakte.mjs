@@ -37,6 +37,7 @@ for (const l of laender) {
   const daten = lies(landesdatei(l.lkz));
   const zahl = Object.fromEntries(KLASSEN.map((k) => [k.join("") || "unklar", { ohne: 0, altOhne: 0 }]));
   const luecken = new Map();
+  const allgemein = new Set(); // Kontakt ist nur die allgemeine Anschrift der Verwaltung
   for (const ars of Object.keys(daten.gemeinden)) {
     for (const klassen of KLASSEN) {
       const r = auswahl(daten, ars, klassen);
@@ -44,12 +45,16 @@ for (const l of laender) {
       if (!r.kontakt) {
         z.ohne += 1;
         luecken.set(ars, `${ars} ${r.gemeinde} → ${r.zustaendig.name}`);
+      } else if (r.kontakt.allgemein) {
+        allgemein.add(ars);
       }
       if (r.alternative && !r.alternative.kontakt) z.altOhne += 1;
     }
   }
   const n = Object.keys(daten.gemeinden).length;
-  console.log(`${l.lkz} ${l.name}: ${n} Gemeinden, ${n - luecken.size} mit Kontakt der zuständigen Stelle in jeder Klasse`);
+  const nAllgemein = [...allgemein].filter((ars) => !luecken.has(ars)).length;
+  console.log(`${l.lkz} ${l.name}: ${n} Gemeinden, ${n - luecken.size} mit Kontakt der zuständigen Stelle in jeder Klasse` +
+    (nAllgemein ? ` (bei ${nAllgemein} davon die allgemeine Anschrift der Verwaltung)` : ""));
   for (const [k, z] of Object.entries(zahl)) {
     console.log(`  ${k.padEnd(6)} ohne Kontakt ${String(z.ohne).padStart(5)} · Alternative ohne Kontakt ${String(z.altOhne).padStart(5)}`);
   }

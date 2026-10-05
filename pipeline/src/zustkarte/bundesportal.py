@@ -424,7 +424,7 @@ def ergaenzungen() -> dict[str, dict[str, Any]]:
     return load_yaml("kontakte_ergaenzt.yaml").get("kontakte") or {}
 
 
-def _von_hand(eintrag: dict[str, Any]) -> dict[str, Any]:
+def kontakt_von_hand(eintrag: dict[str, Any]) -> dict[str, Any]:
     datum = ".".join(reversed(str(eintrag["stand"]).split("-")))
     return {
         "name": eintrag["name"],
@@ -464,10 +464,10 @@ def luecken_fuellen(gemeinden: dict[str, Any], attr: dict[str, Any], land: str) 
             continue
         hand = von_hand.get(ars)
         if hand:
-            e[hand.get("rolle", "kreis")] = _von_hand(hand)
+            e[hand.get("rolle", "kreis")] = kontakt_von_hand(hand)
         if e["kreis"] is None:
             if ars[:5] in von_hand:
-                e["kreis"] = _von_hand(von_hand[ars[:5]])
+                e["kreis"] = kontakt_von_hand(von_hand[ars[:5]])
             elif je_kreis.get(g["kreis"]["ars"]):
                 e["kreis"] = json.loads(je_kreis[g["kreis"]["ars"]].most_common(1)[0][0])
         verband = g.get("verband")

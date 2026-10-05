@@ -19,7 +19,9 @@ def test_version_und_pfade() -> None:
 
 def test_quellen_vollstaendig() -> None:
     for qid, q in quellen().items():
-        for key in ("label", "url", "seite", "stand", "lizenz", "vermerk"):
+        # Download mit festem Datenstand – oder von Hand geladen (`datei`): dann gilt der Abruf.
+        eigen = ("datei", "kurz") if "datei" in q else ("url", "stand")
+        for key in ("label", "seite", "lizenz", "vermerk", *eigen):
             assert q.get(key), f"{qid}: `{key}` fehlt in sources.yaml"
     datasets = load_yaml("sources.yaml")["datasets"]
     assert datasets["zust_gemeinden"]["file"] == load_yaml("tiles.yaml")["ausgabe"]

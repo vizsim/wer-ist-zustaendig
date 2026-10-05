@@ -255,6 +255,38 @@ test("baueLaender: Kontakte nur im Land mit Abruf, entdoppelt und über Ids verk
   assert.equal(auswahl(ohne.dateien["by.json"], "092740128128", ["G"]).bundesportal, null, "Land nicht im Portal bekannt");
 });
 
+test("baueLaender + auswahl: Kontakte aus einer eigenen Quelle des Landes, nur allgemeine Anschrift (Sachsen)", () => {
+  const a = attr();
+  a.gemeinden["145210010010"] = {
+    ars: "145210010010", gen: "Amtsberg", name: "Gemeinde Amtsberg", land: "SN", tkz: [60],
+    kreis: kreis("14521", "Erzgebirgskreis", "Landkreis", "nein"),
+  };
+  const k = kontakte();
+  const lds = { id: "lds_sachsen", label: "Gemeindeverzeichnis", lizenz: "dl-de/by-2-0", vermerk: "Landesdirektion Sachsen" };
+  k.meta.laender.SN = { abgerufen: "2026-10-05", kurz: "Landesdirektion Sachsen", quelle: lds };
+  const rathaus = (name, adresse) => ({ name, adresse, telefon: ["037209 6790"], email: [], web: [], allgemein: true });
+  k.gemeinden["145210010010"] = {
+    wahl: null, stellen: 0,
+    kreis: rathaus("Landratsamt Erzgebirgskreis", "Paulus-Jenisius-Str. 24, 09456 Annaberg-Buchholz"),
+    gemeinde: rathaus("Gemeinde Amtsberg", "Poststr. 30, 09439 Amtsberg"),
+  };
+  const { dateien, index } = baueLaender(a, { kontakte: k });
+  const sn = dateien["sn.json"];
+  assert.equal(sn.daten.kontakte, "Landesdirektion Sachsen 05.10.2026");
+  assert.deepEqual(sn.quellen.at(-1), lds, "Quellenvermerk des Landes");
+  assert.equal(sn.bundesportal_region, undefined, "nicht im Bundesportal");
+  const r = auswahl(sn, "145210010010", ["G"]);
+  assert.equal(r.kontakt.name, "Gemeinde Amtsberg");
+  assert.deepEqual(Object.keys(r.kontakt), ["name", "adresse", "telefon", "email", "web", "allgemein"]);
+  assert.equal(auswahl(sn, "145210010010", ["K"]).kontakt.name, "Landratsamt Erzgebirgskreis");
+  assert.ok(Object.values(dateien["by.json"].kontakte).every((x) => !("allgemein" in x)), "sonst ohne Feld");
+  assert.equal(dateien["by.json"].daten.kontakte, "Bundesportal 02.10.2026");
+  assert.deepEqual(index.quellen.map((q) => q.id), ["vg25", "bundesportal", "lds_sachsen"], "jede Quelle einmal");
+  const land = Object.fromEntries(index.laender.map((l) => [l.lkz, l]));
+  assert.deepEqual([land.SN.kontakte, land.SN.allgemein], [1, 1]);
+  assert.equal(land.BY.allgemein, undefined);
+});
+
 test("baueLaender: Link ins Bundesportal für jedes Land, das die Leistung dort führt", () => {
   const k = kontakte();
   k.meta.portal = { RP: "https://verwaltung.bund.de/…/herausgeber/RP-8958611/region/{ars}" };

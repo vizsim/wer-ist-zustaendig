@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 //
 // Eingabe: gemeinden_attr.json der Pipeline (docs/VERTRAG.md, „Zwischenprodukt"), optional
-// kontakte.json (`zust kontakte`, Bundesportal).
+// kontakte.json (`zust kontakte`: Bundesportal, in Sachsen die Anschriften der Verwaltungen).
 // Ausgabe: je Land eine Datei (Stellen, Ergebnisse und Kontakte entdoppelt, Gemeinden mit
 // Verweisen), dazu index.json und Zeilen für die Review-CSV. Deterministisch: gleiche Eingabe,
 // gleiche Bytes.
@@ -16,11 +16,15 @@ export const SCHEMA = 1;
 
 const MAP_KEYS = new Set(["stellen", "ergebnisse", "kontakte", "kreise", "gemeinden"]);
 
-/** Kontakt mit fester Schlüsselfolge und stabiler Id („c" + FNV-1a wie bei den Ergebnissen). */
+/**
+ * Kontakt mit fester Schlüsselfolge und stabiler Id („c" + FNV-1a wie bei den Ergebnissen).
+ * `allgemein`: nur die allgemeine Anschrift der Verwaltung (Rathaus, Landratsamt).
+ */
 function kontaktEintrag(k) {
   const kontakt = {
     name: k.name, adresse: k.adresse ?? null, telefon: k.telefon ?? [], email: k.email ?? [], web: k.web ?? [],
     ...(k.quelle ? { quelle: k.quelle } : {}),
+    ...(k.allgemein ? { allgemein: true } : {}),
   };
   return { id: `c${ergebnisId(kontakt).slice(1)}`, kontakt };
 }
@@ -130,28 +134,36 @@ export function baueLaender(attr, opts = {}) {
   const dateien = {};
   const laender = [];
   const lkzs = [...proLand.keys()].sort();
+  // Quelle der Kontakte eines Landes: das Bundesportal oder eine eigene des Landes (`quelle`,
+  // `kurz`), etwa das Gemeindeverzeichnis der Landesdirektion Sachsen.
+  const kontaktQuelle = (bp) => bp.quelle ?? kontakte.meta.quelle;
   for (const lkz of lkzs) {
     const l = landAusKuerzel(lkz);
     const d = proLand.get(lkz);
     const sicherheit = { belegt: 0, vermutlich: 0, "nur Ebene": 0 };
     for (const e of Object.values(d.gemeinden)) sicherheit[d.ergebnisse[e.z.G].sicherheit] += 1;
     const datei = landesdatei(lkz);
-    // Kontakte (Bundesportal) nur in Ländern, für die es welche gibt. Den Link auf die Seite der
-    // Gemeinde bekommt jedes Land, das die Leistung im Portal führt (`meta.portal`).
+    // Kontakte nur in Ländern, für die es welche gibt. Den Link auf die Seite der Gemeinde im
+    // Bundesportal bekommt jedes Land, das die Leistung dort führt (`meta.portal`).
     const bp = kontakte?.meta?.laender?.[lkz];
     const region = kontakte?.meta?.portal?.[lkz] ?? bp?.region_url;
     const mitKontakt = Object.values(d.gemeinden).filter((e) => e.kontakt || e.kontakt_gemeinde).length;
+    // Gemeinden, für die es nur die allgemeine Anschrift der Verwaltung gibt.
+    const nurAllgemein = Object.values(d.gemeinden).filter((e) => {
+      const ks = [e.kontakt, e.kontakt_gemeinde].filter(Boolean).map((id) => d.kontakte[id]);
+      return ks.length > 0 && ks.every((k) => k.allgemein);
+    }).length;
     dateien[datei] = {
       schema: SCHEMA,
       land: lkz,
       name: l.name,
       regeln: REGELN,
-      daten: bp ? { ...meta.stand, kontakte: `Bundesportal ${datumDe(bp.abgerufen)}` } : meta.stand ?? null,
+      daten: bp ? { ...meta.stand, kontakte: `${bp.kurz ?? "Bundesportal"} ${datumDe(bp.abgerufen)}` } : meta.stand ?? null,
       erzeugt,
       hinweis: HINWEIS,
       bundesportal: BUNDESPORTAL,
       ...(region ? { bundesportal_region: region } : {}),
-      quellen: bp ? [...(meta.quellen ?? []), kontakte.meta.quelle] : meta.quellen ?? [],
+      quellen: bp ? [...(meta.quellen ?? []), kontaktQuelle(bp)] : meta.quellen ?? [],
       stellen: d.stellen,
       ergebnisse: d.ergebnisse,
       ...(bp ? { kontakte: d.kontakte } : {}),
@@ -161,9 +173,15 @@ export function baueLaender(attr, opts = {}) {
     laender.push({
       lkz, name: l.name, datei, gemeinden: Object.keys(d.gemeinden).length, sicherheit,
       ...(bp ? { kontakte: mitKontakt } : {}),
+      ...(nurAllgemein ? { allgemein: nurAllgemein } : {}),
     });
   }
-  const mitKontakten = Object.keys(kontakte?.meta?.laender ?? {}).length > 0;
+  // Jede Quelle von Kontakten einmal, in der Reihenfolge der Länder.
+  const kontaktQuellen = [];
+  for (const lkz of Object.keys(kontakte?.meta?.laender ?? {}).sort()) {
+    const q = kontaktQuelle(kontakte.meta.laender[lkz]);
+    if (!kontaktQuellen.some((x) => x.id === q.id)) kontaktQuellen.push(q);
+  }
   const index = {
     schema: SCHEMA,
     regeln: REGELN,
@@ -171,7 +189,7 @@ export function baueLaender(attr, opts = {}) {
     erzeugt,
     hinweis: HINWEIS,
     bundesportal: BUNDESPORTAL,
-    quellen: mitKontakten ? [...(meta.quellen ?? []), kontakte.meta.quelle] : meta.quellen ?? [],
+    quellen: [...(meta.quellen ?? []), ...kontaktQuellen],
     laender,
   };
   return { dateien, index, review };

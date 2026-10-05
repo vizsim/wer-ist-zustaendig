@@ -35,6 +35,19 @@ quellen:
     lizenz: "© Statistisches Bundesamt (Destatis); Vervielfältigung und Verbreitung mit Quellenangabe gestattet"
     vermerk: "Statistisches Bundesamt (Destatis), Gemeindeverzeichnis GV-ISys, Stand 31.10.2026"
 
+  # Optional, für die Kontakte in Sachsen (kein Bundesportal-Eintrag): Anschrift, Telefon, E-Mail
+  # und Webseite jeder Gemeinde- und Kreisverwaltung – das Rathaus bzw. Landratsamt, nicht die
+  # Straßenverkehrsbehörde. Ohne Download-Link: auf der Seite „Download csv-File" wählen, dann
+  # `zust fetch lds_sachsen --datei <pfad>`. `zust kontakte` liest die Datei mit (anschriften.py).
+  lds_sachsen:
+    label: "Gemeindeverzeichnis der Landesdirektion Sachsen: Anschriften der Gemeinde- und Kreisverwaltungen"
+    seite: "https://www.lds.sachsen.de/?ID=2392&art_param=155"
+    datei: "LDS_Gemeindeverzeichnis_Sachsen.csv"
+    kurz: "Landesdirektion Sachsen"
+    optional: true
+    lizenz: "Datenlizenz Deutschland – Namensnennung – Version 2.0"
+    vermerk: "Landesdirektion Sachsen, Gemeindeverzeichnis (https://www.lds.sachsen.de/?ID=2392&art_param=155), Datenlizenz Deutschland – Namensnennung – Version 2.0 (https://www.govdata.de/dl-de/by-2-0); Auszug, Daten geändert"
+
 # Dienste, die je Gemeinde abgefragt werden – nicht per `zust fetch`, sondern mit eigenem Schritt.
 # Bundesportal: Die Länder pflegen dort je Leistung und Gemeinde die zuständigen Stellen mit
 # Anschrift, Telefon und E-Mail. Die API ist nicht dokumentiert (abgelesen am Frontend des
