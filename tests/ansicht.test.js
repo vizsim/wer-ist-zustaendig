@@ -3,8 +3,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   antwortHtml, ARTEN, aufzaehlung, datenBasisAusParam, esc, farbAusdruck, flaechenDeckkraft, flaechenFarbe,
-  klassenAusdruck, klassenListe, SICHERHEIT_STIL, stelleOhneBehoerde, strassenAmPunkt, strassenName, teileName,
-  telHref, wegeHtml, willkommenHtml,
+  klassenAusdruck, klassenListe, KONTAKT_STIL, kontaktDeckkraft, kontaktFarbe, SICHERHEIT_STIL, stelleOhneBehoerde,
+  strassenAmPunkt, strassenName, teileName, telHref, wegeHtml, willkommenHtml,
 } from "../js/ansicht.js";
 import { TEXTE } from "../js/resolve.js";
 
@@ -284,4 +284,15 @@ test("aufzaehlung: Komma, vor dem letzten Namen „und“", () => {
   assert.equal(aufzaehlung(["Bayern"]), "Bayern");
   assert.equal(aufzaehlung(["Bayern", "Thüringen"]), "Bayern und Thüringen");
   assert.equal(aufzaehlung(["Bayern", "Brandenburg", "Thüringen"]), "Bayern, Brandenburg und Thüringen");
+});
+
+test("kontaktFarbe, kontaktDeckkraft: je Kontaktstatus; Kacheln ohne Feld wie „noch kein Kontakt“", () => {
+  assert.deepEqual(Object.keys(KONTAKT_STIL), ["k", "t", "p", "n"], "Werte des Felds ko (docs/VERTRAG.md)");
+  for (const [ko, st] of Object.entries(KONTAKT_STIL)) {
+    assert.equal(werte(kontaktFarbe(), { ko }), st.farbe, ko);
+    assert.equal(werte(kontaktDeckkraft(), { ko }), st.deckkraft, ko);
+  }
+  assert.equal(werte(kontaktFarbe(), {}), KONTAKT_STIL.n.farbe);
+  assert.equal(werte(kontaktDeckkraft(), { ko: "x" }), KONTAKT_STIL.n.deckkraft);
+  assert.equal(werte(kontaktFarbe(["get", "kk"]), { kk: "p" }), KONTAKT_STIL.p.farbe, "anderes Feld");
 });

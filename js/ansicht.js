@@ -43,6 +43,30 @@ export const SICHERHEIT_STIL = Object.freeze({
   },
 });
 
+/**
+ * Kontakt der zuständigen Stelle (Feld `ko` in den Kacheln) → Legende und Flächenfarbe, wenn die
+ * Karte nach Kontakten färbt: `k` für alle Straßenklassen, `t` für einen Teil, `p` nur der Link ins
+ * Bundesportal, `n` noch nichts. Grün für vorhanden, Verkehrsgelb für den Umweg übers Portal.
+ */
+export const KONTAKT_STIL = Object.freeze({
+  k: { label: "Kontakt für alle Straßen", farbe: "#2e7d4f", deckkraft: 0.45 },
+  t: { label: "Kontakt für einen Teil der Straßen", farbe: "#7fb35a", deckkraft: 0.42 },
+  p: { label: "Nur der Link ins Bundesportal", farbe: "#e0a100", deckkraft: 0.36 },
+  n: { label: "Noch kein Kontakt", farbe: "#9aa3a8", deckkraft: 0.16 },
+});
+
+/** MapLibre-Ausdruck → Flächenfarbe je Kontaktstatus; Kacheln ohne Feld wie „noch kein Kontakt". */
+export function kontaktFarbe(feld = ["get", "ko"]) {
+  const paare = Object.entries(KONTAKT_STIL).flatMap(([k, st]) => [k, st.farbe]);
+  return ["match", ["coalesce", feld, ""], ...paare, KONTAKT_STIL.n.farbe];
+}
+
+/** MapLibre-Ausdruck → Deckkraft je Kontaktstatus. */
+export function kontaktDeckkraft(feld = ["get", "ko"]) {
+  const paare = Object.entries(KONTAKT_STIL).flatMap(([k, st]) => [k, st.deckkraft]);
+  return ["match", ["coalesce", feld, ""], ...paare, KONTAKT_STIL.n.deckkraft];
+}
+
 export const STRASSEN_LEGENDE = Object.freeze([
   ["A", FARBE.blau],
   ["B", FARBE.gelb],

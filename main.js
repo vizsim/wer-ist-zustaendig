@@ -10,7 +10,8 @@ import { landAusArs, landAusKuerzel, landesdatei } from "./js/laender.js";
 import { auswahl, LANDESREGELN } from "./js/resolve.js";
 import {
   antwortHtml, ARTEN, aufzaehlung, datenBasisAusParam, esc, FARBE, farbAusdruck, flaechenDeckkraft, flaechenFarbe,
-  klassenAusdruck, klassenListe, SICHERHEIT_STIL, STRASSEN_LEGENDE, strassenAmPunkt, willkommenHtml,
+  klassenAusdruck, klassenListe, KONTAKT_STIL, kontaktDeckkraft, kontaktFarbe, SICHERHEIT_STIL, STRASSEN_LEGENDE,
+  strassenAmPunkt, willkommenHtml,
 } from "./js/ansicht.js";
 import { klassenName } from "./js/strassenklasse.js";
 
@@ -83,6 +84,17 @@ function baueLegende() {
     `<span><strong>${esc(st.label)}</strong>: ${esc(st.text)}</span></li>`).join("");
   $("#legende-strassen").innerHTML = STRASSEN_LEGENDE.map(([k, farbe]) =>
     `<li><span class="probe linie klasse-${k}" style="--f:${farbe}"></span>${esc(klassenName(k))}</li>`).join("");
+  $("#legende-kontakt").innerHTML = Object.values(KONTAKT_STIL).map((st) =>
+    `<li><span class="probe flaeche" style="--f:${st.farbe};--d:${st.deckkraft}"></span>${esc(st.label)}</li>`).join("");
+}
+
+// Färbung: nach Zuständigkeit (Standard) oder danach, ob es einen Kontakt gibt (#…&ansicht=kontakt).
+const KONTAKT_ANSICHT = "kontakt";
+const nachKontakt = () => new URLSearchParams(location.hash.slice(1)).get("ansicht") === KONTAKT_ANSICHT;
+
+function zeigeLegende(kontakt) {
+  for (const el of document.querySelectorAll("[data-ansicht]")) el.hidden = (el.dataset.ansicht === KONTAKT_ANSICHT) !== kontakt;
+  $("#nach-kontakt").checked = kontakt;
 }
 
 function willkommen(index, immer = false) {
@@ -153,12 +165,16 @@ function punktFreistellen(map, lngLat) {
   map.easeTo({ center: [lngLat.lng, lngLat.lat], offset: [0, ziel - mitte], duration: nurWenigBewegung ? 0 : 400 });
 }
 
-// Ausgewählter Punkt im Hash (#karte=z/lat/lon&p=lat,lon) – teilbar wie ein Permalink.
-function setzePunkt(lngLat) {
+// Zustand im Hash (#karte=z/lat/lon&p=lat,lon&ansicht=kontakt) – teilbar wie ein Permalink.
+function setzeHashParam(name, wert) {
   const h = new URLSearchParams(location.hash.slice(1));
-  if (lngLat) h.set("p", `${lngLat.lat.toFixed(5)},${lngLat.lng.toFixed(5)}`);
-  else h.delete("p");
+  if (wert) h.set(name, wert);
+  else h.delete(name);
   history.replaceState(null, "", `#${h.toString().replaceAll("%2F", "/").replaceAll("%2C", ",")}`);
+}
+
+function setzePunkt(lngLat) {
+  setzeHashParam("p", lngLat ? `${lngLat.lat.toFixed(5)},${lngLat.lng.toFixed(5)}` : null);
 }
 
 function punktAusHash() {
@@ -185,7 +201,34 @@ function schraffur(farbe) {
   return g.getImageData(0, 0, n, n);
 }
 
-function baueLayer(map, basis) {
+/** Farbe und Deckkraft der Flächen – nach Zuständigkeit oder nach Kontakt. */
+function flaechenStil(kontakt) {
+  // Unter Zoom 7 gibt es nur die Kreise: Sie tragen, was für die meisten ihrer Gemeinden gilt
+  // (`eg`, `sg`, `ko`); ältere Kacheln ohne diese Felder färben nach der Art des Kreises.
+  const kreisEg = ["coalesce", ["get", "eg"], ["get", "art"], "kreis"];
+  const deckkraft = kontakt ? kontaktDeckkraft() : flaechenDeckkraft();
+  return {
+    kreisFarbe: kontakt ? kontaktFarbe() : flaechenFarbe(kreisEg),
+    kreisDeckkraft: deckkraft,
+    gemeindeFarbe: kontakt ? kontaktFarbe() : flaechenFarbe(),
+    // Auf Straßenebene zurücknehmen, damit die Straßen vorne stehen.
+    gemeindeDeckkraft: ["interpolate", ["linear"], ["zoom"], 7, deckkraft, 14, ["*", deckkraft, 0.45]],
+    schraffur: kontakt ? "none" : "visible",
+  };
+}
+
+function setzeAnsicht(map, kontakt) {
+  const s = flaechenStil(kontakt);
+  map.setPaintProperty("kreise-flaeche", "fill-color", s.kreisFarbe);
+  map.setPaintProperty("kreise-flaeche", "fill-opacity", s.kreisDeckkraft);
+  map.setPaintProperty("gemeinden-flaeche", "fill-color", s.gemeindeFarbe);
+  map.setPaintProperty("gemeinden-flaeche", "fill-opacity", s.gemeindeDeckkraft);
+  for (const id of ["kreise-schraffur", "gemeinden-schraffur"]) map.setLayoutProperty(id, "visibility", s.schraffur);
+  zeigeLegende(kontakt);
+  setzeHashParam("ansicht", kontakt ? KONTAKT_ANSICHT : null);
+}
+
+function baueLayer(map, basis, kontakt) {
   const vor = map.getStyle().layers.find((l) => l.type === "symbol")?.id;
   for (const [art, a] of Object.entries(ARTEN)) map.addImage(`schraffur-${art}`, schraffur(a.farbe));
 
@@ -200,21 +243,18 @@ function baueLayer(map, basis) {
   });
   map.addSource("strassen-neben", { type: "vector", url: `pmtiles://${UNFALLKARTE}maxspeed_minor.pmtiles` });
 
-  // Unter Zoom 7 gibt es nur die Kreise: Sie tragen, was für die meisten ihrer Gemeinden gilt
-  // (`eg`, `sg`); ältere Kacheln ohne diese Felder färben nach der Art des Kreises.
-  const kreisEg = ["coalesce", ["get", "eg"], ["get", "art"], "kreis"];
+  const s = flaechenStil(kontakt);
   const layers = [
     { id: "kreise-flaeche", type: "fill", source: "zust", "source-layer": "kreise", maxzoom: 7,
-      paint: { "fill-color": flaechenFarbe(kreisEg), "fill-opacity": flaechenDeckkraft() } },
+      paint: { "fill-color": s.kreisFarbe, "fill-opacity": s.kreisDeckkraft } },
     { id: "kreise-schraffur", type: "fill", source: "zust", "source-layer": "kreise", maxzoom: 7,
-      filter: ["==", ["get", "sg"], "nur Ebene"],
-      paint: { "fill-pattern": ["concat", "schraffur-", kreisEg], "fill-opacity": 0.4 } },
+      filter: ["==", ["get", "sg"], "nur Ebene"], layout: { visibility: s.schraffur },
+      paint: { "fill-pattern": ["concat", "schraffur-", ["coalesce", ["get", "eg"], ["get", "art"], "kreis"]],
+        "fill-opacity": 0.4 } },
     { id: "gemeinden-flaeche", type: "fill", source: "zust", "source-layer": "gemeinden", minzoom: 7,
-      paint: { "fill-color": flaechenFarbe(),
-        // Auf Straßenebene zurücknehmen, damit die Straßen vorne stehen.
-        "fill-opacity": ["interpolate", ["linear"], ["zoom"], 7, flaechenDeckkraft(), 14, ["*", flaechenDeckkraft(), 0.45]] } },
+      paint: { "fill-color": s.gemeindeFarbe, "fill-opacity": s.gemeindeDeckkraft } },
     { id: "gemeinden-schraffur", type: "fill", source: "zust", "source-layer": "gemeinden", minzoom: 7,
-      filter: ["==", ["get", "sg"], "nur Ebene"],
+      filter: ["==", ["get", "sg"], "nur Ebene"], layout: { visibility: s.schraffur },
       paint: { "fill-pattern": ["concat", "schraffur-", ["coalesce", ["get", "eg"], "kreis"]],
         "fill-opacity": ["interpolate", ["linear"], ["zoom"], 7, 0.4, 12, 0.24, 15, 0.1] } },
     { id: "gemeinden-linie", type: "line", source: "zust", "source-layer": "gemeinden", minzoom: 9,
@@ -310,6 +350,7 @@ function sucheEinrichten(map, beiTreffer) {
 
 // ---------------------------------------------------------------------------- Start
 baueLegende();
+zeigeLegende(nachKontakt());
 if (matchMedia("(max-width: 760px)").matches) $("#legende").open = false;
 const { basis, index } = await datenBasis();
 zeigeStand(index);
@@ -341,7 +382,8 @@ const fliegeUndBestimme = (lngLat, zoom = 16) => {
 
 map.on("load", () => {
   if (!basis) return;
-  baueLayer(map, basis);
+  baueLayer(map, basis, nachKontakt());
+  $("#nach-kontakt").addEventListener("change", (e) => setzeAnsicht(map, e.target.checked));
   map.on("click", (e) => bestimme(map, basis, marker, e.lngLat));
   for (const id of ["gemeinden-flaeche", "kreise-flaeche"]) {
     map.on("mouseenter", id, () => { map.getCanvas().style.cursor = "pointer"; });

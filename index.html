@@ -34,14 +34,23 @@
 
     <details id="legende" open>
       <summary>Legende</summary>
-      <div class="legende-gruppe">
+      <label class="schalter">
+        <input id="nach-kontakt" type="checkbox" role="switch">
+        <span>Kontakt vorhanden</span>
+      </label>
+      <div class="legende-gruppe" data-ansicht="zustaendig">
         <h3>Zuständig für Gemeindestraßen</h3>
         <ul id="legende-arten"></ul>
         <p class="klein">Unter Zoomstufe 7 je Kreis: was für die meisten seiner Gemeinden gilt.</p>
       </div>
-      <div class="legende-gruppe">
+      <div class="legende-gruppe" data-ansicht="zustaendig">
         <h3>Wie sicher die Auskunft ist</h3>
         <ul id="legende-sicherheit"></ul>
+      </div>
+      <div class="legende-gruppe" data-ansicht="kontakt" hidden>
+        <h3>Kontakt der zuständigen Stelle</h3>
+        <ul id="legende-kontakt"></ul>
+        <p class="klein">Ein Teil der Straßen: etwa Kreisstraßen, aber nicht Gemeindestraßen. Unter Zoomstufe 7 je Kreis: was für die meisten seiner Gemeinden gilt.</p>
       </div>
       <div class="legende-gruppe">
         <h3>Straßenklasse</h3>
