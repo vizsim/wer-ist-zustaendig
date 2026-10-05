@@ -99,10 +99,20 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
   Südtondern, Nordsee-Treene, Geltinger Bucht) und 34 amtsfreie Gemeinden nennt das Portal keinen
   Kontakt des Amts bzw. der Gemeinde – die Alternative steht dort ohne Kontakt. Von den
   Webseiten der Ämter ergänzen.
-- [ ] **Die übrigen Bundesportal-Länder** (BB, MV, NW, RP, ST): abrufen (RP liegt im Cache, BB
-  zu einem Viertel), Review-CSV durchsehen, Auswahlregel nachschärfen und in `freigegeben`
-  aufnehmen. RP: Das Portal nennt meist die Verbandsgemeinde, die innerorts zuständig sein
-  kann – Regel dafür klären, bevor RP freigegeben wird.
+- [ ] **Mecklenburg-Vorpommern, Lücken:** 339 Gemeinden ohne Kontakt der zuständigen Stelle
+  (`node tools/check-kontakte.mjs MV --alle`): Für Schwerin und die Landkreise Rostock,
+  Nordwestmecklenburg und Ludwigslust-Parchim nennt das Portal keine Stelle, dazu fehlen Güstrow,
+  Waren (Müritz), Neustrelitz und Wismar. Greifswald: das Portal nennt die Abteilung
+  „Unterhaltung von Verkehrsanlagen" (Tiefbau) – prüfen. Von den Webseiten ergänzen.
+- [ ] **Kontakte in NW, BB und RP** (abgerufen 05.10.2026, nicht freigegeben): NW – für 236 von
+  396 Gemeinden nennt das Portal keine Stelle, auch nicht für die kreisfreien Städte; Stadt und
+  Kreis gleichen Namens verwechselt die Auswahl (Steinfurt: als Kontakt der Stadt die Kreisstelle;
+  Warendorf: die Stelle mit `@warendorf.de` gilt auch als Kreisstelle). BB – für 331 von 413
+  Gemeinden leere Antworten. RP – den Kontakt der eigenen Verbandsgemeinde gibt es für 62 % der
+  Gemeinden; das Portal nennt oft die Stellen anderer Verbandsgemeinden des Kreises; Fehlgriff
+  „Landesbetrieb Mobilität Trier" für die VG Trier-Land (Domain mit „trier"); die Kreisverwaltung
+  als Alternative meist ohne Kontakt. Auswahl nachschärfen (Domain-Teile wie `kreis-`,
+  Landesbetriebe ausschließen), von Hand ergänzen, dann freigeben. ST ist noch nicht abgerufen.
 - [ ] **Fehler im Portal melden** – Redaktion Thüringen: Landkreis Saalfeld-Rudolstadt (für alle
   Gemeinden nur das Ordnungsamt der VG „Schwarzatal"), Landkreis Hildburghausen (für alle
   Gemeinden die Stadtverwaltung Hildburghausen), Suhl (nur „Gewerbeangelegenheiten").

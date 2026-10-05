@@ -44,10 +44,16 @@ ein Git-Tag `v<version>` dazu.
   geschlossener Ortschaften; außerorts die Kreisverwaltung, in der Karte als Alternative.
   Kreisfreie und große kreisangehörige Städte für alle Straßen. Die Karte färbt RP als
   „Gemeindeverband".
+- Kontakte in Mecklenburg-Vorpommern aus dem Bundesportal: 385 von 724 Gemeinden. Für Schwerin und
+  die Landkreise Rostock, Nordwestmecklenburg und Ludwigslust-Parchim nennt das Portal keine Stelle.
+  In Nordrhein-Westfalen, Brandenburg und Rheinland-Pfalz bleiben die Kontakte vorerst aus: Das
+  Portal nennt dort kaum Stellen bzw. (RP) oft nicht die eigene Verbandsgemeinde.
 
 ### Geändert
 
-- Karte: Die Statuszeile zählt die Länder mit Landesregel als „A, B und C" auf, nach Namen sortiert.
+- Karte: Die Statuszeile zählt die Länder mit Landesregel als „A, B und C" auf, nach Namen sortiert;
+  das Willkommensfenster ebenso.
+- Karte: Die Legende nennt den Gemeindeverband (Verbandsgemeinde, Samtgemeinde).
 - Willkommensfenster: „Vermutlich" heißt jetzt „die Regel ist nicht für jede Gemeinde gesichert"
   statt „die Regel stammt aus einer Sekundärquelle" – in Niedersachsen liegt es an den
   unveröffentlichten Übertragungen, nicht an der Quelle.
