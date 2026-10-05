@@ -13,8 +13,18 @@ ein Git-Tag `v<version>` dazu.
   ordnet die Gemeinde Verkehrszeichen an – in einer Verwaltungsgemeinschaft die erfüllende Gemeinde,
   im Verwaltungsverband der Verband –, sonst das Landratsamt. Kreisfreie Städte und die 53 Großen
   Kreisstädte sind für alle Straßen zuständig; ist eine Große Kreisstadt erfüllende Gemeinde, auch für
-  die übrigen Gemeinden ihrer Verwaltungsgemeinschaft. Sachsen führt die Leistung nicht im
-  Bundesportal – Kontakte gibt es dort noch nicht.
+  die übrigen Gemeinden ihrer Verwaltungsgemeinschaft.
+- Kontakte in Sachsen für alle 418 Gemeinden und jede Straßenklasse aus dem Gemeindeverzeichnis
+  der Landesdirektion Sachsen (Datenlizenz Deutschland – Namensnennung 2.0). Sachsen führt die
+  Leistung nicht im Bundesportal; das Verzeichnis nennt die **allgemeine Anschrift** von Rathaus
+  bzw. Landratsamt, nicht die der Straßenverkehrsbehörde. Die Antwortkarte sagt das dazu: „bitte
+  nach der Straßenverkehrsbehörde fragen". In einer Verwaltungsgemeinschaft bzw. einem
+  Verwaltungsverband steht die Verwaltung an deren Sitz da. Bürgermeister und E-Mail-Adressen mit
+  Personennamen sind nicht übernommen.
+- Neues Feld `allgemein` an Kontakten: `true`, wenn der Kontakt nur die allgemeine Anschrift der
+  Verwaltung ist; in `index.json` je Land die Zahl solcher Gemeinden (`laender[].allgemein`). Die
+  Kontakte eines Landes können eine eigene Quelle haben – `daten.kontakte` und `quellen` nennen sie
+  („Landesdirektion Sachsen 05.10.2026").
 - Landesregel Sachsen-Anhalt (**vermutlich** – die Vorschrift ist nur aus einer Entscheidung des
   BVerwG und den Webseiten der Behörden bekannt): Gemeindestraßen bei der Gemeinde bzw.
   Verbandsgemeinde, außerhalb geschlossener Ortschaften der Landkreis als Alternative; Kreis-,
@@ -23,9 +33,10 @@ ein Git-Tag `v<version>` dazu.
   Bundesstraßen in sechs Landkreisen (123 von 218 Gemeinden); für Gemeindestraßen nennt das Portal
   die Gemeinde bzw. Verbandsgemeinde nur in 13 Fällen.
 - Karte: Schalter „Kontakt vorhanden" in der Legende. Er färbt die Gemeinden danach, ob es einen
-  Kontakt der zuständigen Stelle gibt – für alle Straßen, für einen Teil, nur den Link ins
-  Bundesportal oder noch nichts; unter Zoomstufe 7 je Kreis. Der Zustand steht im Link
-  (`ansicht=kontakt`). Dafür das neue Feld `ko` in beiden Layern der Grenzschicht.
+  Kontakt der zuständigen Stelle gibt – für alle Straßen, für einen Teil, nur die allgemeine
+  Anschrift der Verwaltung (blau, heute Sachsen), nur den Link ins Bundesportal oder noch nichts;
+  unter Zoomstufe 7 je Kreis. Der Zustand steht im Link (`ansicht=kontakt`). Dafür das neue Feld
+  `ko` in beiden Layern der Grenzschicht.
 
 ## [0.8.0] – 2026-10-05
 

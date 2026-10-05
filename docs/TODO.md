@@ -139,11 +139,15 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
   Kontaktweg oder nur mit persönlicher Adresse); Landkreis Wesermarsch (Tiefbau der Gemeinde
   Berne); Landkreis Gifhorn (nur die Zulassungsstelle). Danach die Einträge in
   `config/kontakte_ergaenzt.yaml` löschen.
-- [ ] **Länder ohne Bundesportal-Eintrag** (BW, BE, HB, HH, HE, SL, SN): Kontakte der rund 105
-  Stellen der Kreisebene und der Stadtstaaten anders beschaffen (Landesportale oder von Hand).
-  Sachsen: Vorschlag aus der Übergabe – Gemeindeverzeichnis der Landesdirektion (CSV, DL-DE BY
-  2.0) für alle 418 Gemeinden, allerdings Rathaus statt Verkehrsstelle (entscheiden, ob das
-  reicht; Bürgermeister nicht übernehmen); die 13 Landratsämter und Kreisfreien Städte von Hand.
+- [ ] **Länder ohne Bundesportal-Eintrag** (BW, BE, HB, HH, HE, SL): Kontakte der Stellen der
+  Kreisebene und der Stadtstaaten anders beschaffen (Landesportale oder von Hand).
+- [ ] **Sachsen, Verkehrsstellen** (seit 0.9.0 die allgemeine Anschrift aus dem Gemeindeverzeichnis
+  der Landesdirektion, `allgemein`): Die Straßenverkehrsämter der 10 Landratsämter und 3 Kreisfreien
+  Städte von deren Webseiten in `config/kontakte_ergaenzt.yaml` (Kreis-ARS) eintragen – sie gehen
+  dann vor. Für das Landratsamt Sächsische Schweiz-Osterzgebirge nennt das Verzeichnis als E-Mail
+  nur `landrat@`, der Kontakt hat deshalb keine. Verwaltungsverbände stehen nicht im Verzeichnis:
+  heute die Gemeinde am Sitz, beim Verwaltungsverband Eilenburg-West (Sitz in Eilenburg) die
+  Gemeinde selbst.
 
 ## Karte und Daten
 

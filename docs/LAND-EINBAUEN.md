@@ -109,6 +109,11 @@ Nur in Ländern, die die Leistung „Aufstellung von Verkehrszeichen anregen" im
 (BB, BY, MV, NI, NW, RP, SH, ST, TH). Abruf: eine Anfrage je Gemeinde, gedrosselt, mit Cache in
 `pipeline/data/raw/bundesportal/<LKZ>/` – ein abgebrochener Lauf setzt fort.
 
+Länder ohne Portal-Eintrag brauchen eine eigene Quelle. Sachsen nimmt die Anschriften der
+Verwaltungen aus dem Gemeindeverzeichnis der Landesdirektion (`anschriften.py`, „Kontakte in
+Sachsen" in `pipeline/README.md`). Das ist nur die allgemeine Anschrift, deshalb tragen die
+Kontakte `allgemein`, und die Karte sagt das dazu.
+
 ```bash
 cd pipeline && uv run zust kontakte --land NI     # rund 1 000 Gemeinden: 20–40 Minuten, im Hintergrund
 ```

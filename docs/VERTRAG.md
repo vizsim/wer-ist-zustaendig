@@ -53,7 +53,7 @@ für die Darstellung genügt das; nachgeschlagen wird in z12 mit voller Auflösu
 | | | `gen` | String | Gemeindename (VG25 `GEN`) |
 | | | `eg` | String | Art der Stelle für Gemeindestraßen: `kreis`, `stadt` (kreisfrei oder selbst zuständig), `gemeinde`, `verband` (Rheinland-Pfalz, selbständige Samtgemeinden in Niedersachsen), `stadtstaat` |
 | | | `sg` | String | Sicherheit dieser Stelle: `belegt`, `vermutlich`, `nur Ebene` |
-| | | `ko` | String | Kontakt der zuständigen Stelle: `k` für alle Straßenklassen (G, K, L, B), `t` für einen Teil, `p` für keine, aber Link ins Bundesportal, `n` nichts; seit Regeln 0.9.0 |
+| | | `ko` | String | Kontakt der zuständigen Stelle: `k` für alle Straßenklassen (G, K, L, B), `t` für einen Teil, `a` für keine, aber die allgemeine Anschrift der Verwaltung (Kontakte mit `allgemein`, heute Sachsen), `p` nichts davon, aber Link ins Bundesportal, `n` nichts; seit Regeln 0.9.0 |
 | `kreise` | 4–10 | `ars` | String (5) | Kreis (ARS-Präfix) |
 | | | `name` | String | voller Name nach `NBD` („Landkreis Freising", „Region Hannover") |
 | | | `art` | String | `kreis`, `stadt` (kreisfrei), `stadtstaat` |
@@ -100,6 +100,8 @@ eigene Kreise); die Landesdatei nennt dort die Stelle der angrenzenden Gemeinde,
 - `laender[].sicherheit` zählt Gemeinden nach der Sicherheit für Gemeindestraßen.
 - `laender[].kontakte` (optional): Zahl der Gemeinden mit Kontakt; nur bei Ländern, für die
   Kontakte abgerufen wurden (`zust kontakte`).
+- `laender[].allgemein` (optional, seit Regeln 0.9.0): Zahl der Gemeinden, deren Kontakte alle nur
+  die allgemeine Anschrift der Verwaltung sind (`allgemein`); fehlt, wenn es keine gibt.
 - `quellen[].vermerk` ist der Quellenvermerk, den Konsumenten anzeigen müssen.
 
 ## `<lkz>.json` – eine Datei je Land
@@ -113,9 +115,15 @@ TH), haben im Kopf `bundesportal_region`: den Link auf die Seite der Leistung f�
 `{ars}` wird ersetzt. Länder, deren Kontakte eingebunden sind (`zust kontakte`, `freigegeben` in
 `sources.yaml`), haben zusätzlich:
 
-- im Kopf `daten.kontakte` („Bundesportal 02.10.2026") und einen Eintrag in `quellen`;
+- im Kopf `daten.kontakte` mit Quelle und Abrufdatum („Bundesportal 02.10.2026") und einen Eintrag
+  in `quellen`;
 - eine fünfte Tabelle `kontakte` (siehe unten) und je Gemeinde die Felder `kontakt` und
   `kontakt_gemeinde`.
+
+Sachsen führt die Leistung nicht im Bundesportal. Seine Kontakte stammen aus dem
+Gemeindeverzeichnis der Landesdirektion Sachsen (`daten.kontakte`: „Landesdirektion Sachsen
+05.10.2026", Quelle `lds_sachsen` mit Datenlizenz Deutschland – Namensnennung 2.0) und sind nur
+die allgemeine Anschrift von Rathaus bzw. Landratsamt (`allgemein`).
 
 Beispiel: eine bayerische Gemeinde, gekürzt. Für Gemeindestraßen ist sie selbst zuständig, für
 die übrigen Klassen das Landratsamt. Die Kontaktangaben sind hier ausgelassen.
@@ -204,7 +212,8 @@ Konsumenten lesen sie nur als Verweis.
 | `name` | Name der Stelle laut Bundesportal, oft mit Fachbereich („Landratsamt Eichsfeld - Amt für Öffentliche Sicherheit und Ordnung"). Nennt eine Gemeinde dort nur einen allgemeinen Fachbereich (Bürgerbüro, Standesamt), steht nur ihr Name da |
 | `adresse` | Hausanschrift oder `null` |
 | `telefon`, `email`, `web` | Listen, können leer sein. Nummern und Postfächer für den Straßenverkehr stehen vorn, Zulassung und Fahrerlaubnis hinten. Nur Funktionspostfächer, keine Adressen mit Personennamen |
-| `quelle` | optional: Herkunft, wenn der Kontakt nicht aus dem Bundesportal stammt („Webseite der Behörde, Stand 03.10.2026") |
+| `quelle` | optional: Herkunft, wenn der Kontakt nicht aus der Quelle des Landes (`daten.kontakte`) stammt („Webseite der Behörde, Stand 03.10.2026") |
+| `allgemein` | optional, seit Regeln 0.9.0: `true`, wenn der Kontakt nur die allgemeine Anschrift der Verwaltung ist (Rathaus, Landratsamt), nicht die der Straßenverkehrsbehörde. Konsumenten sagen das dazu – die Karte: „bitte nach der Straßenverkehrsbehörde fragen". Name ist dann der der Behörde („Gemeinde Amtsberg", „Landratsamt Erzgebirgskreis"); in einer Verwaltungsgemeinschaft bzw. einem Verwaltungsverband die Gemeinde am Sitz der Verwaltung |
 
 Die Id ist `c` + FNV-1a über das JSON des Kontakts, gültig nur innerhalb der Landesdatei. Welcher
 Kontakt zu welcher Stelle gehört, ordnet `auswahl` zu (siehe unten). Der Name des Kontakts nennt
