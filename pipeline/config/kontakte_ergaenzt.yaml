@@ -277,8 +277,6 @@ kontakte:
 
   # Berlin (kein Bundesportal): Senat und Bezirksämter. Abgeschrieben vom Service-Portal Berlin
   # und den Seiten der Bezirksämter; vor der Freigabe im Browser gegenlesen (Übergabe Berlin).
-  # Charlottenburg-Wilmersdorf fehlt noch: Die Seite der Straßenverkehrsbehörde war nicht
-  # erreichbar, das Service-Portal nennt keine.
   "11000":  # Senatsverwaltung – zentrale Straßenverkehrsbehörde für das übergeordnete Netz
     name: "Senatsverwaltung für Mobilität, Verkehr, Klimaschutz und Umwelt"
     adresse: "Am Köllnischen Park 3, 10179 Berlin"
@@ -313,6 +311,15 @@ kontakte:
     telefon: ["(030) 90295-0"]  # Zentrale
     email: ["svb@ba-pankow.berlin.de"]
     web: ["https://service.berlin.de/dienstleistung/325649/standort/326497/"]
+    stand: "2026-10-05"
+
+  "110000000004":
+    rolle: gemeinde
+    name: "Bezirksamt Charlottenburg-Wilmersdorf - Straßen- und Grünflächenamt, Straßenverkehrsbehörde"
+    adresse: "Goslarer Ufer 39, 10589 Berlin"  # Zugang nur über Klingelanlage, Vorsprache nach Termin
+    telefon: []  # auf der Seite nur persönliche Durchwahlen
+    email: ["svb@charlottenburg-wilmersdorf.de"]
+    web: ["https://www.berlin.de/ba-charlottenburg-wilmersdorf/verwaltung/aemter/strassen-und-gruenflaechen/strassen-und-gruenflaechenverwaltung/artikel.1104768.php"]
     stand: "2026-10-05"
 
   "110000000005":
