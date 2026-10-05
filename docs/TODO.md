@@ -148,19 +148,18 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
   Kontaktweg oder nur mit persönlicher Adresse); Landkreis Wesermarsch (Tiefbau der Gemeinde
   Berne); Landkreis Gifhorn (nur die Zulassungsstelle). Danach die Einträge in
   `config/kontakte_ergaenzt.yaml` löschen.
-- [ ] **Länder ohne Bundesportal-Eintrag** (BW, BE, HB, HH, HE, SL): Kontakte der Stellen der
-  Kreisebene und der Stadtstaaten anders beschaffen (Landesportale oder von Hand). In Hessen und im
-  Saarland ist jede Gemeinde für ihre Gemeindestraßen zuständig, also braucht es ein Verzeichnis
-  aller 421 bzw. 52 Gemeinden mit Anschrift wie in Sachsen (`anschriften.py`). Für Hessen in Frage:
-  das Gemeindeverzeichnis auf statistikportal.de und das Hessische Gemeindelexikon
-  (hessen-gemeindelexikon.de); das Verwaltungsportal Hessen sperrt den Abruf.
-- [ ] **Sachsen, Verkehrsstellen** (seit 0.9.0 die allgemeine Anschrift aus dem Gemeindeverzeichnis
-  der Landesdirektion, `allgemein`): Die Straßenverkehrsämter der 10 Landratsämter und 3 Kreisfreien
-  Städte von deren Webseiten in `config/kontakte_ergaenzt.yaml` (Kreis-ARS) eintragen – sie gehen
-  dann vor. Für das Landratsamt Sächsische Schweiz-Osterzgebirge nennt das Verzeichnis als E-Mail
-  nur `landrat@`, der Kontakt hat deshalb keine. Verwaltungsverbände stehen nicht im Verzeichnis:
-  heute die Gemeinde am Sitz, beim Verwaltungsverband Eilenburg-West (Sitz in Eilenburg) die
-  Gemeinde selbst.
+- [ ] **Länder ohne Bundesportal-Eintrag** (BW, BE, HB, HH): Kontakte der Stellen der Kreisebene
+  und der Stadtstaaten anders beschaffen (Landesportale oder von Hand).
+- [ ] **Verkehrsstellen statt allgemeiner Anschrift** (Sachsen seit 0.9.0, Hessen und Saarland
+  seit 0.10.0, `allgemein`): Die Straßenverkehrsämter der Kreisebene – in Sachsen 10 Landratsämter
+  und 3 Kreisfreie Städte, in Hessen 21 Landkreise und 5 kreisfreie Städte, im Saarland 5 Landkreise
+  und der Regionalverband – von deren Webseiten in `config/kontakte_ergaenzt.yaml` (Kreis-ARS)
+  eintragen; sie gehen dann vor. Sachsen: Für das Landratsamt Sächsische Schweiz-Osterzgebirge nennt
+  das Verzeichnis als E-Mail nur `landrat@`, der Kontakt hat deshalb keine; Verwaltungsverbände stehen
+  nicht im Verzeichnis – heute die Gemeinde am Sitz, beim Verwaltungsverband Eilenburg-West (Sitz in
+  Eilenburg) die Gemeinde selbst. Hessen und Saarland: Das Anschriftenverzeichnis hat kein Telefon
+  und keine Webseite; für Wiesbaden, Langen, Heusenstamm, Zwingenberg und Kirtorf nennt es nur
+  `presse@`, `webmaster@` bzw. die Marketinggesellschaft, dort steht nur die Anschrift.
 
 ## Karte und Daten
 

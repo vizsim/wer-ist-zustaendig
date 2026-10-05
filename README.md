@@ -42,7 +42,7 @@ Es gibt zwei Wege zu den Daten:
 | Alle übrigen Gemeinden | **nur Ebene**: Kreis (Landratsamt, Kreisverwaltung); Große Kreisstädte als Alternative |
 | Berlin, Hamburg | **nur Ebene**: Bezirksamt bzw. Senatsverwaltung; zuständiges Polizeikommissariat |
 | Autobahnen | Fernstraßen-Bundesamt, kein Brief an die Kommune |
-| **Kontakt** (Telefon, E-Mail, Webseite) | **Thüringen, Bayern und Schleswig-Holstein: jede Gemeinde, jede Straßenklasse** – der Kontakt genau der Stelle, die zuständig ist, aus dem Bundesportal; einzelne Lücken von den Webseiten der Behörden. **Niedersachsen:** 865 von 964 Gemeinden; es fehlen vor allem selbständige Städte und der Landkreis Hildesheim (dort der Link ins Portal). **Mecklenburg-Vorpommern:** 385 von 724 Gemeinden; für Schwerin und die Landkreise Rostock, Nordwestmecklenburg und Ludwigslust-Parchim nennt das Portal keine Stelle. **Sachsen-Anhalt:** der Landkreis für Kreis-, Landes- und Bundesstraßen in sechs Landkreisen (123 von 218 Gemeinden), für Gemeindestraßen kaum. Übrige Länder im Bundesportal (BB, NW, RP): Link auf die Seite der Gemeinde dort – für BB und NW nennt das Portal kaum Stellen, für RP oft nicht die eigene Verbandsgemeinde. **Sachsen:** jede Gemeinde, jede Straßenklasse, aber nur die **allgemeine Anschrift** von Rathaus bzw. Landratsamt aus dem Gemeindeverzeichnis der Landesdirektion – die Auskunft sagt das dazu. Übrige Länder ohne Bundesportal-Eintrag (BW, BE, HB, HH, HE, SL): noch keine Kontakte |
+| **Kontakt** (Telefon, E-Mail, Webseite) | **Thüringen, Bayern und Schleswig-Holstein: jede Gemeinde, jede Straßenklasse** – der Kontakt genau der Stelle, die zuständig ist, aus dem Bundesportal; einzelne Lücken von den Webseiten der Behörden. **Niedersachsen:** 865 von 964 Gemeinden; es fehlen vor allem selbständige Städte und der Landkreis Hildesheim (dort der Link ins Portal). **Mecklenburg-Vorpommern:** 385 von 724 Gemeinden; für Schwerin und die Landkreise Rostock, Nordwestmecklenburg und Ludwigslust-Parchim nennt das Portal keine Stelle. **Sachsen-Anhalt:** der Landkreis für Kreis-, Landes- und Bundesstraßen in sechs Landkreisen (123 von 218 Gemeinden), für Gemeindestraßen kaum. Übrige Länder im Bundesportal (BB, NW, RP): Link auf die Seite der Gemeinde dort – für BB und NW nennt das Portal kaum Stellen, für RP oft nicht die eigene Verbandsgemeinde. **Sachsen:** jede Gemeinde, jede Straßenklasse, aber nur die **allgemeine Anschrift** von Rathaus bzw. Landratsamt aus dem Gemeindeverzeichnis der Landesdirektion – die Auskunft sagt das dazu. **Hessen und Saarland:** jede Gemeinde, jede Straßenklasse, die **allgemeine Anschrift** von Rathaus bzw. Kreisverwaltung mit E-Mail aus dem Anschriftenverzeichnis der Statistischen Ämter, ohne Telefon. Übrige Länder ohne Bundesportal-Eintrag (BW, BE, HB, HH): noch keine Kontakte |
 
 Die Regeln der übrigen Länder folgen (siehe [docs/TODO.md](docs/TODO.md)): erst die voll
 belegten Länder (BW), dann die Stadtstaaten, dann der Rest. Bis dahin zeigt die Karte
@@ -55,7 +55,7 @@ sobald die Daten aus dem Bundesportal durchgesehen sind.
 BKG VG25 (Grenzen, ARS, Namen)   ─┐
 Destatis GV-ISys (Status, EW)    ─┴─ zust tabelle ──→ gemeinden_attr.json ─┐
 Bundesportal (Stellen, Kontakte) ─┬─ zust kontakte ─→ kontakte.json ───────┴─ zust laender ─→ <land>.json (16×), index.json
-LDS Sachsen (Anschriften)        ─┘                                            (js/resolve.js)          │
+Verzeichnisse (Anschriften)      ─┘                                            (js/resolve.js)          │
                                                      VG25-Flächen + Landesdateien ─ zust grenzen ─→ gemeinden.pmtiles
                                                                                                         ↓
                                                      Karte (index.html) · Unfallkarte · tools/lookup.mjs
@@ -72,9 +72,10 @@ LDS Sachsen (Anschriften)        ─┘                                         
   Stelle mit Telefon und E-Mail. `zust kontakte` holt sie ab und wählt je Gemeinde zwei Kontakte:
   die Kreisebene und die Gemeinde selbst (Verkehr vor Ordnung, keine Personen). Lücken füllt es
   mit dem Kreiskontakt oder von Hand (`pipeline/config/kontakte_ergaenzt.yaml`, mit Quelle und
-  Datum). Die Auskunft zeigt den Kontakt der Stelle, die für die Straße zuständig ist. Sachsen
-  steht nicht im Portal; dort kommen die allgemeinen Anschriften der Verwaltungen aus dem
-  Gemeindeverzeichnis der Landesdirektion, als solche gekennzeichnet (`allgemein`).
+  Datum). Die Auskunft zeigt den Kontakt der Stelle, die für die Straße zuständig ist. Sachsen,
+  Hessen und das Saarland stehen nicht im Portal; dort kommen die allgemeinen Anschriften der
+  Verwaltungen aus dem Gemeindeverzeichnis der Landesdirektion Sachsen bzw. dem
+  Anschriftenverzeichnis der Statistischen Ämter, als solche gekennzeichnet (`allgemein`).
 - **Vorberechnet:** Die Regeln laufen im Build einmal über alle Gemeinden. Heraus kommt eine
   Tabelle, die man lesen, stichprobenartig prüfen und freigeben kann; jede Änderung steht im
   Diff. Im Browser bleibt nur das Nachschlagen.
@@ -105,6 +106,7 @@ node tools/lookup.mjs 48.4005 11.7448 G     # Punkt (lat lon) und Straßenklasse
 | Große Kreisstädte, Einwohnerzahlen | [Destatis, Gemeindeverzeichnis GV-ISys](https://www.destatis.de/DE/Themen/Laender-Regionen/Regionales/Gemeindeverzeichnis/_inhalt.html), Jahresausgabe 31.12.2025 | Statistisches Bundesamt (Destatis); Vervielfältigung und Verbreitung mit Quellenangabe gestattet |
 | Kontakte der Behörden (TH, BY, SH, NI, MV, ST) | [Bundesportal](https://verwaltung.bund.de/leistungsverzeichnis/de/leistung/99108014042000), Leistung „Aufstellung von Verkehrszeichen anregen“, Angaben der Länder; Ergänzungen von den Webseiten der Behörden | amtliche Kontaktangaben, nur Funktionspostfächer; Quelle und Abrufdatum in jeder Auskunft |
 | Anschriften der Gemeinde- und Kreisverwaltungen in Sachsen | [Landesdirektion Sachsen, Gemeindeverzeichnis](https://www.lds.sachsen.de/?ID=2392&art_param=155) (CSV), abgerufen 05.10.2026 | [Datenlizenz Deutschland – Namensnennung – Version 2.0](https://www.govdata.de/dl-de/by-2-0) · Landesdirektion Sachsen, Gemeindeverzeichnis; Auszug (Anschrift, Telefon, E-Mail, Webseite), Daten geändert: nur Funktionspostfächer, ohne Bürgermeister |
+| Anschriften der Gemeinde- und Kreisverwaltungen in Hessen und im Saarland | [Statistische Ämter des Bundes und der Länder, Anschriften der Gemeinde- und Stadtverwaltungen](https://www.statistikportal.de/de/veroeffentlichungen/anschriftenverzeichnis), Stand 31.01.2026 | © Statistisches Bundesamt (Destatis), 2026, im Auftrag der Statistischen Ämter des Bundes und der Länder; Vervielfältigung und Verbreitung, auch auszugsweise, mit Quellenangabe gestattet. Auszug: Anschrift und E-Mail, nur Funktionspostfächer |
 | Straßen in der Karte | Kacheln der [Unfallkarte](https://github.com/vizsim/unfallkarte) aus OpenStreetMap | © OpenStreetMap-Mitwirkende (ODbL) |
 | Hintergrundkarte | [OpenFreeMap](https://openfreemap.org) Positron | © OpenMapTiles, © OpenStreetMap-Mitwirkende |
 | Ortssuche | [Photon](https://photon.komoot.io) (komoot) | © OpenStreetMap-Mitwirkende |

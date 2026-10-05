@@ -53,7 +53,7 @@ für die Darstellung genügt das; nachgeschlagen wird in z12 mit voller Auflösu
 | | | `gen` | String | Gemeindename (VG25 `GEN`) |
 | | | `eg` | String | Art der Stelle für Gemeindestraßen: `kreis`, `stadt` (kreisfrei oder selbst zuständig), `gemeinde`, `verband` (Rheinland-Pfalz, selbständige Samtgemeinden in Niedersachsen), `stadtstaat` |
 | | | `sg` | String | Sicherheit dieser Stelle: `belegt`, `vermutlich`, `nur Ebene` |
-| | | `ko` | String | Kontakt der zuständigen Stelle: `k` für alle Straßenklassen (G, K, L, B), `t` für einen Teil, `a` für keine, aber die allgemeine Anschrift der Verwaltung (Kontakte mit `allgemein`, heute Sachsen), `p` nichts davon, aber Link ins Bundesportal, `n` nichts; seit Regeln 0.9.0 |
+| | | `ko` | String | Kontakt der zuständigen Stelle: `k` für alle Straßenklassen (G, K, L, B), `t` für einen Teil, `a` für keine, aber die allgemeine Anschrift der Verwaltung (Kontakte mit `allgemein`, heute Hessen, Saarland und Sachsen), `p` nichts davon, aber Link ins Bundesportal, `n` nichts; seit Regeln 0.9.0 |
 | `kreise` | 4–10 | `ars` | String (5) | Kreis (ARS-Präfix) |
 | | | `name` | String | voller Name nach `NBD` („Landkreis Freising", „Region Hannover") |
 | | | `art` | String | `kreis`, `stadt` (kreisfrei), `stadtstaat` |
@@ -115,15 +115,17 @@ TH), haben im Kopf `bundesportal_region`: den Link auf die Seite der Leistung f�
 `{ars}` wird ersetzt. Länder, deren Kontakte eingebunden sind (`zust kontakte`, `freigegeben` in
 `sources.yaml`), haben zusätzlich:
 
-- im Kopf `daten.kontakte` mit Quelle und Abrufdatum („Bundesportal 02.10.2026") und einen Eintrag
-  in `quellen`;
+- im Kopf `daten.kontakte` mit Quelle und Datum – Abruf bzw. Stand des Verzeichnisses
+  („Bundesportal 02.10.2026") – und einen Eintrag in `quellen`;
 - eine fünfte Tabelle `kontakte` (siehe unten) und je Gemeinde die Felder `kontakt` und
   `kontakt_gemeinde`.
 
-Sachsen führt die Leistung nicht im Bundesportal. Seine Kontakte stammen aus dem
-Gemeindeverzeichnis der Landesdirektion Sachsen (`daten.kontakte`: „Landesdirektion Sachsen
-05.10.2026", Quelle `lds_sachsen` mit Datenlizenz Deutschland – Namensnennung 2.0) und sind nur
-die allgemeine Anschrift von Rathaus bzw. Landratsamt (`allgemein`).
+Sachsen, Hessen und das Saarland führen die Leistung nicht im Bundesportal. Ihre Kontakte sind nur
+die allgemeine Anschrift von Rathaus bzw. Landratsamt (`allgemein`): in Sachsen aus dem
+Gemeindeverzeichnis der Landesdirektion (`daten.kontakte`: „Landesdirektion Sachsen 05.10.2026",
+Quelle `lds_sachsen`, Datenlizenz Deutschland – Namensnennung 2.0), in Hessen und im Saarland aus
+dem Anschriftenverzeichnis der Statistischen Ämter („Anschriftenverzeichnis der Statistischen Ämter
+31.01.2026", Quelle `anschriften`) – dort nur Anschrift und E-Mail.
 
 Beispiel: eine bayerische Gemeinde, gekürzt. Für Gemeindestraßen ist sie selbst zuständig, für
 die übrigen Klassen das Landratsamt. Die Kontaktangaben sind hier ausgelassen.

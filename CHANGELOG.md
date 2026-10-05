@@ -17,10 +17,17 @@ ein Git-Tag `v<version>` dazu.
   Gemeindegebiet hinaus wirkt, und an Landesstraßen für Ampeln und Fußgängerüberwege. Gemeinden bis
   10 % unter 7.500 Einwohnern können nach § 10a noch zuständig sein (**vermutlich**, mit der
   Gemeinde als Alternative). Auf Autobahnen und 14 Abschnitten von Bundesstraßen ordnet Hessen
-  Mobil an – das steht nur im Text. Kontakte gibt es für Hessen noch nicht.
+  Mobil an – das steht nur im Text.
 - Landesregel Saarland (**belegt**, §§ 7 und 12 Straßenverkehrszuständigkeitsgesetz): Auf
   Gemeindestraßen ordnet die Gemeinde an, sonst der Landkreis bzw. der Regionalverband Saarbrücken;
-  die Landeshauptstadt Saarbrücken ist für alle Straßen zuständig. Kontakte gibt es noch nicht.
+  die Landeshauptstadt Saarbrücken ist für alle Straßen zuständig.
+- Kontakte in Hessen und im Saarland für jede Gemeinde und jede Straßenklasse aus dem
+  Anschriftenverzeichnis der Statistischen Ämter des Bundes und der Länder (Stand 31.01.2026): die
+  **allgemeine Anschrift** von Rathaus bzw. Kreisverwaltung mit E-Mail, ohne Telefon und Webseite –
+  mit demselben Hinweis wie in Sachsen. Postfächer wie `presse@` oder `webmaster@` sind nicht
+  übernommen; dann steht nur die Anschrift da (fünf Gemeinden, darunter Wiesbaden).
+- Antwortkarte: Hat ein Kontakt nur eine Anschrift, steht nicht mehr „Kontaktdaten haben wir noch
+  nicht" darunter.
 - Regeln 0.10.0 – Landesregeln für zwölf Länder.
 
 ## [0.9.0] – 2026-10-05

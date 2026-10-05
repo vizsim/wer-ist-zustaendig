@@ -26,7 +26,7 @@ uv run zust alles         # alles in einem Lauf
 |---|---|---|
 | `zust fetch [id] [--force]` | Quellen aus `config/sources.yaml` laden, ZIPs entpacken; daneben `<datei>.meta.json` mit URL, Größe, SHA-256 und Abrufdatum. Mit `--datei <pfad>` eine von Hand geladene Datei übernehmen (Abrufdatum: Änderungszeit der Datei) | `data/raw/<id>/` |
 | `zust tabelle` | VG25 + GV-ISys verknüpfen und prüfen | `data/interim/gemeinden_attr.json`, `data/review/tabelle-bericht.json` |
-| `zust kontakte [--land TH] [--nur-cache]` | optional: Kontakt der zuständigen Stelle je Gemeinde aus dem Bundesportal (eine Anfrage je Gemeinde, gedrosselt, mit Cache); für Sachsen die allgemeinen Anschriften aus `lds_sachsen` | `data/interim/kontakte.json`, `data/review/kontakte-review.csv` |
+| `zust kontakte [--land TH] [--nur-cache]` | optional: Kontakt der zuständigen Stelle je Gemeinde aus dem Bundesportal (eine Anfrage je Gemeinde, gedrosselt, mit Cache); für Sachsen, Hessen und das Saarland die allgemeinen Anschriften aus `lds_sachsen` und `anschriften` | `data/interim/kontakte.json`, `data/review/kontakte-review.csv` |
 | `zust laender` | Regeln über alle Gemeinden (Node), mit Kontakten, falls vorhanden; Größen je Datei | `data/zustaendigkeit/<lkz>.json`, `index.json`, `data/review/zustaendigkeit-review.csv` |
 | `zust grenzen [--dry-run]` | VG25-Flächen → FlatGeobuf → tippecanoe → tile-join; meldet die Größe, warnt über 100 MB | `data/zustaendigkeit/gemeinden.pmtiles` |
 | `zust manifest` | Manifest mit Label, Quellenvermerk, Datenstand und Größe | `data/manifest.json` |
@@ -79,28 +79,33 @@ weitere Länder dürfen schon im Cache liegen. Den Link auf die Seite der Gemein
 (`bundesportal_region`) bekommt jedes Land aus der Länderliste der Leistung (`meta.portal` in
 `kontakte.json`); Länder, die die Leistung nicht im Portal führen, bekommen keinen.
 
-### Kontakte in Sachsen (Landesdirektion)
+### Kontakte aus Verzeichnissen (Sachsen, Hessen, Saarland)
 
-Sachsen führt die Leistung nicht im Bundesportal. Dafür nennt das Gemeindeverzeichnis der
-Landesdirektion Sachsen (Quelle `lds_sachsen`) Anschrift, Telefon, E-Mail und Webseite jeder
-Gemeinde- und Kreisverwaltung. Die CSV gibt es nur über den Knopf „Download csv-File" auf der
-Seite; übernehmen mit:
+Sachsen, Hessen und das Saarland führen die Leistung nicht im Bundesportal. Für sie nimmt
+`zust kontakte` die Anschriften der Gemeinde- und Kreisverwaltungen aus zwei Verzeichnissen
+(`anschriften.py`), wenn deren Dateien unter `data/raw/` liegen:
+
+- **Sachsen:** das Gemeindeverzeichnis der Landesdirektion (Quelle `lds_sachsen`) mit Anschrift,
+  Telefon, E-Mail und Webseite. Die CSV gibt es nur über den Knopf „Download csv-File" auf der
+  Seite; übernehmen mit `uv run zust fetch lds_sachsen --datei ~/Downloads/LDS_Gemeindeverzeichnis_Sachsen.csv`.
+- **Hessen und Saarland** (`laender` der Quelle `anschriften`): das Anschriftenverzeichnis der
+  Statistischen Ämter für ganz Deutschland, nur mit Anschrift und E-Mail; `uv run zust fetch
+  anschriften` lädt es (xlsx, gelesen über GDAL). Zuordnung über den ARS; fehlt er (eine Stadt wurde
+  nach dem Stichtag der Gemeindetabelle umgeschlüsselt, etwa Hanau), über den Namen.
 
 ```bash
-uv run zust fetch lds_sachsen --datei ~/Downloads/LDS_Gemeindeverzeichnis_Sachsen.csv
 uv run zust kontakte --nur-cache && uv run zust laender && uv run zust grenzen
 ```
 
-Liegt die Datei unter `data/raw/lds_sachsen/`, nimmt `zust kontakte` sie mit (`anschriften.py`):
-Kreisebene ist das Landratsamt (Zeile mit Kreisschlüssel) bzw. die kreisfreie Stadt, die Gemeinde
-ihr Rathaus – in einer Verwaltungsgemeinschaft bzw. einem Verwaltungsverband die Gemeinde am Sitz
-der Verwaltung, wenn sie dazugehört. Das ist die **allgemeine Anschrift**, nicht die der
-Straßenverkehrsbehörde: Die Kontakte tragen `allgemein`, die Karte sagt das dazu. Die Spalten
-zum Bürgermeister und Fax bleiben weg; E-Mail-Adressen nur als Funktionspostfach oder mit dem
-Namen der Gemeinde („koenigswalde@", „gv-jonsdorf@"). Einträge von Hand
-(`config/kontakte_ergaenzt.yaml`) gehen vor – so lässt sich ein Landratsamt durch seine
-Verkehrsstelle ersetzen. Abrufdatum und Quellenvermerk (Datenlizenz Deutschland – Namensnennung
-2.0) gehen in die Landesdatei.
+Kreisebene ist das Landratsamt bzw. die Kreisverwaltung (Zeile mit Kreisschlüssel) oder die
+kreisfreie Stadt, die Gemeinde ihr Rathaus – in einer Verwaltungsgemeinschaft bzw. einem
+Verwaltungsverband die Gemeinde am Sitz der Verwaltung, wenn sie dazugehört. Das ist die
+**allgemeine Anschrift**, nicht die der Straßenverkehrsbehörde: Die Kontakte tragen `allgemein`, die
+Karte sagt das dazu. Bürgermeister und Fax bleiben weg; E-Mail-Adressen nur als Funktionspostfach
+oder mit dem Namen der Gemeinde („koenigswalde@", „gv-jonsdorf@"), nicht `presse@` oder
+`webmaster@`. Einträge von Hand (`config/kontakte_ergaenzt.yaml`) gehen vor – so lässt sich ein
+Landratsamt durch seine Verkehrsstelle ersetzen. Datum (Abruf bzw. Stand des Verzeichnisses) und
+Quellenvermerk gehen in die Landesdatei.
 
 ## Ordner
 
@@ -146,7 +151,9 @@ selbst geht mit jedem grünen CI-Lauf auf `main` nach GitHub Pages.
   Datenstand aufgelöst, umgeschlüsselt oder umbenannt wurden. Destatis veröffentlicht sie vor dem
   Stichtag (die Ausgabe 31.10.2026 erschien am 28.09.2026).
 - **Gemeindeverzeichnis Sachsen** (`lds_sachsen`, optional): ohne Download-Link, von Hand laden
-  (siehe „Kontakte in Sachsen"). Einmal im Jahr neu laden, mit den übrigen Quellen.
+  (siehe „Kontakte aus Verzeichnissen"). Einmal im Jahr neu laden, mit den übrigen Quellen.
+- **Anschriftenverzeichnis** (`anschriften`, optional): erscheint jährlich zum Stichtag 31.01.,
+  die URL ändert sich mit jeder Ausgabe. Dann `url` und `stand` in `sources.yaml` anpassen.
 - Sind BKG oder Destatis nicht erreichbar, `zust fetch` auf einem anderen Rechner laufen lassen
   oder die Dateien von Hand übernehmen (`zust fetch <id> --datei <pfad>`); die übrigen Schritte
   lesen nur von `data/raw/<id>/`.
