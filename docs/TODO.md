@@ -35,10 +35,25 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
   eine neuere Liste der selbständigen Gemeinden als die vom 01.01.2022. Alfeld, Seesen,
   Holzminden und Bad Pyrmont haben weniger als 20.001 Einwohner – ein Entzug des Status ist nicht
   bekannt.
-- [ ] **Weitere belegte Länder:** SN (Gemeinde nur bei Gemeindestraßen), NW (Liste nach
-  § 4 GO NRW), BB (13 namentliche Kommunen, abgestuft), BW (Landratsamt, GKS, Stadtkreise,
-  Verwaltungsgemeinschaften; Offenes als Alternative). Je Land 5–10 Golden-Tests mit echten
-  ARS; Review-CSV durchsehen.
+- [ ] **Aachen klären** (Regel seit 0.8.0 nur „vermutlich"): Die Stadt ordnet laut ihrem
+  Serviceportal Verkehrszeichen selbst an, die Städteregion nennt sich Straßenverkehrsbehörde
+  nur für Monschau, Roetgen und Simmerath – Anlage 2 Nr. 25 des Aachen-Gesetzes überträgt aber
+  die Trägerschaft der Straßenverkehrsbehörde ohne Ausnahme auf die Städteregion. Bei Stadt oder
+  Städteregion nachfragen.
+- [ ] **Rheinland-Pfalz belegen:** die Landesverordnung über Zuständigkeiten auf dem Gebiet des
+  Straßenverkehrsrechts (BS 923-3) an landesrecht.rlp.de lesen, heute nur aus lexsoft (Fassung
+  08.12.2020); offen sind die 29. und 31. Änderung (GVBl. 2025 S. 63, 2026 S. 86). Anlage 1 in
+  `RP_ANLAGE_1` eintragen und klären, wer bei Bundesstraßen außerorts zuständig ist. Danach
+  „belegt" statt „vermutlich" und `[S]` aus den Fundstellen.
+- [ ] **Mecklenburg-Vorpommern:** was § 68 Abs. 2 FKrG den Ämtern und amtsfreien Gemeinden im
+  Straßenverkehr überträgt (heute: keine Alternative); die konsolidierte Fassung der StVZustLVO
+  M-V an landesrecht-mv.de gegenlesen (Änderungen nach 2021 nicht vollständig gesucht).
+- [ ] **Brandenburg, § 4a Abs. 2 StGÜZV:** Veranstaltungen und Baustellen gelten nicht, wenn eine
+  Anordnung mehrere Gemeinden betrifft – im Amt Schlieben also nicht für amtsweite Anordnungen;
+  die Alternative bildet das nicht ab.
+- [ ] **Weitere belegte Länder:** SN (Gemeinde nur bei Gemeindestraßen), BW (Landratsamt, GKS,
+  Stadtkreise, Verwaltungsgemeinschaften; Offenes als Alternative). Je Land 5–10 Golden-Tests
+  mit echten ARS; Review-CSV durchsehen.
 - [ ] **Große Kreisstädte in Sachsen** (abgestimmt 2026-10-02): GV-ISys führt sie als 63
   (Stadt), nicht 67; VG25 kennzeichnet sie nicht. Liste der rund 53 GKS mit ARS aus der
   Primärquelle als Konfiguration anlegen, dann `pruefungen.yaml` (SN, heute 0) anpassen. Bis
@@ -48,11 +63,14 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
   nach dem Grenzvertrag prüfen.
 - [ ] **Stadtstaaten:** Berlin (Netz-WFS: Straßen des übergeordneten Netzes,
   Bezirksgrenzen), Hamburg (Polizeikommissariate als Flächen).
-- [ ] **Übrige Länder:** HE, MV; danach RP (Verbandsgemeinde über ARS-Stellen 6–9,
-  innerorts/außerorts), SL, ST.
+- [ ] **Übrige Länder:** HE, SL, ST.
 - [ ] **Fundstellen nachprüfen:** Berlin (Katalogwortlaut nur sekundär), Hamburg (Titel und
   Fassung der Zuständigkeitsanordnung). Die Texte in `js/resolve.js` sagen das bisher offen.
 - [ ] **Aufsicht:** höhere Straßenverkehrsbehörde je Land mit Fundstelle; Feld `aufsicht`.
+  Gefunden: NW die Bezirksregierungen (§ 6 ZustVO Straßenverkehr); NI das Verkehrsministerium
+  über Landkreise, Region und Städte, der Landkreis über die übrigen Gemeinden (§ 171 Abs. 5
+  NKomVG). Die Listen der Länder (§ 4 GO NRW, StGÜZV, selbständige Gemeinden in NI) gehören in
+  die jährliche Rechtsdurchsicht.
 - [ ] **Validierung:** etwa 10 Gemeinden je Land, geschichtet; juristische Durchsicht der Regeln
   und der Review-CSV; danach Version 1.0.
 

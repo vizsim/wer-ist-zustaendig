@@ -3,7 +3,7 @@
 Dieses Dokument ist die Schnittstelle zwischen „Wer ist zuständig?" und allen, die die Dateien
 nutzen – zuerst die Karte in diesem Repo, dann die Unfallkarte.
 
-Stand: **Schema 1** · Regeln 0.8.0 (Phase 2: Landesregeln für Bayern, Thüringen, Schleswig-Holstein und Niedersachsen) · Datenstand 31.12.2025
+Stand: **Schema 1** · Regeln 0.8.0 (Phase 2: Landesregeln für Bayern, Brandenburg, Mecklenburg-Vorpommern, Niedersachsen, Nordrhein-Westfalen, Rheinland-Pfalz, Schleswig-Holstein und Thüringen) · Datenstand 31.12.2025
 
 ## Regeln für alle Dateien
 
@@ -51,7 +51,7 @@ für die Darstellung genügt das; nachgeschlagen wird in z12 mit voller Auflösu
 |---|---|---|---|---|
 | `gemeinden` | 7–12 | `ars` | String (12) | Amtlicher Regionalschlüssel |
 | | | `gen` | String | Gemeindename (VG25 `GEN`) |
-| | | `eg` | String | Art der Stelle für Gemeindestraßen: `kreis`, `stadt` (kreisfrei oder selbst zuständig), `gemeinde`, `stadtstaat`; später `verband` |
+| | | `eg` | String | Art der Stelle für Gemeindestraßen: `kreis`, `stadt` (kreisfrei oder selbst zuständig), `gemeinde`, `verband` (Rheinland-Pfalz, selbständige Samtgemeinden in Niedersachsen), `stadtstaat` |
 | | | `sg` | String | Sicherheit dieser Stelle: `belegt`, `vermutlich`, `nur Ebene` |
 | `kreise` | 4–10 | `ars` | String (5) | Kreis (ARS-Präfix) |
 | | | `name` | String | voller Name nach `NBD` („Landkreis Freising", „Region Hannover") |
@@ -162,8 +162,8 @@ die übrigen Klassen das Landratsamt. Die Kontaktangaben sind hier ausgelassen.
 |---|---|
 | `fba` | Fernstraßen-Bundesamt (Autobahnen); in jeder Landesdatei |
 | `k` + Kreis-ARS (5) | Kreisebene bzw. kreisfreie Stadt, z. B. `k09178`, `k09162` |
-| `g` + ARS (12) | eine Gemeinde: Große Kreisstadt, Stadt mit eigener Straßenverkehrsbehörde, in Bayern jede kreisangehörige Gemeinde für ihre Gemeindestraßen, in Niedersachsen selbständige Städte und Gemeinden sowie Gemeinden, denen die Gemeindestraßen übertragen sind |
-| `v` + Verbands-ARS (9) | ein Verband: in Schleswig-Holstein das Amt (Halten und Parken, Baustellen, Veranstaltungen); in Niedersachsen die Samtgemeinde – als `untere`, wenn sie selbständige Gemeinde ist, sonst als `oertliche` für Gemeindestraßen |
+| `g` + ARS (12) | eine Gemeinde: Große Kreisstadt, Stadt mit eigener Straßenverkehrsbehörde (in Nordrhein-Westfalen die Mittleren und Großen kreisangehörigen Städte, in Niedersachsen die selbständigen Städte und Gemeinden), in Bayern jede kreisangehörige Gemeinde für ihre Gemeindestraßen, in Niedersachsen Gemeinden, denen die Gemeindestraßen übertragen sind, in Rheinland-Pfalz die verbandsfreie Gemeinde |
+| `v` + Verbands-ARS (9) | ein Verband: in Schleswig-Holstein das Amt (Halten und Parken, Baustellen, Veranstaltungen); in Brandenburg das Amt Schlieben (§ 4a Abs. 2 StGÜZV, `untere`); in Niedersachsen die Samtgemeinde – als `untere`, wenn sie selbständige Gemeinde ist, sonst als `oertliche` für Gemeindestraßen; in Rheinland-Pfalz die Verbandsgemeinde (`oertliche`) |
 | `hb-asv`, `hb-bhv` | Bremen: Amt für Straßen und Verkehr; Magistrat Bremerhaven |
 | `be-bezirk`, `be-senat` | Berlin: Bezirksamt; Senatsverwaltung (übergeordnetes Netz) |
 | `hh-pk` | Hamburg: Polizei, zuständiges Polizeikommissariat |
@@ -173,7 +173,7 @@ die übrigen Klassen das Landratsamt. Die Kontaktangaben sind hier ausgelassen.
 | Feld | Inhalt |
 |---|---|
 | `stelle` | Id in `stellen` |
-| `sicherheit` | `belegt` (Primärquelle, getestete Regel; heute BY und HB) · `vermutlich` (Regel aus Sekundärquelle wie in TH, Eingabe unsicher – oder das Land nennt im Bundesportal dieselbe Stelle) · `nur Ebene` (Land noch offen) |
+| `sicherheit` | `belegt` (Primärquelle, getestete Regel; heute BB, BY, HB, MV, NI, NW und SH) · `vermutlich` (Regel aus Sekundärquelle wie in TH und RP, Eingabe unsicher – oder das Land nennt im Bundesportal dieselbe Stelle) · `nur Ebene` (Land noch offen) |
 | `grund` | ein Satz für Popup und Report |
 | `quelle` | Fundstelle mit Fassung; beim Rückfall auf die Kreisebene der Hinweis darauf |
 | `alternative` | `null` oder `{ stelle, bedingung }`; `bedingung` ist ein Satzteil („falls nur die Gemeindestraße betroffen ist") |

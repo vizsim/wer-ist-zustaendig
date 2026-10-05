@@ -15,11 +15,11 @@ Es gibt zwei Wege zu den Daten:
   Grenzschicht als PMTiles und eine JSON-Datei je Land. Der Vertrag steht in
   [docs/VERTRAG.md](docs/VERTRAG.md).
 
-> **Testversion, kein Rechtsrat.** Erst drei Länder haben eine eigene Regel (siehe „Stand").
+> **Testversion, kein Rechtsrat.** Acht Länder haben eine eigene Regel (siehe „Stand").
 > Jede Auskunft ist eine begründete Vermutung mit Quelle. Vor einem Antrag oder einer Anregung
 > bitte prüfen, ob die genannte Stelle wirklich zuständig ist.
 
-## Stand: Phase 2 – Bayern, Thüringen, Schleswig-Holstein, Niedersachsen
+## Stand: Phase 2 – Landesregeln für acht Länder
 
 | Was | Stand |
 |---|---|
@@ -28,6 +28,10 @@ Es gibt zwei Wege zu den Daten:
 | **Thüringen** | **vermutlich**: Städte über 30.000 Einwohner und Eisenach für alle Straßen; Städte, die auf Antrag Straßenverkehrsbehörde sind (Apolda, Arnstadt, Eisenberg, Heilbad Heiligenstadt), für alle außer Bundesstraßen; sonst der Landkreis, bei Gemeinden mit 10.000 bis 30.000 Einwohnern die Gemeinde als Alternative |
 | **Schleswig-Holstein** | **belegt**: der Kreis bzw. die kreisfreie Stadt; Gemeinden über 20.000 Einwohner und Glinde selbst. Halten und Parken, Baustellen und Veranstaltungen: das Amt bzw. die amtsfreie Gemeinde (als Alternative). Knapp unter oder über 20.000 Einwohnern nur **vermutlich** |
 | **Niedersachsen** | **belegt**: der Landkreis bzw. die Region Hannover; kreisfreie Städte, Hannover, Göttingen, die großen selbständigen Städte und die selbständigen Gemeinden (auch drei Samtgemeinden) für alle Straßen. Gemeindestraßen sonst nur **vermutlich** beim Landkreis – er kann sie auf Antrag übertragen, ein Verzeichnis fehlt: bekannte Fälle als Gemeinde bzw. Samtgemeinde, sonst Samtgemeinde oder Gemeinde über 10.000 Einwohner als Alternative |
+| **Nordrhein-Westfalen** | **belegt**: der Kreis bzw. die kreisfreie Stadt; die 167 Mittleren und Großen kreisangehörigen Städte (Liste nach § 4 GO NRW) für alle Straßen selbst. Aachen selbst, nur **vermutlich** |
+| **Brandenburg** | **belegt**: der Landkreis bzw. die kreisfreie Stadt; Eberswalde, Eisenhüttenstadt, Schwedt/Oder, Guben, Prenzlau, Teltow und Werder (Havel) selbst. Halten und Parken, Baustellen, Veranstaltungen: in Wittenberge, Kyritz, Finsterwalde, Luckau, Kleinmachnow und im Amt Schlieben die Kommune (als Alternative) |
+| **Mecklenburg-Vorpommern** | **belegt**: der Landkreis bzw. die kreisfreie Stadt; Greifswald, Neubrandenburg, Stralsund, Wismar und Städte über 20.000 Einwohner selbst, nach der Übergangsregel auch Neustrelitz, Waren (Müritz) und Parchim |
+| **Rheinland-Pfalz** | **vermutlich**: die Verbandsgemeinde bzw. verbandsfreie Gemeinde – auf Gemeindestraßen überall, sonst innerhalb geschlossener Ortschaften; außerorts die Kreisverwaltung (als Alternative). Kreisfreie und große kreisangehörige Städte für alle Straßen |
 | Bremen (Amt für Straßen und Verkehr, Bremerhaven: Magistrat) | **belegt** |
 | Kreisfreie Städte der übrigen Länder | **vermutlich**: die Stadt |
 | Alle übrigen Gemeinden | **nur Ebene**: Kreis (Landratsamt, Kreisverwaltung); Große Kreisstädte als Alternative |
@@ -36,7 +40,7 @@ Es gibt zwei Wege zu den Daten:
 | **Kontakt** (Telefon, E-Mail, Webseite) | **Thüringen, Bayern und Schleswig-Holstein: jede Gemeinde, jede Straßenklasse** – der Kontakt genau der Stelle, die zuständig ist, aus dem Bundesportal; einzelne Lücken von den Webseiten der Behörden. **Niedersachsen:** 865 von 964 Gemeinden; es fehlen vor allem selbständige Städte und der Landkreis Hildesheim (dort der Link ins Portal). Übrige Länder im Bundesportal (BB, MV, NW, RP, ST): Link auf die Seite der Gemeinde dort. Länder ohne Bundesportal-Eintrag (BW, BE, HB, HH, HE, SL, SN): noch keine Kontakte |
 
 Die Regeln der übrigen Länder folgen (siehe [docs/TODO.md](docs/TODO.md)): erst die voll
-belegten Länder (BW, BB, NW, SN), dann die Stadtstaaten, dann der Rest. Bis dahin zeigt die Karte
+belegten Länder (BW, SN), dann die Stadtstaaten, dann der Rest. Bis dahin zeigt die Karte
 für die meisten Gemeinden ehrlich nur die Kreisebene – schraffiert. Kontakte folgen Land für Land,
 sobald die Daten aus dem Bundesportal durchgesehen sind.
 
@@ -97,7 +101,7 @@ node tools/lookup.mjs 48.4005 11.7448 G     # Punkt (lat lon) und Straßenklasse
 | Hintergrundkarte | [OpenFreeMap](https://openfreemap.org) Positron | © OpenMapTiles, © OpenStreetMap-Mitwirkende |
 | Ortssuche | [Photon](https://photon.komoot.io) (komoot) | © OpenStreetMap-Mitwirkende |
 | Schrift | [Barlow](https://github.com/jpt/barlow), selbst gehostet | SIL Open Font License 1.1 ([assets/fonts/OFL.txt](assets/fonts/OFL.txt)) |
-| Rechtsgrundlagen | Fundstellen je Auskunft; Bayern aus [BAYERN.RECHT](https://www.gesetze-bayern.de) (ZustGVerk, GrKrV, AufVGem, VGemO), Schleswig-Holstein aus [Gesetze-Rechtsprechung Schleswig-Holstein](https://www.gesetze-rechtsprechung.sh.juris.de) (StrVRZustVO), Niedersachsen aus [NI-VORIS](https://voris.wolterskluwer-online.de) (ZustVO-Verkehr, NKomVG) und dem Niedersächsischen Ministerialblatt (selbständige Gemeinden); Fernstraßen-Bundesamt nach § 45 Abs. 11 StVO | – |
+| Rechtsgrundlagen | Fundstellen je Auskunft; Bayern aus [BAYERN.RECHT](https://www.gesetze-bayern.de) (ZustGVerk, GrKrV, AufVGem, VGemO), Schleswig-Holstein aus [Gesetze-Rechtsprechung Schleswig-Holstein](https://www.gesetze-rechtsprechung.sh.juris.de) (StrVRZustVO), Niedersachsen aus [NI-VORIS](https://voris.wolterskluwer-online.de) (ZustVO-Verkehr, NKomVG) und dem Niedersächsischen Ministerialblatt (selbständige Gemeinden), Nordrhein-Westfalen aus [RECHT.NRW.DE](https://recht.nrw.de), Brandenburg aus [BRAVORS](https://bravors.brandenburg.de), Mecklenburg-Vorpommern aus dem Gesetz- und Verordnungsblatt M-V, Rheinland-Pfalz vorerst aus einer Sekundärquelle; Fernstraßen-Bundesamt nach § 45 Abs. 11 StVO | – |
 | Favicon | [Fax-Symbol](https://www.svgrepo.com/svg/299100/fax) von SVG Repo | CC0 |
 
 Code: AGPL-3.0-or-later.

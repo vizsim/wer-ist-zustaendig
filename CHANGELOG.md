@@ -22,9 +22,32 @@ ein Git-Tag `v<version>` dazu.
   Webseiten der Behörden. 865 von 964 Gemeinden haben den Kontakt der zuständigen Stelle; es fehlen
   vor allem viele selbständige Städte (das Portal nennt dort den Landkreis oder nichts) und der
   Landkreis Hildesheim – dort führt die Karte ins Bundesportal.
+- Landesregel Nordrhein-Westfalen (**belegt**): Straßenverkehrsbehörde ist der Kreis bzw. die
+  kreisfreie Stadt (§ 5 der Zuständigkeitsverordnung Straßenverkehr, Fassung vom 07.11.2025).
+  Mittlere und Große kreisangehörige Städte ordnen Verkehrszeichen für alle Straßen selbst an
+  (§ 10) – 167 Städte nach der Verordnung zu § 4 GO NRW, Fassung vom 01.01.2025. Die Stadt Aachen
+  ordnet ebenfalls selbst an, nur **vermutlich**: Das Aachen-Gesetz überträgt die Trägerschaft der
+  Straßenverkehrsbehörde auf die Städteregion (Anlage 2 Nr. 25).
+- Landesregel Brandenburg (**belegt**, StGÜZV, zuletzt geändert 23.08.2024): der Landkreis bzw. die
+  kreisfreie Stadt; Eberswalde, Eisenhüttenstadt und Schwedt/Oder (§ 4 Abs. 4) sowie auf Antrag
+  Guben, Prenzlau, Teltow und Werder (Havel) (§ 4a Abs. 1) für alle Straßen selbst. Wittenberge,
+  Kyritz, Finsterwalde, Luckau, Kleinmachnow und das Amt Schlieben ordnen Halten und Parken,
+  Baustellen, Veranstaltungen und den Schutz von Gemeindestraßen selbst an (§ 4a Abs. 2) – in der
+  Karte als Alternative.
+- Landesregel Mecklenburg-Vorpommern (**belegt**, StVZustLVO M-V vom 12.08.2021): der Landkreis bzw.
+  die kreisfreie Stadt; die großen kreisangehörigen Städte Greifswald, Neubrandenburg, Stralsund und
+  Wismar sowie Städte mit mehr als 20.000 Einwohnern ordnen Verkehrszeichen selbst an. Nach der
+  Übergangsregel bleiben auch Neustrelitz, Waren (Müritz) und Parchim zuständig.
+- Landesregel Rheinland-Pfalz (**vermutlich** – der Wortlaut ist nur aus einer Sekundärquelle
+  gelesen, Anlage 1 fehlt): Verkehrszeichen ordnet die Verbandsgemeinde bzw. die verbandsfreie
+  Gemeinde an, auf Gemeindestraßen überall, auf Bundes-, Landes- und Kreisstraßen innerhalb
+  geschlossener Ortschaften; außerorts die Kreisverwaltung, in der Karte als Alternative.
+  Kreisfreie und große kreisangehörige Städte für alle Straßen. Die Karte färbt RP als
+  „Gemeindeverband".
 
 ### Geändert
 
+- Karte: Die Statuszeile zählt die Länder mit Landesregel als „A, B und C" auf, nach Namen sortiert.
 - Willkommensfenster: „Vermutlich" heißt jetzt „die Regel ist nicht für jede Gemeinde gesichert"
   statt „die Regel stammt aus einer Sekundärquelle" – in Niedersachsen liegt es an den
   unveröffentlichten Übertragungen, nicht an der Quelle.

@@ -1,7 +1,6 @@
 # Ein Land einbauen
 
-So sind Bayern, Thüringen, Schleswig-Holstein und Niedersachsen in die Karte gekommen – als
-Ablauf für das nächste Land. Grundregeln stehen in [CLAUDE.md](../CLAUDE.md), der Vertrag
+So sind die Länder mit eigener Regel in die Karte gekommen – als Ablauf für das nächste Land. Grundregeln stehen in [CLAUDE.md](../CLAUDE.md), der Vertrag
 mit den Konsumenten in [VERTRAG.md](VERTRAG.md).
 
 **Fertig ist ein Land, wenn**
@@ -21,6 +20,10 @@ mit den Konsumenten in [VERTRAG.md](VERTRAG.md).
 | TH | Thüringer Zuständigkeitsverordnung Straßenverkehrsrecht vom 13.02.2007, Stand 20.05.2026 – nur bei umwelt-online, also Sekundärquelle `[S]`; das Landesportal lädt nur mit JavaScript und ließ sich nicht rendern | über 30.000 Einwohner und Eisenach: alles; Städte auf Antrag (§ 2 Abs. 7: 10.000–30.000 Einwohner, erkannt am Portal-Urteil `stvb` oder an `TH_STAEDTE_AUF_ANTRAG`): alles außer Bundesstraßen; sonst der Landkreis, Gemeinden mit 10.000–30.000 Einwohnern als Alternative | vermutlich |
 | SH | StrVRZustVO §§ 3–5 und Anlage, Fassung 01.12.2025 – [gesetze-rechtsprechung.sh.juris.de](https://www.gesetze-rechtsprechung.sh.juris.de), im Browser gerendert | Kreis bzw. kreisfreie Stadt; über 20.000 Einwohner und Glinde (Anlage, `SH_AUF_ANTRAG`): die Gemeinde; Amt bzw. amtsfreie Gemeinde als Alternative für Halten und Parken, Baustellen, Veranstaltungen (neue Stellen-Id `v` + Amts-ARS) | belegt; ± 1.000 um 20.000 Einwohner vermutlich |
 | NI | ZustVO-Verkehr § 2, Fassung 30.06.2025; NKomVG §§ 14–18, 159 – [NI-VORIS](https://voris.wolterskluwer-online.de), gerendert; Liste der selbständigen Gemeinden: Nds. MBl. 2021 S. 1690 (PDF) | Landkreis bzw. Region Hannover; kreisfreie Städte, Hannover, Göttingen (`NI_WIE_KREISFREI`), große selbständige Städte und selbständige Gemeinden, auch drei Samtgemeinden (`NI_SELBSTAENDIG`, nach Liste – keine Schwelle): alles; Gemeindestraßen auf Antrag übertragbar, ohne Verzeichnis: bekannte Fälle (`NI_GEMEINDESTRASSEN`, `[S]`) die Gemeinde bzw. Samtgemeinde, sonst der Landkreis mit Samtgemeinde oder Gemeinde über 10.000 Einwohner als Alternative; Burgdorf per Vereinbarung bei der Region (`NI_VEREINBARUNG`) | belegt; Gemeindestraßen außerhalb der selbständigen Gemeinden vermutlich |
+| NW | ZustVO Straßenverkehr §§ 5, 10, Fassung 07.11.2025; Verordnung nach § 4 GO NRW, Fassung 01.01.2025 – [recht.nrw.de](https://recht.nrw.de) | Kreis bzw. kreisfreie Stadt; 35 Große und 132 Mittlere kreisangehörige Städte (`NW_…`, nach Liste – keine Schwelle): alles; Aachen selbst | belegt; Aachen vermutlich (Aachen-Gesetz, Anlage 2 Nr. 25) |
+| BB | StGÜZV §§ 4, 4a, zuletzt geändert 23.08.2024 – [BRAVORS](https://bravors.brandenburg.de) | Landkreis bzw. kreisfreie Stadt; 3 Große kreisangehörige Städte und 4 Städte auf Antrag: alles; 6 Kommunen, darunter das Amt Schlieben (`v`, `untere`), nur Halten und Parken, Baustellen, Veranstaltungen – als Alternative | belegt |
+| MV | StVZustLVO M-V vom 12.08.2021 – GVOBl. M-V (PDF) | Landkreis bzw. kreisfreie Stadt; 4 große kreisangehörige Städte; Städte über 20.000 Einwohner; Übergangsregel als Liste (`MV_STAEDTE_UEBERGANG`) | belegt; bis 1.000 über 20.000 vermutlich |
+| RP | Landesverordnung BS 923-3 – nur lexsoft `[S]`, landesrecht.rlp.de war nicht erreichbar | Verbandsgemeinde bzw. verbandsfreie Gemeinde: Gemeindestraßen, sonst innerorts; außerorts die Kreisverwaltung als Alternative; kreisfreie und 8 große kreisangehörige Städte: alles | vermutlich |
 
 ## 1. Rechtsgrundlage finden und lesen
 
