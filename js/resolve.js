@@ -62,6 +62,9 @@ export const TEXTE = Object.freeze({
     thStadt:
       "In Thüringen sind Städte mit über 30.000 Einwohnern und große kreisangehörige Städte selbst " +
       "Straßenverkehrsbehörde – für alle Straßen außer Autobahnen.",
+    thEisenach:
+      "Eisenach ist seit der Eingliederung in den Wartburgkreis 2021 Große Kreisstadt und weiter für alle Straßen " +
+      "außer Autobahnen Straßenverkehrsbehörde.",
     thAntrag: "Diese Stadt ist in Thüringen auf Antrag Straßenverkehrsbehörde – für alle Straßen außer Bundesstraßen.",
     thBundesstrasse:
       "Für Bundesstraßen bleibt in Thüringen der Landkreis zuständig, auch wo die Stadt sonst " +
@@ -221,7 +224,6 @@ export const TEXTE = Object.freeze({
     berlinNetz: "falls die Straße zum übergeordneten Straßennetz gehört",
     berlinNebenstrasse: "falls die Straße nicht zum übergeordneten Straßennetz gehört oder es um Halten und Parken geht",
     portalStvb: "laut Bundesportal ist die Gemeinde selbst Straßenverkehrsbehörde",
-    thAntragMoeglich: "Gemeinde mit 10.000 bis 30.000 Einwohnern – sie kann auf Antrag selbst zuständig sein",
     shParken: "falls es nur um Halten und Parken, eine Baustelle oder eine Veranstaltung geht",
     niUebertragungMoeglich: "falls ihr die Aufgabe für Gemeindestraßen übertragen ist",
     bbTeil: "falls es nur um Halten und Parken, eine Baustelle oder eine Veranstaltung geht",
@@ -286,17 +288,26 @@ export const TEXTE = Object.freeze({
     byUnter: "Art. 2 Abs. 1 Nr. 2 ZustGVerk (Bayern), Fassung vom 17.12.2024",
     byGks: "§ 2 Nr. 2 GrKrV (Bayern), Fassung ab 01.03.2025",
     thStadt:
-      "§ 2 Abs. 3 Satz 1 Nr. 2 Buchst. a–c der Thüringer Verordnung über Zuständigkeiten auf dem " +
-      "Gebiet des Straßenverkehrsrechts vom 13.02.2007, zuletzt geändert 20.05.2026 [S]; " +
+      "§ 2 Abs. 3 Satz 1 Nr. 2 der Thüringer Verordnung zur Übertragung von Ermächtigungen und über Zuständigkeiten " +
+      "auf dem Gebiet des Straßenverkehrsrechts vom 13.02.2007 (GVBl. S. 11), gelesen in der Fassung von 2007; " +
       "Einwohner laut GV-ISys 31.12.2025",
+    thGks:
+      "Thüringer Verordnungen zur Übertragung von Aufgaben des Landratsamts auf kreisangehörige Gemeinden vom " +
+      "17.05.1994 (GVBl. S. 546) und 26.09.1994 (GVBl. S. 1070); Große kreisangehörige Städte laut Landesregierung, " +
+      "Drs. 6/2088 (2016); § 2 Abs. 3 Satz 1 Nr. 2 der Thüringer Verordnung zur Übertragung von Ermächtigungen und " +
+      "über Zuständigkeiten auf dem Gebiet des Straßenverkehrsrechts vom 13.02.2007 (GVBl. S. 11)",
+    thEisenach:
+      "Art. 1 § 3 Abs. 2 Nr. 1 Buchst. b des Gesetzes zur freiwilligen Neugliederung des Landkreises Wartburgkreis " +
+      "und der kreisfreien Stadt Eisenach vom 16.10.2019 (GVBl. S. 429); Große Kreisstadt nach § 6 Abs. 3a ThürKO",
     thAntrag:
-      "§ 2 Abs. 3 Satz 1 Nr. 2 Buchst. d und Abs. 7 der Thüringer Verordnung über Zuständigkeiten " +
-      "auf dem Gebiet des Straßenverkehrsrechts [S]; Stadt als Straßenverkehrsbehörde laut " +
-      "Bundesportal bzw. Webseite",
+      "§ 1 der Thüringer Verordnung zur Bestimmung der Zuständigkeit von Gemeinden als Straßenverkehrsbehörde vom " +
+      "01.12.2006 (GVBl. S. 558), geändert 09.09.2022 (GVBl. S. 419); Bundesstraßen: § 2 Abs. 3 Satz 1 Nr. 2 der " +
+      "Thüringer Verordnung zur Übertragung von Ermächtigungen und über Zuständigkeiten auf dem Gebiet des " +
+      "Straßenverkehrsrechts vom 13.02.2007 (GVBl. S. 11), gelesen in der Fassung von 2007",
     thLandkreis:
-      "§ 2 Abs. 3 Satz 1 Nr. 2 Buchst. e der Thüringer Verordnung über Zuständigkeiten auf dem " +
-      "Gebiet des Straßenverkehrsrechts vom 13.02.2007, zuletzt geändert 20.05.2026 [S]; " +
-      "Gemeinden auf Antrag: Abs. 7; Einwohner laut GV-ISys 31.12.2025",
+      "§ 2 Abs. 3 Satz 1 Nr. 2 der Thüringer Verordnung zur Übertragung von Ermächtigungen und über Zuständigkeiten " +
+      "auf dem Gebiet des Straßenverkehrsrechts vom 13.02.2007 (GVBl. S. 11), gelesen in der Fassung von 2007; " +
+      "Städte auf Antrag: Verordnung vom 01.12.2006 (GVBl. S. 558), geändert 09.09.2022 (GVBl. S. 419)",
     shStadt: "§ 3 Abs. 1 Nr. 1 Buchst. a StrVRZustVO (Schleswig-Holstein) vom 08.11.2004, Fassung vom 01.12.2025",
     shKreis:
       "§ 3 Abs. 1 Nr. 1 Buchst. a und § 5 Abs. 1 StrVRZustVO (Schleswig-Holstein) vom 08.11.2004, " +
@@ -470,6 +481,9 @@ export const FESTE_STELLEN = Object.freeze({
 
 const ARS_RE = /^\d{12}$/;
 
+/** AGS (8 Stellen) aus einem ARS: Land, Regierungsbezirk, Kreis und Gemeinde – ohne den Verband. */
+const agsVon = (ars) => (ARS_RE.test(String(ars ?? "")) ? `${ars.slice(0, 5)}${ars.slice(9)}` : null);
+
 /**
  * Trägt eine Stelle in `stellen` (Id → Stelle) ein. Dieselbe Id mit anderem Inhalt widerspräche sich in den
  * Ergebnissen – ein Fehler der Regel oder der Daten (resolveGemeinde, tools/lib/laender.mjs).
@@ -557,36 +571,70 @@ function regelBayern(g, klasse) {
   return ergebnis(kreis, SICHERHEIT.BELEGT, "byLandratsamt", "byUnter");
 }
 
-const TH_EISENACH = "160630105105";
+// Thüringen: Thüringer Verordnung zur Übertragung von Ermächtigungen und über Zuständigkeiten auf dem Gebiet des
+// Straßenverkehrsrechts vom 13.02.2007 (GVBl. S. 11), gelesen in der Fassung von 2007 (GVBl. in der ParlDok des
+// Landtags): Straßenverkehrsbehörden sind nach § 2 Abs. 3 Satz 1 Nr. 2 die kreisfreien Städte und die Großen
+// kreisangehörigen Städte, Gemeinden mit über 30.000 Einwohnern, die per Rechtsverordnung bestimmten Gemeinden und im
+// Übrigen die Landkreise. Spätere Änderungen haben § 2 umnummeriert (die Ermächtigung für die Liste ist seit spätestens
+// 2022 Abs. 8); die geltende Fassung ist nicht gelesen – deshalb bleibt alles, was nur an ihr hängt, „vermutlich“.
+
 /**
- * Thüringer Gemeinden, die auf Antrag Straßenverkehrsbehörde sind (§ 2 Abs. 7 und 8 der
- * Zuständigkeitsverordnung), soweit nicht schon das Bundesportal sie so nennt. Die Liste der
- * Rechtsverordnung liegt nicht vor (docs/TODO.md); jeder Eintrag mit Beleg.
+ * Eisenach (AGS): seit 01.07.2021 Große Kreisstadt im Wartburgkreis; nimmt die Aufgabe der Straßenverkehrsbehörde
+ * dauerhaft weiter wahr (Art. 1 § 3 Abs. 2 Nr. 1 Buchst. b des Gesetzes vom 16.10.2019, GVBl. S. 429), kann aber
+ * darauf verzichten (Abs. 3) – ein Verzicht ist nicht bekannt.
  */
-export const TH_STAEDTE_AUF_ANTRAG = Object.freeze({
-  "160700004004": "Arnstadt – Webseite der Stadt und des Landratsamts Ilm-Kreis, 03.10.2026",
+const TH_EISENACH = "16063105";
+
+/**
+ * Große kreisangehörige Städte (§ 6 Abs. 4 ThürKO), nach AGS: Ihnen sind die Aufgaben der Straßenverkehrsbehörde
+ * außer für Autobahnen übertragen – Erste und Zweite Thüringer Verordnung zur Übertragung von Aufgaben des
+ * Landratsamts auf kreisangehörige Gemeinden vom 17.05.1994 (GVBl. S. 546) und 26.09.1994 (GVBl. S. 1070, Ilmenau);
+ * die Liste laut Landesregierung, Drs. 6/2088 (2016). GV-ISys kennzeichnet sie in Thüringen nicht.
+ */
+export const TH_GROSSE_KREISANGEHOERIGE_STAEDTE = Object.freeze({
+  "16062041": "Nordhausen", "16064046": "Mühlhausen", "16067029": "Gotha", "16070029": "Ilmenau",
+  "16077001": "Altenburg",
 });
 
 /**
- * Thüringen (vermutlich): Städte über 30.000 Einwohner, große kreisangehörige Städte und Eisenach
- * für alle Straßen; Städte auf Antrag für alle außer Bundesstraßen; im Übrigen der Landkreis.
- * Ob eine Gemeinde mit 10.000 bis 30.000 Einwohnern auf Antrag zuständig ist, wissen wir nur aus
- * Portal und Liste – sonst steht sie als Alternative da.
+ * Gemeinden, denen die Aufgabe der Straßenverkehrsbehörde für alle Straßen außer Bundesstraßen übertragen ist: § 1 der
+ * Thüringer Verordnung zur Bestimmung der Zuständigkeit von Gemeinden als Straßenverkehrsbehörde vom 01.12.2006
+ * (GVBl. S. 558), geändert 09.09.2022 (GVBl. S. 419: Leinefelde-Worbis ab 01.01.2023). Namen wie in der Verordnung;
+ * Schlüssel ist der AGS – er bleibt gleich, wenn sich der Verband ändert (etwa Eisenberg und Schmölln: erfüllende
+ * Gemeinden, ihr ARS trägt den Verband).
+ */
+export const TH_STAEDTE_AUF_ANTRAG = Object.freeze({
+  "16061045": "Heilbad Heiligenstadt", "16061115": "Leinefelde-Worbis", "16063003": "Bad Salzungen",
+  "16064003": "Bad Langensalza", "16065067": "Sondershausen", "16066042": "Meiningen", "16066063": "Schmalkalden",
+  "16066092": "Zella-Mehlis", "16067072": "Waltershausen", "16068051": "Sömmerda", "16069024": "Hildburghausen",
+  "16070004": "Arnstadt", "16071001": "Apolda", "16072018": "Sonneberg", "16073076": "Rudolstadt",
+  "16073077": "Saalfeld", "16074018": "Eisenberg", "16075085": "Pößneck", "16076087": "Zeulenroda-Triebes",
+  "16077043": "Schmölln",
+});
+
+/**
+ * Thüringen: Große kreisangehörige Städte und Eisenach für alle Straßen (belegt), Städte über 30.000 Einwohner
+ * ebenso (vermutlich); die Städte der Verordnung von 2006 für alle Straßen außer Bundesstraßen (belegt), für
+ * Bundesstraßen dort der Landkreis; im Übrigen der Landkreis (beides vermutlich). Wer auf Antrag zuständig ist, steht
+ * vollständig in der Verordnung – nennt das Bundesportal trotzdem eine andere Gemeinde als Straßenverkehrsbehörde,
+ * steht sie als Alternative da.
  */
 function regelThueringen(g, klasse) {
   const kreis = kreisStelle(g);
   if (g.kreis.kreisfrei) return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "kreisfrei", "thStadt");
   if (g.gemeindefrei) return null;
-  const ew = g.ew ?? 0;
+  const ags = agsVon(g.ars);
   const stadt = gemeindeStelle(g, "stadt", "untere");
-  if (ew > 30000 || g.ars === TH_EISENACH) return ergebnis(stadt, SICHERHEIT.VERMUTLICH, "thStadt", "thStadt");
-  const antrag = TH_STAEDTE_AUF_ANTRAG[g.ars] || (g.bundesportal === "stvb" && ew > 10000);
-  if (antrag && klasse === "B") return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "thBundesstrasse", "thAntrag");
-  if (antrag) return ergebnis(stadt, SICHERHEIT.VERMUTLICH, "thAntrag", "thAntrag");
-  const selbst = gemeindeStelle(g, istStadt(g) ? "stadt" : "gemeinde", "untere");
-  let alternative = null;
-  if (ew > 10000 && klasse !== "B") alternative = { stelle: selbst, bedingung: "thAntragMoeglich" };
-  else if (g.bundesportal === "stvb") alternative = { stelle: selbst, bedingung: "portalStvb" };
+  if (TH_GROSSE_KREISANGEHOERIGE_STAEDTE[ags]) return ergebnis(stadt, SICHERHEIT.BELEGT, "thStadt", "thGks");
+  if (ags === TH_EISENACH) return ergebnis(stadt, SICHERHEIT.BELEGT, "thEisenach", "thEisenach");
+  if ((g.ew ?? 0) > 30000) return ergebnis(stadt, SICHERHEIT.VERMUTLICH, "thStadt", "thStadt");
+  if (TH_STAEDTE_AUF_ANTRAG[ags]) {
+    if (klasse === "B") return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "thBundesstrasse", "thAntrag");
+    return ergebnis(stadt, SICHERHEIT.BELEGT, "thAntrag", "thAntrag");
+  }
+  const alternative = g.bundesportal === "stvb"
+    ? { stelle: gemeindeStelle(g, istStadt(g) ? "stadt" : "gemeinde", "untere"), bedingung: "portalStvb" }
+    : null;
   const grund = g.bundesportal === "passt" ? "thLandkreisPortal" : "thLandkreis";
   return ergebnis(kreis, SICHERHEIT.VERMUTLICH, grund, "thLandkreis", alternative);
 }
@@ -1010,9 +1058,6 @@ function regelRheinlandPfalz(g, klasse) {
   if (klasse !== "B" && RP_ANLAGE_1[g.verband?.ars ?? g.ars]) return ergebnis(ort, sicher, "rpAnlage1", "rpAnlage1");
   return ergebnis(ort, sicher, "rpOrt", "rpOrt", { stelle: kreis, bedingung: "rpAusserorts" });
 }
-
-/** AGS (8 Stellen) aus einem ARS: Land, Regierungsbezirk, Kreis und Gemeinde – ohne den Verband. */
-const agsVon = (ars) => (ARS_RE.test(String(ars ?? "")) ? `${ars.slice(0, 5)}${ars.slice(9)}` : null);
 
 /**
  * Große Kreisstädte in Sachsen (§ 3 Abs. 2 und 3 SächsGemO): 53 am 01.01.2026 laut Staatsministerium des

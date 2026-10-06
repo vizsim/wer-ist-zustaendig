@@ -61,8 +61,9 @@ Dazu kommt je Gemeinde das Urteil `wahl` (`bundesportal.waehle`). `passt` heißt
 dieselbe Stelle wie die Kreisregel. `stvb` heißt, es nennt eine andere Stelle, die sich
 Straßenverkehrsbehörde nennt. Die übrigen Werte sind `mehrdeutig` (gleich gute Stellen
 verschiedener Behörden), `fremd` und `keine`. Die Regeln nutzen das Urteil: `passt` hebt „nur
-Ebene" auf „vermutlich". `stvb` macht in Thüringen Städte über 10.000 Einwohner zur zuständigen
-Stelle (§ 2 Abs. 7), sonst steht die Gemeinde als Alternative da. Die Review-CSV zeigt alle
+Ebene" auf „vermutlich". `stvb` macht in Mecklenburg-Vorpommern eine Stadt mit 17.000 bis 20.000
+Einwohnern zur zuständigen Stelle (Übergangsregel); sonst – auch in Thüringen, wo die Städte auf
+Antrag in einer Liste stehen – steht die Gemeinde als Alternative da. Die Review-CSV zeigt alle
 Stellen mit Punkten.
 
 Lücken (`luecken_fuellen`): Fehlt einer Gemeinde ein Kontakt, gilt zuerst ein Eintrag von Hand aus

@@ -9,7 +9,7 @@ import {
   NI_GEMEINDESTRASSEN, NI_SELBSTAENDIG, NI_WIE_KREISFREI, NW_GROSSE_KREISANGEHOERIGE_STAEDTE,
   NW_MITTLERE_KREISANGEHOERIGE_STAEDTE, pruefeListen, resolveGemeinde, RP_ANLAGE_1, RP_GROSSE_KREISANGEHOERIGE_STAEDTE,
   schwaecher, stelleEintragen,
-  SICHERHEIT, SN_GROSSE_KREISSTAEDTE, TEXTE, TH_STAEDTE_AUF_ANTRAG,
+  SICHERHEIT, SN_GROSSE_KREISSTAEDTE, TEXTE, TH_GROSSE_KREISANGEHOERIGE_STAEDTE, TH_STAEDTE_AUF_ANTRAG,
 } from "../js/resolve.js";
 import { LAENDER } from "../js/laender.js";
 
@@ -74,6 +74,25 @@ const G = {
   arnstadt: {
     ars: "160700004004", gen: "Arnstadt", land: "TH", tkz: [63], ew: 28509,
     kreis: kreis("16070", "Ilm-Kreis", "Landkreis", "nein"),
+  },
+  // Thüringen: ARS laut VG25 (BKG-Dienst), Einwohner laut Gemeindeverzeichnis (statistikportal.de). Eisenberg ist
+  // erfüllende Gemeinde – sein ARS trägt den Verband, die Liste den AGS.
+  eisenberg: {
+    ars: "160745052018", gen: "Eisenberg", land: "TH", tkz: [63], ew: 10585,
+    kreis: kreis("16074", "Saale-Holzland-Kreis", "Landkreis", "nein"),
+    verband: { ars: "160745052", gen: "Eisenberg", name: "Erfüllende Gemeinde Eisenberg", sitz: "160745052018" },
+  },
+  leinefeldeWorbis: {
+    ars: "160610115115", gen: "Leinefelde-Worbis", land: "TH", tkz: [63], ew: 19812,
+    kreis: kreis("16061", "Eichsfeld", "Landkreis", "ja"),
+  },
+  greiz: {
+    ars: "160760022022", gen: "Greiz", land: "TH", tkz: [63], ew: 19136,
+    kreis: kreis("16076", "Greiz", "Landkreis", "ja"),
+  },
+  altenburg: {
+    ars: "160770001001", gen: "Altenburg", land: "TH", tkz: [63], ew: 30867,
+    kreis: kreis("16077", "Altenburger Land", "Landkreis", "nein"),
   },
   bremen: { ars: "040110000000", gen: "Bremen", land: "HB", kreis: kreis("04011", "Bremen", "Kreisfreie Stadt", "nein", true) },
   bremerhaven: {
@@ -675,51 +694,86 @@ test("Bayern: Große Kreisstadt und kreisfreie Stadt für alle Straßen, gemeind
   assert.equal(forst.grund, TEXTE.grund.gemeindefrei);
 });
 
-test("Thüringen: Städte über 30.000 Einwohner und Eisenach für alle Straßen (vermutlich)", () => {
+test("Thüringen: große kreisangehörige Städte und Eisenach für alle Straßen (belegt), über 30.000 Einwohner vermutlich", () => {
   const gotha = resolveGemeinde(G.gotha);
   for (const k of BAU_KLASSEN) assert.equal(gotha.zust[k].stelle, "g160670029029", k);
-  assert.equal(gotha.zust.B.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(gotha.zust.B.sicherheit, SICHERHEIT.BELEGT);
   assert.equal(gotha.zust.B.grund, TEXTE.grund.thStadt);
-  assert.equal(gotha.zust.B.quelle, TEXTE.quelle.thStadt);
+  assert.equal(gotha.zust.B.quelle, TEXTE.quelle.thGks);
   assert.equal(gotha.stellen.g160670029029.name, "Stadt Gotha – Straßenverkehrsbehörde");
   assert.equal(gotha.stellen.g160670029029.art, "stadt");
-  assert.equal(resolveGemeinde({ ...G.eisenach, ew: 29000 }).zust.B.stelle, "g160630105105", "Eisenach auch darunter");
+  // Altenburg liegt knapp über 30.000 – als große kreisangehörige Stadt zählt das nicht.
+  const altenburg = resolveGemeinde({ ...G.altenburg, ew: 29000 }).zust.B;
+  assert.equal(altenburg.stelle, "g160770001001");
+  assert.equal(altenburg.sicherheit, SICHERHEIT.BELEGT);
+  assert.deepEqual(Object.keys(TH_GROSSE_KREISANGEHOERIGE_STAEDTE).sort(),
+    ["16062041", "16064046", "16067029", "16070029", "16077001"]);
+
+  const eisenach = resolveGemeinde({ ...G.eisenach, ew: 29000 }).zust.B;
+  assert.equal(eisenach.stelle, "g160630105105", "Eisenach auch darunter");
+  assert.equal(eisenach.sicherheit, SICHERHEIT.BELEGT);
+  assert.equal(eisenach.grund, TEXTE.grund.thEisenach);
+  assert.equal(eisenach.quelle, TEXTE.quelle.thEisenach);
+
+  // Über 30.000 Einwohner ohne Status (heute keine solche Stadt): alle Straßen, nur vermutlich.
+  const gross = resolveGemeinde({ ...G.arnstadt, ew: 31000 }).zust.B;
+  assert.equal(gross.stelle, "g160700004004");
+  assert.equal(gross.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(gross.grund, TEXTE.grund.thStadt);
+  assert.equal(gross.quelle, TEXTE.quelle.thStadt);
+
   const weimar = resolveGemeinde(G.weimar).zust.G;
   assert.equal(weimar.stelle, "k16055");
   assert.equal(weimar.sicherheit, SICHERHEIT.VERMUTLICH);
 });
 
-test("Thüringen: Stadt auf Antrag für alle Straßen außer Bundesstraßen", () => {
-  const apolda = resolveGemeinde({ ...G.apolda, bundesportal: "stvb" }).zust;
-  for (const k of ["G", "K", "L"]) assert.equal(apolda[k].stelle, "g160710001001", k);
+test("Thüringen: die 20 Städte der Verordnung für alle Straßen außer Bundesstraßen (belegt)", () => {
+  assert.equal(Object.keys(TH_STAEDTE_AUF_ANTRAG).length, 20);
+  assert.ok(Object.keys(TH_STAEDTE_AUF_ANTRAG).every((ags) => /^16\d{6}$/.test(ags)), "AGS, nicht ARS");
+  const apolda = resolveGemeinde(G.apolda).zust; // ohne Portal-Urteil: die Liste genügt
+  for (const k of ["G", "K", "L"]) {
+    assert.equal(apolda[k].stelle, "g160710001001", k);
+    assert.equal(apolda[k].sicherheit, SICHERHEIT.BELEGT, k);
+    assert.equal(apolda[k].alternative, null, k);
+  }
   assert.equal(apolda.G.grund, TEXTE.grund.thAntrag);
-  assert.equal(apolda.G.sicherheit, SICHERHEIT.VERMUTLICH);
+  assert.equal(apolda.G.quelle, TEXTE.quelle.thAntrag);
   assert.equal(apolda.B.stelle, "k16071");
+  assert.equal(apolda.B.sicherheit, SICHERHEIT.VERMUTLICH, "der Landkreis hängt an der Zuständigkeitsverordnung");
   assert.equal(apolda.B.grund, TEXTE.grund.thBundesstrasse);
-  assert.ok(TH_STAEDTE_AUF_ANTRAG[G.arnstadt.ars], "Arnstadt steht in der Liste");
+  assert.deepEqual(resolveGemeinde({ ...G.apolda, bundesportal: "stvb" }).zust, apolda, "das Portal ändert nichts");
+
   const arnstadt = resolveGemeinde(G.arnstadt).zust;
   assert.equal(arnstadt.G.stelle, "g160700004004");
   assert.equal(arnstadt.B.stelle, "k16070");
+  // Erfüllende Gemeinde: Verband im ARS, die Liste greift über den AGS.
+  const eisenberg = resolveGemeinde(G.eisenberg);
+  assert.equal(eisenberg.zust.L.stelle, "g160745052018");
+  assert.equal(eisenberg.zust.L.sicherheit, SICHERHEIT.BELEGT);
+  assert.equal(eisenberg.stellen.g160745052018.name, "Stadt Eisenberg – Straßenverkehrsbehörde");
+  assert.equal(resolveGemeinde(G.leinefeldeWorbis).zust.K.stelle, "g160610115115", "seit 01.01.2023");
 });
 
-test("Thüringen: sonst der Landkreis; Gemeinden bis 30.000 Einwohner als Alternative", () => {
-  const apolda = resolveGemeinde(G.apolda).zust; // weder im Portal noch in der Liste
-  assert.equal(apolda.G.stelle, "k16071");
-  assert.equal(apolda.G.sicherheit, SICHERHEIT.VERMUTLICH);
-  assert.equal(apolda.G.grund, TEXTE.grund.thLandkreis);
-  assert.equal(apolda.G.quelle, TEXTE.quelle.thLandkreis);
-  assert.deepEqual(apolda.K.alternative, { stelle: "g160710001001", bedingung: TEXTE.bedingung.thAntragMoeglich });
-  assert.equal(apolda.B.alternative, null, "Bundesstraßen nie auf Antrag");
-  const bestaetigt = resolveGemeinde({ ...G.apolda, bundesportal: "passt" }).zust.G;
+test("Thüringen: sonst der Landkreis; nennt das Portal die Gemeinde, steht sie als Alternative da", () => {
+  const greiz = resolveGemeinde(G.greiz).zust; // 10.000–30.000 Einwohner, aber nicht in der Verordnung
+  for (const k of BAU_KLASSEN) {
+    assert.equal(greiz[k].stelle, "k16076", k);
+    assert.equal(greiz[k].sicherheit, SICHERHEIT.VERMUTLICH, k);
+    assert.equal(greiz[k].alternative, null, k);
+  }
+  assert.equal(greiz.G.grund, TEXTE.grund.thLandkreis);
+  assert.equal(greiz.G.quelle, TEXTE.quelle.thLandkreis);
+  const bestaetigt = resolveGemeinde({ ...G.greiz, bundesportal: "passt" }).zust.G;
   assert.equal(bestaetigt.grund, TEXTE.grund.thLandkreisPortal);
   assert.equal(bestaetigt.sicherheit, SICHERHEIT.VERMUTLICH);
+  const widerspruch = resolveGemeinde({ ...G.greiz, bundesportal: "stvb" }).zust;
+  assert.equal(widerspruch.B.stelle, "k16076");
+  assert.deepEqual(widerspruch.B.alternative, { stelle: "g160760022022", bedingung: TEXTE.bedingung.portalStvb });
 
   const dorf = resolveGemeinde(G.grammetal).zust.G;
   assert.equal(dorf.stelle, "k16071");
   assert.equal(dorf.sicherheit, SICHERHEIT.VERMUTLICH);
-  assert.equal(dorf.alternative, null, "unter 10.000 Einwohnern gilt § 2 Abs. 7 nicht");
-
-  // Nennt das Portal eine kleine Gemeinde als Straßenverkehrsbehörde, steht sie als Alternative da.
+  assert.equal(dorf.alternative, null);
   const klein = resolveGemeinde({ ...G.grammetal, bundesportal: "stvb" });
   assert.equal(klein.zust.G.stelle, "k16071");
   assert.deepEqual(klein.zust.G.alternative, { stelle: "g160710103103", bedingung: TEXTE.bedingung.portalStvb });

@@ -255,7 +255,7 @@ test("baueLaender: eine Stelle hat in allen Gemeinden denselben Inhalt", () => {
   assert.throws(() => baueLaender(a), /Stelle v081175001 mit zwei Inhalten/);
 });
 
-test("baueLaender: das Urteil des Bundesportals geht in die Regel ein (Thüringen, Stadt auf Antrag)", () => {
+test("baueLaender: das Urteil des Bundesportals geht in die Regel ein (Thüringen, Stadt außerhalb der Verordnung)", () => {
   const a = attr();
   a.gemeinden["160705001001"] = {
     ars: "160705001001", gen: "Musterstadt", name: "Stadt Musterstadt", land: "TH", tkz: [63], ew: 15000,
@@ -267,10 +267,15 @@ test("baueLaender: das Urteil des Bundesportals geht in die Regel ein (Thüringe
   k.gemeinden["160705001001"] = {
     wahl: "stvb", stellen: 2, kreis: st("Landratsamt Ilm-Kreis"), gemeinde: st("Stadt Musterstadt - Ordnungsamt"),
   };
-  const mit = baueLaender(a, { kontakte: k }).dateien["th.json"];
-  assert.equal(auswahl(mit, "160705001001", ["G"]).zustaendig.id, "g160705001001", "das Portal nennt die Stadt");
-  const ohne = baueLaender(a).dateien["th.json"];
-  assert.equal(auswahl(ohne, "160705001001", ["G"]).zustaendig.id, "k16070", "ohne Portal: der Landkreis");
+  // Wer auf Antrag zuständig ist, steht vollständig in der Verordnung: Das Portal macht die Stadt nur zur Alternative.
+  const mit = auswahl(baueLaender(a, { kontakte: k }).dateien["th.json"], "160705001001", ["G"]);
+  assert.equal(mit.zustaendig.id, "k16070");
+  assert.equal(mit.alternative.stelle.id, "g160705001001", "das Portal nennt die Stadt");
+  assert.equal(mit.alternative.bedingung, TEXTE.bedingung.portalStvb);
+  assert.equal(mit.alternative.kontakt.name, "Stadt Musterstadt - Ordnungsamt");
+  const ohne = auswahl(baueLaender(a).dateien["th.json"], "160705001001", ["G"]);
+  assert.equal(ohne.zustaendig.id, "k16070", "ohne Portal: der Landkreis");
+  assert.equal(ohne.alternative, null);
 });
 
 test("baueLaender + auswahl: in Rheinland-Pfalz die Verbandsgemeinde, außerorts die Kreisverwaltung", () => {
