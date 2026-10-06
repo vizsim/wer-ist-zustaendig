@@ -7,6 +7,11 @@ ein Git-Tag `v<version>` dazu.
 
 ## [Unveröffentlicht]
 
+## [0.13.0] – 2026-10-06
+
+Landesregeln für Bremen und Hamburg – jedes Land hat jetzt eine eigene Regel; Kontakte in Bremen von
+Hand. Regeln 0.13.0 · Schema 1 · Datenstand 31.12.2025.
+
 ### Hinzugefügt
 
 - Landesregeln für Bremen und Hamburg – damit hat jedes Land eine eigene Regel. Bremen (**belegt**,
