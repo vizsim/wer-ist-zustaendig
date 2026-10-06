@@ -52,7 +52,9 @@ FUNKTIONSPOSTFACH = re.compile(
     r"post|info|verwaltung|verkehr|stra(ß|ss)e|ordnung|amt|b(ü|ue)rger|service|kontakt|stadt|"
     r"gemeinde|rathaus|lra|kreis|mail|office|zentrale|fachdienst|fachbereich|sekretariat|"
     r"tiefbau|bau|infrastruktur|sicherheit|kfz|aufsicht|abteilung|referat|organisation|kanzlei|"
-    r"sondernutzung|^svb|^fd|^sg|^vg",
+    r"sondernutzung|^svb|^fd|^sg|^vg|"
+    # Nummer einer Organisationseinheit („66.12@"): kein Name einer Person.
+    r"^\d+(\.\d+)*$",
     re.I,
 )
 ALLGEMEIN = {"kreis", "land", "landkreis", "stadt", "an", "am", "der", "im", "in", "bei", "und"}

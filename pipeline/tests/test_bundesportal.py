@@ -162,12 +162,15 @@ def test_funktionspostfach() -> None:
         "infrastruktur@eisenach.de",
         "svb-da@bezirksamt-neukoelln.de",
         "sondernutzung_ag@ba-mh.berlin.de",
+        "66.12@hannover-stadt.de",
+        "fd32.1@goettingen.de",
     ):
         assert bp.funktionspostfach(m), m
     for m in (
         "mustermann@essenbach.de",
         "erika.mustermann@stadt-x.de",
         "k.mustermann@blankenhain.de",
+        "66.mustermann@stadt-x.de",
     ):
         assert not bp.funktionspostfach(m), m
 

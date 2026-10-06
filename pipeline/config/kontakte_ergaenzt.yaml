@@ -185,8 +185,7 @@ kontakte:
     web: ["https://www.lra-aoe.de/themen/fahrzeug-verkehr/verkehrswesen-allgemein/"]
     stand: "2026-10-03"
 
-  # Niedersachsen. Landkreis Hildesheim (03254) nicht ermittelt: Die Webseite nennt nur die
-  # Zulassungsstelle (docs/TODO.md).
+  # Niedersachsen.
 
   "03101":  # Stadt Braunschweig – Portal nennt keine Stelle
     name: "Stadt Braunschweig - Fachbereich Tiefbau und Verkehr, Abteilung Straßenverkehr"
@@ -283,6 +282,167 @@ kontakte:
     email: ["info@wesermarsch.de"]  # allgemeines Postfach; die Verkehrsbehörde nennt nur persönliche Adressen
     web: ["https://wesermarsch.de/services/fahrzeug-und-verkehr/sonstige-verkehrsangelegenheiten/"]
     stand: "2026-10-04"
+
+  "03254":  # Landkreis Hildesheim – Portal nennt keine Stelle, die Webseite nur Zulassung und Führerschein
+    name: "Landkreis Hildesheim"
+    adresse: "Marie-Wagenknecht-Straße 3, 31134 Hildesheim"  # Kreishaus
+    telefon: ["05121 309-0"]  # Zentrale
+    email: ["info@landkreishildesheim.de"]
+    web: ["https://www.landkreishildesheim.de/Landkreis/Kreisverwaltung/Verwaltungsaufbau/"]
+    allgemein: true  # welche Stelle Verkehrszeichen anordnet, nennt die Webseite nicht (Straßenverkehrsamt 206?)
+    stand: "2026-10-06"
+
+  # Selbständige Städte, für die das Portal den Landkreis bzw. die Region, eine fremde Stelle oder nichts nennt.
+  "032410001001":  # Landeshauptstadt Hannover – Portal nennt die Region Hannover
+    rolle: gemeinde
+    name: "Landeshauptstadt Hannover - Fachbereich Tiefbau, Straßenverkehrsbehörde (66.12)"
+    adresse: "Rundestraße 6, 30161 Hannover"
+    telefon: ["0511 168-31201"]
+    email: ["66.12@hannover-stadt.de"]
+    web: ["https://www.hannover.de/stvo-lhh"]
+    stand: "2026-10-06"
+
+  "031590016016":  # Stadt Göttingen – Portal nennt die Stelle der Stadt Hann. Münden
+    rolle: gemeinde
+    name: "Stadt Göttingen - Fachdienst Straßenverkehr, Straßenverkehrsbehörde"
+    adresse: "Hiroshimaplatz 1-4, 37083 Göttingen"  # Neues Rathaus
+    telefon: ["0551 400-613210"]
+    email: ["fd32.1@goettingen.de"]
+    web: ["https://www.goettingen.de/buergerservice/verwaltung/strassenverkehr-900000017-25480.html"]
+    stand: "2026-10-06"
+
+  "032540021021":  # Stadt Hildesheim – Portal nennt den Landkreis
+    rolle: gemeinde
+    name: "Stadt Hildesheim - Verkehr und Beiträge (66.3.3), Straßenverkehrsbehörde"
+    adresse: "Markt 3, 31134 Hildesheim"
+    telefon: ["05121 301-0"]  # Zentrale; die Seite nennt nur eine persönliche Durchwahl
+    email: ["verkehr@stadt-hildesheim.de"]
+    web: ["https://serviceportal.stadt-hildesheim.de/buergerservice/dienstleistungen/anordnung-von-verkehrszeichen-und-einrichtungen-900000605-0.html"]
+    stand: "2026-10-06"
+
+  "032520006006":  # Stadt Hameln – Portal nennt den Landkreis
+    rolle: gemeinde
+    name: "Stadt Hameln - Abteilung 22 Ordnung und Straßenverkehr"
+    adresse: "Rathausplatz 1, 31785 Hameln"
+    telefon: ["05151 202-1561"]  # Nummer der Abteilung laut Seite
+    email: ["ordnungsabteilung@hameln.de"]
+    web: ["https://service.hameln.de/buergerservice/verwaltung/stadt-hameln-abteilung-22-ordnung-und-strassenverkehr-900000014-33890.html"]
+    stand: "2026-10-06"
+
+  "032410005005":  # Stadt Garbsen – Portal nennt die Region Hannover
+    rolle: gemeinde
+    name: "Stadt Garbsen - Straßenverkehrsabteilung, Untere Straßenverkehrsbehörde"
+    adresse: "Rathausplatz 1, 30823 Garbsen"
+    telefon: ["05131 707-359"]
+    email: ["strassenverkehr@garbsen.de"]
+    web: ["https://www.garbsen.de/strassenverkehrsabteilung"]
+    stand: "2026-10-06"
+
+  "034560015015":  # Stadt Nordhorn – Portal nennt den Landkreis Grafschaft Bentheim
+    rolle: gemeinde
+    name: "Stadt Nordhorn - Straßenbau, Entwässerung und Verkehr"
+    adresse: "Bahnhofstraße 24, 48529 Nordhorn"  # Stadthaus I
+    telefon: ["05921 878-0"]  # Zentrale; die Abteilung nennt nur persönliche Durchwahlen
+    email: ["info@nordhorn.de"]  # zentrales Postfach; die Abteilung nennt nur persönliche Adressen
+    web: ["https://www.nordhorn.de/buergerservice/verwaltung/strassenbau-entwaesserung-und-verkehr-900000032-26710.html"]
+    stand: "2026-10-06"
+
+  # Mecklenburg-Vorpommern. Landkreis Rostock (13072) und Nordwestmecklenburg (13074) nicht ermittelt:
+  # ihre Webseiten waren nicht erreichbar. Greifswald: Die Stelle im Portal („66.2 Unterhaltung von
+  # Verkehrsanlagen") ist laut Stadt die richtige – kein Eintrag nötig.
+  "13004":  # Landeshauptstadt Schwerin – Portal nennt keine Stelle
+    name: "Landeshauptstadt Schwerin - Fachdienst Verkehrsmanagement, Untere Verkehrsbehörde"
+    adresse: "Am Packhof 2-6, 19053 Schwerin"
+    telefon: ["0385 545-0"]  # Zentrale; die Durchwahlen auf der Seite gehören Personen
+    email: ["baustellenantrag@schwerin.de"]  # Postfach des Fachdienstes für verkehrsrechtliche Anordnungen
+    web: ["https://www.schwerin.de/politik-verwaltung/stadtverwaltung/verwaltungsstruktur/verwaltungsstellen/Landeshauptstadt-Schwerin-Fachgruppe-Untere-Verkehrsbehoerde-Sondernutzungen/"]
+    stand: "2026-10-06"
+
+  "13076":  # Landkreis Ludwigslust-Parchim – Portal nennt keine Stelle
+    name: "Landkreis Ludwigslust-Parchim - Fachdienst Bürgerservice, Untere Straßenverkehrsbehörde"
+    adresse: "Garnisonsstraße 1, 19288 Ludwigslust"
+    telefon: ["03871 722-0"]  # Zentrale; die Durchwahlen auf der Seite gehören Personen
+    email: ["buergerservice@kreis-lup.de"]  # Bürgerservice des Kreises; die Stelle nennt kein eigenes Postfach
+    web: ["https://www.kreis-lup.de/Verwaltung/%C3%9Cber-uns/Wer-macht-was-/Fachdienst-B%C3%BCrgerservice/Untere-Stra%C3%9Fenverkehrsbeh%C3%B6rde"]
+    stand: "2026-10-06"
+
+  "130720043043":  # Barlachstadt Güstrow – Portal nennt keine Stelle der Stadt
+    rolle: gemeinde
+    name: "Barlachstadt Güstrow - Ordnungsamt, Straßenverkehrsbehörde"
+    adresse: "Markt 1, 18273 Güstrow"  # Anschrift im Antragsformular nach § 45 StVO; das Ordnungsamt sitzt Baustraße 33
+    telefon: ["03843 769-0"]  # Zentrale; der Bereich Verkehr nennt nur Personen
+    email: ["ordnungsamt@guestrow.de"]
+    web: ["https://www.guestrow.de/buergerservice/aemter/ordnungsamt"]
+    stand: "2026-10-06"
+
+  "130710156156":  # Stadt Waren (Müritz) – Portal nennt keine Stelle der Stadt
+    rolle: gemeinde
+    name: "Stadt Waren (Müritz) - Amt für Bürgerdienste, Sachgebiet Verkehrsangelegenheiten"
+    adresse: "Zum Amtsbrink 1, 17192 Waren (Müritz)"
+    telefon: ["03991 177-0"]  # Zentrale; die Durchwahlen auf der Seite gehören Personen
+    email: ["oevb@waren-mueritz.de"]  # Postfach des Sachgebiets
+    web: ["https://www.waren-mueritz.de/de/buergerservice-verwaltung/stadtverwaltung-im-ueberblick/"]
+    stand: "2026-10-06"
+
+  "130710110110":  # Residenzstadt Neustrelitz – Portal nennt keine Stelle der Stadt
+    rolle: gemeinde
+    name: "Residenzstadt Neustrelitz - Amt für Ordnung und Sicherheit, Verkehrsbehörde"
+    adresse: "Markt 1, 17235 Neustrelitz"
+    telefon: ["03981 4534-0"]  # Zentrale; die Nummer der Verkehrsbehörde ist zugleich eine persönliche Durchwahl
+    email: ["verkehrsbehoerde@neustrelitz.de"]
+    web: ["https://www.neustrelitz.de/de/stadt-amp-verwaltung/rathaus-amp-buergerservice/aemter-und-referate"]
+    stand: "2026-10-06"
+
+  "130740087087":  # Hansestadt Wismar – Portal nennt keine Stelle der Stadt
+    rolle: gemeinde
+    name: "Hansestadt Wismar - Ordnungsamt, Abteilung Verkehr und Ermittlungsdienst, Sachgebiet Verkehrsaufsicht"
+    adresse: "Scheuerstraße 2, 23966 Wismar"
+    telefon: ["03841 251-3230"]  # Nummer der Abteilung
+    email: ["verkehrsangelegenheiten@wismar.de"]
+    web: ["https://www.wismar.de/B%C3%BCrgerservice/Adressen-Kontakte/Sachgebiet-Verkehrsaufsicht.php?ModID=9&FID=125.1165.1"]
+    stand: "2026-10-06"
+
+  # Sachsen-Anhalt. Anhalt-Bitterfeld (15082), Burgenlandkreis (15084) und Jerichower Land (15086) nicht
+  # ermittelt: ihre Webseiten waren nicht erreichbar.
+  "15001":  # Stadt Dessau-Roßlau – Portal nennt keine Stelle; Seite nicht lesbar, Daten aus den Antragsformularen der Stadt
+    name: "Stadt Dessau-Roßlau - Amt für öffentliche Sicherheit und Ordnung, Verkehrsbehörde"
+    adresse: "August-Bebel-Platz 16, 06842 Dessau-Roßlau"
+    telefon: []  # die Formulare nennen nur persönliche Durchwahlen
+    email: ["ordnungsamt@dessau-rosslau.de"]
+    web: ["https://verwaltung.dessau-rosslau.de/stadt-buerger/ordnung-und-verkehr/allgemeine-verkehrsangelegenheiten.html"]
+    stand: "2026-10-06"
+
+  "15002":  # Stadt Halle (Saale) – Portal nennt keine Stelle
+    name: "Stadt Halle (Saale) - Fachbereich Sicherheit, Abteilung Stadtordnung, Straßenverkehrsbehörde"
+    adresse: "Am Stadion 5, 06122 Halle (Saale)"
+    telefon: ["0345 221-1240", "0345 221-1259"]  # Team Verkehrsorganisation (Verkehrszeichen), Team Sperrungen
+    email: ["sicherheit@halle.de"]  # Postfach des Fachbereichs; die Teams haben keins
+    web: ["https://halle.de/verwaltung-stadtrat/stadtverwaltung/verwaltungsorganisation/oe-information/team-verkehrsorganisation/349612347"]
+    stand: "2026-10-06"
+
+  "15003":  # Landeshauptstadt Magdeburg – Portal nennt keine Stelle
+    name: "Landeshauptstadt Magdeburg - Straßenverkehrsbehörde und Sondernutzung"
+    adresse: "An der Steinkuhle 6, 39128 Magdeburg"
+    telefon: ["0391 540-0"]  # Zentrale; die Durchwahlen auf der Seite gehören Personen
+    email: ["info@magdeburg.de"]  # zentrales Postfach; die Seite nennt nur persönliche Adressen
+    web: ["https://www.magdeburg.de/index.php?ModID=7&FID=37.1036.1&object=tx%7C37.1036.1"]
+    stand: "2026-10-06"
+
+  "15085":  # Landkreis Harz – Portal nennt keine Stelle
+    name: "Landkreis Harz - Sachgebiet Straßenverkehr, Straßenverkehrsbehörde"
+    adresse: "Friedrich-Ebert-Straße 42, 38820 Halberstadt"  # Kreisverwaltung
+    telefon: ["03941 5970-0"]  # Zentrale; die Seite der Stelle ließ sich nicht lesen
+    email: ["info@kreis-hz.de"]
+    web: ["https://www.kreis-hz.de/de/strassenverkehrsbehoerde.html"]
+    stand: "2026-10-06"
+
+  "15089":  # Salzlandkreis – Portal nennt keine Stelle
+    name: "Salzlandkreis - Fachdienst Ordnung und Straßenverkehr, Verkehrsorganisation"
+    adresse: "Karlsplatz 37, 06406 Bernburg (Saale)"
+    telefon: ["03471 684-0"]  # so im Kontaktblock der Seite
+    email: ["poststelle@kreis-slk.de"]
+    web: ["https://www.salzlandkreis.de/themenbereiche/mobilitaet-verkehr/verkehrsorganisation-gewerblicher-kraftverkehr/"]
+    stand: "2026-10-06"
 
   # Berlin (kein Bundesportal): Senat und Bezirksämter. Abgeschrieben vom Service-Portal Berlin
   # und den Seiten der Bezirksämter; vor der Freigabe im Browser gegenlesen (Übergabe Berlin).
