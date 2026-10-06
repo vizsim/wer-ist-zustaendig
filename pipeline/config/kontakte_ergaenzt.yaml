@@ -347,9 +347,31 @@ kontakte:
     web: ["https://www.nordhorn.de/buergerservice/verwaltung/strassenbau-entwaesserung-und-verkehr-900000032-26710.html"]
     stand: "2026-10-06"
 
-  # Mecklenburg-Vorpommern. Landkreis Rostock (13072) und Nordwestmecklenburg (13074) nicht ermittelt:
-  # ihre Webseiten waren nicht erreichbar. Greifswald: Die Stelle im Portal („66.2 Unterhaltung von
-  # Verkehrsanlagen") ist laut Stadt die richtige – kein Eintrag nötig.
+  # Mecklenburg-Vorpommern. Greifswald: Die Stelle im Portal („66.2 Unterhaltung von Verkehrsanlagen")
+  # ist laut Stadt die richtige – kein Eintrag nötig. Für die Landkreise Rostock und Nordwestmecklenburg
+  # nur die allgemeine Anschrift: Ihre Webseiten waren aus der Bau-Umgebung nicht erreichbar, das
+  # Behördenverzeichnis und das Serviceportal M-V sperren Abrufe (robots.txt).
+  "13072":  # Landkreis Rostock – Portal nennt keine Stelle; Anschrift von service.landkreis-rostock.de/de/kontakt.html
+    name: "Landkreis Rostock"
+    adresse: "Am Wall 3-5, 18273 Güstrow"
+    telefon: ["03843 755-0"]  # Zentrale
+    email: ["info@lkros.de"]
+    web: ["https://www.landkreis-rostock.de/de/straszenverkehrsamt/organisationseinheit/41/amt_fuer_strassenbau_und_verkehr.html"]  # Amt für Straßenbau und Verkehr, Seite nicht lesbar
+    allgemein: true
+    stand: "2026-10-06"
+
+  "13074":  # Landkreis Nordwestmecklenburg – Portal nennt keine Stelle mit Kontaktweg
+    name: "Landkreis Nordwestmecklenburg"
+    adresse: "Börzower Weg 3, 23936 Grevesmühlen"
+    telefon: ["03841 3040-0"]  # Zentrale
+    email: ["poststelle@nordwestmecklenburg.de"]
+    web: ["https://www.nordwestmecklenburg.de/"]
+    # Die Straßenverkehrsbehörde („Verkehrszeichen: Aufstellung vorschlagen“) sitzt laut Amt Schönberger Land
+    # Langer Steinschlag 4, 23936 Grevesmühlen, ohne eigenes Telefon und Postfach.
+    allgemein: true
+    quelle: "Webseite des Amts Dorf Mecklenburg-Bad Kleinen (Seite zum Landkreis, Stand 20.05.2025)"
+    stand: "2026-10-06"
+
   "13004":  # Landeshauptstadt Schwerin – Portal nennt keine Stelle
     name: "Landeshauptstadt Schwerin - Fachdienst Verkehrsmanagement, Untere Verkehrsbehörde"
     adresse: "Am Packhof 2-6, 19053 Schwerin"
