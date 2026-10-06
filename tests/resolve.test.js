@@ -1730,6 +1730,30 @@ test("Baden-Württemberg: pruefeListen – Namen, Verbände und Widersprüche ge
   assert.ok(pruefeListen(zweiGruppen).includes("Verband 081255001 steht in zwei Gruppen von BW_VG_UNTERE"));
 });
 
+test("pruefeListen: die Schlüssel der Listen gegen die Gemeindetabelle (ARS, Verband, AGS)", () => {
+  const g = (ars, land, verband = null) => ({ ars, land, gen: ars, kreis: { ars: ars.slice(0, 5) }, verband });
+  // Brandenburg, Landkreis Uckermark: Schwedt/Oder verwaltet Pinnow mit, sein ARS trägt den Verband.
+  const uckermark = [g("120735051532", "BB", { ars: "120735051" }), g("120730452452", "BB")];
+  assert.deepEqual(pruefeListen(uckermark), []);
+  // Wechselt der Verband, ändert sich der ARS – der Eintrag griffe nicht mehr.
+  assert.deepEqual(pruefeListen([g("120735052532", "BB", { ars: "120735052" }), uckermark[1]]), [
+    "BB_GROSSE_KREISANGEHOERIGE_STAEDTE: 120735051532 (Schwedt) gibt es in der Tabelle nicht",
+  ]);
+  // Thüringen nach AGS: Eisenberg ist erfüllende Gemeinde, sein ARS trägt den Verband.
+  const shk = [g("160745052018", "TH", { ars: "160745052" })];
+  assert.deepEqual(pruefeListen(shk), []);
+  assert.deepEqual(pruefeListen([g("160740018018", "TH")]), [], "AGS bleibt gleich, auch ohne Verband");
+  // Verbandsschlüssel (9 Stellen): Amt Schlieben im Landkreis Elbe-Elster.
+  const ee = [g("120625209000", "BB", { ars: "120625209" }), g("120620140140", "BB")];
+  assert.deepEqual(pruefeListen(ee), []);
+  assert.ok(pruefeListen([ee[1]]).includes("BB_AUF_ANTRAG_TEILWEISE: 120625209 (Amt Schlieben) gibt es in der Tabelle nicht"));
+  // Nur Kreise aus der Tabelle: ein Ausschnitt meldet nichts aus anderen Kreisen.
+  assert.ok(pruefeListen(uckermark).every((w) => !w.includes("Eberswalde")));
+  // Ein Wert mit Beleg: nur der Name in der Warnung.
+  assert.ok(pruefeListen([g("130710001001", "MV")]).includes(
+    "MV_STAEDTE_UEBERGANG: 130710110110 (Neustrelitz) gibt es in der Tabelle nicht"));
+});
+
 test("stelleEintragen: dieselbe Id nur mit demselben Inhalt", () => {
   const stellen = {};
   const vg = { id: "v081265003", name: "Gemeinschaft – Straßenverkehrsbehörde", ebene: "oertliche", art: "verband" };

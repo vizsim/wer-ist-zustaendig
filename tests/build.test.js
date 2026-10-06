@@ -245,7 +245,9 @@ test("baueLaender: Gemeinschaften aus den Listen – ein genanntes Mitglied gen�
   assert.ok(warnungen.includes("BW_OERTLICH: Aichtal (08116) gibt es im Kreis nicht"));
   assert.ok(!warnungen.some((w) => w.includes("Dettingen unter Teck")));
   assert.ok(!warnungen.some((w) => w.includes("(08115)")), "nur Kreise aus der Tabelle");
-  assert.deepEqual(baueLaender(attrBw()).warnungen, [], "Göppingen steht in keiner Liste");
+  // Die Tabelle ist ein Ausschnitt: Rheinland-Pfalz meldet Bingen und Ingelheim aus Musterdorfs Kreis.
+  const nurBw = baueLaender(attrBw()).warnungen.filter((w) => w.startsWith("BW_"));
+  assert.deepEqual(nurBw, [], "Göppingen steht in keiner Liste");
 });
 
 test("baueLaender: eine Stelle hat in allen Gemeinden denselben Inhalt", () => {

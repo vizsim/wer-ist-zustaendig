@@ -1372,6 +1372,25 @@ export const BW_VOLLSTAENDIG = Object.freeze({
   ]),
 });
 
+/** Schlüssel der Listen (`SCHLUESSEL_LISTEN`), die es in der Tabelle nicht gibt – nur Kreise aus der Tabelle. */
+function pruefeSchluessel(gemeinden) {
+  const tabelle = gemeinden.filter((g) => !g.kondominium);
+  const kreise = new Set(tabelle.map((g) => g.kreis?.ars));
+  const da = {
+    12: new Set(tabelle.map((g) => g.ars)),
+    9: new Set(tabelle.map((g) => g.verband?.ars).filter(Boolean)),
+    8: new Set(tabelle.map((g) => agsVon(g.ars))),
+  };
+  const warnungen = [];
+  for (const [name, liste] of Object.entries(SCHLUESSEL_LISTEN)) {
+    for (const [schluessel, wert] of Object.entries(liste)) {
+      if (!kreise.has(schluessel.slice(0, 5)) || da[schluessel.length]?.has(schluessel)) continue;
+      warnungen.push(`${name}: ${schluessel} (${String(wert).split(" – ")[0]}) gibt es in der Tabelle nicht`);
+    }
+  }
+  return warnungen;
+}
+
 const bwIn = (liste, g) => (liste[g.kreis.ars] ?? []).includes(g.gen);
 const bwGenannt = (liste, g) => (liste[g.kreis.ars] ?? []).some((gruppe) => gruppe.includes(g.gen));
 /** Die Gemeinde und – vom Build – die übrigen Mitglieder ihres Verbands. */
@@ -1385,20 +1404,35 @@ function bwGemeinschaft(liste, g) {
 }
 
 /**
- * Prüft die Listen nach Namen gegen die Gemeindetabelle (Einträge wie in gemeinden_attr.json) – für den Build
- * (tools/lib/laender.mjs): Namen, die es im Kreis nicht gibt; Gruppen, deren Gemeinden nicht genau einem Verband
- * angehören; Verbände in zwei Gruppen oder zwei Listen; örtliche Gemeinden, deren Verband eine Liste nennt. Nur
- * Kreise, die in der Tabelle vorkommen. Sonst griffe ein Eintrag still nicht oder anders als gedacht.
+ * Listen der Landesregeln mit Schlüsseln – ARS einer Gemeinde (12 Stellen), eines Verbands (9) oder AGS (8) –,
+ * dazu die einzelnen Gemeinden mit Sonderregel. Für `pruefeListen`.
+ */
+const SCHLUESSEL_LISTEN = Object.freeze({
+  SH_AUF_ANTRAG, NI_WIE_KREISFREI, NI_SELBSTAENDIG, NI_GEMEINDESTRASSEN, NI_VEREINBARUNG,
+  NW_AACHEN: { [NW_AACHEN]: "Aachen" }, NW_GROSSE_KREISANGEHOERIGE_STAEDTE, NW_MITTLERE_KREISANGEHOERIGE_STAEDTE,
+  BB_GROSSE_KREISANGEHOERIGE_STAEDTE, BB_AUF_ANTRAG, BB_AUF_ANTRAG_TEILWEISE,
+  MV_GROSSE_KREISANGEHOERIGE_STAEDTE, MV_STAEDTE_UEBERGANG, RP_GROSSE_KREISANGEHOERIGE_STAEDTE, RP_ANLAGE_1,
+  SN_GROSSE_KREISSTAEDTE, HE_SONDERSTATUS, SL_SAARBRUECKEN: { [SL_SAARBRUECKEN]: "Saarbrücken" },
+  TH_GROSSE_KREISANGEHOERIGE_STAEDTE, TH_EISENACH: { [TH_EISENACH]: "Eisenach" }, TH_STAEDTE_AUF_ANTRAG,
+});
+
+/**
+ * Prüft die Listen der Regeln gegen die Gemeindetabelle (Einträge wie in gemeinden_attr.json) – für den Build
+ * (tools/lib/laender.mjs). Jede Liste mit Schlüsseln: Gibt es die Gemeinde, den Verband bzw. den AGS? Ein
+ * Schlüssel ändert sich, wenn Gemeinden fusionieren oder der Verband wechselt (der ARS trägt ihn). Die Listen
+ * Baden-Württembergs nach Namen: Namen, die es im Kreis nicht gibt; Gruppen, deren Gemeinden nicht genau einem
+ * Verband angehören; Verbände in zwei Gruppen oder zwei Listen; örtliche Gemeinden, deren Verband eine Liste nennt.
+ * Nur Kreise, die in der Tabelle vorkommen. Sonst griffe ein Eintrag still nicht oder anders als gedacht.
  * @returns {string[]} Warnungen, leer wenn alles passt
  */
 export function pruefeListen(gemeinden) {
+  const warnungen = pruefeSchluessel(gemeinden);
   const je = new Map(); // Kreis-ARS → Map(GEN → Eintrag)
   for (const g of gemeinden) {
     if (g.land !== "BW" || g.kondominium) continue;
     if (!je.has(g.kreis.ars)) je.set(g.kreis.ars, new Map());
     je.get(g.kreis.ars).set(g.gen, g);
   }
-  const warnungen = [];
   const verbandIn = new Map(); // Verbands-ARS → Liste
   const pruefe = (name, liste, gruppen) => {
     for (const [kreis, eintraege] of Object.entries(liste)) {
