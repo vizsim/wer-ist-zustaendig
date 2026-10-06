@@ -402,17 +402,19 @@ export const TEXTE = Object.freeze({
       "§ 3 SächsStrVRG vom 03.05.2019",
     stUnter:
       "Landkreise und kreisfreie Städte als untere Verwaltungsbehörde (§ 6 Abs. 1 KVG LSA, Fassung vom " +
-      "16.05.2024) und Straßenverkehrsbehörde laut ihren Webseiten; die Zuständigkeitsvorschrift selbst ist " +
-      "nicht an der Primärquelle gelesen",
+      "16.05.2024) und als untere Straßenverkehrsbehörden laut OVG Sachsen-Anhalt (wiedergegeben in BVerwG, " +
+      "Beschluss vom 03.05.2011 – 3 B 91.10, Rn. 2) und ihren Webseiten; die Zuständigkeitsvorschrift selbst ist " +
+      "nicht gefunden",
     stOertlich:
       "Art. 3 § 1 Nr. 5 des Gesetzes zur Fortentwicklung der Verwaltungsgemeinschaften und zur Stärkung der " +
-      "gemeindlichen Verwaltungstätigkeit (Sachsen-Anhalt) vom 13.11.2003 (GVBl. LSA S. 318), neu gefasst " +
-      "22.12.2004 (GVBl. LSA S. 852) – Inhalt nur aus BVerwG, Beschluss vom 03.05.2011 – 3 B 91.10, Wortlaut nicht " +
+      "gemeindlichen Verwaltungstätigkeit (Sachsen-Anhalt) vom 13.11.2003 (GVBl. LSA S. 318), geändert durch Art. 2 " +
+      "des Ersten Funktionalreformgesetzes vom 22.12.2004 (GVBl. LSA S. 852): Aufgaben nach § 45 Abs. 1 bis 1d, 3, 4 " +
+      "und 6 bis 8 Satz 1 StVO – Inhalt nur aus BVerwG, Beschluss vom 03.05.2011 – 3 B 91.10, Rn. 2, Wortlaut nicht " +
       "geprüft; innerorts laut Saalekreis, Gemeindestraßen laut Stadt Halberstadt",
     stOertlichVerband:
-      "Art. 3 § 1 Nr. 5 des Gesetzes zur Fortentwicklung der Verwaltungsgemeinschaften (Sachsen-Anhalt) – Inhalt " +
-      "nur aus BVerwG 3 B 91.10, Wortlaut nicht geprüft; innerorts laut Saalekreis; § 6 Abs. 1 Nr. 2 und § 90 Abs. 2 " +
-      "KVG LSA [S]",
+      "Art. 3 § 1 Nr. 5 des Gesetzes zur Fortentwicklung der Verwaltungsgemeinschaften (Sachsen-Anhalt), geändert " +
+      "22.12.2004 – Inhalt nur aus BVerwG 3 B 91.10, Wortlaut nicht geprüft; innerorts laut Saalekreis; § 6 Abs. 1 " +
+      "Nr. 2 und § 90 Abs. 2 KVG LSA [S]",
     heStadt:
       "§ 10 Abs. 1 Nr. 2 Buchst. a und b Doppelbuchst. aa der Verordnung zur Bestimmung verkehrsrechtlicher " +
       "Zuständigkeiten (StVRZustV, Hessen) vom 12.11.2007 (GVBl. I S. 800), zuletzt geändert 28.01.2026 " +
@@ -1147,9 +1149,12 @@ function regelSachsen(g, klasse) {
 
 /**
  * Sachsen-Anhalt (vermutlich): Landkreise und kreisfreie Städte sind untere Straßenverkehrsbehörde;
- * die Gemeinden sind örtliche Straßenverkehrsbehörde für Verkehrszeichen nach § 45 StVO (Art. 3 § 1
- * Nr. 5 des Gesetzes zur Fortentwicklung der Verwaltungsgemeinschaften – Inhalt nur aus BVerwG
- * 3 B 91.10, das die Auslegung des OVG für 2005–2010 wiedergibt). Auf welchen Straßen, sagen nur die
+ * die Gemeinden sind örtliche Straßenverkehrsbehörde für einen Teil der Aufgaben nach § 45 StVO (Abs. 1
+ * bis 1d, 3, 4 und 6 bis 8 Satz 1 in der Zählung von 2004) – Art. 3 § 1 Nr. 5 des Gesetzes zur
+ * Fortentwicklung der Verwaltungsgemeinschaften, geändert durch das Erste Funktionalreformgesetz vom
+ * 22.12.2004; Inhalt nur aus BVerwG 3 B 91.10, das die Auslegung des OVG für 2005–2010 wiedergibt. Die
+ * Anordnung von Verkehrseinrichtungen (damals § 45 Abs. 9, im Fall ein Poller) blieb danach beim Landkreis;
+ * das bildet die Regel nicht ab (docs/TODO.md). Auf welchen Straßen, sagen nur die
  * Behörden: die Stadt Halberstadt „Gemeindestraßen“, der Saalekreis „innerörtliche Gemeindestraßen“ –
  * Gemeindestraßen außerorts ordne der Landkreis an. Deshalb die Gemeinde mit dem Landkreis als
  * Alternative außerorts. In einer Verbandsgemeinde erfüllt die Aufgabe die Verbandsgemeinde (§ 90
