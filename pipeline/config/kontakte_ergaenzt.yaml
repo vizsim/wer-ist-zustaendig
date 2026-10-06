@@ -444,6 +444,619 @@ kontakte:
     web: ["https://www.salzlandkreis.de/themenbereiche/mobilitaet-verkehr/verkehrsorganisation-gewerblicher-kraftverkehr/"]
     stand: "2026-10-06"
 
+  # Verkehrsstellen der Kreisebene in den Ländern ohne Bundesportal-Eintrag: Sie gehen der allgemeinen
+  # Anschrift aus dem Gemeinde- bzw. Anschriftenverzeichnis vor (anschriften.py). Abgeschrieben von den
+  # Webseiten und Antragsformularen der Behörden am 06.10.2026 (Recherche mit Abrufwerkzeug, Belege in der
+  # Übergabe); „PRÜFEN“: nur mittlere Sicherheit – vor der Freigabe im Browser gegenlesen.
+
+  # Sachsen. Nicht ermittelt: Chemnitz (Verkehrsbehörde im Verkehrs- und Tiefbauamt, ohne lesbares
+  # Postfach), Dresden und Leipzig (Seiten nicht lesbar bzw. Stelle nicht eindeutig).
+  "14521":  # Erzgebirgskreis
+    name: "Landratsamt Erzgebirgskreis - Referat Straßenverkehr, Sachgebiet Verkehrs- und Konzessionsrecht / Verkehrslenkung"
+    adresse: "Robert-Koch-Straße 16a, 08340 Schwarzenberg"
+    telefon: ["03771 277-0"]  # Zentrale am Standort; die Durchwahlen auf der Seite gehören Personen
+    email: ["verkehr@kreis-erz.de"]
+    web: ["https://www.erzgebirgskreis.de/landratsamt-service/struktur-aufgaben/aemter-von-a-bis-z/verkehrs-und-konzessionsrecht-verkehrslenkung"]
+    stand: "2026-10-06"
+
+  "14522":  # Landkreis Mittelsachsen
+    name: "Landratsamt Mittelsachsen - Abteilung Verkehr und Bauen, Referat Straßenverkehr und Sport"
+    adresse: "Straße des Friedens 9 a, 04720 Döbeln"  # Besucheranschrift; Post: Frauensteiner Straße 43, 09599 Freiberg
+    telefon: ["03731 799-3547", "03731 799-0"]  # Nummer des Referats (ohne Person); Zentrale
+    email: ["strassenverkehr.sport@landkreis-mittelsachsen.de"]
+    web: ["https://www.landkreis-mittelsachsen.de/das-amt/behoerden/referat-strassenverkehr-und-sport.html"]
+    stand: "2026-10-06"
+
+  "14523":  # Vogtlandkreis
+    name: "Landratsamt Vogtlandkreis - Straßenverkehrsamt, Sachgebiet Verkehrslenkung und -sicherung"
+    adresse: "Postplatz 5, 08523 Plauen"
+    telefon: ["03741 300-2701", "03741 300-0"]  # Nummer des Sachgebiets (ohne Person); Zentrale
+    email: ["verkehrsamt@vogtlandkreis.de"]
+    web: ["https://www.vogtlandkreis.de/Service-und-Verwaltung/Themen/Ordnung-Gewerbe-und-Verkehr/Ausnahme-n-Verkehrsrecht/"]
+    stand: "2026-10-06"
+
+  "14524":  # Landkreis Zwickau
+    name: "Landratsamt Zwickau - Straßenverkehrsamt, Sachgebiet Straßenverkehr"
+    adresse: "Stauffenbergstraße 2, 08066 Zwickau"  # laut Seite des Amts; eine Leistungsseite nennt noch Werdauer Straße 62 – PRÜFEN
+    telefon: ["0375 4402-0"]  # Zentrale
+    email: ["strassenverkehrsamt@landkreis-zwickau.de"]
+    web: ["https://www.landkreis-zwickau.de/detail?type=VB&id=1451"]
+    stand: "2026-10-06"
+
+  "14625":  # Landkreis Bautzen
+    name: "Landratsamt Bautzen - Ordnungsamt, Sachgebiet Straßenverkehrsrecht"
+    adresse: "Garnisonsplatz 6, 01917 Kamenz"  # laut Seite des Sachgebiets (die des Ordnungsamts nennt Macherstraße 55) – PRÜFEN
+    telefon: ["03591 5251-0"]  # Zentrale
+    email: ["ordnungsamt@lra-bautzen.de"]  # Postfach des Ordnungsamts; ein eigenes des Sachgebiets ist nicht veröffentlicht
+    web: ["https://www.landkreis-bautzen.de/landratsamt/organisation/strassenverkehrsrecht/58"]
+    stand: "2026-10-06"
+
+  "14626":  # Landkreis Görlitz
+    name: "Landratsamt Görlitz - Amt für Infrastruktur und Mobilität, Sachgebiet Straßenverkehr"
+    adresse: "Hochwaldstraße 29, 02763 Zittau"  # Außenstelle Zittau; Post: Postfach 30 01 52, 02806 Görlitz
+    telefon: ["03581 663-0"]  # Zentrale; die Nummer auf der Seite gehört einer Person
+    email: ["strassenverkehr@kreis-gr.de"]
+    web: ["https://www.kreis-goerlitz.de/Landratsamt/Standorte.htm/Aemter/SG-Strassenverkehr.html"]
+    stand: "2026-10-06"
+
+  "14627":  # Landkreis Meißen
+    name: "Landratsamt Meißen - Kreisverkehrsamt, Sachgebiet Straßen-, Güter- und Personenverkehr (Straßenverkehrsbehörde)"
+    adresse: "Brauhausstraße 21, 01662 Meißen"
+    telefon: ["03521 725-0"]  # Zentrale; die Durchwahlen auf der Seite gehören Personen
+    email: ["kreisverkehrsamt@kreis-meissen.de"]
+    web: ["https://www.kreis-meissen.de/Landratsamt/Die-Verwaltung/Dezernat-Verwaltung/Kreisverkehrsamt/Stra%C3%9Fen-G%C3%BCter-und-Personenverkehr/"]
+    stand: "2026-10-06"
+
+  "14628":  # Landkreis Sächsische Schweiz-Osterzgebirge – statt landrat@ das Postfach des Referats
+    name: "Landratsamt Sächsische Schweiz-Osterzgebirge - Verkehrs- und Ordnungsamt, Referat Verkehrsrecht"
+    adresse: "Weißeritzstraße 7, 01744 Dippoldiswalde"  # Haus HG; Post: Postfach 10 02 53/54, 01782 Pirna
+    telefon: ["03501 515-3140", "03501 515-0"]  # Nummer des Referats (ohne Person); Zentrale
+    email: ["verkehrsrecht@landratsamt-pirna.de"]
+    web: ["https://www.landratsamt-pirna.de/verkehrsrecht.html"]
+    stand: "2026-10-06"
+
+  "14729":  # Landkreis Leipzig
+    name: "Landratsamt Landkreis Leipzig - Straßenverkehrsamt, Sachgebiet Straßenverkehrsbehörde"
+    adresse: "Stauffenbergstraße 4, 04552 Borna"  # Haus 6
+    telefon: ["03433 241-2040", "03433 241-0"]  # Nummer für Anfragen an die Straßenverkehrsbehörde; Zentrale
+    email: ["stvb@lk-l.de", "info@lk-l.de"]  # stvb@ laut Antragsformular (Stand 04/2022); info@ allgemein
+    web: ["https://www.landkreisleipzig.de/was-erledige-ich-wo/dezernat/sg-strassenverkehrsbehoerde"]
+    stand: "2026-10-06"
+
+  "14730":  # Landkreis Nordsachsen
+    name: "Landratsamt Nordsachsen - Straßenverkehrsamt, Sachgebiet Straßenverkehrsbehörde"
+    adresse: "Richard-Wagner-Straße 7b, 04509 Delitzsch"  # Haus C
+    telefon: ["03421 758-5100", "03421 758-0"]  # Service-Nummer des Straßenverkehrsamts; Zentrale
+    email: ["info@lra-nordsachsen.de"]  # allgemeines Postfach; das Amt nennt kein eigenes
+    web: ["https://www.landkreis-nordsachsen.de/was-erledige-ich-wo/dezernat/sachgebiet-strassenverkehrsbehoerde"]
+    stand: "2026-10-06"
+
+  # Saarland.
+  "10041":  # Regionalverband Saarbrücken
+    name: "Regionalverband Saarbrücken - Recht und Ordnung, Untere Straßenverkehrsbehörde"
+    adresse: "Schlossplatz 8-10, 66119 Saarbrücken"
+    telefon: ["0681 506-3350", "0681 506-0"]  # Nummer der Straßenverkehrsbehörde (ohne Person); Zentrale
+    email: ["strassenverkehr@rvsbr.de"]  # laut Briefkopf der Antragsformulare
+    web: ["https://www.regionalverband-saarbruecken.de/ordnungsamt/strassenverkehrsbehoerde"]
+    stand: "2026-10-06"
+
+  "100410100100":  # Landeshauptstadt Saarbrücken – für alle Straßen zuständig
+    rolle: gemeinde
+    name: "Landeshauptstadt Saarbrücken - Ordnungsamt, Straßenverkehrsstelle"
+    adresse: "Großherzog-Friedrich-Straße 111, 66121 Saarbrücken"
+    telefon: ["0681 905-0"]  # Zentrale
+    email: ["ordnungsamt@saarbruecken.de"]  # Postfach des Ordnungsamts; die Straßenverkehrsstelle hat kein eigenes
+    web: ["https://www.saarbruecken.de/rathaus/buergerservice/kfz_angelegenheiten/parkerleichterung_fuer_schwerbehinderte_menschen"]
+    stand: "2026-10-06"
+
+  "10042":  # Landkreis Merzig-Wadern
+    name: "Landkreis Merzig-Wadern - Sachgebiet Straßenverkehr, Straßenverkehrsstelle"
+    adresse: "Bahnhofstraße 44, 66663 Merzig"
+    telefon: ["06861 80-2430", "06861 80-0"]  # Nummer der Straßenverkehrsstelle (ohne Person); Zentrale
+    email: ["strassenverkehr@merzig-wadern.de"]
+    web: ["https://www.merzig-wadern.de/Zulassung-Verkehr/Stra%C3%9Fenverkehr/"]
+    stand: "2026-10-06"
+
+  "10043":  # Landkreis Neunkirchen
+    name: "Landkreis Neunkirchen - Straßenverkehrsbehörde und Zulassungsstelle"
+    adresse: "Saarbrücker Straße 1, 66538 Neunkirchen"
+    telefon: ["06824 906-7039", "06824 906-0"]  # Nummer für Veranstaltungen und Baustellen (ohne Person); Zentrale
+    email: ["kfz@landkreis-neunkirchen.de"]  # auf der Seite „Verkehr“ auch für die Verkehrsaufgaben genannt
+    web: ["https://www.landkreis-neunkirchen.de/kfz-fuehrerschein/strassenverkehrsbehoerde/verkehr"]
+    stand: "2026-10-06"
+
+  "10044":  # Landkreis Saarlouis
+    name: "Landkreis Saarlouis - Amt für öffentliche Sicherheit und Ordnung, Straßenverkehrsbehörde"
+    adresse: "Kaiser-Wilhelm-Straße 4, 66740 Saarlouis"
+    telefon: ["06831 444-0"]  # Zentrale; die Nummern auf der Seite gehören Personen
+    email: ["amt32@kreis-saarlouis.de"]
+    web: ["https://www.kreis-saarlouis.de/Sicherheit-Ordnung/Strassenverkehr.htm"]
+    stand: "2026-10-06"
+
+  "10045":  # Saarpfalz-Kreis
+    name: "Saarpfalz-Kreis - Abteilung Straßenverkehr"
+    adresse: "Am Forum 1, 66424 Homburg"
+    telefon: ["06841 104-7248", "06841 104-0"]  # Nummer der Abteilung (ohne Person); Zentrale
+    email: ["strassenverkehr@saarpfalz-kreis.de"]
+    web: ["https://www.saarpfalz-kreis.de/buergerservice-views/abteilungen/SAL:department:565/strassenverkehr/"]
+    stand: "2026-10-06"
+
+  "10046":  # Landkreis St. Wendel
+    name: "Landkreis St. Wendel - Kreisordnungs- und Straßenverkehrsamt, Straßenverkehrsamt"
+    adresse: "Tritschlerstraße 5, 66606 St. Wendel"  # Wendelinuspark
+    telefon: ["06851 801-2828", "06851 801-0"]  # Nummer des Straßenverkehrsamts (auch Zulassung); Zentrale
+    email: ["strassenverkehrsbehoerde@lkwnd.de"]
+    web: ["https://www.landkreis-st-wendel.de/verwaltung-politik-und-bauen/verwaltung"]
+    stand: "2026-10-06"
+
+  # Hessen. Nicht ermittelt: Kreis Bergstraße, Kreis Offenbach, Wetteraukreis und Lahn-Dill-Kreis (Seiten
+  # nicht lesbar).
+  "06411":  # Wissenschaftsstadt Darmstadt
+    name: "Wissenschaftsstadt Darmstadt - Mobilitäts- und Tiefbauamt, Sachgebiet Straßenverkehrsbehörde"
+    adresse: "Mina-Rees-Straße 10, 64295 Darmstadt"  # Stadthaus West
+    telefon: ["06151 13-1"]  # Zentrale; die Nummern des Sachgebiets sind teils Personen zugeordnet
+    email: ["strassenverkehrsbehoerde@darmstadt.de"]
+    web: ["https://digitales-rathaus.darmstadt.de/kategorien/kontaktpersonen/mobilitaets-und-tiefbauamt-66-3-4-abt-bau-und-betrieb-sachgebiet-strassenverkehrsbehoerde"]
+    stand: "2026-10-06"
+
+  "06412":  # Stadt Frankfurt am Main – Seiten des Amts nicht lesbar, Daten aus dem Antragsformular (Stand 2022) – PRÜFEN
+    name: "Stadt Frankfurt am Main - Straßenverkehrsamt, 36.32 Verkehrsregelung"
+    adresse: "Gutleutstraße 191, 60327 Frankfurt am Main"
+    telefon: ["069 212-44734"]  # Nummer von 36.32 laut Formular (ohne Person)
+    email: ["baustellen.sva@stadt-frankfurt.de"]  # Postfach von 36.32 (Baustellen, Haltverbote) laut Formular
+    web: ["https://frankfurt.de/service-und-rathaus/verwaltung/aemter-und-institutionen/strassenverkehrsamt"]
+    stand: "2026-10-06"
+
+  "06413":  # Stadt Offenbach am Main
+    name: "Stadt Offenbach am Main - Amt für Mobilität, Straßenverkehrsbehörde"
+    adresse: "Berliner Straße 60, 63065 Offenbach am Main"  # Stadthaus; Post: Berliner Straße 100
+    telefon: ["069 8065-1"]  # Zentrale
+    email: ["strassenverkehrsbehoerde@offenbach.de"]
+    web: ["https://www.offenbach.de/vv/oe/verwaltung/amt-fuer-mobilitaet/185010100000073263.php"]
+    stand: "2026-10-06"
+
+  "06414":  # Landeshauptstadt Wiesbaden – statt presse@ das Postfach der Straßenverkehrsbehörde
+    name: "Landeshauptstadt Wiesbaden - Straßenverkehrsbehörde"
+    adresse: "Gustav-Stresemann-Ring 15, 65189 Wiesbaden"
+    telefon: ["0611 318495", "0611 313912"]  # beide im Kontaktblock der Straßenverkehrsbehörde (ohne Person)
+    email: ["strassenverkehrsbehoerde@wiesbaden.de"]
+    web: ["https://www.wiesbaden.de/vv/produkte/34/Aufgrabungen-Genehmigung-beantragen"]
+    stand: "2026-10-06"
+
+  "06432":  # Landkreis Darmstadt-Dieburg
+    name: "Landkreis Darmstadt-Dieburg - Untere Verkehrsbehörde"
+    adresse: "Jägertorstraße 207, 64289 Darmstadt"
+    telefon: ["06151 881-0"]  # Zentrale, so auf der Seite der Behörde
+    email: ["kreisverwaltung@ladadi.de"]  # allgemeines Postfach, so auf der Seite der Behörde
+    web: ["https://www.ladadi.de/leben-arbeiten/freizeit-verkehr/fuehrerschein-zulassung-verkehr/untere-verkehrsbehoerde/"]
+    stand: "2026-10-06"
+
+  "06433":  # Kreis Groß-Gerau – aus dem Antragsformular nach § 45 StVO; Hausanschrift und Telefon nicht ermittelt
+    name: "Kreis Groß-Gerau - Allgemeine Verkehrsangelegenheiten"
+    adresse: "Postfach 14 64, 64504 Groß-Gerau"
+    telefon: []
+    email: ["ava@kreisgg.de"]
+    web: ["https://www.kreisgg.de/fileadmin/Regionalentwicklung_Umwelt/Regionalentwicklung_Mobilitaet/Verkehrsbehoerde/Antrag_Baustelle_neu_01.pdf"]
+    stand: "2026-10-06"
+
+  "06434":  # Hochtaunuskreis
+    name: "Hochtaunuskreis - Straßenverkehrsbehörde"
+    adresse: "Ludwig-Erhard-Anlage 1-5, 61352 Bad Homburg v. d. Höhe"
+    telefon: ["06172 999-0"]  # Zentrale; die Durchwahlen auf der Seite gehören Personen
+    email: ["verkehrsbehoerde@hochtaunuskreis.de"]
+    web: ["https://www.hochtaunuskreis.de/Stra%C3%9Fenverkehrsbeh%C3%B6rde"]
+    stand: "2026-10-06"
+
+  "06435":  # Main-Kinzig-Kreis
+    name: "Main-Kinzig-Kreis - Straßenverkehrsbehörde"
+    adresse: "Dörnigheimer Straße 1, 63452 Hanau"  # Sitz der Straßenverkehrsbehörde; Post: Postfach 1465, 63571 Gelnhausen
+    telefon: ["06051 85-0"]  # Zentrale
+    email: ["info@mkk.de"]  # allgemeines Postfach; die Behörde nennt kein eigenes
+    web: ["https://www.mkk.de/buergerservice/lebenslagen_1/auto_verkehr_und_oepnv/32_verkehrslenkung/index_verkehrslenkung.html"]
+    stand: "2026-10-06"
+
+  "06436":  # Main-Taunus-Kreis
+    name: "Main-Taunus-Kreis - Straßenverkehrsamt"
+    adresse: "In den Nassen 2, 65719 Hofheim am Taunus"
+    telefon: ["06192 205-0"]
+    email: ["strassenverkehr@mtk.org"]
+    web: ["https://www.mtk.org/leistungen/8964461"]
+    stand: "2026-10-06"
+
+  "06437":  # Odenwaldkreis
+    name: "Odenwaldkreis - Verkehrswesen, Straßenverkehrsbehörde"
+    adresse: "Michelstädter Straße 12, 64711 Erbach"
+    telefon: ["06062 6014-5601", "06062 6014-0"]  # Nummer der Straßenverkehrsbehörde (ohne Person); Zentrale
+    email: ["strassenverkehrsbehoerde@odenwaldkreis.de"]
+    web: ["https://www.odenwaldkreis.de/de/dienstleistungen/verkehr/strassenverkehrsbehoerde/"]
+    stand: "2026-10-06"
+
+  "06439":  # Rheingau-Taunus-Kreis
+    name: "Rheingau-Taunus-Kreis - Straßenverkehrsbehörde"
+    adresse: "Heimbacher Straße 7, 65307 Bad Schwalbach"
+    telefon: ["06124 510-368", "06124 510-409", "06124 510-0"]  # Nummern der Straßenverkehrsbehörde (ohne Person); Zentrale
+    email: ["verkehr@rheingau-taunus.de"]
+    web: ["https://www.rheingau-taunus.de/adressdetail/strassenverkehrsbehoerde/"]
+    stand: "2026-10-06"
+
+  "06531":  # Landkreis Gießen
+    name: "Landkreis Gießen - Allgemeine Verkehrsangelegenheiten, Straßenverkehrsbehörde"
+    adresse: "Bachweg 9, 35398 Gießen"
+    telefon: ["0641 9390-0"]  # Zentrale; die Durchwahlen auf der Seite gehören Personen
+    email: ["verkehrsbehoerde@lkgi.de"]
+    web: ["https://www.lkgi.de/allgemeine-verkehrsangelegenheiten/"]
+    stand: "2026-10-06"
+
+  "06533":  # Landkreis Limburg-Weilburg
+    name: "Landkreis Limburg-Weilburg - Fachdienst Zulassungswesen, Allgemeine Verkehrsangelegenheiten"
+    adresse: "Westerwaldstraße 111, 65549 Limburg"
+    telefon: ["06431 296-0"]  # Zentrale
+    email: ["30.40@limburg-weilburg.de"]  # Postfach des Fachdienstes
+    web: ["https://www.landkreis-limburg-weilburg.de/politik-verwaltung/bereiche-ansprechpartner/amt-fuer-oeffentliche-ordnung/fachdienst-zulassungswesen"]
+    stand: "2026-10-06"
+
+  "06534":  # Landkreis Marburg-Biedenkopf – Seite der Einheit nicht lesbar, allgemeine Kontaktdaten – PRÜFEN
+    name: "Landkreis Marburg-Biedenkopf - Fachbereich Ordnung und Verkehr, Straßenverkehrsbehörde"
+    adresse: "Im Lichtenholz 60, 35043 Marburg"  # Kreishaus
+    telefon: ["06421 405-0"]  # Zentrale
+    email: ["landkreis@marburg-biedenkopf.de"]  # allgemeines Postfach
+    web: ["https://www.marburg-biedenkopf.de/dienste_und_leistungen/auto_und_mobilitaet/_Auto-Mobilitaet.php"]
+    stand: "2026-10-06"
+
+  "06535":  # Vogelsbergkreis
+    name: "Vogelsbergkreis - Amt für Ordnungs- und Straßenverkehrsangelegenheiten, Untere Straßenverkehrsbehörde"
+    adresse: "Bahnhofstraße 79, 36341 Lauterbach"
+    telefon: ["06641 977-964", "06641 977-966", "06641 977-0"]  # Nummern der Abteilung (ohne Person); Zentrale
+    email: ["verkehrsbehoerde@vogelsbergkreis.de"]
+    web: ["https://www.vogelsbergkreis.de/buergerservice/abteilungen/HES:department:1463/allgemeine-verkehrsangelegenheiten/"]
+    stand: "2026-10-06"
+
+  "06611":  # Stadt Kassel
+    name: "Stadt Kassel - Straßenverkehrs- und Tiefbauamt, Straßenverkehrsbehörde"
+    adresse: "Friedrichsstraße 36, 34117 Kassel"  # Hölkesches Haus
+    telefon: ["0561 115"]  # Servicecenter der Stadt
+    email: ["strasse-tiefbau@kassel.de"]  # Postfach des Amts; die Straßenverkehrsbehörde hat kein eigenes
+    web: ["https://www.kassel.de/service/produkte/kassel/strassenverkehrs--und-tiefbauamt/strassenverkehrsbehoerdliche_anordnungen_8964461.php"]
+    stand: "2026-10-06"
+
+  "06631":  # Landkreis Fulda – die Seiten nennen die Straßenverkehrsbehörde, aber keine eigenen Kontaktdaten – PRÜFEN
+    name: "Landkreis Fulda - Straßenverkehrsbehörde"
+    adresse: "Wörthstraße 15, 36037 Fulda"
+    telefon: ["0661 6006-0"]  # Zentrale
+    email: ["buergerservice@landkreis-fulda.de"]  # Postfach des Bürgerservice
+    web: ["https://www.landkreis-fulda.de/de/service/strassenverkehr/verkehrsregelung/"]
+    stand: "2026-10-06"
+
+  "06632":  # Landkreis Hersfeld-Rotenburg – Zuordnung über Abteilung und Postfach – PRÜFEN
+    name: "Landkreis Hersfeld-Rotenburg - Fachbereich Recht, Aufsicht & Ordnung, Allgemeines Verkehrswesen"
+    adresse: "Friedloser Straße 12, 36251 Bad Hersfeld"
+    telefon: ["06621 87-0"]  # Zentrale
+    email: ["verkehr@hef-rof.de"]
+    web: ["https://www.hef-rof.de/buergerservice/abteilungen/HES:department:14249/allgemeines-verkehrswesen/"]
+    stand: "2026-10-06"
+
+  "06633":  # Landkreis Kassel
+    name: "Landkreis Kassel - Fachbereich Aufsicht und Ordnung, Fachdienst Straßenverkehrsbehörde"
+    adresse: "Kohlenstraße 132, 34121 Kassel"
+    telefon: ["0561 1003-1713", "0561 1003-0"]  # Nummer der Straßenverkehrsbehörde (ohne Person); Zentrale
+    email: ["fachbereich34@landkreiskassel.de"]  # Postfach des Fachbereichs
+    web: ["https://www.landkreiskassel.de/service/oe/dezernat-i/34-aufsicht-und-ordnung/strassenverkehrsbehoerde/index.php"]
+    stand: "2026-10-06"
+
+  "06634":  # Schwalm-Eder-Kreis
+    name: "Schwalm-Eder-Kreis - FB 30.5 Straßenverkehrsbehörde"
+    adresse: "Hans-Scholl-Straße 1, 34576 Homberg (Efze)"
+    telefon: ["05681 775-0"]  # Zentrale; die Durchwahlen auf der Seite gehören Personen
+    email: ["verkehrsbehoerde@schwalm-eder-kreis.de"]
+    web: ["https://www.schwalm-eder-kreis.de/Verwaltung/Fachbereiche-und-Arbeitsgruppen.htm/Aemter/30-5-Strassenverkehrsbehoerde.html"]
+    stand: "2026-10-06"
+
+  "06635":  # Landkreis Waldeck-Frankenberg
+    name: "Landkreis Waldeck-Frankenberg - Fachdienst Verkehr, Straßenverkehr"
+    adresse: "Südring 2, 34497 Korbach"
+    telefon: ["05631 954-0"]  # Zentrale
+    email: ["post@lkwafkb.de"]  # allgemeines Postfach; die Seiten nennen nur ein Kontaktformular
+    web: ["https://www.landkreis-waldeck-frankenberg.de/informieren-beantragen/verwaltung-verstehen/fachdienste/verkehr/strassenverkehr/"]
+    stand: "2026-10-06"
+
+  "06636":  # Werra-Meißner-Kreis
+    name: "Werra-Meißner-Kreis - Fachdienst 3.5 Straßenverkehrsbehörde"
+    adresse: "Bahnhofstraße 15, 37269 Eschwege"
+    telefon: ["05651 302-0"]  # Zentrale; die Nummern auf der Seite gehören Personen
+    email: ["wmk@werra-meissner-kreis.de"]  # allgemeines Postfach
+    web: ["https://www.werra-meissner-kreis.de/fachbereiche-einrichtungen/fb-3-aufsicht-ordnung-und-verkehr/35-strassenverkehrsbehoerde/verkehrsangelegenheiten"]
+    stand: "2026-10-06"
+
+  # Baden-Württemberg. Nicht ermittelt: Stadtkreise Heilbronn, Freiburg und Ulm, Rems-Murr-Kreis,
+  # Neckar-Odenwald-Kreis, Enzkreis, Emmendingen und Alb-Donau-Kreis (Seiten nicht lesbar bzw. Stelle nicht
+  # eindeutig).
+  "08111":  # Landeshauptstadt Stuttgart
+    name: "Landeshauptstadt Stuttgart - Amt für öffentliche Ordnung, Verkehrsregelung und -management"
+    adresse: "Eberhardstraße 35, 70173 Stuttgart"
+    telefon: ["0711 216-91138"]
+    email: ["verkehrsregelung@stuttgart.de"]
+    web: ["https://www.stuttgart.de/organigramm/verwaltungseinheit/verkehrsregelung-und-management.php"]
+    stand: "2026-10-06"
+
+  "08115":  # Landkreis Böblingen
+    name: "Landratsamt Böblingen - Amt für Straßenverkehr und Ordnung, Straßenverkehrsbehörde"
+    adresse: "Parkstraße 16, 71034 Böblingen"
+    telefon: ["07031 663-1425", "07031 663-0"]  # Nummer des Amts (ohne Person); Zentrale
+    email: ["strassenverkehr@lrabb.de"]
+    web: ["https://www.lrabb.de/start/Service+_+Verwaltung/Strassenverkehrsbehoerde.html"]
+    stand: "2026-10-06"
+
+  "08116":  # Landkreis Esslingen
+    name: "Landratsamt Esslingen - Straßenverkehrsamt, Straßenverkehrsbehörde"
+    adresse: "Am Aussichtsturm 7, 73207 Plochingen"
+    telefon: ["0711 3902-42792"]  # Sekretariat des Straßenverkehrsamts
+    email: ["strassenverkehrsamt@lra-es.de"]
+    web: ["https://www.landkreis-esslingen.de/start/service/Ansprechpartner+Strassenverkehrsbehoerde.html"]
+    stand: "2026-10-06"
+
+  "08117":  # Landkreis Göppingen
+    name: "Landratsamt Göppingen - Straßenverkehrsamt"
+    adresse: "Lorcher Straße 6, 73033 Göppingen"
+    telefon: ["07161 202-5001"]  # Auskunft des Straßenverkehrsamts
+    email: ["strassenverkehrsamt@lkgp.de"]
+    web: ["https://www.landkreis-goeppingen.de/landratsamt/aemter/strassenverkehrsamt/anordnung-verkehrsregelnder-massnahmen"]
+    stand: "2026-10-06"
+
+  "08118":  # Landkreis Ludwigsburg – Postfach aus dem Antragsformular nach § 45 StVO
+    name: "Landratsamt Ludwigsburg - Fachbereich Verkehr, Straßenverkehrsangelegenheiten"
+    adresse: "Hindenburgstraße 40, 71638 Ludwigsburg"
+    telefon: ["07141 144-0"]  # Zentrale
+    email: ["verkehr@landkreis-ludwigsburg.de"]
+    web: ["https://www.landkreis-ludwigsburg.de/verkehr-sicherheit-ordnung/strassenverkehr/"]
+    stand: "2026-10-06"
+
+  "08125":  # Landkreis Heilbronn
+    name: "Landratsamt Heilbronn - Straßen und Verkehr, Sachgebiet Verkehrsbehörde"
+    adresse: "Lerchenstraße 40, 74072 Heilbronn"
+    telefon: ["07131 994-7480"]  # Nummer des Amts Straßen und Verkehr
+    email: ["verkehrsbehoerde@landratsamt-heilbronn.de", "strassen-und-verkehr@landratsamt-heilbronn.de"]
+    web: ["https://www.landkreis-heilbronn.de/strassen-und-verkehr.5386.htm"]
+    stand: "2026-10-06"
+
+  "08126":  # Hohenlohekreis
+    name: "Landratsamt Hohenlohekreis - Straßenverkehrsamt, Untere Straßenverkehrsbehörde"
+    adresse: "Allee 17, 74653 Künzelsau"
+    telefon: ["07940 18-1229", "07940 18-0"]  # Sekretariat des Straßenverkehrsamts; Zentrale
+    email: ["strassenverkehrsamt@hohenlohekreis.de"]
+    web: ["https://www.hohenlohekreis.de/das-landratsamt/aemteruebersicht/dezernat-fuer-umwelt-ordnung-und-gesundheit/strassenverkehrsbehoerde"]
+    stand: "2026-10-06"
+
+  "08127":  # Landkreis Schwäbisch Hall
+    name: "Landratsamt Schwäbisch Hall - Ordnungs- und Straßenverkehrsamt, Verkehrsbehörde"
+    adresse: "Karl-Kurz-Straße 44, 74523 Schwäbisch Hall"
+    telefon: ["0791 755-7467", "0791 755-0"]  # Nummer der Verkehrsbehörde (ohne Person); Zentrale
+    email: ["verkehrsbehoerde@lrasha.de"]
+    web: ["https://www.lrasha.de/landratsamt/verwaltung/aemter-im-ueberblick/6059747/verkehrsbehoerde"]
+    stand: "2026-10-06"
+
+  "08128":  # Main-Tauber-Kreis – keine E-Mail-Adresse veröffentlicht
+    name: "Landratsamt Main-Tauber-Kreis - Verkehrsamt, Sachgebiet Verkehrswesen"
+    adresse: "Gartenstraße 2a, 97941 Tauberbischofsheim"
+    telefon: ["09341 82-4001"]  # Auskunft des Verkehrsamts
+    email: []
+    web: ["https://www.main-tauber-kreis.de/Landratsamt/Verwaltung/Aemter-und-Dezernate/Dezernat-3-Kreisentwicklung-und-Bildung/Verkehrsamt/"]
+    stand: "2026-10-06"
+
+  "08135":  # Landkreis Heidenheim
+    name: "Landratsamt Heidenheim - Fachbereich Straßenverkehr, Straßenverkehrsbehörde"
+    adresse: "Felsenstraße 36, 89518 Heidenheim"
+    telefon: ["07321 321-2321"]  # Nummer der Straßenverkehrsbehörde (ohne Person)
+    email: ["strassenverkehr@landkreis-heidenheim.de"]
+    web: ["https://www.landkreis-heidenheim.de/service/organigramm/fachbereich+strassenverkehr"]
+    stand: "2026-10-06"
+
+  "08136":  # Ostalbkreis
+    name: "Landratsamt Ostalbkreis - Geschäftsbereich Straßenverkehr (Untere Verkehrsbehörde)"
+    adresse: "Stuttgarter Straße 41, 73430 Aalen"
+    telefon: ["07361 503-1531"]  # Nummer des Geschäftsbereichs (ohne Person)
+    email: ["info@ostalbkreis.de"]  # allgemeines Postfach; die Seite zeigt keine Adresse
+    web: ["https://www.ostalbkreis.de/strassenverkehr"]
+    stand: "2026-10-06"
+
+  "08211":  # Stadtkreis Baden-Baden – Abteilung mit Zulassung und Fahrerlaubnis – PRÜFEN
+    name: "Stadt Baden-Baden - Amt für Ordnung und Sicherheit, Abteilung Straßenverkehr"
+    adresse: "Briegelackerstraße 21, 76532 Baden-Baden"
+    telefon: ["07221 93-1820"]  # Nummer der Abteilung
+    email: ["strassenverkehr@baden-baden.de"]
+    web: ["https://www.baden-baden.de/-/aemter/abteilung-strassenverkehr/oe6019893"]
+    stand: "2026-10-06"
+
+  "08212":  # Stadtkreis Karlsruhe
+    name: "Stadt Karlsruhe - Ordnungs- und Bürgeramt, Straßenverkehrsstelle"
+    adresse: "Steinhäuserstraße 22, 76135 Karlsruhe"
+    telefon: ["0721 115"]  # Behördennummer, so auf der Seite der Stelle
+    email: ["strassenverkehrsstelle@oa.karlsruhe.de"]
+    web: ["https://web1.karlsruhe.de/service/Buergerdienste/organisation.php?id=6028451"]
+    stand: "2026-10-06"
+
+  "08215":  # Landkreis Karlsruhe
+    name: "Landratsamt Karlsruhe - Amt für Straßenverkehr, Straßenverkehrsrecht"
+    adresse: "Gartenstraße 82-84, 76137 Karlsruhe"  # Post: Kriegsstraße 100, 76133 Karlsruhe
+    telefon: ["0721 936-50"]  # Zentrale
+    email: ["stv@landratsamt-karlsruhe.de"]
+    web: ["https://www.landkreis-karlsruhe.de/Service-Verwaltung/Verwaltung/Dezernate-%C3%84mter/Recht-Ordnung/Amt-f%C3%BCr-Stra%C3%9Fenverkehr/"]
+    stand: "2026-10-06"
+
+  "08216":  # Landkreis Rastatt
+    name: "Landratsamt Rastatt - Straßenverkehrsamt, Untere Straßenverkehrsbehörde"
+    adresse: "Untere Wiesen 6, 76437 Rastatt"
+    telefon: ["07222 381-3200"]  # Nummer des Straßenverkehrsamts
+    email: ["amt32@landkreis-rastatt.de"]
+    web: ["https://www.landkreis-rastatt.de/landratsamt/ihr-weg-zu-uns/rastatt-strassenverkehrsamt"]
+    stand: "2026-10-06"
+
+  "08221":  # Stadtkreis Heidelberg
+    name: "Stadt Heidelberg - Amt für Mobilität, Verkehrsrecht"
+    adresse: "Bergheimer Straße 111, 69115 Heidelberg"
+    telefon: ["06221 58-30500"]
+    email: ["verkehrsrecht@heidelberg.de"]
+    web: ["https://www.heidelberg.de/-/Behoerdenwegweiser/verkehrsrecht/oe6005549"]
+    stand: "2026-10-06"
+
+  "08222":  # Stadtkreis Mannheim
+    name: "Stadt Mannheim - Fachbereich Sicherheit und Ordnung, Polizei- und Verkehrsbehörde"
+    adresse: "Karl-Ludwig-Straße 28-30, 68165 Mannheim"
+    telefon: ["0621 115"]  # Behördennummer; die Nummern der Abteilung stehen neben der Leitung
+    email: ["31Baustellen@mannheim.de"]  # Postfach für Baustellen und Verkehrslenkung
+    web: ["https://www.mannheim.de/de/stadt-gestalten/verwaltung/aemter-fachbereiche-eigenbetriebe/sicherheit-und-ordnung/polizei-und-verkehrsbehoerde-veranstaltungsmanagement"]
+    stand: "2026-10-06"
+
+  "08226":  # Rhein-Neckar-Kreis
+    name: "Landratsamt Rhein-Neckar-Kreis - Straßenverkehrsamt, Straßenverkehrsrecht"
+    adresse: "Adelsförsterpfad 7, 69168 Wiesloch"  # Besucheranschrift; Post: Kurfürsten-Anlage 38-40, 69115 Heidelberg
+    telefon: ["06221 522-4106"]  # Nummer des Straßenverkehrsamts
+    email: ["strassenverkehrsamt@rhein-neckar-kreis.de"]
+    web: ["https://www.rhein-neckar-kreis.de/landratsamt/aemter-und-aufgaben/strassenverkehrsamt"]
+    stand: "2026-10-06"
+
+  "08231":  # Stadtkreis Pforzheim – keine E-Mail-Adresse veröffentlicht
+    name: "Stadt Pforzheim - Straßenverkehr, Straßenverkehrsbehörde"
+    adresse: "Östliche Karl-Friedrich-Straße 2, 75175 Pforzheim"
+    telefon: ["07231 39-2502", "07231 39-1305"]  # Nummern der Straßenverkehrsbehörde (ohne Person)
+    email: []
+    web: ["https://www.pforzheim.de/buerger/buergerservice/pf0/service-bw/organisationseinheiten/show/6021552-strassenverkehrsbehoerde.html"]
+    stand: "2026-10-06"
+
+  "08235":  # Landkreis Calw – zuständige Stelle laut den Dienstleistungsseiten – PRÜFEN
+    name: "Landratsamt Calw - Abteilung Straßenbau und Straßenverkehr"
+    adresse: "Vogteistraße 42-46, 75365 Calw"
+    telefon: ["07051 160-0"]  # Zentrale
+    email: ["33.info@kreis-calw.de"]  # Postfach der Abteilung
+    web: ["https://www.kreis-calw.de/Service-Verwaltung/Verwaltung/Dezernate-und-Abteilungen/Dezernat-3-Infrastruktur/Stra%C3%9Fenbau/"]
+    stand: "2026-10-06"
+
+  "08237":  # Landkreis Freudenstadt
+    name: "Landratsamt Freudenstadt - Amt für Ordnung und Verkehr, Straßenverkehrsbehörde"
+    adresse: "Herrenfelder Straße 14, 72250 Freudenstadt"
+    telefon: ["07441 920-0"]  # Zentrale; die Durchwahlen auf der Seite gehören Personen
+    email: ["strassenverkehr@kreis-fds.de"]
+    web: ["https://www.kreis-fds.de/-/behoerdenwegweiser/strassenverkehrsbehoerde/oe6002251"]
+    stand: "2026-10-06"
+
+  "08315":  # Landkreis Breisgau-Hochschwarzwald
+    name: "Landratsamt Breisgau-Hochschwarzwald - Fachbereich Verkehrslenkung und Straßenverwaltung"
+    adresse: "Ludwigstraße 23, 79104 Freiburg im Breisgau"
+    telefon: ["0761 2187-0"]  # Zentrale; die Durchwahlen auf der Seite gehören Personen
+    email: ["verkehr@lkbh.de"]
+    web: ["https://www.breisgau-hochschwarzwald.de/pb/Breisgau-Hochschwarzwald/-/BWW+service_bw/fachbereich-verkehrslenkung-und-strassenverwaltung/oe6010678"]
+    stand: "2026-10-06"
+
+  "08317":  # Ortenaukreis
+    name: "Landratsamt Ortenaukreis - Amt Straßenverkehr & ÖPNV"
+    adresse: "Badstraße 20, 77652 Offenburg"
+    telefon: ["0781 805-0"]  # Zentrale
+    email: ["landratsamt@ortenaukreis.de"]  # allgemeines Postfach; das Amt nennt nur ein Kontaktformular
+    web: ["https://www.ortenaukreis.de/Unsere-%C3%84mter/Dezernat-2-Infrastrukturen-Baurecht-Migration/Stra%C3%9Fenverkehr-%C3%96PNV/"]
+    stand: "2026-10-06"
+
+  "08325":  # Landkreis Rottweil
+    name: "Landratsamt Rottweil - Straßenverkehrsamt, Untere Straßenverkehrsbehörde"
+    adresse: "Marienstraße 2, 78628 Rottweil"
+    telefon: ["0741 244-933", "0741 244-0"]  # Nummer der Behörde (ohne Person); Zentrale
+    email: ["strassenverkehrsamt@landkreis-rottweil.de"]
+    web: ["https://www.landkreis-rottweil.de/de/service-verwaltung/aemter/Strassenverkehrsamt-Fuehrerschein-und-Bussgelds/Untere-Strassenverkehrsbehoerde"]
+    stand: "2026-10-06"
+
+  "08326":  # Schwarzwald-Baar-Kreis
+    name: "Landratsamt Schwarzwald-Baar-Kreis - Straßenverkehrsamt, Allgemeine Verkehrsangelegenheiten"
+    adresse: "Am Hoptbühl 2, 78048 Villingen-Schwenningen"
+    telefon: ["07721 913-7216", "07721 913-8923", "07721 913-0"]  # Nummern des Straßenverkehrsamts (ohne Person); Zentrale
+    email: ["strassenverkehrsamt@lrasbk.de"]
+    web: ["https://www.lrasbk.de/Landratsamt/%C3%84mter/Stra%C3%9Fenverkehrsamt/"]
+    stand: "2026-10-06"
+
+  "08327":  # Landkreis Tuttlingen
+    name: "Landratsamt Tuttlingen - Straßenverkehrsamt, Straßenverkehrsbehörde"
+    adresse: "Bahnhofstraße 100, 78532 Tuttlingen"
+    telefon: ["07461 926-5100", "07461 926-0"]  # Nummer des Straßenverkehrsamts; Zentrale
+    email: ["strassenverkehrsamt@landkreis-tuttlingen.de"]
+    web: ["https://www.landkreis-tuttlingen.de/Service-und-Verwaltung/%C3%84mter-und-Aufgaben/Stra%C3%9Fenverkehrsamt/"]
+    stand: "2026-10-06"
+
+  "08335":  # Landkreis Konstanz
+    name: "Landratsamt Konstanz - Amt für Straßenverkehr und Schifffahrt, Referat Verkehrslenkung und -sicherung"
+    adresse: "Max-Stromeyer-Straße 47, 78467 Konstanz"
+    telefon: ["07531 800-1911"]  # Nummer der Straßenverkehrsbehörde
+    email: ["strassenverkehrsamt@lrakn.de"]
+    web: ["https://www.lrakn.de/service-und-verwaltung/aemter/strassenverkehr+und+schifffahrt/strassenverkehrsbehoerde"]
+    stand: "2026-10-06"
+
+  "08336":  # Landkreis Lörrach
+    name: "Landratsamt Lörrach - Fachbereich Verkehr & ÖPNV, Sachgebiet Verkehr"
+    adresse: "Palmstraße 3, 79539 Lörrach"
+    telefon: ["07621 410-0"]  # Zentrale, so auf der Seite des Sachgebiets
+    email: ["verkehr@loerrach-landkreis.de"]
+    web: ["https://www.loerrach-landkreis.de/de/Service-Verwaltung/Fachbereiche/Verkehr/Sachgebiete/Sachgebiet?view=publish&item=level1&id=1095"]
+    stand: "2026-10-06"
+
+  "08337":  # Landkreis Waldshut
+    name: "Landratsamt Waldshut - Straßenverkehrsamt"
+    adresse: "Kaiserstraße 110, 79761 Waldshut-Tiengen"
+    telefon: []  # die Nummer des Amts steht auch bei der Leitung, Zentrale nicht geprüft
+    email: ["strassenverkehrsamt@landkreis-waldshut.de"]
+    web: ["https://www.landkreis-waldshut.de/strassenverkehrsamt/verkehrsrechtliche-anordnungen-und-genehmigungen/"]
+    stand: "2026-10-06"
+
+  "08415":  # Landkreis Reutlingen
+    name: "Landratsamt Reutlingen - Bußgeld- und Verkehrsbehörde, Verkehrsbehörde"
+    adresse: "Karlstraße 99, 72766 Reutlingen"  # Anschrift des Landratsamts seit 07.09.2026
+    telefon: ["07121 480-22035"]  # Nummer der Verkehrsbehörde
+    email: ["verkehrsbehoerde@kreis-reutlingen.de"]
+    web: ["https://www.kreis-reutlingen.de/Landratsamt/Organisationseinheiten/Weitere-Organisationseinheiten/Verkehrsbehoerde"]
+    stand: "2026-10-06"
+
+  "08416":  # Landkreis Tübingen
+    name: "Landratsamt Tübingen - Abteilung Verkehr und Straßen, Sachgebiet Verkehrsrecht"
+    adresse: "Wilhelm-Keil-Straße 50, 72072 Tübingen"
+    telefon: ["07071 207-4320"]  # Sekretariat der Abteilung
+    email: ["verkehr-strassen@kreis-tuebingen.de"]
+    web: ["https://www.kreis-tuebingen.de/bauen_verkehr/verkehr/verkehrsrecht"]
+    stand: "2026-10-06"
+
+  "08417":  # Zollernalbkreis
+    name: "Landratsamt Zollernalbkreis - Verkehrsamt"
+    adresse: "Richard-Strauß-Straße 5, 72336 Balingen"
+    telefon: ["07433 92-1431"]  # Nummer des Verkehrsamts
+    email: ["verkehrsamt@zollernalbkreis.de"]
+    web: ["https://www.zollernalbkreis.de/landratsamt/aemter++und+organisation/strassenverkehr"]
+    stand: "2026-10-06"
+
+  "08426":  # Landkreis Biberach
+    name: "Landratsamt Biberach - Verkehrsamt, Sachgebiet Straßenverkehrsbehörde"
+    adresse: "Rollinstraße 15, 88400 Biberach"
+    telefon: ["07351 52-0"]  # Zentrale; die Nummer auf der Seite gehört der Leitung
+    email: ["verkehrsamt-uvb@biberach.de"]
+    web: ["https://www.biberach.de/de/Service-Verwaltung/Das-Landratsamt/Unsere-aemter/Verkehrsamt/Sachgebiete/Sachgebiet?view=publish&item=level1&id=1046"]
+    stand: "2026-10-06"
+
+  "08435":  # Bodenseekreis
+    name: "Landratsamt Bodenseekreis - Rechts- und Ordnungsamt, Straßenverkehrsbehörde"
+    adresse: "Glärnischstraße 1-3, 88045 Friedrichshafen"
+    telefon: ["07541 204-0"]  # Zentrale; die Durchwahlen auf der Seite gehören Personen
+    email: ["strassenverkehrsbehoerde@bodenseekreis.de"]
+    web: ["https://www.bodenseekreis.de/verkehr-wirtschaft/strassenverkehrsbehoerde/"]
+    stand: "2026-10-06"
+
+  "08436":  # Landkreis Ravensburg – zuständige Stelle laut Bürgerportal, Seiten selbst nicht lesbar – PRÜFEN
+    name: "Landratsamt Ravensburg - Straßenamt"
+    adresse: "Friedenstraße 6, 88212 Ravensburg"
+    telefon: ["0751 85-0"]  # Zentrale
+    email: ["st@rv.de"]  # Postfach des Straßenamts
+    web: ["https://onlinedienste.rv.de/detail/-/vr-bis-detail/einrichtung/439950/show"]
+    stand: "2026-10-06"
+
+  "08437":  # Landkreis Sigmaringen
+    name: "Landratsamt Sigmaringen - Fachbereich Recht & Ordnung, Sachgebiet Untere Verkehrsbehörde und Bußgeldstelle"
+    adresse: "Leopoldstraße 4, 72488 Sigmaringen"
+    telefon: ["07571 102-0"]  # Zentrale
+    email: ["post.verkehrsbehoerde@lrasig.de"]
+    web: ["https://www.landkreis-sigmaringen.de/de/Landratsamt/Kreisverwaltung/Fachbereiche/Recht-Ordnung/Sachgebiet?view=publish&item=level1&id=1043"]
+    stand: "2026-10-06"
   # Berlin (kein Bundesportal): Senat und Bezirksämter. Abgeschrieben vom Service-Portal Berlin
   # und den Seiten der Bezirksämter; vor der Freigabe im Browser gegenlesen (Übergabe Berlin).
   "11000":  # Senatsverwaltung – zentrale Straßenverkehrsbehörde für das übergeordnete Netz
