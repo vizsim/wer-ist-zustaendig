@@ -444,6 +444,16 @@ kontakte:
     web: ["https://www.salzlandkreis.de/themenbereiche/mobilitaet-verkehr/verkehrsorganisation-gewerblicher-kraftverkehr/"]
     stand: "2026-10-06"
 
+  # Nordrhein-Westfalen (Kontakte noch nicht freigegeben, sources.yaml).
+  "053340002002":  # Stadt Aachen – ordnet laut ihrem Serviceportal selbst an (Regel: die Stadt, vermutlich)
+    rolle: gemeinde
+    name: "Stadt Aachen - Straßenverkehr und Sondernutzungen (FB 68/400)"
+    adresse: "Lagerhausstraße 20, 52064 Aachen"
+    telefon: []  # 0241 432-68499 steht auf der Seite der Einheit als Fax, auf der Leistung als Telefon – PRÜFEN
+    email: ["strassenverkehrsbehoerde@mail.aachen.de"]
+    web: ["https://serviceportal.aachen.de/suche/-/vr-bis-detail/dienstleistung/3035/show"]
+    stand: "2026-10-06"
+
   # Verkehrsstellen der Kreisebene in den Ländern ohne Bundesportal-Eintrag: Sie gehen der allgemeinen
   # Anschrift aus dem Gemeinde- bzw. Anschriftenverzeichnis vor (anschriften.py). Abgeschrieben von den
   # Webseiten und Antragsformularen der Behörden am 06.10.2026 (Recherche mit Abrufwerkzeug, Belege in der
