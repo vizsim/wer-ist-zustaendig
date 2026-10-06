@@ -7,6 +7,42 @@ ein Git-Tag `v<version>` dazu.
 
 ## [Unveröffentlicht]
 
+### Hinzugefügt
+
+- Kontakte der Straßenverkehrsbehörden der Kreisebene in Sachsen, Hessen, im Saarland und in
+  Baden-Württemberg statt der allgemeinen Anschrift des Landratsamts bzw. der Stadt: 75 Einträge von
+  den Webseiten der Behörden. Die allgemeine Anschrift bleibt für Chemnitz, Dresden, Leipzig und
+  zwölf Kreise in Hessen und Baden-Württemberg.
+- Kontakte von Hand in Mecklenburg-Vorpommern (Schwerin, Landkreis Ludwigslust-Parchim, Güstrow,
+  Waren (Müritz), Neustrelitz, Wismar), Sachsen-Anhalt (Dessau-Roßlau, Halle (Saale), Magdeburg,
+  Landkreis Harz, Salzlandkreis) und Niedersachsen (die selbständigen Städte Hannover, Göttingen,
+  Hildesheim, Hameln, Garbsen und Nordhorn; der Landkreis Hildesheim als allgemeine Anschrift). Den
+  Kontakt der zuständigen Stelle gibt es jetzt in Mecklenburg-Vorpommern für 531 statt 385
+  Gemeinden, in Sachsen-Anhalt für 169 statt 127, in Niedersachsen für 913 statt 889.
+- `tools/check-kontakte.mjs <LKZ> --stellen` listet die Stellen ohne Kontakt, mit dem Schlüssel für
+  `kontakte_ergaenzt.yaml`. Der Build prüft jede Liste in `js/resolve.js` gegen die Gemeindetabelle
+  und warnt, wenn ein Eintrag nicht mehr passt.
+
+### Geändert
+
+- Thüringen: Welche Städte auf Antrag Straßenverkehrsbehörde sind, steht jetzt nach der Verordnung
+  von 2006 (geändert 2022) fest. Diese 20 Städte sind für alle Straßen außer Bundesstraßen zuständig
+  (**belegt**); 16 von ihnen standen bisher nur als Alternative zum Landratsamt da, etwa Meiningen,
+  Sonneberg und Saalfeld/Saale. Die fünf großen kreisangehörigen Städte und Eisenach sind **belegt**.
+  Andere Städte mit 10.000 bis 30.000 Einwohnern stehen nicht mehr als Alternative da (Dingelstädt,
+  Schleusingen, Greiz, Meuselwitz) – nur noch, wenn das Bundesportal eine Gemeinde als
+  Straßenverkehrsbehörde nennt.
+- Hessen: Die Sonderstatus-Städte stehen nach § 4a HGO (Primärquelle). Hanau ist seit 2026
+  kreisfrei und bekommt Begründung und Fundstelle einer kreisfreien Stadt; die Stelle bleibt
+  dieselbe.
+- Berlin: Fundstellen berichtigt (Zuständigkeitskatalog Nr. 11 Abs. 3 und 4, Nr. 22b Abs. 3 bis 7).
+  Ampeln und Wegweiser ordnet überall die Senatsverwaltung an, Halten und Parken das Bezirksamt – so
+  sagen es jetzt Begründung und Bedingungen.
+- Rheinland-Pfalz und Sachsen-Anhalt: Fundstellen berichtigt; die Regeln bleiben „vermutlich“.
+- Kontakte aus dem Bundesportal: Stadt und Kreis gleichen Namens werden nicht mehr verwechselt (in
+  Niedersachsen Goslar, Peine, Rotenburg (Wümme) und Wittmund), und Stellen des Landes oder Bundes
+  gelten weder als Kreis noch als Gemeinde.
+
 ## [0.13.0] – 2026-10-06
 
 Landesregeln für Bremen und Hamburg – jedes Land hat jetzt eine eigene Regel; Kontakte in Bremen von

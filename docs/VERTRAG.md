@@ -3,7 +3,7 @@
 Dieses Dokument ist die Schnittstelle zwischen „Wer ist zuständig?" und allen, die die Dateien
 nutzen – zuerst die Karte in diesem Repo, dann die Unfallkarte.
 
-Stand: **Schema 1** · Regeln 0.13.0 (Phase 2: Landesregeln für alle sechzehn Länder) · Datenstand 31.12.2025
+Stand: **Schema 1** · Regeln 0.14.0 (Phase 2: Landesregeln für alle sechzehn Länder) · Datenstand 31.12.2025
 
 ## Regeln für alle Dateien
 
@@ -136,11 +136,14 @@ TH), haben im Kopf `bundesportal_region`: den Link auf die Seite der Leistung f�
 - eine fünfte Tabelle `kontakte` (siehe unten) und je Gemeinde die Felder `kontakt` und
   `kontakt_gemeinde`.
 
-Sachsen, Hessen, das Saarland und Baden-Württemberg führen die Leistung nicht im Bundesportal. Ihre
-Kontakte sind nur die allgemeine Anschrift von Rathaus bzw. Landratsamt (`allgemein`): in Sachsen
-aus dem Gemeindeverzeichnis der Landesdirektion (`daten.kontakte`: „Landesdirektion Sachsen
-05.10.2026", Quelle `lds_sachsen`, Datenlizenz Deutschland – Namensnennung 2.0), in Hessen, im
-Saarland und in Baden-Württemberg aus dem Anschriftenverzeichnis der Statistischen Ämter
+Sachsen, Hessen, das Saarland und Baden-Württemberg führen die Leistung nicht im Bundesportal. Für
+die Kreisebene (`kontakt`) steht seit Regeln 0.14.0 meist die Straßenverkehrsbehörde selbst, von
+Hand nach den Webseiten der Behörden (im Kontakt `quelle`: „Webseite der Behörde, Stand …“); wo
+keine zu finden war, und für die Gemeinden sind die Kontakte nur die allgemeine Anschrift von Rathaus
+bzw. Landratsamt (`allgemein`): in Sachsen aus dem Gemeindeverzeichnis der Landesdirektion
+(`daten.kontakte`: „Landesdirektion Sachsen 05.10.2026", Quelle `lds_sachsen`, Datenlizenz
+Deutschland – Namensnennung 2.0), in Hessen, im Saarland und in Baden-Württemberg aus dem
+Anschriftenverzeichnis der Statistischen Ämter
 („Anschriftenverzeichnis der Statistischen Ämter 31.01.2026", Quelle `anschriften`) – dort nur
 Anschrift und E-Mail. In Baden-Württemberg fehlt die E-Mail für die meisten Gemeinden am Sitz einer
 Verwaltungsgemeinschaft (207 von 270); deren Kontakt ist dann nur die Anschrift.
@@ -214,7 +217,7 @@ die übrigen Klassen das Landratsamt. Die Kontaktangaben sind hier ausgelassen.
 | Feld | Inhalt |
 |---|---|
 | `stelle` | Id in `stellen` |
-| `sicherheit` | `belegt` (Primärquelle, getestete Regel; heute BB, BY, HB, HE, MV, NI, NW, SH, SL, SN, in BW Stadtkreise, Große Kreisstädte und das Landratsamt, wo niemand anders zuständig sein kann) · `vermutlich` (Regel aus Sekundärquelle wie in TH, RP, ST und BE, in BW die Listen der Landratsämter; Eingabe unsicher – oder das Land nennt im Bundesportal dieselbe Stelle) · `nur Ebene` (welche Stelle genau zuständig ist, ist offen: in Hamburg ist nur „das zuständige Polizeikommissariat" bekannt, für ganz Berlin nur „das Bezirksamt"; auf den Kondominium-Flächen steht die Stelle der Nachbargemeinde, ungeprüft; bis Regeln 0.11.0 auch die Kreisebene in Ländern ohne Regel) |
+| `sicherheit` | `belegt` (Primärquelle, getestete Regel; heute BB, BY, HB, HE, MV, NI, NW, SH, SL, SN, in BW Stadtkreise, Große Kreisstädte und das Landratsamt, wo niemand anders zuständig sein kann, in TH die großen kreisangehörigen Städte, Eisenach und die Städte auf Antrag) · `vermutlich` (Regel aus Sekundärquelle wie in RP, ST und BE, in TH der Landkreis – die Hauptverordnung ist nur in der Fassung von 2007 gelesen –, in BW die Listen der Landratsämter; Eingabe unsicher – oder das Land nennt im Bundesportal dieselbe Stelle) · `nur Ebene` (welche Stelle genau zuständig ist, ist offen: in Hamburg ist nur „das zuständige Polizeikommissariat" bekannt, für ganz Berlin nur „das Bezirksamt"; auf den Kondominium-Flächen steht die Stelle der Nachbargemeinde, ungeprüft; bis Regeln 0.11.0 auch die Kreisebene in Ländern ohne Regel) |
 | `grund` | ein Satz für Popup und Report |
 | `quelle` | Fundstelle mit Fassung; beim Rückfall auf die Kreisebene der Hinweis darauf |
 | `alternative` | `null` oder `{ stelle, bedingung }`; `bedingung` ist ein Satzteil („falls nur die Gemeindestraße betroffen ist") |

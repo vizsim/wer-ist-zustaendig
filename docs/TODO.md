@@ -18,15 +18,13 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
 
 ## Regeln je Land
 
-- [ ] **Thüringen belegen:** Zuständigkeitsverordnung Straßenverkehr (13.02.2007, zuletzt
-  geändert 20.05.2026) an der Primärquelle lesen – landesrecht.thueringen.de lädt nur mit
-  JavaScript; heute aus umwelt-online. Die Rechtsverordnung nach § 2 Abs. 8 mit der Liste der
-  Städte auf Antrag beschaffen – vermutlich die „Thüringer Verordnung zur Bestimmung der
-  Zuständigkeit von Gemeinden als Straßenverkehrsbehörde" (laut saarheim.de [S]). Heute erkannt
-  am Bundesportal (Apolda, Eisenberg, Heilbad Heiligenstadt) oder von Hand (Arnstadt,
-  `TH_STAEDTE_AUF_ANTRAG`); die übrigen 20 Gemeinden mit 10.000 bis 30.000 Einwohnern stehen bis
-  dahin als Alternative da. Die großen kreisangehörigen Städte nach ThürKO abgleichen – GV-ISys
-  führt in Thüringen kein Textkennzeichen 67.
+- [ ] **Thüringen, Hauptverordnung** (seit 0.14.0 sind die Städte auf Antrag, die großen
+  kreisangehörigen Städte und Eisenach belegt): die Thüringer Verordnung zur Übertragung von
+  Ermächtigungen und über Zuständigkeiten auf dem Gebiet des Straßenverkehrsrechts vom 13.02.2007
+  (GVBl. S. 11) in der geltenden Fassung lesen – heute nur in der Fassung von 2007; die Buchstaben
+  a–e, Abs. 7 und die Änderung vom 20.05.2026 stammen aus einer Sekundärquelle, spätere Änderungen
+  haben § 2 umnummeriert. Bis dahin bleiben der Landkreis und die Bundesstraßen der Städte auf
+  Antrag „vermutlich".
 - [ ] **Niedersachsen, offen** (Regel seit 0.8.0): Übertragungen der Gemeindestraßen nach § 2
   Abs. 2 ZustVO-Verkehr je Landkreis erheben – es gibt kein Verzeichnis; bekannt sind nur 16
   Fälle von Webseiten der Kreise und der Region (`NI_GEMEINDESTRASSEN`, `[S]`); Sarstedt nennt
@@ -42,11 +40,12 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
   nur für Monschau, Roetgen und Simmerath – Anlage 2 Nr. 25 des Aachen-Gesetzes überträgt aber
   die Trägerschaft der Straßenverkehrsbehörde ohne Ausnahme auf die Städteregion. Bei Stadt oder
   Städteregion nachfragen.
-- [ ] **Rheinland-Pfalz belegen:** die Landesverordnung über Zuständigkeiten auf dem Gebiet des
-  Straßenverkehrsrechts (BS 923-3) an landesrecht.rlp.de lesen, heute nur aus lexsoft (Fassung
-  08.12.2020); offen sind die 29. und 31. Änderung (GVBl. 2025 S. 63, 2026 S. 86). Anlage 1 in
-  `RP_ANLAGE_1` eintragen und klären, wer bei Bundesstraßen außerorts zuständig ist. Danach
-  „belegt" statt „vermutlich" und `[S]` aus den Fundstellen.
+- [ ] **Rheinland-Pfalz belegen:** den Schluss von § 3 Abs. 1 der Landesverordnung BS 923-3 („in
+  kreisfreien und großen kreisangehörigen Städten die Stadtverwaltung") an der Primärquelle lesen –
+  heute nur aus lexsoft; die 29. bis 31. Änderung waren nicht lesbar. Im GVBl. gelesen sind die
+  Änderungen 14 bis 28 und 32 (bis 15.06.2026): Anlage 1 zu § 5 Abs. 1 ist seit 2010 leer,
+  Bundesstraßen außerorts bleiben bei der Kreisverwaltung. Danach „belegt" statt „vermutlich" und
+  `[S]` aus den Fundstellen.
 - [ ] **Mecklenburg-Vorpommern:** was § 68 Abs. 2 FKrG den Ämtern und amtsfreien Gemeinden im
   Straßenverkehr überträgt (heute: keine Alternative); die konsolidierte Fassung der StVZustLVO
   M-V an landesrecht-mv.de gegenlesen (Änderungen nach 2021 nicht vollständig gesucht).
@@ -54,12 +53,13 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
   Anordnung mehrere Gemeinden betrifft – im Amt Schlieben also nicht für amtsweite Anordnungen;
   die Alternative bildet das nicht ab.
 - [ ] **Sachsen-Anhalt belegen** (Regel seit 0.9.0 nur „vermutlich"): Art. 3 § 1 Nr. 5 des
-  Gesetzes zur Fortentwicklung der Verwaltungsgemeinschaften vom 13.11.2003 (GVBl. LSA S. 318,
-  neu gefasst 22.12.2004) an landesrecht.sachsen-anhalt.de lesen – heute nur aus BVerwG 3 B 91.10
-  und Webseiten der Behörden. Zu klären: nur Gemeindestraßen, nur innerorts (dann bleibt der
-  Landkreis als Alternative außerorts)? Wo steht, dass die Landkreise untere
-  Straßenverkehrsbehörde sind (`TEXTE.quelle.stUnter`)? Vorbehalt in § 90 Abs. 2 KVG LSA?
-  Tangermünde: laut Stadt ordnet der Landkreis Stendal auch dort an.
+  Gesetzes zur Fortentwicklung der Verwaltungsgemeinschaften vom 13.11.2003 (GVBl. LSA S. 318),
+  geändert durch Art. 2 des Ersten Funktionalreformgesetzes vom 22.12.2004 (GVBl. LSA S. 852), an
+  landesrecht.sachsen-anhalt.de oder in PADOKA lesen – heute nur aus BVerwG 3 B 91.10, Rn. 2.
+  Danach hat die Gemeinde nur die Aufgaben nach § 45 Abs. 1 bis 1d, 3, 4 und 6 bis 8 Satz 1 StVO
+  (Fassung 2004); Verkehrseinrichtungen wie Poller ordnet wieder der Landkreis an – die Regel
+  bildet das nicht ab. Zu klären: nur Gemeindestraßen, nur innerorts? Vorbehalt in § 90 Abs. 2
+  KVG LSA? Tangermünde: laut Stadt ordnet der Landkreis Stendal auch dort an.
 - [ ] **Sachsen, erfüllende Gemeinde:** Dass in 13 Verwaltungsgemeinschaften die Große Kreisstadt
   erfüllende Gemeinde ist, folgt aus `verband.sitz` (SDV_ARS) und dem Namen der Gemeinschaft; am
   Gemeindeverzeichnis des Statistischen Landesamts (Tabelle 4) bestätigen.
@@ -89,9 +89,11 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
   nach dem Grenzvertrag prüfen.
 - [ ] **Berlin, offen** (Regel seit 0.11.0 nur „vermutlich"): das übergeordnete Straßennetz als
   Zuständigkeit je Straße (Netz-WFS im Geoportal) – erst damit ist die Aufteilung Senat/Bezirk mehr
-  als der Anhalt über die Straßenklasse. Den Wortlaut von ASOG Bln, Zuständigkeitskatalog
-  Ordnungsaufgaben Nr. 11 Abs. 4 und Nr. 22b Abs. 3 an gesetze.berlin.de prüfen. Optional feste
-  Punkte für die übrigen acht Bezirke.
+  als der Anhalt über die Straßenklasse. Die geltende Fassung von ASOG Bln, Zuständigkeitskatalog
+  Ordnungsaufgaben Nr. 11 Abs. 3 und 4, Nr. 22b Abs. 3 bis 7 an gesetze.berlin.de prüfen – heute
+  aus dem Gesetzentwurf Drs. 18/2410 (2020). Das Verwaltungsstrukturreformgesetz (GVBl. 2025
+  S. 270) hebt den Katalog auf; sobald das gilt, die Regel neu lesen. Optional feste Punkte für
+  die übrigen acht Bezirke.
 - [ ] **Hamburg, Polizeikommissariate als Flächen** (Regel seit 0.13.0, nur Ebene): Welches
   Kommissariat zuständig ist, zeigt die Karte noch nicht. Laut Suchergebnissen gibt es den Datensatz
   „Polizeikommissariate Hamburg" im Transparenzportal und bei Metaver einen „WFS
@@ -103,14 +105,13 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
 - [ ] **Bremen, Anlage der Verordnung:** Die Straßen der Anlage trennen Amt und Polizei bei
   Baustellen und Veranstaltungen; die Polizei steht deshalb in jeder Klasse als Alternative.
   Abbilden erst mit der Zuständigkeit je Straße.
-- [ ] **Hessen, offen** (Regel seit 0.10.0, belegt nach § 10 StVRZustV): Die Liste der
-  Sonderstatus-Städte (`HE_SONDERSTATUS`) an § 4a Abs. 2 HGO prüfen – heute [S], deckt sich mit den
-  kreisangehörigen Städten über 50.000 Einwohnern. Die 14 Abschnitte von Bundesstraßen mit
+- [ ] **Hessen, offen** (Regel seit 0.10.0, belegt nach § 10 StVRZustV): Die 14 Abschnitte von Bundesstraßen mit
   besonderer Verkehrsbedeutung (§ 9 Abs. 2, Hessen Mobil) stehen nur im Text; abbilden erst mit der
   Zuständigkeit je Straße. Maßgeblich ist die Einwohnerzahl des Hessischen Statistischen Landesamts
   zum letzten Stichtag vor dem Haushaltsjahr (§ 10a Abs. 2) – heute GV-ISys 31.12.2025. Hanau ist
-  seit 2026 kreisfrei (GV-ISys 31.10.2026: Kreis 06415); die Auskunft bleibt dieselbe, nur der Kreis
-  heißt bis zum nächsten Datenstand noch Main-Kinzig-Kreis.
+  seit 2026 kreisfrei (`HE_KREISFREI_SEIT_2026`; GV-ISys 31.10.2026: Kreis 06415); bis zum nächsten
+  Datenstand heißt der Kreis noch Main-Kinzig-Kreis, danach meldet `pruefeListen` den alten
+  Schlüssel.
 - [ ] **Hamburg, Fundstelle:** die Anordnung über Zuständigkeiten auf dem Gebiet des
   Straßenverkehrsrechts (Abschnitte I bis IX) an landesrecht-hamburg.de lesen und spätere
   Änderungen suchen; prüfen, ob das Handbuch der Behörde für Inneres und Sport von 2022 noch gilt.
@@ -138,35 +139,36 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
   Osterholz ist die Nummer der Stelle zugleich eine persönliche Durchwahl; Wesermarsch hat nur
   `info@`; Landkreis Oldenburg – `verkehrslenkung@` steht nicht ausdrücklich bei Verkehrszeichen;
   Lüneburg – `av@` ist das Postfach der Allgemeinen Verkehrsangelegenheiten.
-- [ ] **Niedersachsen, Lücken:** 99 Gemeinden ohne Kontakt der zuständigen Stelle (`node
-  tools/check-kontakte.mjs NI --alle`). Für die meisten selbständigen Städte nennt das Portal den
-  Landkreis oder nichts (etwa Hameln, Hildesheim, Göttingen, Hannover, Garbsen, Nordhorn); der
-  Landkreis Hildesheim (20 Gemeinden) nennt auf seiner Webseite nur die Zulassungsstelle; ohne
-  Kontakt sind auch die Gemeinden und Samtgemeinden mit übertragenen Gemeindestraßen. Dazu 643
-  Alternativen (meist Samtgemeinden) ohne Kontakt. Von den Webseiten ergänzen.
+- [ ] **Niedersachsen, Lücken:** 75 Gemeinden ohne Kontakt der zuständigen Stelle (`node
+  tools/check-kontakte.mjs NI --stellen`), vor allem Gemeinden und Samtgemeinden mit übertragenen
+  Gemeindestraßen und selbständige Samtgemeinden (Bersenbrück, Artland). Die selbständigen Städte
+  Hannover, Göttingen, Hildesheim, Hameln, Garbsen und Nordhorn stehen seit 0.14.0 von Hand da, der
+  Landkreis Hildesheim nur mit der allgemeinen Anschrift – seine Webseite nennt keine Stelle für
+  Verkehrszeichen. Dazu 644 Alternativen (meist Samtgemeinden) ohne Kontakt. Von den Webseiten
+  ergänzen.
 - [ ] **Schleswig-Holstein, Kontakte der Alternative:** Für 194 Gemeinden in Ämtern (etwa Amt
   Südtondern, Nordsee-Treene, Geltinger Bucht) und 34 amtsfreie Gemeinden nennt das Portal keinen
   Kontakt des Amts bzw. der Gemeinde – die Alternative steht dort ohne Kontakt. Von den
   Webseiten der Ämter ergänzen.
-- [ ] **Mecklenburg-Vorpommern, Lücken:** 339 Gemeinden ohne Kontakt der zuständigen Stelle
-  (`node tools/check-kontakte.mjs MV --alle`): Für Schwerin und die Landkreise Rostock,
-  Nordwestmecklenburg und Ludwigslust-Parchim nennt das Portal keine Stelle, dazu fehlen Güstrow,
-  Waren (Müritz), Neustrelitz und Wismar. Greifswald: das Portal nennt die Abteilung
-  „Unterhaltung von Verkehrsanlagen" (Tiefbau) – prüfen. Von den Webseiten ergänzen.
+- [ ] **Mecklenburg-Vorpommern, Lücken:** 193 Gemeinden ohne Kontakt der zuständigen Stelle
+  (`node tools/check-kontakte.mjs MV --stellen`): die Landkreise Rostock (111) und
+  Nordwestmecklenburg (82) – ihre Webseiten waren aus der Bau-Umgebung nicht erreichbar. Schwerin,
+  Ludwigslust-Parchim, Güstrow, Waren (Müritz), Neustrelitz und Wismar stehen seit 0.14.0 von Hand
+  da; für Greifswald ist die Stelle aus dem Portal laut Stadt die richtige.
 - [ ] **Kontakte in NW, BB und RP** (abgerufen 05.10.2026, nicht freigegeben): NW – für 236 von
-  396 Gemeinden nennt das Portal keine Stelle, auch nicht für die kreisfreien Städte; Stadt und
-  Kreis gleichen Namens verwechselt die Auswahl (Steinfurt: als Kontakt der Stadt die Kreisstelle;
-  Warendorf: die Stelle mit `@warendorf.de` gilt auch als Kreisstelle). BB – für 331 von 413
-  Gemeinden leere Antworten. RP – den Kontakt der eigenen Verbandsgemeinde gibt es für 62 % der
-  Gemeinden; das Portal nennt oft die Stellen anderer Verbandsgemeinden des Kreises; Fehlgriff
-  „Landesbetrieb Mobilität Trier" für die VG Trier-Land (Domain mit „trier"); die Kreisverwaltung
-  als Alternative meist ohne Kontakt. Auswahl nachschärfen (Domain-Teile wie `kreis-`,
-  Landesbetriebe ausschließen), von Hand ergänzen, dann freigeben.
-- [ ] **Sachsen-Anhalt, Lücken** (freigegeben seit 0.9.0): nur 9 von 218 Gemeinden mit Kontakt in
-  jeder Klasse (`node tools/check-kontakte.mjs ST --alle`). Für Gemeindestraßen nennt das Portal
-  die Gemeinde bzw. Verbandsgemeinde nur 13-mal; ohne Kreiskontakt sind die Landkreise
-  Anhalt-Bitterfeld, Harz, Jerichower Land und Salzlandkreis, der Burgenlandkreis und die
-  kreisfreien Städte Dessau-Roßlau, Halle (Saale) und Magdeburg. Von den Webseiten ergänzen.
+  396 Gemeinden nennt das Portal keine Stelle, auch nicht für die kreisfreien Städte; Aachen steht
+  von Hand bereit. BB – für 331 von 413 Gemeinden leere Antworten. RP – den Kontakt der eigenen
+  Verbandsgemeinde gibt es für 62 % der Gemeinden; das Portal nennt oft die Stellen anderer
+  Verbandsgemeinden des Kreises; die Kreisverwaltung als Alternative meist ohne Kontakt. Seit
+  0.14.0 trennt die Auswahl Stadt und Kreis gleichen Namens (Steinfurt, Warendorf) und lässt
+  Landesbehörden weg (Landesbetrieb Mobilität Trier). Von Hand ergänzen, dann freigeben.
+- [ ] **Sachsen-Anhalt, Lücken** (freigegeben seit 0.9.0): nur 14 von 218 Gemeinden mit Kontakt in
+  jeder Klasse (`node tools/check-kontakte.mjs ST --stellen`). Für Gemeindestraßen nennt das Portal
+  die Gemeinde bzw. Verbandsgemeinde nur 13-mal; ohne Kreiskontakt sind noch der Burgenlandkreis
+  und die Landkreise Anhalt-Bitterfeld und Jerichower Land (51 Gemeinden) – ihre Webseiten waren
+  aus der Bau-Umgebung nicht erreichbar. Dessau-Roßlau (ohne Telefon, aus den Antragsformularen),
+  Halle (Saale), Magdeburg, der Landkreis Harz und der Salzlandkreis stehen seit 0.14.0 von Hand
+  da. Von den Webseiten ergänzen.
 - [ ] **Fehler im Portal melden** – Redaktion Thüringen: Landkreis Saalfeld-Rudolstadt (für alle
   Gemeinden nur das Ordnungsamt der VG „Schwarzatal"), Landkreis Hildburghausen (für alle
   Gemeinden die Stadtverwaltung Hildburghausen), Suhl (nur „Gewerbeangelegenheiten").
@@ -194,18 +196,23 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
   In der Vahr 76, 28329 Bremen, 0421 362-0, `office@polizei.bremen.de`, laut Service-Portal
   Bremen). Betrifft `auswahl`, Build, Pipeline und VERTRAG; `kontakt_gemeinde` dafür umzudeuten
   wäre ein Bruch.
-- [ ] **Verkehrsstellen statt allgemeiner Anschrift** (Sachsen seit 0.9.0, Hessen und Saarland
-  seit 0.10.0, Baden-Württemberg seit 0.12.0, `allgemein`): Die Straßenverkehrsämter der
-  Kreisebene – in Sachsen 10 Landratsämter und 3 Kreisfreie Städte, in Hessen 21 Landkreise und 5
-  kreisfreie Städte, im Saarland 5 Landkreise und der Regionalverband, in Baden-Württemberg 35
-  Landratsämter und 9 Stadtkreise – von deren Webseiten in `config/kontakte_ergaenzt.yaml` (Kreis-ARS)
-  eintragen; sie gehen dann vor. Sachsen: Für das Landratsamt Sächsische Schweiz-Osterzgebirge nennt
-  das Verzeichnis als E-Mail nur `landrat@`, der Kontakt hat deshalb keine; Verwaltungsverbände stehen
-  nicht im Verzeichnis – heute die Gemeinde am Sitz, beim Verwaltungsverband Eilenburg-West (Sitz in
-  Eilenburg) die Gemeinde selbst. Hessen und Saarland: Das Anschriftenverzeichnis hat kein Telefon
-  und keine Webseite; für Wiesbaden, Langen, Heusenstamm, Zwingenberg und Kirtorf nennt es nur
-  `presse@`, `webmaster@` bzw. die Marketinggesellschaft, dort steht nur die Anschrift.
-  Baden-Württemberg: Für 207 der 270 Gemeinden am Sitz einer Verwaltungsgemeinschaft hat das
+- [ ] **Verkehrsstellen statt allgemeiner Anschrift** (Sachsen, Hessen, Saarland,
+  Baden-Württemberg, `allgemein`): Seit 0.14.0 stehen für die Kreisebene 75 Straßenverkehrsbehörden
+  von Hand da. Ohne eigene Stelle, also mit der allgemeinen Anschrift, sind noch Chemnitz, Dresden
+  und Leipzig; der Lahn-Dill-Kreis, die Landkreise Bergstraße und Offenbach und der Wetteraukreis;
+  die Stadtkreise Freiburg, Heilbronn und Ulm, der Alb-Donau-Kreis, der Enzkreis, die Landkreise
+  Emmendingen und Neckar-Odenwald-Kreis und der Rems-Murr-Kreis. Im Browser gegenlesen – in
+  `config/kontakte_ergaenzt.yaml` mit „PRÜFEN" markiert, schwächer belegt: Frankfurt am Main
+  (Antragsformular von 2022), die Landkreise Marburg-Biedenkopf (allgemeine Kontaktdaten), Fulda
+  (keine eigenen Kontaktdaten) und Hersfeld-Rotenburg (Zuordnung über Abteilung und Postfach),
+  Baden-Baden (Abteilung mit Zulassung und Fahrerlaubnis), Calw und Ravensburg (nur Dienstleistungs-
+  bzw. Bürgerportal), die Anschriften in Zwickau und Kamenz, das Telefon in Aachen. Für die
+  Gemeinden bleibt die allgemeine Anschrift: Sachsen – Verwaltungsverbände stehen nicht im
+  Verzeichnis, heute die Gemeinde am Sitz, beim Verwaltungsverband Eilenburg-West (Sitz in
+  Eilenburg) die Gemeinde selbst. Hessen und Saarland – das Anschriftenverzeichnis hat kein Telefon
+  und keine Webseite; für Langen, Heusenstamm, Zwingenberg und Kirtorf nennt es nur `presse@`,
+  `webmaster@` bzw. die Marketinggesellschaft, dort steht nur die Anschrift.
+  Baden-Württemberg – für 207 der 270 Gemeinden am Sitz einer Verwaltungsgemeinschaft hat das
   Verzeichnis nur die Zeile der Gemeinschaft, ohne E-Mail; für 8 weitere nennt es nur ein
   persönliches Postfach oder die Pressestelle (etwa Ravensburg). Für Gemeindestraßen hat deshalb bei
   163 Gemeinden die zuständige Stelle nur eine Anschrift (meist die Gemeinde am Sitz oder die
