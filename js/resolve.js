@@ -190,12 +190,13 @@ export const TEXTE = Object.freeze({
       "Straßenverkehrsbehörde.",
     slSaarbruecken: "Die Landeshauptstadt Saarbrücken ist für alle Straßen ihres Gebiets selbst Straßenverkehrsbehörde.",
     beBezirk:
-      "In Berlin ordnet auf Nebenstraßen das Bezirksamt Verkehrszeichen an, auf den Hauptverkehrsstraßen des " +
-      "übergeordneten Straßennetzes die Senatsverwaltung als zentrale Straßenverkehrsbehörde.",
+      "In Berlin ordnet auf Nebenstraßen das Bezirksamt Verkehrszeichen an, auf den Straßen des übergeordneten " +
+      "Straßennetzes – und überall bei Ampeln und Wegweisern – die Senatsverwaltung als zentrale " +
+      "Straßenverkehrsbehörde.",
     beSenat:
-      "Auf den Hauptverkehrsstraßen des übergeordneten Straßennetzes ordnet in Berlin die Senatsverwaltung als " +
-      "zentrale Straßenverkehrsbehörde Verkehrszeichen an, auf Nebenstraßen das Bezirksamt. Welche Straßen dazu " +
-      "gehören, zeigt die Karte des übergeordneten Straßennetzes im Geoportal Berlin.",
+      "Auf den Straßen des übergeordneten Straßennetzes ordnet in Berlin die Senatsverwaltung als zentrale " +
+      "Straßenverkehrsbehörde Verkehrszeichen an, auf Nebenstraßen und für Halten und Parken das Bezirksamt. " +
+      "Welche Straßen dazu gehören, zeigt die Karte des übergeordneten Straßennetzes im Geoportal Berlin.",
     bwStadtkreis: "Stadtkreise sind in Baden-Württemberg für alle Straßen ihres Gebiets untere Straßenverkehrsbehörde.",
     bwGks:
       "Große Kreisstädte sind in Baden-Württemberg als untere Verwaltungsbehörde für alle Straßen ihres Gebiets " +
@@ -221,7 +222,7 @@ export const TEXTE = Object.freeze({
     gks: "Große Kreisstadt – sie kann selbst zuständig sein",
     gemeindestrasse: "falls nur die Gemeindestraße betroffen ist",
     unklar: "falls es eine Gemeindestraße ist",
-    berlinNetz: "falls die Straße zum übergeordneten Straßennetz gehört",
+    berlinNetz: "falls die Straße zum übergeordneten Straßennetz gehört oder es um eine Ampel oder einen Wegweiser geht",
     berlinNebenstrasse: "falls die Straße nicht zum übergeordneten Straßennetz gehört oder es um Halten und Parken geht",
     portalStvb: "laut Bundesportal ist die Gemeinde selbst Straßenverkehrsbehörde",
     shParken: "falls es nur um Halten und Parken, eine Baustelle oder eine Veranstaltung geht",
@@ -266,9 +267,10 @@ export const TEXTE = Object.freeze({
       "§ 1 Abs. 3 Nr. 2 der Verordnung über die Zuständigkeiten nach der Straßenverkehrs-Ordnung (Bremen) vom " +
       "19.01.2016 (Brem.GBl. S. 6), zuletzt geändert 02.09.2025 (Brem.GBl. S. 674)",
     berlin:
-      "ASOG Bln, Zuständigkeitskatalog Ordnungsaufgaben Nr. 11 Abs. 4, Nr. 22b Abs. 3 (Wortlaut nicht an der " +
-      "Primärquelle geprüft); Aufteilung nach dem übergeordneten Straßennetz laut Service-Portal Berlin " +
-      "(Leistung 329908) und den Bezirksämtern Mitte und Neukölln (berlin.de, gelesen 05.10.2026)",
+      "ASOG Bln, Anlage (Zuständigkeitskatalog Ordnungsaufgaben) Nr. 11 Abs. 3 und 4, Nr. 22b Abs. 3 bis 7, zuletzt " +
+      "geändert 03.06.2026 (GVBl. S. 234) – Wortlaut aus dem Gesetzentwurf Drs. 18/2410 (2020), geltende Fassung " +
+      "[S]; übergeordnetes Netz (Verbindungsfunktionsstufen I bis IV) und Halten und Parken beim Bezirksamt laut " +
+      "Senat, Drs. S19-18430 (2024) und S19-25291 (2026); Service-Portal Berlin (Leistung 329908)",
     hamburg:
       "Anordnung über Zuständigkeiten auf dem Gebiet des Straßenverkehrsrechts (Hamburg) vom 05.01.1999 (Amtl. Anz. " +
       "S. 345), Abschnitte I bis IX neu gefasst am 06.10.2020 (Amtl. Anz. S. 2089, 2117) – Wortlaut und spätere " +
@@ -1500,11 +1502,15 @@ function regelBadenWuerttemberg(g, klasse) {
 /**
  * Berlin (vermutlich): Straßenverkehrsbehörden sind die zwölf Bezirksämter und die Senatsverwaltung
  * mit ihrer Abteilung Verkehrsmanagement (früher Verkehrslenkung Berlin) als zentrale
- * Straßenverkehrsbehörde. Laut Service-Portal und Bezirksämtern ordnet der Senat auf dem übergeordneten
- * Straßennetz an (den Hauptverkehrsstraßen; für Arbeitsstellen genannt: Stufen 0–III), das Bezirksamt auf
- * den Nebenstraßen – in Neukölln ausdrücklich auch Halten und Parken an Hauptstraßen. Welche Straße zum
- * übergeordneten Netz gehört, wissen wir nicht; die Straßenklasse ist nur ein Anhalt: Gemeindestraßen beim
- * Bezirk, klassifizierte und unklare Straßen beim Senat, jeweils mit der anderen Stelle als Alternative.
+ * Straßenverkehrsbehörde (ASOG Bln, Zuständigkeitskatalog Ordnungsaufgaben). Der Senat ist für das
+ * übergeordnete Straßennetz zuständig (Nr. 11 Abs. 3; laut Senat die Verbindungsfunktionsstufen I bis IV) und
+ * im übrigen Netz für Ampeln, Wegweiser, Beschleunigung von Bus und Bahn und überörtliche Radrouten
+ * (Nr. 11 Abs. 4); das Bezirksamt für das übrige Netz (Nr. 22b Abs. 3) und auch im übergeordneten Netz für
+ * Halten und Parken, Lieferzonen, Fußgängerzonen, Taxenstände und Arbeitsstellen in Ergänzungsstraßen
+ * (Nr. 22b Abs. 4 bis 7). Welche Straße zum übergeordneten Netz gehört, wissen wir nicht; die Straßenklasse ist
+ * nur ein Anhalt: Gemeindestraßen beim Bezirk, klassifizierte und unklare Straßen beim Senat, jeweils mit der
+ * anderen Stelle als Alternative. Der Zuständigkeitskatalog ist durch das Verwaltungsstrukturreformgesetz
+ * (GVBl. 2025 S. 270) aufgehoben, die Aufhebung aber noch nicht in Kraft (docs/TODO.md).
  *
  * Die Bezirke sind eigene Einträge (`1100000000` + Bezirksnummer, Feld `bezirk`, aus
  * pipeline/config/berlin.yaml). Der Eintrag für ganz Berlin (`110000000000`, VG25) kennt den Bezirk
