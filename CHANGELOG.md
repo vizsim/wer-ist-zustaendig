@@ -7,6 +7,12 @@ ein Git-Tag `v<version>` dazu.
 
 ## [Unveröffentlicht]
 
+## [0.12.0] – 2026-10-06
+
+Landesregel für Baden-Württemberg, zusammen vierzehn Länder – alle Flächenländer und Berlin; Kontakte
+für jede Gemeinde als allgemeine Anschrift der Verwaltung. Regeln 0.12.0 · Schema 1 · Datenstand
+31.12.2025.
+
 ### Hinzugefügt
 
 - Landesregel Baden-Württemberg (StVO-Zuständigkeitsgesetz vom 29.04.2025): Stadtkreise und Große
