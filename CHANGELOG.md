@@ -7,6 +7,14 @@ ein Git-Tag `v<version>` dazu.
 
 ## [Unveröffentlicht]
 
+## [0.14.0] – 2026-10-06
+
+Thüringer Städte auf Antrag belegt, Fundstellen für Hessen, Berlin, Rheinland-Pfalz und
+Sachsen-Anhalt berichtigt; die Straßenverkehrsbehörden der Kreisebene in Sachsen, Hessen, im Saarland
+und in Baden-Württemberg statt der allgemeinen Anschrift, dazu Kontakte von Hand in
+Mecklenburg-Vorpommern, Sachsen-Anhalt und Niedersachsen. Regeln 0.14.0 · Schema 1 · Datenstand
+31.12.2025.
+
 ### Hinzugefügt
 
 - Kontakte der Straßenverkehrsbehörden der Kreisebene in Sachsen, Hessen, im Saarland und in
