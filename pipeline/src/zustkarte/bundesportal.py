@@ -39,12 +39,14 @@ FREMD = re.compile(
     re.I,
 )
 # Stelle der Kreisebene bzw. einer Gemeinde (Name oder Adresse), für den Abgleich mit der Stelle,
-# die unsere Regeln nennen. Zur Gemeinde gehört auch ihre Verwaltung („Verbandsgemeindeverwaltung“).
+# die unsere Regeln nennen. Zur Gemeinde gehört auch ihre Verwaltung („Verbandsgemeindeverwaltung“)
+# und jede Stadt mit Beinamen („Hansestadt Lüneburg“, „Hanse- und Universitätsstadt Rostock“) – in
+# einem gleichnamigen Landkreis ist sie nicht dessen Stelle.
 KREISEBENE = re.compile(r"landrats?amt|landkreis|kreisverwaltung|kreis\b|kreis-|lk-|lra", re.I)
 GEMEINDEEBENE = re.compile(
     r"^(stadt|gemeinde|landgemeinde|ortsgemeinde|verwaltungsgemeinschaft|vg|markt|amt|"
-    r"samtgemeinde|verbandsgemeinde|gro(ß|ss)e kreisstadt|gro(ß|ss)e kreisangeh(ö|oe)rige stadt)"
-    r"(s?verwaltung)?\b",
+    r"samtgemeinde|verbandsgemeinde|gro(ß|ss)e kreisstadt|gro(ß|ss)e kreisangeh(ö|oe)rige stadt|"
+    r"[a-zäöüß]+(-? und [a-zäöüß]+)?stadt)(s?verwaltung)?\b",
     re.I,
 )
 # Domain-Teile, die eine Stelle der Kreisebene verraten: „kreis-steinfurt.de“, „lra-soemmerda.de“,

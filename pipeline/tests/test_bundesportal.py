@@ -606,3 +606,29 @@ def test_luecken_fuellen_amt_land(monkeypatch) -> None:
     }
     bp.luecken_fuellen(gemeinden, attr, "SH")
     assert gemeinden["010595920034"]["gemeinde"] == stadt
+
+
+def test_stadt_mit_beinamen_ist_nicht_der_gleichnamige_landkreis() -> None:
+    """MV: Der Landkreis Rostock heißt wie die kreisfreie Hanse- und Universitätsstadt Rostock."""
+    kritzmow = {"gen": "Kritzmow", "verband": None, "kreis": {"gen": "Rostock", "kreisfrei": False}}
+    stadt = _stelle(
+        "Hanse- und Universitätsstadt Rostock - Amt für Verkehrsanlagen",
+        ["0381 381-0"],
+        ["verkehrsanlagen@rostock.de"],
+    )
+    assert not bp.unsere_stelle(stadt, kritzmow), "Stelle der Stadt, nicht des Landkreises"
+    lueneburg = {
+        "gen": "Adendorf",
+        "verband": None,
+        "kreis": {"gen": "Lüneburg", "kreisfrei": False},
+    }
+    hansestadt = _stelle("Hansestadt Lüneburg - Straßenverkehrsbehörde", ["04131 309-0"])
+    assert not bp.unsere_stelle(hansestadt, lueneburg)
+    lk = _stelle("Straßenverkehrsamt", ["04131 26-0"], ["verkehr@landkreis-lueneburg.de"])
+    assert bp.unsere_stelle(lk, lueneburg)
+    stadtkreis = {
+        "gen": "Karlsruhe",
+        "verband": None,
+        "kreis": {"gen": "Karlsruhe", "kreisfrei": True},
+    }
+    assert bp.unsere_stelle(_stelle("Stadt Karlsruhe - Ordnungsamt", ["0721 133-0"]), stadtkreis)
