@@ -364,6 +364,10 @@ const G = {
     ars: "130750039039", gen: "Greifswald", land: "MV", tkz: [63],
     kreis: kreis("13075", "Vorpommern-Greifswald", "Landkreis", "ja"),
   },
+  stralsund: {
+    ars: "130730088088", gen: "Stralsund", land: "MV", tkz: [63],
+    kreis: kreis("13073", "Vorpommern-Rügen", "Landkreis", "ja"),
+  },
   guestrow: {
     ars: "130720043043", gen: "Güstrow", land: "MV", tkz: [63],
     kreis: kreis("13072", "Rostock", "Landkreis", "ja"),
@@ -1094,6 +1098,22 @@ test("Mecklenburg-Vorpommern: kreisfreie und große kreisangehörige Städte sel
     id: "g130750039039", name: "Stadt Greifswald – Straßenverkehrsbehörde", ebene: "untere", art: "stadt",
   });
   assert.equal(resolveGemeinde({ ...G.greifswald, ew: 1000 }).zust.G.stelle, "g130750039039", "Status, nicht Einwohner");
+  assert.equal(greifswald.zust.B.alternative, null);
+});
+
+test("Mecklenburg-Vorpommern: Kraftfahrstraße B 96 – in Stralsund der Landrat Vorpommern-Rügen als Alternative", () => {
+  const { zust, stellen } = resolveGemeinde(G.stralsund);
+  for (const k of BAU_KLASSEN) assert.equal(zust[k].stelle, "g130730088088", k);
+  for (const k of ["G", "K", "L"]) assert.equal(zust[k].alternative, null, k);
+  assert.deepEqual(zust.B.alternative, { stelle: "k13073", bedingung: TEXTE.bedingung.mvB96 });
+  assert.equal(zust.B.sicherheit, SICHERHEIT.BELEGT);
+  assert.equal(zust.B.grund, TEXTE.grund.mvGks);
+  assert.equal(zust.B.quelle, TEXTE.quelle.mvGksB96);
+  assert.equal(zust.L.quelle, TEXTE.quelle.mvGks);
+  assert.equal(stellen.k13073.name, "Landkreis Vorpommern-Rügen – Straßenverkehrsbehörde");
+  const ribnitz = resolveGemeinde({ ...G.ribnitz, ew: 15200 }).zust.B;
+  assert.equal(ribnitz.stelle, "k13073", "im übrigen Kreis ist der Landrat ohnehin zuständig");
+  assert.equal(ribnitz.alternative, null);
 });
 
 test("Mecklenburg-Vorpommern: Städte über 20.000 Einwohner ordnen selbst an, knapp darüber vermutlich", () => {

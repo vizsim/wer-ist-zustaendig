@@ -232,6 +232,7 @@ export const TEXTE = Object.freeze({
       "falls es nur um Halten und Parken, eine Baustelle, eine Veranstaltung oder den Schutz der " +
       "Gemeindestraße vor außerordentlichen Schäden geht",
     mvBestandMoeglich: "Stadt mit 17.000 bis 20.000 Einwohnern – sie kann nach der Übergangsregel selbst zuständig sein",
+    mvB96: "falls es um die Kraftfahrstraße B 96 geht",
     rpAusserorts: "falls die Strecke außerhalb geschlossener Ortschaften liegt",
     stAusserorts: "falls die Gemeindestraße außerhalb geschlossener Ortschaften liegt",
     heUeberoertlich: "falls die Anordnung über das Gemeindegebiet hinaus wirkt",
@@ -364,7 +365,13 @@ export const TEXTE = Object.freeze({
     mvKreis:
       "§ 3 Abs. 1 StVZustLVO M-V vom 12.08.2021 (GVOBl. M-V S. 1221); Städte über 20.000 Einwohner: § 4 " +
       "Abs. 2; Einwohner laut GV-ISys 31.12.2025",
-    mvGks: "§ 3 Abs. 6 StVZustLVO M-V vom 12.08.2021 (GVOBl. M-V S. 1221); § 7 Abs. 2 KV M-V",
+    mvGks:
+      "§ 14 Abs. 1 Landkreisneuordnungsgesetz (Kreisstrukturgesetz vom 12.07.2010, GVOBl. M-V S. 366); § 3 Abs. 6 " +
+      "StVZustLVO M-V vom 12.08.2021 (GVOBl. M-V S. 1221); § 7 Abs. 2 KV M-V",
+    mvGksB96:
+      "§ 14 Abs. 1 Landkreisneuordnungsgesetz (Kreisstrukturgesetz vom 12.07.2010, GVOBl. M-V S. 366); § 3 Abs. 6 " +
+      "StVZustLVO M-V vom 12.08.2021 (GVOBl. M-V S. 1221); für die Kraftfahrstraße B 96 der Landrat des " +
+      "Landkreises Vorpommern-Rügen (§ 3 Abs. 3)",
     mvStadt: "§ 4 Abs. 2 Satz 1 StVZustLVO M-V vom 12.08.2021 (GVOBl. M-V S. 1221); Einwohner laut GV-ISys 31.12.2025",
     mvBestand:
       "§ 4 Abs. 2 Satz 2 StVZustLVO M-V vom 12.08.2021 (GVOBl. M-V S. 1221); Einwohner 2021 und früher " +
@@ -997,23 +1004,37 @@ export const MV_STAEDTE_UEBERGANG = Object.freeze({
     "Bevölkerungsprognose bis 2030); Zensus 2022: 17.814",
 });
 
+/** Landkreis Vorpommern-Rügen: Sein Landrat ist Straßenverkehrsbehörde für die Kraftfahrstraße B 96 (§ 3 Abs. 3). */
+const MV_KREIS_B96 = "13073";
+
 /**
- * Mecklenburg-Vorpommern (StVZustLVO M-V vom 12.08.2021, GVOBl. M-V S. 1221): Straßenverkehrsbehörden
- * sind die Landräte und die Oberbürgermeister der kreisfreien Städte (§ 3 Abs. 1), ebenso die großen
- * kreisangehörigen Städte (§ 3 Abs. 6). Städte mit mehr als 20.000 Einwohnern ordnen Verkehrszeichen
- * selbst an (§ 4 Abs. 2 Satz 1) – nahe 20.000 nur „vermutlich“. Nach Satz 2 auch Städte, die einmal
- * so groß waren und am 19.08.2021 noch mindestens 17.000 Einwohner hatten: belegt aus der Liste
- * `MV_STAEDTE_UEBERGANG`, vermutlich aus dem Bundesportal (`stvb`), sonst als Alternative.
- * Den Ämtern und amtsfreien Gemeinden gibt § 4 Abs. 1 Bewohnerparkausweise und den ruhenden Verkehr,
- * keine Anordnung nach § 45 StVO (was § 68 Abs. 2 FKrG ihnen darüber hinaus überträgt, ist nicht
- * geprüft).
+ * Mecklenburg-Vorpommern (StVZustLVO M-V vom 12.08.2021, GVOBl. M-V S. 1221, Wortlaut gelesen im GVOBl.):
+ * Straßenverkehrsbehörden sind die Landräte und die Oberbürgermeister der kreisfreien Städte (§ 3 Abs. 1), ebenso
+ * die großen kreisangehörigen Städte (§ 14 Abs. 1 LNOG, „soweit nichts anderes bestimmt ist“; § 3 Abs. 6). Städte
+ * mit mehr als 20.000 Einwohnern ordnen Verkehrszeichen selbst an (§ 4 Abs. 2 Satz 1) – nahe 20.000 nur
+ * „vermutlich“. Nach Satz 2 auch Städte, die einmal so groß waren und am 19.08.2021 noch mindestens 17.000
+ * Einwohner hatten: belegt aus der Liste `MV_STAEDTE_UEBERGANG`, vermutlich aus dem Bundesportal (`stvb`), sonst
+ * als Alternative.
+ * Für die Kraftfahrstraße B 96 ist „abweichend von Absatz 1“ der Landrat des Landkreises Vorpommern-Rügen
+ * Straßenverkehrsbehörde (§ 3 Abs. 3), nach § 3 Abs. 6 auch in Stralsund – dort steht er bei Bundesstraßen als
+ * Alternative. In den übrigen Gemeinden des Kreises ist er ohnehin zuständig; andere Abschnitte der B 96 außerhalb
+ * des Kreises bildet die Regel nicht ab.
+ * Den Ämtern und amtsfreien Gemeinden gibt § 4 Abs. 1 Bewohnerparkausweise, Ausnahmen nach § 46 Abs. 1 Satz 1
+ * Nr. 6 StVO und die Ahndung im ruhenden Verkehr, „neben den Aufgaben nach § 68 Absatz 2 des Funktional- und
+ * Kreisstrukturreformgesetzes“ – laut Bürgerportal Ludwigslust-Parchim und Amt Neuburg die Erlaubnis für
+ * Veranstaltungen in ihrem Gebiet (§ 29 Abs. 2 StVO). Verkehrszeichen nach § 45 StVO ordnen sie nicht an; den
+ * Wortlaut von § 68 FKrG haben wir nicht gelesen.
  */
-function regelMecklenburgVorpommern(g) {
+function regelMecklenburgVorpommern(g, klasse) {
   const kreis = kreisStelle(g);
   if (g.kreis.kreisfrei) return ergebnis(kreis, SICHERHEIT.BELEGT, "kreisfrei", "mvKreis");
   if (g.gemeindefrei) return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "gemeindefrei", "mvKreis");
   if (MV_GROSSE_KREISANGEHOERIGE_STAEDTE[g.ars]) {
-    return ergebnis(gemeindeStelle(g, "stadt", "untere"), SICHERHEIT.BELEGT, "mvGks", "mvGks");
+    const stadt = gemeindeStelle(g, "stadt", "untere");
+    if (klasse === "B" && g.kreis.ars === MV_KREIS_B96) {
+      return ergebnis(stadt, SICHERHEIT.BELEGT, "mvGks", "mvGksB96", { stelle: kreis, bedingung: "mvB96" });
+    }
+    return ergebnis(stadt, SICHERHEIT.BELEGT, "mvGks", "mvGks");
   }
   if (!istStadt(g)) return ergebnis(kreis, SICHERHEIT.BELEGT, "mvKreis", "mvKreis");
   const ew = g.ew ?? 0;
