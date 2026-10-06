@@ -30,6 +30,8 @@ mit den Konsumenten in [VERTRAG.md](VERTRAG.md).
 | SL | StVZustG §§ 7, 12 – [Bürgerservice Saarland](https://recht.saarland.de) | G: die Gemeinde; sonst der Landkreis bzw. der Regionalverband Saarbrücken; die Landeshauptstadt Saarbrücken alles | belegt |
 | BE | ASOG Bln, Zuständigkeitskatalog Ordnungsaufgaben Nr. 11 Abs. 4, Nr. 22b Abs. 3 – nicht an der Primärquelle gelesen; Aufteilung laut Service-Portal Berlin und Bezirksämtern | G: das Bezirksamt des Bezirks (Layer `bezirke`, Einträge `1100000000` + Nummer), Senat als Alternative; K, L, B: die Senatsverwaltung, Bezirksamt als Alternative; ganz Berlin: Bezirksamt nur als Ebene | vermutlich |
 | BW | StVO-Zuständigkeitsgesetz vom 29.04.2025 §§ 1–3 (GBl. 2025 Nr. 36, PDF beim Landtag); LVG §§ 15, 17, 19 | Stadtkreise und Große Kreisstädte: alles; Verwaltungsgemeinschaften als untere Verwaltungsbehörde (`BW_VG_UNTERE`, Gruppen je Gemeinschaft): alles für ihre Gemeinden; örtliche Straßenverkehrsbehörden (`BW_OERTLICH`, `BW_OERTLICH_VG`): Gemeindestraßen, das Landratsamt als Alternative; sonst das Landratsamt, die Gemeinde bzw. Gemeinschaft als Alternative ab 90 % der Schwellen (5.000 bzw. 20.000), außer in Kreisen mit vollständiger Liste (`BW_VOLLSTAENDIG`) | belegt: Stadtkreise, Große Kreisstädte, Landratsamt ohne mögliche andere Stelle; vermutlich: Listen [S] und Alternativen |
+| HB | Verordnung über die Zuständigkeiten nach der Straßenverkehrs-Ordnung vom 19.01.2016 § 1 Abs. 3, 4 und Anlage, zuletzt geändert 02.09.2025 – [Transparenzportal Bremen](https://www.transparenz.bremen.de) | Stadt Bremen: das Amt für Straßen und Verkehr (`hb-asv`), die Polizei (`hb-pol`) als Alternative für Baustellen, Veranstaltungen, Haltverbote für Wohnungsumzüge; Bremerhaven: der Magistrat (`hb-bhv`) | belegt |
+| HH | Anordnung über Zuständigkeiten auf dem Gebiet des Straßenverkehrsrechts vom 05.01.1999 – nicht gelesen, landesrecht-hamburg.de war nicht erreichbar; Aufteilung nach dem Handbuch der BIS (Datei vom 12.12.2022, FragDenStaat) | das zuständige Polizeikommissariat (`hh-pk`), die Verkehrsdirektion (`hh-vd`) als Alternative | nur Ebene |
 
 ## 1. Rechtsgrundlage finden und lesen
 
@@ -94,7 +96,7 @@ function regelXy(g, klasse) {
 kreisfreie Stadt, gemeindefreies Gebiet, Gemeinde über und unter jeder Schwelle, knapp an der
 Schwelle, Listen-Gemeinde, Verbandsgemeinde, jede Alternative, die Klassen, in denen sich
 etwas ändert. Die Tests für den Rückfall („Phase 1") nehmen Gemeinden unter dem erfundenen
-Kürzel „XX" (`ohneRegel`); seit BW hat jedes Flächenland eine Regel. Echte Schlüssel und Zahlen
+Kürzel „XX" (`ohneRegel`); seit Bremen und Hamburg hat jedes Land eine Regel. Echte Schlüssel und Zahlen
 holen:
 
 ```bash
@@ -144,9 +146,10 @@ Der Lauf schreibt am Ende `kontakte.json` mit dem Code, der beim Start geladen w
   des Kreises, dann der Kontakt des Verbands, den das Portal für die übrigen Mitglieder nennt.
 - Der Build (`tools/lib/laender.mjs`) übernimmt einen Kontakt nur, wenn seine Stelle in den
   Ergebnissen der Gemeinde vorkommt. Welcher Kontakt zu welcher Stelle gehört, sagt `kontaktRolle`
-  in `js/resolve.js`: `k…` und in Berlin `be-senat` → `kontakt`, `g…` und `v…` → `kontakt_gemeinde`;
-  aus den Anschriftenverzeichnissen für einen Verband, der allein vorkommt, das Rathaus am Sitz
-  (Rolle `verband`).
+  in `js/resolve.js`: `k…`, in Berlin `be-senat`, in Bremen `hb-asv` und `hb-bhv`, in Hamburg
+  `hh-vd` → `kontakt`; `g…` und `v…` → `kontakt_gemeinde`; aus den Anschriftenverzeichnissen für
+  einen Verband, der allein vorkommt, das Rathaus am Sitz (Rolle `verband`). Eine neue feste Stelle
+  mit Kontakt der Kreisebene gehört in `ROLLE_KREIS`, in `js/resolve.js` und in `grenzen.py`.
 
 ## 4. Durchsehen und Lücken schließen
 
@@ -196,8 +199,9 @@ Stadt selbst zuständig ist). Solche Muster in der Auswahl beheben, wenn sie ver
 **Von Hand:** `pipeline/config/kontakte_ergaenzt.yaml`. Schlüssel ist ein Kreis-ARS (5 Stellen,
 Kontakt der Kreisebene für den ganzen Kreis) oder eine Gemeinde-ARS (12 Stellen) mit `rolle:
 kreis`, `rolle: gemeinde` oder `rolle: verband` (nur der Verband, wenn die Gemeinde selbst einen
-anderen Kontakt hat). Nur von der Webseite der Behörde selbst, mit `stand` (Datum) und
-einem Kommentar, warum. Nur Funktionspostfächer und Zentralnummern – keine Namen, keine
+anderen Kontakt hat). Möglichst von der Webseite der Behörde selbst, mit `stand` (Datum) und
+einem Kommentar, warum; stammt ein Eintrag von woanders (etwa aus einem Schreiben der Behörde),
+sagt `quelle` woher. Nur Funktionspostfächer und Zentralnummern – keine Namen, keine
 persönlichen Durchwahlen; nennt eine Seite nur Personen, dann die Zentrale. Die Recherche lässt
 sich gut an einen Agenten geben, mit genau diesen Regeln im Auftrag und der Bitte, zu jedem
 Eintrag die Seite zu nennen und offen zu sagen, was nicht zu belegen war. Was unsicher bleibt,

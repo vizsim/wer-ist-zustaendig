@@ -7,6 +7,33 @@ ein Git-Tag `v<version>` dazu.
 
 ## [Unveröffentlicht]
 
+### Hinzugefügt
+
+- Landesregeln für Bremen und Hamburg – damit hat jedes Land eine eigene Regel. Bremen (**belegt**,
+  Verordnung über die Zuständigkeiten nach der Straßenverkehrs-Ordnung): in der Stadt Bremen das Amt
+  für Straßen und Verkehr, für Baustellen, Veranstaltungen und Haltverbote für Wohnungsumzüge die
+  Polizei Bremen (als Alternative); in Bremerhaven der Magistrat. Hamburg (**nur Ebene**): das
+  zuständige Polizeikommissariat, etwa für Ampeln, Kraftfahrstraßen, Ortstafeln, Wegweiser und den
+  Umbau von Hauptverkehrsstraßen die Verkehrsdirektion der Polizei (als Alternative).
+- Kontakte in Bremen: das Amt für Straßen und Verkehr (Webseite) und die Straßenverkehrsbehörde
+  in Bremerhaven (Schreiben der Behörde).
+
+### Geändert
+
+- Hamburg: Als Fundstelle steht die Anordnung über Zuständigkeiten auf dem Gebiet des
+  Straßenverkehrsrechts vom 05.01.1999 (noch nicht an der Primärquelle geprüft), die Aufteilung nach
+  dem Handbuch der Behörde für Inneres und Sport.
+- Bremen: Fundstelle mit Absatz und Gesetzblatt. Die Stelle in Bremerhaven heißt „Magistrat der Stadt
+  Bremerhaven", ohne „(Ortspolizeibehörde)".
+- Karte: Das Willkommensfenster nennt Hamburg unter „Nur die Ebene", die Standzeile sagt
+  „Landesregeln für alle Länder, in Hamburg nur die Ebene". In der Legende steht bei „nur Ebene":
+  „Welche Stelle genau zuständig ist, ist offen".
+- Für Konsumenten: neue feste Stellen `hb-pol` (Polizei Bremen) und `hh-vd` (Verkehrsdirektion
+  Hamburg). „nur Ebene" heißt nicht mehr „Land offen", sondern: welche Stelle genau, ist offen. Die
+  Kontakte in Bremen ordnet `kontaktRolle` erst ab Regeln 0.13.0 zu; eine gepinnte Kopie von
+  `js/resolve.js` zeigt sie sonst nicht. Einträge von Hand können ihre Herkunft selbst angeben
+  (`quelle`).
+
 ## [0.12.0] – 2026-10-06
 
 Landesregel für Baden-Württemberg, zusammen vierzehn Länder – alle Flächenländer und Berlin; Kontakte

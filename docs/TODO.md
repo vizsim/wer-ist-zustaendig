@@ -92,7 +92,17 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
   als der Anhalt über die Straßenklasse. Den Wortlaut von ASOG Bln, Zuständigkeitskatalog
   Ordnungsaufgaben Nr. 11 Abs. 4 und Nr. 22b Abs. 3 an gesetze.berlin.de prüfen. Optional feste
   Punkte für die übrigen acht Bezirke.
-- [ ] **Hamburg:** Polizeikommissariate als Flächen.
+- [ ] **Hamburg, Polizeikommissariate als Flächen** (Regel seit 0.13.0, nur Ebene): Welches
+  Kommissariat zuständig ist, zeigt die Karte noch nicht. Laut Suchergebnissen gibt es den Datensatz
+  „Polizeikommissariate Hamburg" im Transparenzportal und bei Metaver einen „WFS
+  Polizeikommissariate Hamburg" bzw. „Gebietsgrenzen Polizeikommissariate" – nicht gelesen;
+  Adresse, Feldnamen und Lizenz sind unbekannt, die Hamburger Server waren aus der Bau-Umgebung
+  nicht erreichbar. Weg wie in Berlin: ein Eintrag je Kommissariat (`0200000000` + Nummer), ein
+  Layer, Kontakte je Kommissariat von polizei.hamburg. Dafür GetCapabilities und DescribeFeatureType
+  des Dienstes oder eine GeoJSON beschaffen.
+- [ ] **Bremen, Anlage der Verordnung:** Die Straßen der Anlage trennen Amt und Polizei bei
+  Baustellen und Veranstaltungen; die Polizei steht deshalb in jeder Klasse als Alternative.
+  Abbilden erst mit der Zuständigkeit je Straße.
 - [ ] **Hessen, offen** (Regel seit 0.10.0, belegt nach § 10 StVRZustV): Die Liste der
   Sonderstatus-Städte (`HE_SONDERSTATUS`) an § 4a Abs. 2 HGO prüfen – heute [S], deckt sich mit den
   kreisangehörigen Städten über 50.000 Einwohnern. Die 14 Abschnitte von Bundesstraßen mit
@@ -101,8 +111,9 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
   zum letzten Stichtag vor dem Haushaltsjahr (§ 10a Abs. 2) – heute GV-ISys 31.12.2025. Hanau ist
   seit 2026 kreisfrei (GV-ISys 31.10.2026: Kreis 06415); die Auskunft bleibt dieselbe, nur der Kreis
   heißt bis zum nächsten Datenstand noch Main-Kinzig-Kreis.
-- [ ] **Fundstellen nachprüfen:** Hamburg (Titel und Fassung der Zuständigkeitsanordnung). Der
-  Text in `js/resolve.js` sagt das bisher offen.
+- [ ] **Hamburg, Fundstelle:** die Anordnung über Zuständigkeiten auf dem Gebiet des
+  Straßenverkehrsrechts (Abschnitte I bis IX) an landesrecht-hamburg.de lesen und spätere
+  Änderungen suchen; prüfen, ob das Handbuch der Behörde für Inneres und Sport von 2022 noch gilt.
 - [ ] **Aufsicht:** höhere Straßenverkehrsbehörde je Land mit Fundstelle; Feld `aufsicht`.
   Gefunden: NW die Bezirksregierungen (§ 6 ZustVO Straßenverkehr); NI das Verkehrsministerium
   über Landkreise, Region und Städte, der Landkreis über die übrigen Gemeinden (§ 171 Abs. 5
@@ -171,8 +182,18 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
   Kontaktweg oder nur mit persönlicher Adresse); Landkreis Wesermarsch (Tiefbau der Gemeinde
   Berne); Landkreis Gifhorn (nur die Zulassungsstelle). Danach die Einträge in
   `config/kontakte_ergaenzt.yaml` löschen.
-- [ ] **Länder ohne Bundesportal-Eintrag** (HB, HH): Kontakte der Stellen der Kreisebene und
-  der Stadtstaaten anders beschaffen (Landesportale oder von Hand).
+- [ ] **Hamburg, Kontakte** (kein Bundesportal-Eintrag): für die Verkehrsdirektion ein
+  Funktionspostfach von polizei.hamburg finden, dann `"02000"` von Hand und `HH` in `nur_von_hand`;
+  die Kommissariate erst mit ihren Flächen.
+- [ ] **Bremerhaven, Kontakt:** Anschrift und Postfach stammen aus einem Schreiben der
+  Straßenverkehrsbehörde vom 03.04.2024 (FragDenStaat); die Seite auf bremerhaven.de lehnt
+  automatische Abrufe ab (403). Hausnummer am Stadthaus 5 und Telefon im Browser nachtragen, dann
+  `quelle` streichen und `stand` setzen.
+- [ ] **Kontakte fester Stellen** (Vorschlag): ein neues Feld, etwa `kontakte_stellen` (feste
+  Stelle → Kontakt), damit auch die Polizei Bremen als Alternative einen Kontakt bekommt (Zentrale:
+  In der Vahr 76, 28329 Bremen, 0421 362-0, `office@polizei.bremen.de`, laut Service-Portal
+  Bremen). Betrifft `auswahl`, Build, Pipeline und VERTRAG; `kontakt_gemeinde` dafür umzudeuten
+  wäre ein Bruch.
 - [ ] **Verkehrsstellen statt allgemeiner Anschrift** (Sachsen seit 0.9.0, Hessen und Saarland
   seit 0.10.0, Baden-Württemberg seit 0.12.0, `allgemein`): Die Straßenverkehrsämter der
   Kreisebene – in Sachsen 10 Landratsämter und 3 Kreisfreie Städte, in Hessen 21 Landkreise und 5

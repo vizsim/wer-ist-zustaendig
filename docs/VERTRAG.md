@@ -3,7 +3,7 @@
 Dieses Dokument ist die Schnittstelle zwischen „Wer ist zuständig?" und allen, die die Dateien
 nutzen – zuerst die Karte in diesem Repo, dann die Unfallkarte.
 
-Stand: **Schema 1** · Regeln 0.12.0 (Phase 2: Landesregeln für Baden-Württemberg, Bayern, Berlin, Brandenburg, Hessen, Mecklenburg-Vorpommern, Niedersachsen, Nordrhein-Westfalen, Rheinland-Pfalz, Saarland, Sachsen, Sachsen-Anhalt, Schleswig-Holstein und Thüringen) · Datenstand 31.12.2025
+Stand: **Schema 1** · Regeln 0.13.0 (Phase 2: Landesregeln für alle sechzehn Länder) · Datenstand 31.12.2025
 
 ## Regeln für alle Dateien
 
