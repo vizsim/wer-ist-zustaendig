@@ -372,16 +372,20 @@ export const TEXTE = Object.freeze({
       "laut Bundesportal; Einwohner laut GV-ISys 31.12.2025",
     rpKreis:
       "§ 3 Abs. 1 Nr. 1 der Landesverordnung über Zuständigkeiten auf dem Gebiet des Straßenverkehrsrechts " +
-      "(Rheinland-Pfalz) vom 12.03.1987 [S]",
+      "(Rheinland-Pfalz) vom 12.03.1987 (GVBl. S. 46), zuletzt geändert 15.06.2026 (GVBl. 2026 Nr. 14); Wortlaut von " +
+      "§ 3 nur aus lexsoft [S]",
     rpGks:
-      "§ 3 Abs. 1 Nr. 1 und § 5 Abs. 1 der Landesverordnung über Zuständigkeiten auf dem Gebiet des " +
-      "Straßenverkehrsrechts (Rheinland-Pfalz) vom 12.03.1987 [S]; große kreisangehörige Städte nach § 6 GemO",
+      "§ 3 Abs. 1 Nr. 1 der Landesverordnung über Zuständigkeiten auf dem Gebiet des Straßenverkehrsrechts " +
+      "(Rheinland-Pfalz) vom 12.03.1987 (GVBl. S. 46): „in kreisfreien und großen kreisangehörigen Städten die " +
+      "Stadtverwaltung“ – Wortlaut nur aus lexsoft [S]; große kreisangehörige Städte nach § 6 GemO",
     rpOrt:
-      "§ 5 Abs. 1 Satz 1 und 2 der Landesverordnung über Zuständigkeiten auf dem Gebiet des " +
-      "Straßenverkehrsrechts (Rheinland-Pfalz) vom 12.03.1987 [S]; außerhalb geschlossener Ortschaften § 3 Abs. 1 Nr. 1",
+      "§ 5 Abs. 1 Satz 1 Nr. 1 und Satz 2 der Landesverordnung über Zuständigkeiten auf dem Gebiet des " +
+      "Straßenverkehrsrechts (Rheinland-Pfalz) vom 12.03.1987 (GVBl. S. 46), Fassung von 2010 (Art. 45 des " +
+      "Landesgesetzes vom 28.09.2010, GVBl. S. 280, gelesen im Regierungsentwurf Drs. 15/4489) und 2019 (GVBl. " +
+      "S. 151); außerhalb geschlossener Ortschaften § 3 Abs. 1 Nr. 1 [S]",
     rpAnlage1:
       "§ 5 Abs. 1 Satz 3 und Anlage 1 der Landesverordnung über Zuständigkeiten auf dem Gebiet des " +
-      "Straßenverkehrsrechts (Rheinland-Pfalz) vom 12.03.1987 [S]",
+      "Straßenverkehrsrechts (Rheinland-Pfalz) vom 12.03.1987 (GVBl. S. 46)",
     snUnter:
       "§§ 1 und 3 Sächsisches Straßenverkehrsrechtsgesetz (SächsStrVRG) vom 03.05.2019 (SächsGVBl. S. 317), " +
       "zuletzt geändert 24.06.2026",
@@ -1019,11 +1023,19 @@ function regelMecklenburgVorpommern(g) {
 }
 
 // Rheinland-Pfalz: Landesverordnung über Zuständigkeiten auf dem Gebiet des Straßenverkehrsrechts vom
-// 12.03.1987, zuletzt geändert 15.06.2026 (GVBl. 2026 Nr. 14, nur Anlage 3). Den Wortlaut von § 3 und
-// § 5 haben wir nur aus einer Sekundärquelle (lexsoft, Fassung vom 08.12.2020): landesrecht.rlp.de war
-// beim Einbau nicht erreichbar. Deshalb ist jede Auskunft nur „vermutlich“ (docs/TODO.md).
+// 12.03.1987 (GVBl. S. 46, BS 923-3), zuletzt geändert 15.06.2026 (GVBl. 2026 Nr. 14, nur Anlage 3; bis GVBl. 2026
+// Nr. 31 keine weitere Änderung). § 5 und die Anlage 1 haben ihre Fassung von 2010 (Art. 45 des Zweiten
+// Landesgesetzes zur Kommunal- und Verwaltungsreform vom 28.09.2010, GVBl. S. 280 – gelesen im Regierungsentwurf,
+// Landtag Drs. 15/4489), § 5 Abs. 1 Satz 2 die von 2019 (GVBl. S. 151). Den Schlussteil von § 3 Abs. 1 („ist die
+// Kreisverwaltung, in kreisfreien und großen kreisangehörigen Städten die Stadtverwaltung“) haben wir nur aus einer
+// Sekundärquelle (lexsoft, Fassung vom 08.12.2020); ungelesen sind auch die 29. bis 31. Änderung (GVBl. 2025 S. 63
+// und S. 447, 2026 S. 86 – nach dem Vergleich der Fassungen wohl nur Anlagen 3 und 4). Deshalb bleibt jede Auskunft
+// „vermutlich“ (docs/TODO.md).
 
-/** Große kreisangehörige Städte (§ 6 GemO): Die Stadtverwaltung ist für alle Straßen zuständig. */
+/**
+ * Große kreisangehörige Städte (§ 6 GemO): Die Stadtverwaltung ist für alle Straßen zuständig (§ 3 Abs. 1, Schlussteil).
+ * § 4 nimmt für Bingen, Ingelheim und Mayen nur Fahrerlaubnis- und Zulassungsaufgaben aus, keine nach der StVO.
+ */
 export const RP_GROSSE_KREISANGEHOERIGE_STAEDTE = Object.freeze({
   "071330006006": "Bad Kreuznach", "071340045045": "Idar-Oberstein", "071370003003": "Andernach",
   "071370068068": "Mayen", "071380045045": "Neuwied", "071410075075": "Lahnstein",
@@ -1033,17 +1045,21 @@ export const RP_GROSSE_KREISANGEHOERIGE_STAEDTE = Object.freeze({
 /**
  * Anlage 1 zu § 5 Abs. 1 Satz 3: verbandsfreie Gemeinden (ARS, 12 Stellen) und Verbandsgemeinden
  * (Verbandsschlüssel, 9 Stellen), die auf Landes- und Kreisstraßen auch außerhalb geschlossener
- * Ortschaften zuständig sind. Noch leer – die Anlage ließ sich beim Einbau nicht lesen.
+ * Ortschaften zuständig sind. Leer: Die Anlage wurde 2010 ohne Eintrag angefügt (Regierungsentwurf, Art. 45 Nr. 6),
+ * und keine der gelesenen Änderungen bis 2026 trägt etwas ein; lexsoft (2020) und gesetze.co (2026) zeigen sie
+ * ebenfalls leer [S].
  */
 export const RP_ANLAGE_1 = Object.freeze({});
 
 /**
  * Rheinland-Pfalz (vermutlich): Straßenverkehrsbehörde ist die Kreisverwaltung, in kreisfreien und
  * großen kreisangehörigen Städten die Stadtverwaltung (§ 3 Abs. 1 Nr. 1). Maßnahmen nach § 45 StVO
- * trifft aber die Verbandsgemeinde bzw. die verbandsfreie Gemeinde (§ 5 Abs. 1 Satz 1) – auf Bundes-,
- * Landes- und Kreisstraßen nur innerhalb geschlossener Ortschaften (Satz 2), auf Landes- und
- * Kreisstraßen auch außerhalb, wenn sie in Anlage 1 steht (Satz 3). Ob eine Strecke innerorts liegt,
- * wissen wir nicht: Dort steht die Kreisverwaltung als Alternative.
+ * trifft aber die Verbandsgemeinde bzw. die verbandsfreie Gemeinde (§ 5 Abs. 1 Satz 1 Nr. 1; dazu nur
+ * Veranstaltungen in ihrem Gebiet und einzelne Ausnahmen nach § 46, Nr. 2 und 3) – auf Bundes-, Landes- und
+ * Kreisstraßen nur innerhalb geschlossener Ortschaften (Satz 2), auf Landes- und Kreisstraßen auch außerhalb,
+ * wenn sie in Anlage 1 stünde (Satz 3; die Anlage ist leer). Bundesstraßen außerorts bleiben damit bei der
+ * Kreisverwaltung; der Landesbetrieb Mobilität ist nur für Autobahnen genannt (§ 1 Satz 1 Nr. 2) [S]. Ob eine
+ * Strecke innerorts liegt, wissen wir nicht: Dort steht die Kreisverwaltung als Alternative.
  */
 function regelRheinlandPfalz(g, klasse) {
   const kreis = kreisStelle(g);

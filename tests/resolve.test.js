@@ -1188,6 +1188,7 @@ test("Rheinland-Pfalz: kreisfreie und große kreisangehörige Städte für alle 
   assert.equal(Object.keys(RP_GROSSE_KREISANGEHOERIGE_STAEDTE).length, 8);
   for (const ars of Object.keys(RP_GROSSE_KREISANGEHOERIGE_STAEDTE)) assert.match(ars, /^07\d{3}0(\d{3})\1$/, ars);
   for (const ars of Object.keys(RP_ANLAGE_1)) assert.match(ars, /^07\d{7}(\d{3})?$/, ars);
+  assert.deepEqual(RP_ANLAGE_1, {}, "Anlage 1 ist seit 2010 ohne Eintrag");
 });
 
 test("Sachsen: Kreisfreie Städte und Große Kreisstädte für alle Straßen (belegt)", () => {
