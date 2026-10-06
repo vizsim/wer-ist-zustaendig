@@ -254,7 +254,12 @@ def _gehoert_zu(stelle: dict[str, Any], gen: str, allgemein: set[str] = ALLGEMEI
     return im_namen or all(w in domains for w in woerter)
 
 
-def _traegt_namen(stelle: dict[str, Any], gen: str, kreis: dict[str, Any]) -> bool:
+def _traegt_namen(
+    stelle: dict[str, Any],
+    gen: str,
+    kreis: dict[str, Any],
+    allgemein: set[str] = GEMEINDE_ALLGEMEIN,
+) -> bool:
     """Gehört die Stelle zur Gemeinde bzw. zum Verband `gen` – und nicht zum Kreis, dessen Name
     den von `gen` enthält (Region Hannover) oder ihm gleicht (Kreis Steinfurt)?"""
     if not kreis.get("kreisfrei"):
@@ -263,7 +268,7 @@ def _traegt_namen(stelle: dict[str, Any], gen: str, kreis: dict[str, Any]) -> bo
             return False
         if eigene == des_kreises and any(KREIS_DOMAIN.match(t) for t in _domains(stelle)):
             return False
-    return _gehoert_zu(stelle, gen, GEMEINDE_ALLGEMEIN)
+    return _gehoert_zu(stelle, gen, allgemein)
 
 
 def eigene_stelle(stelle: dict[str, Any], gemeinde: dict[str, Any]) -> bool:
@@ -274,12 +279,24 @@ def eigene_stelle(stelle: dict[str, Any], gemeinde: dict[str, Any]) -> bool:
     Adresse `@region-hannover.de` gehört der Region, nicht der Landeshauptstadt Hannover. Heißen
     Gemeinde und Kreis gleich, verrät die Domain den Kreis: `@kreis-steinfurt.de` ist nicht die
     Stadt Steinfurt. Auch nicht die Stelle einer Landesbehörde, die nach einem Ort heißt:
-    „Landesbetrieb Mobilität Trier“ ist nicht die Verbandsgemeinde Trier-Land."""
+    „Landesbetrieb Mobilität Trier“ ist nicht die Verbandsgemeinde Trier-Land.
+
+    Bei einem Amt bleibt „Land“ ein allgemeines Wort: Ein Amt „…-Land“ lässt sich oft von der
+    gleichnamigen Stadt verwalten (Amt Kappeln-Land: Stadt Kappeln, VG25 `SDV_ARS`), deren Stelle
+    dann die eigene ist. Eine Verbandsgemeinde hat stets eine eigene Verwaltung."""
     if KREISEBENE.search(_norm(stelle["name"])) or _landesebene(stelle):
         return False
     verband = gemeinde.get("verband") or {}
-    namen = [gemeinde.get("gen"), verband.get("gen")]
-    return any(_traegt_namen(stelle, n, gemeinde["kreis"]) for n in namen if n)
+    namen = [
+        (gemeinde.get("gen"), GEMEINDE_ALLGEMEIN),
+        (verband.get("gen"), _allgemein_verband(verband)),
+    ]
+    return any(_traegt_namen(stelle, n, gemeinde["kreis"], a) for n, a in namen if n)
+
+
+def _allgemein_verband(verband: dict[str, Any]) -> set[str]:
+    """Allgemeine Wörter im Namen eines Verbands: bei einem Amt auch „Land“ (`eigene_stelle`)."""
+    return ALLGEMEIN if verband.get("bez") == "Amt" else GEMEINDE_ALLGEMEIN
 
 
 def _kandidaten(stellen: list[dict[str, Any]], *, fremde: bool = False) -> list[dict[str, Any]]:
@@ -581,7 +598,7 @@ def luecken_fuellen(gemeinden: dict[str, Any], attr: dict[str, Any], land: str) 
         if (
             verband
             and e["gemeinde"]
-            and _gehoert_zu(e["gemeinde"], verband["gen"], GEMEINDE_ALLGEMEIN)
+            and _gehoert_zu(e["gemeinde"], verband["gen"], _allgemein_verband(verband))
         ):
             schluessel = json.dumps(e["gemeinde"], ensure_ascii=False, sort_keys=True)
             je_verband[verband["ars"]][schluessel] += 1

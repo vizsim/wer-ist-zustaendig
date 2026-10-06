@@ -570,3 +570,39 @@ def test_landesbehoerde_und_verbandsgemeinde_land() -> None:
     assert not bp.eigene_stelle(landau, insheim), "„Land“ steckt nur im Wort „Landau“"
     vg_ll = _stelle("Verbandsgemeinde Landau-Land", ["06341 143-0"], ["info@landau-land.de"])
     assert bp.eigene_stelle(vg_ll, insheim)
+
+
+def test_amt_land_von_der_stadt_verwaltet() -> None:
+    """SH: Das Amt Kappeln-Land lässt sich von der Stadt Kappeln verwalten (VG25 `SDV_ARS`); das
+    Portal nennt für seine Gemeinden die Stelle der Stadt. Bei einem Amt bleibt „Land“ allgemein,
+    bei einer Verbandsgemeinde nicht (Trier-Land oben)."""
+    arnis = {
+        "gen": "Arnis",
+        "verband": {"gen": "Kappeln-Land", "bez": "Amt"},
+        "kreis": {"gen": "Schleswig-Flensburg", "kreisfrei": False},
+    }
+    stadt = _stelle(
+        "Stadt Kappeln - Verkehrsüberwachung",
+        ["04642 183-0"],
+        ["verkehrsueberwachung@stadt-kappeln.de"],
+    )
+    assert bp.eigene_stelle(stadt, arnis)
+    assert bp.waehle_gemeinde([stadt], arnis) == stadt
+    vg = {**arnis, "verband": {"gen": "Kappeln-Land", "bez": "Verbandsgemeinde"}}
+    assert not bp.eigene_stelle(stadt, vg), "eine Verbandsgemeinde hat eine eigene Verwaltung"
+
+
+def test_luecken_fuellen_amt_land(monkeypatch) -> None:
+    """SH: Auch die Lücken im Amt Kappeln-Land füllt der Kontakt der Stadt Kappeln."""
+    monkeypatch.setattr(bp, "ergaenzungen", lambda: {})
+    amt = {"ars": "010595920", "gen": "Kappeln-Land", "bez": "Amt"}
+    kreis = {"ars": "01059", "kreisfrei": False}
+    mitglieder = ("010595920002", "010595920034")
+    attr = {a: {"land": "SH", "kreis": kreis, "verband": amt} for a in mitglieder}
+    stadt = _stelle("Stadt Kappeln - Verkehrsüberwachung", ["04642 183-0"])
+    gemeinden = {
+        "010595920002": {"wahl": "passt", "kreis": None, "gemeinde": stadt},
+        "010595920034": {"wahl": "passt", "kreis": None, "gemeinde": None},
+    }
+    bp.luecken_fuellen(gemeinden, attr, "SH")
+    assert gemeinden["010595920034"]["gemeinde"] == stadt
