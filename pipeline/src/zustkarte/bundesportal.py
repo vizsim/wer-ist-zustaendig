@@ -39,12 +39,23 @@ FREMD = re.compile(
     re.I,
 )
 # Stelle der Kreisebene bzw. einer Gemeinde (Name oder Adresse), für den Abgleich mit der Stelle,
-# die unsere Regeln nennen.
+# die unsere Regeln nennen. Zur Gemeinde gehört auch ihre Verwaltung („Verbandsgemeindeverwaltung“).
 KREISEBENE = re.compile(r"landrats?amt|landkreis|kreisverwaltung|kreis\b|kreis-|lk-|lra", re.I)
 GEMEINDEEBENE = re.compile(
-    r"^(stadtverwaltung|stadt|gemeinde|landgemeinde|verwaltungsgemeinschaft|vg|markt|amt|"
-    r"samtgemeinde|verbandsgemeinde|gro(ß|ss)e kreisstadt|gro(ß|ss)e kreisangeh(ö|oe)rige stadt)\b",
+    r"^(stadt|gemeinde|landgemeinde|ortsgemeinde|verwaltungsgemeinschaft|vg|markt|amt|"
+    r"samtgemeinde|verbandsgemeinde|gro(ß|ss)e kreisstadt|gro(ß|ss)e kreisangeh(ö|oe)rige stadt)"
+    r"(s?verwaltung)?\b",
     re.I,
+)
+# Domain-Teile, die eine Stelle der Kreisebene verraten: „kreis-steinfurt.de“, „lra-soemmerda.de“,
+# „lk-row.de“, „lkcelle.de“, „landkreishildesheim.de“.
+KREIS_DOMAIN = re.compile(r"^(kreis$|lk|lra|landkreis|landratsamt|kreisverwaltung)")
+# Stellen des Landes oder des Bundes (Landesbetrieb, Landesamt, Staatliches Bauamt, Polizei,
+# Autobahn GmbH): weder Kreis noch Gemeinde, auch wenn ein Ortsname in ihrem Namen steht
+# („Landesbetrieb Mobilität Trier“). Geprüft am Namen, klein und ohne Umlaute (`_norm`).
+LANDESEBENE = re.compile(
+    r"landesbetrieb|landesamt|landesbehoerde|landesstrassenbau|staatliches bauamt|\blbm\b|"
+    r"\bnlstbv\b|autobahn|\bpolizei"
 )
 # E-Mail-Adressen nur als Funktionspostfach; Adressen mit Personennamen („k.mustermann@",
 # „mustermann@") bleiben weg, kurze Kürzel („vka@", „kfz@") gelten als Postfach.
@@ -58,6 +69,9 @@ FUNKTIONSPOSTFACH = re.compile(
     re.I,
 )
 ALLGEMEIN = {"kreis", "land", "landkreis", "stadt", "an", "am", "der", "im", "in", "bei", "und"}
+# Bei Gemeinden und Verbänden trennt „Land“ die Verbandsgemeinde von der Stadt gleichen Namens
+# („Trier-Land“, „Bitburger Land“); bei Kreisen bleibt es ein allgemeines Wort („Weimarer Land“).
+GEMEINDE_ALLGEMEIN = ALLGEMEIN - {"land"}
 # Ein Landratsamt, das die Stelle ausdrücklich nennt („Landratsamt Neustadt a.d.Waldnaab").
 EXPLIZIT = re.compile(r"(landrats?amt|landkreis|kreisverwaltung)\s+\S", re.I)
 # Wie im Browser (js/ansicht.js): keine Zeichen, mit denen sich ein mailto: erweitern ließe.
@@ -184,14 +198,24 @@ def _norm(s: str) -> str:
     return s
 
 
-def _woerter(gen: str) -> list[str]:
+def _woerter(gen: str, allgemein: set[str] = ALLGEMEIN) -> list[str]:
     """Kennwörter eines Kreis- oder Stadtnamens: „Saale-Orla-Kreis" → [saale, orla]."""
     teile = [re.sub(r"kreis$", "", t) for t in re.split(r"[-\s/().]+", _norm(gen))]
-    return [t for t in teile if len(t) > 2 and t not in ALLGEMEIN] or [_norm(gen)]
+    return [t for t in teile if len(t) > 2 and t not in allgemein] or [_norm(gen)]
+
+
+def _landesebene(stelle: dict[str, Any]) -> bool:
+    return bool(LANDESEBENE.search(_norm(stelle["name"])))
 
 
 def unsere_stelle(stelle: dict[str, Any], gemeinde: dict[str, Any]) -> bool:
-    """Gehört die Stelle zur Behörde der Phase-1-Regel: Kreis bzw. kreisfreie Stadt?"""
+    """Gehört die Stelle zur Behörde der Phase-1-Regel: Kreis bzw. kreisfreie Stadt?
+
+    Eine Stelle, die als eigene der Gemeinde oder ihres Verbands durchgeht (`eigene_stelle`), ist
+    nicht die des Kreises – wichtig, wenn beide gleich heißen: `ordnungsamt@warendorf.de` gehört
+    der Stadt Warendorf, nicht dem Kreis Warendorf."""
+    if _landesebene(stelle):
+        return False
     text = _norm(" ".join([stelle["name"], *stelle["email"], *stelle["web"]]))
     kreis = gemeinde["kreis"]
     if kreis.get("kreisfrei"):
@@ -201,11 +225,16 @@ def unsere_stelle(stelle: dict[str, Any], gemeinde: dict[str, Any]) -> bool:
     name = _norm(stelle["name"])
     if EXPLIZIT.search(name):  # ein bestimmtes Landratsamt – dann muss es unseres sein
         return any(w in name for w in _woerter(kreis["gen"]))
-    return bool(KREISEBENE.search(text)) or all(w in text for w in _woerter(kreis["gen"]))
+    if KREISEBENE.search(text):
+        return True
+    return not eigene_stelle(stelle, gemeinde) and all(w in text for w in _woerter(kreis["gen"]))
 
 
 def ist_stvb(stelle: dict[str, Any]) -> bool:
-    """Nennt sich die Stelle ausdrücklich Straßenverkehrsbehörde bzw. Verkehrsamt?"""
+    """Nennt sich die Stelle ausdrücklich Straßenverkehrsbehörde bzw. Verkehrsamt (und gehört
+    nicht dem Land)?"""
+    if _landesebene(stelle):
+        return False
     return bool(BEHOERDE.search(stelle["name"]) or BEHOERDE.search(" ".join(stelle["email"])))
 
 
@@ -216,26 +245,41 @@ def _domains(stelle: dict[str, Any]) -> set[str]:
     return {teil for h in hosts for teil in re.split(r"[.-]", _norm(h)) if teil}
 
 
-def _gehoert_zu(stelle: dict[str, Any], gen: str) -> bool:
-    """Trägt die Stelle den Namen (`gen`) im Namen oder in der Domain ihrer Adressen?"""
+def _gehoert_zu(stelle: dict[str, Any], gen: str, allgemein: set[str] = ALLGEMEIN) -> bool:
+    """Trägt die Stelle den Namen (`gen`) im Namen oder in der Domain ihrer Adressen?
+    „Land“ zählt im Namen nur als eigenes Wort, nicht in „Landesbetrieb“ oder „Landau“."""
     name, domains = _norm(stelle["name"]), _domains(stelle)
-    woerter = _woerter(gen)
-    return all(w in name for w in woerter) or all(w in domains for w in woerter)
+    woerter = _woerter(gen, allgemein)
+    im_namen = all(re.search(r"\bland\b", name) if w == "land" else w in name for w in woerter)
+    return im_namen or all(w in domains for w in woerter)
+
+
+def _traegt_namen(stelle: dict[str, Any], gen: str, kreis: dict[str, Any]) -> bool:
+    """Gehört die Stelle zur Gemeinde bzw. zum Verband `gen` – und nicht zum Kreis, dessen Name
+    den von `gen` enthält (Region Hannover) oder ihm gleicht (Kreis Steinfurt)?"""
+    if not kreis.get("kreisfrei"):
+        eigene, des_kreises = set(_woerter(gen)), set(_woerter(kreis["gen"]))
+        if eigene < des_kreises and _gehoert_zu(stelle, kreis["gen"]):
+            return False
+        if eigene == des_kreises and any(KREIS_DOMAIN.match(t) for t in _domains(stelle)):
+            return False
+    return _gehoert_zu(stelle, gen, GEMEINDE_ALLGEMEIN)
 
 
 def eigene_stelle(stelle: dict[str, Any], gemeinde: dict[str, Any]) -> bool:
     """Stelle der Gemeinde selbst oder ihres Verbands (Rathaus, Verwaltungsgemeinschaft, Amt)?
     Erkannt am Namen oder an der Domain („Amt für Tiefbau und Verkehr", tiefbau@elmshorn.de).
+
     Nicht die Stelle eines Kreises, dessen Name den der Gemeinde enthält und mehr sagt: Eine
-    Adresse `@region-hannover.de` gehört der Region, nicht der Landeshauptstadt Hannover."""
-    if KREISEBENE.search(_norm(stelle["name"])):
+    Adresse `@region-hannover.de` gehört der Region, nicht der Landeshauptstadt Hannover. Heißen
+    Gemeinde und Kreis gleich, verrät die Domain den Kreis: `@kreis-steinfurt.de` ist nicht die
+    Stadt Steinfurt. Auch nicht die Stelle einer Landesbehörde, die nach einem Ort heißt:
+    „Landesbetrieb Mobilität Trier“ ist nicht die Verbandsgemeinde Trier-Land."""
+    if KREISEBENE.search(_norm(stelle["name"])) or _landesebene(stelle):
         return False
-    kreis = gemeinde["kreis"]
-    im_kreisnamen = set(_woerter(gemeinde["gen"])) < set(_woerter(kreis["gen"]))
-    if not kreis.get("kreisfrei") and im_kreisnamen and _gehoert_zu(stelle, kreis["gen"]):
-        return False
-    namen = [gemeinde["gen"]] + ([gemeinde["verband"]["gen"]] if gemeinde.get("verband") else [])
-    return any(_gehoert_zu(stelle, n) for n in namen if n)
+    verband = gemeinde.get("verband") or {}
+    namen = [gemeinde.get("gen"), verband.get("gen")]
+    return any(_traegt_namen(stelle, n, gemeinde["kreis"]) for n in namen if n)
 
 
 def _kandidaten(stellen: list[dict[str, Any]], *, fremde: bool = False) -> list[dict[str, Any]]:
@@ -534,7 +578,11 @@ def luecken_fuellen(gemeinden: dict[str, Any], attr: dict[str, Any], land: str) 
             schluessel = json.dumps(e["kreis"], ensure_ascii=False, sort_keys=True)
             je_kreis[g["kreis"]["ars"]][schluessel] += 1
         verband = g.get("verband")
-        if verband and e["gemeinde"] and _gehoert_zu(e["gemeinde"], verband["gen"]):
+        if (
+            verband
+            and e["gemeinde"]
+            and _gehoert_zu(e["gemeinde"], verband["gen"], GEMEINDE_ALLGEMEIN)
+        ):
             schluessel = json.dumps(e["gemeinde"], ensure_ascii=False, sort_keys=True)
             je_verband[verband["ars"]][schluessel] += 1
     for ars, e in gemeinden.items():

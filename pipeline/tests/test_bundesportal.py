@@ -490,3 +490,83 @@ def test_ausdruecklich_anderes_landratsamt_ist_nicht_unseres() -> None:
     assert not bp.unsere_stelle(fremd, bayreuth)
     assert bp.unsere_stelle(eigen, bayreuth)
     assert bp.unsere_stelle(fremd, _gemeinde("Neustadt a.d.Waldnaab"))
+
+
+def test_stadt_und_kreis_gleichen_namens() -> None:
+    """NW: Stadt und Kreis Steinfurt bzw. Warendorf – die Domain verrät den Kreis, und was als
+    Stelle der Stadt durchgeht, ist nicht die des Kreises."""
+    kreis_st = {"gen": "Steinfurt", "kreisfrei": False}
+    steinfurt = {"gen": "Steinfurt", "verband": None, "kreis": kreis_st}
+    svb = _stelle("Straßenverkehrsbehörde", ["02551 69-0"], ["verkehr@kreis-steinfurt.de"])
+    ordnung = _stelle("Ordnungsamt", ["02551 1-0"], ["ordnungsamt@stadt-steinfurt.de"])
+    assert not bp.eigene_stelle(svb, steinfurt), "Stelle des Kreises (kreis-steinfurt.de)"
+    assert bp.eigene_stelle(ordnung, steinfurt)
+    assert bp.waehle_gemeinde([svb, ordnung], steinfurt) == ordnung
+    assert bp.waehle_kreis([svb, ordnung], steinfurt) == svb
+    lk = _stelle("Fachdienst Straßenverkehr", ["05141 916-0"], ["verkehr@lkcelle.de"])
+    celle = {"gen": "Celle", "verband": None, "kreis": {"gen": "Celle", "kreisfrei": False}}
+    assert not bp.eigene_stelle(lk, celle), "auch zusammengeschrieben (lkcelle.de)"
+
+    kreis_wa = {"gen": "Warendorf", "kreisfrei": False}
+    warendorf = {"gen": "Warendorf", "verband": None, "kreis": kreis_wa}
+    stadt = _stelle("Straßenverkehrsbehörde", ["02581 54-0"], ["ordnungsamt@warendorf.de"])
+    assert bp.eigene_stelle(stadt, warendorf) and not bp.unsere_stelle(stadt, warendorf)
+    assert bp.waehle([stadt], warendorf) == (stadt, "stvb"), "die Stadt nennt sich selbst"
+    amt = _stelle("Straßenverkehrsamt", ["02581 53-0"], ["verkehr@kreis-warendorf.de"])
+    beelen = {"gen": "Beelen", "verband": None, "kreis": kreis_wa}
+    assert bp.unsere_stelle(amt, warendorf) and bp.unsere_stelle(amt, beelen)
+    assert bp.waehle([stadt, amt], beelen)[1] == "passt"
+
+
+def test_verbandsgemeinde_und_kreis_gleichen_namens() -> None:
+    """RP: Die Verbandsgemeinde Bad Kreuznach liegt im gleichnamigen Kreis."""
+    hackenheim = {
+        "gen": "Hackenheim",
+        "verband": {"gen": "Bad Kreuznach"},
+        "kreis": {"gen": "Bad Kreuznach", "kreisfrei": False},
+    }
+    vg = _stelle(
+        "Verbandsgemeindeverwaltung Bad Kreuznach - Ordnungsamt",
+        ["0671 8001-0"],
+        ["ordnungsamt@vg-badkreuznach.de"],
+    )
+    kv = _stelle("Straßenverkehrsbehörde", ["0671 803-0"], ["verkehr@kreis-badkreuznach.de"])
+    assert not bp.unsere_stelle(vg, hackenheim), "Verwaltung der Verbandsgemeinde"
+    assert bp.eigene_stelle(vg, hackenheim) and not bp.eigene_stelle(kv, hackenheim)
+    assert bp.waehle_gemeinde([kv, vg], hackenheim) == vg
+    assert bp.waehle_kreis([kv, vg], hackenheim) == kv
+
+
+def test_landesbehoerde_und_verbandsgemeinde_land() -> None:
+    """RP: Für die Gemeinden der VG Trier-Land nennt das Portal auch den Landesbetrieb Mobilität
+    Trier und die Stadt Trier; „Land“ unterscheidet die Verbandsgemeinde von der Stadt."""
+    kordel = {
+        "gen": "Kordel",
+        "verband": {"gen": "Trier-Land"},
+        "kreis": {"gen": "Trier-Saarburg", "kreisfrei": False},
+    }
+    lbm = _stelle(
+        "Landesbetrieb Mobilität Trier - Straßenverkehrsbehörde",
+        ["0651 9188-0"],
+        ["lbm-trier@lbm.rlp.de"],
+    )
+    stadt = _stelle(
+        "Stadtverwaltung Trier - Straßenverkehrsbehörde",
+        ["0651 718-0"],
+        ["strassenverkehrsbehoerde@trier.de"],
+    )
+    vg = _stelle("Ordnungsamt", ["0651 8279-0"], ["ordnungsamt@trier-land.de"])
+    assert not bp.eigene_stelle(lbm, kordel) and not bp.unsere_stelle(lbm, kordel)
+    assert not bp.ist_stvb(lbm), "Landesbetrieb"
+    assert not bp.eigene_stelle(stadt, kordel), "Stadt Trier, nicht Trier-Land"
+    assert bp.eigene_stelle(vg, kordel)
+    assert bp.waehle_gemeinde([lbm, stadt, vg], kordel) == vg
+    insheim = {
+        "gen": "Insheim",
+        "verband": {"gen": "Landau-Land"},
+        "kreis": {"gen": "Südliche Weinstraße", "kreisfrei": False},
+    }
+    landau = _stelle("Stadtverwaltung Landau in der Pfalz", ["06341 13-0"], ["info@landau.de"])
+    assert not bp.eigene_stelle(landau, insheim), "„Land“ steckt nur im Wort „Landau“"
+    vg_ll = _stelle("Verbandsgemeinde Landau-Land", ["06341 143-0"], ["info@landau-land.de"])
+    assert bp.eigene_stelle(vg_ll, insheim)
