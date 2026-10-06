@@ -4,8 +4,8 @@ import assert from "node:assert/strict";
 import {
   auswahl, BAU_KLASSEN, BB_AUF_ANTRAG, BB_AUF_ANTRAG_TEILWEISE, BB_GROSSE_KREISANGEHOERIGE_STAEDTE, BW_OERTLICH,
   BW_OERTLICH_VG, BW_SCHWELLEN, BW_VG_UNTERE, BW_VOLLSTAENDIG, ergebnisId,
-  FESTE_STELLEN, HE_SCHWELLEN, HE_SONDERSTATUS, kontaktRolle, LANDESREGELN, MV_GROSSE_KREISANGEHOERIGE_STAEDTE,
-  MV_STAEDTE_UEBERGANG,
+  FESTE_STELLEN, HE_KREISFREI_SEIT_2026, HE_SCHWELLEN, HE_SONDERSTATUS, kontaktRolle, LANDESREGELN,
+  MV_GROSSE_KREISANGEHOERIGE_STAEDTE, MV_STAEDTE_UEBERGANG,
   NI_GEMEINDESTRASSEN, NI_SELBSTAENDIG, NI_WIE_KREISFREI, NW_GROSSE_KREISANGEHOERIGE_STAEDTE,
   NW_MITTLERE_KREISANGEHOERIGE_STAEDTE, pruefeListen, resolveGemeinde, RP_ANLAGE_1, RP_GROSSE_KREISANGEHOERIGE_STAEDTE,
   schwaecher, stelleEintragen,
@@ -483,6 +483,11 @@ const G = {
   hanau: {
     ars: "064350014014", gen: "Hanau", land: "HE", tkz: [63], ew: 98582,
     kreis: kreis("06435", "Main-Kinzig-Kreis", "Landkreis", "nein"),
+  },
+  // Sonderstatus-Stadt; die Regel braucht keine Einwohnerzahl.
+  giessen: {
+    ars: "065310005005", gen: "Gießen", land: "HE", tkz: [63],
+    kreis: kreis("06531", "Gießen", "Landkreis", "ja"),
   },
   badVilbel: {
     ars: "064400003003", gen: "Bad Vilbel", land: "HE", tkz: [63], ew: 35886,
@@ -1316,14 +1321,23 @@ test("Hessen: kreisfreie Städte und Sonderstatus-Städte für alle Straßen, ge
   }
   assert.equal(frankfurt.B.grund, TEXTE.grund.heKreisfrei);
   assert.equal(frankfurt.B.quelle, TEXTE.quelle.heStadt);
-  assert.equal(Object.keys(HE_SONDERSTATUS).length, 7);
-  const hanau = resolveGemeinde(G.hanau);
+  // § 4a Abs. 2 Satz 2 HGO seit 01.01.2026: sechs Sonderstatus-Städte, Hanau ist kreisfrei.
+  assert.deepEqual(Object.values(HE_SONDERSTATUS).sort((a, b) => a.localeCompare(b, "de")), [
+    "Bad Homburg v.d.Höhe", "Fulda", "Gießen", "Marburg", "Rüsselsheim am Main", "Wetzlar",
+  ]);
+  assert.deepEqual(Object.keys(HE_KREISFREI_SEIT_2026), ["064350014014"]);
+  const hanau = resolveGemeinde(G.hanau); // im Datenstand 31.12.2025 noch im Main-Kinzig-Kreis
   for (const k of BAU_KLASSEN) {
     assert.equal(hanau.zust[k].stelle, "g064350014014", k);
     assert.equal(hanau.zust[k].sicherheit, SICHERHEIT.BELEGT, k);
     assert.equal(hanau.zust[k].alternative, null, `${k}: auch Kreisstraßen außerorts`);
   }
-  assert.equal(hanau.zust.B.grund, TEXTE.grund.heSonderstatus);
+  assert.equal(hanau.zust.B.grund, TEXTE.grund.heKreisfrei);
+  assert.equal(hanau.zust.B.quelle, TEXTE.quelle.heHanau);
+  const giessen = resolveGemeinde(G.giessen);
+  assert.equal(giessen.zust.L.stelle, "g065310005005");
+  assert.equal(giessen.zust.L.grund, TEXTE.grund.heSonderstatus);
+  assert.equal(giessen.zust.L.quelle, TEXTE.quelle.heSonderstatus);
   assert.deepEqual(hanau.stellen.g064350014014, {
     id: "g064350014014", name: "Stadt Hanau – Straßenverkehrsbehörde", ebene: "untere", art: "stadt",
   });

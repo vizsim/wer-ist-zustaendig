@@ -423,7 +423,12 @@ export const TEXTE = Object.freeze({
       "(GVBl. 2026 Nr. 5); Straßen von besonderer Verkehrsbedeutung § 9 Abs. 2",
     heSonderstatus:
       "§ 10 Abs. 1 Nr. 2 Buchst. b Doppelbuchst. bb StVRZustV (Hessen) vom 12.11.2007 (GVBl. I S. 800), " +
-      "zuletzt geändert 28.01.2026 (GVBl. 2026 Nr. 5); Sonderstatus-Städte nach § 4a Abs. 2 HGO [S]",
+      "zuletzt geändert 28.01.2026 (GVBl. 2026 Nr. 5); Sonderstatus-Städte nach § 4a Abs. 2 Satz 2 HGO in der Fassung " +
+      "ab 01.01.2026 (Art. 11 des Gesetzes vom 03.03.2025, GVBl. 2025 Nr. 16)",
+    heHanau:
+      "§ 10 Abs. 1 Nr. 2 Buchst. a StVRZustV (Hessen) vom 12.11.2007 (GVBl. I S. 800), zuletzt geändert 28.01.2026 " +
+      "(GVBl. 2026 Nr. 5); Hanau kreisfrei seit 01.01.2026 nach § 1 Hanau-Auskreisungsgesetz (Art. 1 des Gesetzes " +
+      "vom 03.03.2025, GVBl. 2025 Nr. 16) – im Datenstand 31.12.2025 noch im Main-Kinzig-Kreis",
     heGemeinde:
       "§ 10 Abs. 1 Nr. 2 Buchst. b Doppelbuchst. cc und § 10a StVRZustV (Hessen) vom 12.11.2007 (GVBl. I S. 800), " +
       "zuletzt geändert 28.01.2026 (GVBl. 2026 Nr. 5); Einwohner laut GV-ISys 31.12.2025, maßgeblich ist die Zahl " +
@@ -1176,19 +1181,27 @@ function regelSachsenAnhalt(g, klasse) {
 }
 
 /**
- * Hessen: Sonderstatus-Städte nach § 4a Abs. 2 HGO, nach ARS – für alle Straßen selbst zuständig. Die
- * Liste [S] deckt sich mit den kreisangehörigen Städten über 50.000 Einwohnern (GV-ISys 31.12.2025);
- * Hanau ist seit 2026 kreisfrei.
+ * Hessen: Sonderstatus-Städte, nach ARS – für alle Straßen selbst zuständig. § 4a Abs. 2 Satz 2 HGO nennt sie
+ * („Bad Homburg v. d. Höhe, Fulda, Gießen, Marburg, Rüsselsheim am Main und Wetzlar sind kreisangehörige
+ * Sonderstatus-Städte"), Fassung ab 01.01.2026 (Art. 11 des Gesetzes vom 03.03.2025, GVBl. 2025 Nr. 16, gelesen im
+ * GVBl.); weitere Städte über 50.000 Einwohner nur auf Antrag durch Beschluss der Landesregierung (Satz 3).
  */
 export const HE_SONDERSTATUS = Object.freeze({
   "064330012012": "Rüsselsheim am Main",
   "064340001001": "Bad Homburg v.d.Höhe",
-  "064350014014": "Hanau",
   "065310005005": "Gießen",
   "065320023023": "Wetzlar",
   "065340014014": "Marburg",
   "066310009009": "Fulda",
 });
+
+/**
+ * Hessen: Städte, die nach dem Datenstand noch kreisangehörig, inzwischen aber kreisfrei sind – Hanau seit 01.01.2026
+ * (§ 1 Hanau-Auskreisungsgesetz, Art. 1 des Gesetzes vom 03.03.2025, GVBl. 2025 Nr. 16). Mit dem nächsten Datenstand
+ * hat Hanau einen eigenen Kreisschlüssel und fällt unter die kreisfreien Städte; dann den Eintrag löschen
+ * (`pruefeListen` meldet ihn).
+ */
+export const HE_KREISFREI_SEIT_2026 = Object.freeze({ "064350014014": "Hanau" });
 
 /**
  * Hessen: Einwohnerschwellen der übrigen kreisangehörigen Gemeinden – Landesstraßen ab mehr als 7.500,
@@ -1210,6 +1223,9 @@ function regelHessen(g, klasse) {
   const kreis = kreisStelle(g);
   if (g.kreis.kreisfrei) return ergebnis(kreis, SICHERHEIT.BELEGT, "heKreisfrei", "heStadt");
   if (g.gemeindefrei) return ergebnis(kreis, SICHERHEIT.VERMUTLICH, "gemeindefrei", "heLandkreis");
+  if (HE_KREISFREI_SEIT_2026[g.ars]) {
+    return ergebnis(gemeindeStelle(g, "stadt", "untere"), SICHERHEIT.BELEGT, "heKreisfrei", "heHanau");
+  }
   if (HE_SONDERSTATUS[g.ars]) {
     return ergebnis(gemeindeStelle(g, "stadt", "untere"), SICHERHEIT.BELEGT, "heSonderstatus", "heSonderstatus");
   }
@@ -1412,7 +1428,7 @@ const SCHLUESSEL_LISTEN = Object.freeze({
   NW_AACHEN: { [NW_AACHEN]: "Aachen" }, NW_GROSSE_KREISANGEHOERIGE_STAEDTE, NW_MITTLERE_KREISANGEHOERIGE_STAEDTE,
   BB_GROSSE_KREISANGEHOERIGE_STAEDTE, BB_AUF_ANTRAG, BB_AUF_ANTRAG_TEILWEISE,
   MV_GROSSE_KREISANGEHOERIGE_STAEDTE, MV_STAEDTE_UEBERGANG, RP_GROSSE_KREISANGEHOERIGE_STAEDTE, RP_ANLAGE_1,
-  SN_GROSSE_KREISSTAEDTE, HE_SONDERSTATUS, SL_SAARBRUECKEN: { [SL_SAARBRUECKEN]: "Saarbrücken" },
+  SN_GROSSE_KREISSTAEDTE, HE_SONDERSTATUS, HE_KREISFREI_SEIT_2026, SL_SAARBRUECKEN: { [SL_SAARBRUECKEN]: "Saarbrücken" },
   TH_GROSSE_KREISANGEHOERIGE_STAEDTE, TH_EISENACH: { [TH_EISENACH]: "Eisenach" }, TH_STAEDTE_AUF_ANTRAG,
 });
 
