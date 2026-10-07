@@ -46,9 +46,13 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
   Änderungen 14 bis 28 und 32 (bis 15.06.2026): Anlage 1 zu § 5 Abs. 1 ist seit 2010 leer,
   Bundesstraßen außerorts bleiben bei der Kreisverwaltung. Danach „belegt" statt „vermutlich" und
   `[S]` aus den Fundstellen.
-- [ ] **Mecklenburg-Vorpommern:** was § 68 Abs. 2 FKrG den Ämtern und amtsfreien Gemeinden im
-  Straßenverkehr überträgt (heute: keine Alternative); die konsolidierte Fassung der StVZustLVO
-  M-V an landesrecht-mv.de gegenlesen (Änderungen nach 2021 nicht vollständig gesucht).
+- [ ] **Mecklenburg-Vorpommern:** den Wortlaut von § 68 Abs. 2 des Funktional- und
+  Kreisstrukturreformgesetzes lesen – laut Bürgerportal Ludwigslust-Parchim und Amt Neuburg erteilen
+  Ämter und amtsfreie Gemeinden danach die Erlaubnis für Veranstaltungen in ihrem Gebiet (§ 29 Abs. 2
+  StVO); Verkehrszeichen nach § 45 ordnen sie nicht an (§ 4 Abs. 1 StVZustLVO, gelesen). Die geltende
+  Fassung der StVZustLVO M-V an landesrecht-mv.de gegenlesen (Änderungen nach 2021 nicht gefunden).
+  Kraftfahrstraße B 96 (§ 3 Abs. 3): welche Abschnitte gemeint sind und ob es Abschnitte außerhalb
+  von Vorpommern-Rügen gibt, ist nicht geprüft.
 - [ ] **Brandenburg, § 4a Abs. 2 StGÜZV:** Veranstaltungen und Baustellen gelten nicht, wenn eine
   Anordnung mehrere Gemeinden betrifft – im Amt Schlieben also nicht für amtsweite Anordnungen;
   die Alternative bildet das nicht ab.
@@ -150,11 +154,11 @@ erledigt ist, steht im [CHANGELOG](../CHANGELOG.md).
   Südtondern, Nordsee-Treene, Geltinger Bucht) und 34 amtsfreie Gemeinden nennt das Portal keinen
   Kontakt des Amts bzw. der Gemeinde – die Alternative steht dort ohne Kontakt. Von den
   Webseiten der Ämter ergänzen.
-- [ ] **Mecklenburg-Vorpommern, Lücken:** 193 Gemeinden ohne Kontakt der zuständigen Stelle
-  (`node tools/check-kontakte.mjs MV --stellen`): die Landkreise Rostock (111) und
-  Nordwestmecklenburg (82) – ihre Webseiten waren aus der Bau-Umgebung nicht erreichbar. Schwerin,
-  Ludwigslust-Parchim, Güstrow, Waren (Müritz), Neustrelitz und Wismar stehen seit 0.14.0 von Hand
-  da; für Greifswald ist die Stelle aus dem Portal laut Stadt die richtige.
+- [ ] **Mecklenburg-Vorpommern, Kontakte:** Für die Landkreise Rostock und Nordwestmecklenburg gibt es
+  nur die allgemeine Anschrift (seit 0.15.0, 193 Gemeinden). Die Straßenverkehrsbehörde selbst
+  ergänzen, sobald die Webseiten lesbar sind: in Rostock das Amt für Straßenbau und Verkehr, in
+  Nordwestmecklenburg laut Amt Schönberger Land Langer Steinschlag 4, Grevesmühlen, ohne eigenes
+  Postfach.
 - [ ] **Kontakte in NW, BB und RP** (abgerufen 05.10.2026, nicht freigegeben): NW – für 236 von
   396 Gemeinden nennt das Portal keine Stelle, auch nicht für die kreisfreien Städte; Aachen steht
   von Hand bereit. BB – für 331 von 413 Gemeinden leere Antworten. RP – den Kontakt der eigenen
