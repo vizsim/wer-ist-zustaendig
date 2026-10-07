@@ -7,6 +7,24 @@ ein Git-Tag `v<version>` dazu.
 
 ## [Unveröffentlicht]
 
+## [0.15.0] – 2026-10-07
+
+Mecklenburg-Vorpommern: jede Gemeinde mit Kontakt, in Stralsund der Landkreis Vorpommern-Rügen als
+Alternative für die Kraftfahrstraße B 96. Regeln 0.15.0 · Schema 1 · Datenstand 31.12.2025.
+
+### Hinzugefügt
+
+- Mecklenburg-Vorpommern: für die Landkreise Rostock und Nordwestmecklenburg die allgemeine Anschrift
+  der Kreisverwaltung – jede Gemeinde in Mecklenburg-Vorpommern hat jetzt einen Kontakt.
+
+### Geändert
+
+- Mecklenburg-Vorpommern: In Stralsund steht bei Bundesstraßen der Landkreis Vorpommern-Rügen als
+  Alternative – für die Kraftfahrstraße B 96 ist sein Landrat Straßenverkehrsbehörde (§ 3 Abs. 3
+  StVZustLVO M-V). Die großen kreisangehörigen Städte stehen jetzt mit § 14 Abs. 1 LNOG.
+- Kontakte aus dem Bundesportal: Eine Stadt mit Beinamen (Hansestadt, Universitätsstadt,
+  Landeshauptstadt) gilt nicht mehr als Stelle des gleichnamigen Landkreises (etwa Rostock, Lüneburg).
+
 ## [0.14.0] – 2026-10-06
 
 Thüringer Städte auf Antrag belegt, Fundstellen für Hessen, Berlin, Rheinland-Pfalz und
